@@ -100,6 +100,12 @@ def main():
         entry = dict(check=label, exit_code=result.returncode)
         records.append(entry)
         if result.returncode:
+            # Keep CI failures diagnosable when its temporary directory is gone.
+            # The full raw output remains in the selected results directory.
+            if result.stdout:
+                print(result.stdout[-16000:], file=sys.stderr)
+            if result.stderr:
+                print(result.stderr[-16000:], file=sys.stderr)
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
