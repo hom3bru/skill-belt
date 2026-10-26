@@ -110,7 +110,7 @@
         "examples/tiny-repair.md": "88259674faaa708d736e6bb545fa2471b2c208f04b6136857ed19ab8ba5fafba",
         "hosts/capabilities.json": "3c3c388496b09db40fe1e6dbc889bc5c6e94233fa0e59b5218ff31cd36938375",
         "hosts/README.md": "d7d882106dfd79c4737de829537ade3739fc00b4a6346e2fe8bdbacd33aa334a",
-        "package-manifest.json": "8ca90e44bd9fa391ae55a871d964d51cb1cc7b49c004e92086b1e7b3df60fb1b",
+        "package-manifest.json": "5dd51f593fc020f40dbe17091bc9c12d008379ee06360485296a22fe94b5e62e",
         "provenance/build-inputs.json": "ab2b6471d52ecdc0d0deb77f94ab4c5d5387e6ecd678d3a8b3c1d0c8533c1a8b",
         "provenance/continuation.md": "c3a2e5d8007bce562f38ddb549decb97637261fc3899177da90a034ae7c59a50",
         "provenance/decisions.json": "b627524ccdf7ec4eb864df28fe676d3c2668049368e98f099c31f8680e9d96ef",
@@ -137,7 +137,7 @@
         "tests/fixtures/adversarial-data.json": "22faca8d9c71e0ab774bec87a24974b928e6a21fa2f94533da5551fcc60e4da5",
         "tests/run.py": "efd8738f08737fd66bae9543d22138d211551ea525814aa792897e086008878b",
         "tests/test_counterexamples.py": "8d1206b88365b43fa51302e13df686993000570e60d92586d53ad1d700e1dffc",
-        "tests/test_estack.py": "62e92648657d46fe09efe7fd5cd16f1f4ec6fd8ff3652511b7f6f1a12e2b8ca6",
+        "tests/test_estack.py": "5ab575542b5140531bca8b0cd07dc3fd8f01704ba2729417f94b99fd48e665ca",
         "tests/test_frankenmine_regressions.py": "d259e48145a8328ebdc0db85a424554830b0c594f1e7dfd165b1e4a171a541d2",
         "tests/test_task_start.py": "250e8b612fad82454dbe131fc0e0778c2e993a17a40bc293a3d9630b2dc64359",
         "tests/trigger-cases.json": "81b11fe3b129074fde87a2139faa6b2d3f72816971276793de40df1ee622a6ee"

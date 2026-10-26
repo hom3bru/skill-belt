@@ -388,7 +388,9 @@ class EstackTests(unittest.TestCase):
         for value in ("../a","a/../b","C:/secret","C:\\secret","/tmp/a","a//b","a/./b"):
             with self.subTest(path=value):
                 self.assertRaises(ValueError,v.safe_path,self.root,value)
-        self.assertEqual(v.safe_path(self.root,"artifact.txt"),self.root / "artifact.txt")
+        # A Windows temporary root can use an 8.3 alias while safe_path returns
+        # its resolved long name. Verify the file's identity across both names.
+        self.assertTrue(v.safe_path(self.root,"artifact.txt").samefile(self.root / "artifact.txt"))
 
     def test_zero_test_discovery_rejected(self):
         result=subprocess.run([sys.executable,str(ROOT / "tests/run.py"),"--pattern","test_absent_*.py"],

@@ -202,8 +202,8 @@
     },
     {
       "path": "tests/test_estack.py",
-      "size_bytes": 22924,
-      "sha256": "62e92648657d46fe09efe7fd5cd16f1f4ec6fd8ff3652511b7f6f1a12e2b8ca6"
+      "size_bytes": 23093,
+      "sha256": "5ab575542b5140531bca8b0cd07dc3fd8f01704ba2729417f94b99fd48e665ca"
     },
     {
       "path": "tests/test_frankenmine_regressions.py",
