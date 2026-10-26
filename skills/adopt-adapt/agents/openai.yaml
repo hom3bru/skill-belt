@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adopt / Adapt"
+  short_description: "Mine sources and plan evidence-backed transfers"
+  default_prompt: "Use $adopt-adapt to evaluate these sources for useful mechanisms in my projects."

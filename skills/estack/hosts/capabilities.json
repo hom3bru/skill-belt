@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-26",
+  "qualification": "not-run",
+  "package_enforces_paths": false,
+  "hosts": [
+    {
+      "name": "Codex",
+      "discovery": ".agents/skills/estack",
+      "invocation": "host picker; $estack where supported",
+      "documentation": "https://learn.chatgpt.com/docs/build-skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; E12 blocked"
+    },
+    {
+      "name": "Claude Code",
+      "discovery": ".claude/skills/estack",
+      "invocation": "/estack",
+      "documentation": "https://code.claude.com/docs/en/skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; E12 blocked"
+    },
+    {
+      "name": "Cursor",
+      "discovery": ".cursor/skills/estack or .agents/skills/estack",
+      "invocation": "/ picker",
+      "documentation": "https://cursor.com/docs/skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; E12 blocked"
+    }
+  ]
+}

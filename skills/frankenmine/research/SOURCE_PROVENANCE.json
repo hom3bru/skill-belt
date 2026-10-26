@@ -1,0 +1,32 @@
+{
+  "distribution": "public portfolio edition",
+  "source": "Author-provided research notes",
+  "verified_sources": [
+    {
+      "name": "FRANKENMINE_DESIGN_SPEC.md",
+      "bytes": 18643,
+      "sha256": "23963bcbb31b0233d3d7d9d24acd11e45b30a96017157139c402cfd9d07b5f3d"
+    },
+    {
+      "name": "prior_art.json",
+      "bytes": 19469,
+      "sha256": "9da39037f96be4d1e579d64187e69a0577c57e63be7b22ad9d8b15e7c3c99b6b"
+    },
+    {
+      "name": "translation-research.json",
+      "bytes": 14597,
+      "sha256": "d4dcab448abebd0d4dbd38ad0558714bde6fac22349855ae800710935eef5bd6"
+    },
+    {
+      "name": "tool_map.json",
+      "bytes": 12325,
+      "sha256": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23"
+    }
+  ],
+  "changes": [
+    "Private source citations replaced with public collection links",
+    "Private Library and session identifiers omitted"
+  ],
+  "verification_scope": "Hashes identify the published bytes. The redacted design is not byte-identical to its private input.",
+  "donor_execution": "not-run"
+}

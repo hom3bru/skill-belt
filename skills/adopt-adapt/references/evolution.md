@@ -1,0 +1,3 @@
+# Evolution
+
+SELF runs emit a META-PROPOSAL and stop. At most one accepted self-change per session; retain other proposals as a backlog. Weakening the protected section 0 contract needs Matt Kolkin's architectural sign-off. Each accepted change bumps the version, updates CHANGES and is committed in the user-declared tracked canonical source before release. Installed directories are not automatically canonical. Consolidate related proposals rather than accumulating universal rules. Consent follows current recipient rules and concrete user authorization; no private project's wording is inherited. See [SELF](profiles/self.md) and [evaluation](evaluation.md).

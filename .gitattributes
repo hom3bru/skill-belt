@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# Skill snapshots include byte-hashed source/evidence fixtures. Preserve their
+# published bytes on every platform so manifests do not depend on checkout OS.
+skills/** -text

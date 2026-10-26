@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frankenmine"
+  short_description: "Create or continue a coherent multi-source synthesis"
+  default_prompt: "Use $frankenmine to create or continue this multi-source product synthesis, comparing alternatives and advancing the next useful authorized slice."

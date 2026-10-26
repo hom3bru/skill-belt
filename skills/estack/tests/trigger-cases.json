@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "not-run: model activation has not been evaluated",
+  "cases": [
+    {
+      "request": "Use estack to fix the one arithmetic regression.",
+      "expected": "activate"
+    },
+    {
+      "request": "estack investigate this repository without editing.",
+      "expected": "activate"
+    },
+    {
+      "request": "Review this patch using estack and show actual test evidence.",
+      "expected": "activate"
+    },
+    {
+      "request": "Plan a scoped parser interface change and its consumer checks.",
+      "expected": "candidate; evaluate host selection"
+    },
+    {
+      "request": "What is 2 + 3?",
+      "expected": "do not activate"
+    },
+    {
+      "request": "Install estack globally.",
+      "expected": "installation request; not permission from skill loading"
+    },
+    {
+      "request": "Write a birthday greeting.",
+      "expected": "do not activate"
+    },
+    {
+      "request": "What does the word estack mean?",
+      "expected": "explain; do not begin engineering workflow"
+    }
+  ]
+}

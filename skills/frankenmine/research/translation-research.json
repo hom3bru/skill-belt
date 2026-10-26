@@ -1,0 +1,192 @@
+{
+  "as_of": "2026-10-26",
+  "scope": "Cross-language and representation translation for Frankenmine; primary-source research only; no installs, donor execution, or external mutation.",
+  "records": [
+    {
+      "id": "tau-scalpel",
+      "title": "Automated Software Transplantation — Chapter 5: Multilingual Software Transplantation (τTrans/τScalpel)",
+      "url": "https://discovery.ucl.ac.uk/id/eprint/10137954/1/Marginean_10137954_thesis_redacted.pdf",
+      "date": "2021-11-08",
+      "type": "Doctoral thesis / research prototype",
+      "what_transfers": "Translate common language constructs with deterministic rules, leave API-specific holes, synthesize those holes under transplanted-organ tests. Demonstrates Java→Swift and Fortran→Python, not universal language support.",
+      "limitations": "Reported ten organs/two language pairs; new pairs require a shared-core translator. Full PDF fetch timed out; relevant chapter excerpts were retrieved through indexed primary-PDF search. No τScalpel source repository or license verified.",
+      "opensource_status": "Thesis publicly accessible; implementation availability and license unverified.",
+      "inspection_depth": "UCL publication metadata and primary-PDF indexed §§5.1,5.4.5 excerpts; not executed.",
+      "supporting_urls": [
+        "https://discovery.ucl.ac.uk/id/eprint/10137954/"
+      ]
+    },
+    {
+      "id": "c2rust",
+      "title": "C2Rust",
+      "url": "https://github.com/immunant/c2rust",
+      "date": "2026-10-23 (inspected main commit)",
+      "type": "Usable open-source transpiler and migration toolchain",
+      "what_transfers": "C99→Rust transpilation followed by refactoring, optional LLM cleanup, and source/translation cross-checks. Model migration as staged preservation then safety/idiom improvements.",
+      "limitations": "Initial Rust is unsafe and unidiomatic; preprocessor specializes platform choices. Known unsupported/partial constructs include longjmp/setjmp, certain SIMD/builtins, variadics and long double. No runs performed.",
+      "opensource_status": "BSD-3-style root license; bundled portions have separate terms. GitHub license classifier says NOASSERTION, so actual LICENSE was read. Nonarchived; recent default-branch commit verified.",
+      "inspection_depth": "README, pinned known-limitations.md and LICENSE, GitHub metadata/default-branch commit.",
+      "commit": "820a9408154c006e2c9dcc90a1bad81385bbfaf1",
+      "supporting_urls": [
+        "https://github.com/immunant/c2rust/blob/820a9408154c006e2c9dcc90a1bad81385bbfaf1/docs/known-limitations.md",
+        "https://github.com/immunant/c2rust/blob/820a9408154c006e2c9dcc90a1bad81385bbfaf1/LICENSE"
+      ]
+    },
+    {
+      "id": "alphatrans",
+      "title": "AlphaTrans: A Neuro-Symbolic Compositional Approach for Repository-Level Code Translation and Validation",
+      "url": "https://doi.org/10.1145/3729379",
+      "date": "2025 (FSE)",
+      "type": "Peer-reviewed paper + open research implementation",
+      "what_transfers": "Language-specific normalization; dependency fragments; target type map and compilable skeleton; reverse-call-order translation; original-language tests through GraalVM interoperability before translated tests.",
+      "limitations": "Implemented/evaluated Java→Python. Paper reports 96.40% syntactic correctness but 25.14% source-test-relative functional equivalence among 4,654 evaluable method fragments; correctness remains suite-relative. No reproduction here.",
+      "opensource_status": "Public Intelligent-CAT-Lab/AlphaTrans repository; NCSA license reported by GitHub metadata; research artifact, not established general production translator.",
+      "inspection_depth": "Full publisher paper text, repository README and metadata; source internals not audited.",
+      "supporting_urls": [
+        "https://github.com/Intelligent-CAT-Lab/AlphaTrans",
+        "https://arxiv.org/abs/2410.24117"
+      ]
+    },
+    {
+      "id": "recodeagent",
+      "title": "ReCodeAgent: A Multi-agent Workflow for Language-Agnostic Translation and Validation of Large-Scale Repositories",
+      "url": "https://arxiv.org/html/2604.07341v4",
+      "date": "2026-10-08 (v4); ASE 2026",
+      "type": "Conference paper with published artifact link",
+      "what_transfers": "Separate analysis, planning, translation and validation roles; use LSP/language tools, explicit third-party-library mapping, target skeleton and coverage-guided checks. Warns against assertion deletion in translated tests.",
+      "limitations": "118 projects, six languages/four pairs; experiments once and likely pretraining contamination. Language-agnostic design is not evidence for arbitrary pairs or multi-donor fusion. Artifact not downloaded or executed.",
+      "opensource_status": "Latest paper links Zenodo artifact 21842351; its contents/license not verified. Do not use obsolete v1 artifact DOI 19337799 without reason.",
+      "inspection_depth": "v4 abstract, architecture, validation, threats, data-availability sections.",
+      "supporting_urls": [
+        "https://doi.org/10.1145/3832783.3837486",
+        "https://doi.org/10.5281/zenodo.21842351"
+      ]
+    },
+    {
+      "id": "codegen-transcoder",
+      "title": "TransCoder-ST / TransCoder-IR in Facebook Research CodeGen",
+      "url": "https://github.com/facebookresearch/CodeGen",
+      "date": "2021–2023 papers; inspected main commit 2024-03-12",
+      "type": "Research papers + open reference implementations",
+      "what_transfers": "Use executable tests to reject incorrect translations rather than syntax/BLEU alone; compiler representations are another translation bridge. ST documentation covers C++/Java/Python directions; IR documentation includes Rust.",
+      "limitations": "Research toolkit, not general repository fusion. Original TransCoder repository is archived and CC-BY-NC-4.0, unlike successor CodeGen. Main commit inspected is old despite newer repository pushed_at metadata.",
+      "opensource_status": "CodeGen MIT except GfG validation/test data and evaluation scripts CC-BY-SA-2.0; inspect individual artifacts/models before reuse.",
+      "inspection_depth": "Official README, ST/IR docs, paper abstract, metadata and latest-default-branch commit; not executed.",
+      "commit": "e3e8855c4abbd7d19c8fec36b49d7e7fe7479dbf",
+      "supporting_urls": [
+        "https://arxiv.org/abs/2110.06773",
+        "https://github.com/facebookresearch/CodeGen/blob/main/docs/TransCoder-ST.md",
+        "https://github.com/facebookresearch/CodeGen/blob/main/docs/TransCoder-IR.md",
+        "https://github.com/facebookresearch/TransCoder"
+      ]
+    },
+    {
+      "id": "repotransbench",
+      "title": "RepoTransBench: A Real-World Multilingual Benchmark for Repository-Level Code Translation",
+      "url": "https://github.com/DeepSoftwareAnalytics/RepoTransBench",
+      "date": "2026-02 (TSE publication); repository main commit 2025-11-08",
+      "type": "Peer-reviewed benchmark + public research repository",
+      "what_transfers": "Evaluate entire translated repositories with build/config/dependency/resource behavior and executable tests. Expanded benchmark reports 1,897 samples/13 language pairs; best reported success 32.8%, revealing substantial unresolved work.",
+      "limitations": "Do not substitute old 2024 preprint numbers for expanded 2026 version. README language-count text is internally inconsistent with its named languages/pairs. Public source has no license identified in inspected metadata/root listing; not reuse-cleared. No reproduction.",
+      "opensource_status": "Public repository but license not verified; no detected root license. Research-read only until rights clarified.",
+      "inspection_depth": "Official repository README and metadata, author-institution publication record; full large publisher PDF not retrieved.",
+      "commit": "f9f89ea27ca886571a5e59a8bb9a25deab5bd1c2",
+      "supporting_urls": [
+        "https://research.monash.edu/en/publications/repotransbench-a-real-world-multilingual-benchmark-for-repository/",
+        "https://doi.org/10.1109/TSE.2025.3645056"
+      ]
+    },
+    {
+      "id": "translibeval",
+      "title": "TransLibEval: Demystify Large Language Models’ Capability in Third-party Library-targeted Code Translation",
+      "url": "https://arxiv.org/html/2509.12087v2",
+      "date": "2026-01-17 (v2); first submitted 2025-09-15",
+      "type": "Research benchmark paper + public artifact",
+      "what_transfers": "Treat third-party-library/API mapping as its own failure surface: library existence, equivalent operation, argument/error behavior and dependency installation. Use parallel normal/edge/exception/type/resource cases.",
+      "limitations": "200 method-level tasks in Python/Java/C++; primitive interfaces and five tests per task in README, not realistic arbitrary whole systems. Library-focused results do not prove semantic equivalence.",
+      "opensource_status": "Public Xiaozheng03Asada/TransLibEval repository, MIT reported by GitHub metadata; donor-library terms remain separate.",
+      "inspection_depth": "v2 paper methods/error taxonomy, official README and repository metadata; not executed.",
+      "supporting_urls": [
+        "https://github.com/Xiaozheng03Asada/TransLibEval"
+      ]
+    },
+    {
+      "id": "wit",
+      "title": "WebAssembly Component Model: WIT contracts",
+      "url": "https://component-model.bytecodealliance.org/design/wit.html",
+      "date": "Living documentation inspected 2026-10-26",
+      "type": "Official interoperability specification documentation",
+      "what_transfers": "Typed component interfaces/worlds, options/results, bounded-width primitives, records/variants and resources as an optional polyglot boundary instead of source translation.",
+      "limitations": "WIT defines contracts, not implementation behavior. Only usable when language tooling/runtime/platform and required host capabilities fit; interface compatibility alone does not prove semantic compatibility.",
+      "opensource_status": "Open WebAssembly/Bytecode Alliance specification and ecosystem; exact chosen runtime/bindgen/component licenses require separate review.",
+      "inspection_depth": "Official WIT reference read; no component compiled/executed.",
+      "supporting_urls": [
+        "https://github.com/WebAssembly/component-model"
+      ]
+    },
+    {
+      "id": "tree-sitter",
+      "title": "Tree-sitter",
+      "url": "https://tree-sitter.github.io/tree-sitter/",
+      "date": "Living documentation inspected 2026-10-26",
+      "type": "Open-source parsing infrastructure",
+      "what_transfers": "Broad concrete-syntax ingestion, incremental parsing and structural queries, useful before language-aware semantic tools.",
+      "limitations": "Syntax trees do not themselves resolve call/dataflow, dynamic dispatch, state or semantic equivalence. Installed grammar/binding versions matter; some bindings are incomplete/outdated per docs.",
+      "opensource_status": "MIT repository; grammar licenses/support must be checked separately.",
+      "inspection_depth": "Official introduction and repository README/license metadata; no parsing executed.",
+      "supporting_urls": [
+        "https://github.com/tree-sitter/tree-sitter"
+      ]
+    },
+    {
+      "id": "joern",
+      "title": "Joern code property graphs",
+      "url": "https://docs.joern.io/",
+      "date": "Living documentation inspected 2026-10-26; main commit 2026-10-23",
+      "type": "Open-source static analysis and slicing platform",
+      "what_transfers": "Language-normalized graphs of syntax/control/data relations, taint/dataflow queries and slices; useful deeper evidence layer for extraction closure and effects.",
+      "limitations": "Frontend maturity differs: current docs list C/C++/Java very high, JS/Python high, other frontends medium or lower. Homepage list is stale relative to docs. Static edges remain modeled/incomplete evidence, not runtime proof.",
+      "opensource_status": "Apache-2.0; nonarchived with recent default-branch commit verified.",
+      "inspection_depth": "Official documentation overview and repository metadata; frontends/engines not exercised.",
+      "commit": "d7a5615a30cbce12986f7a0dae9a938a5b99985e",
+      "supporting_urls": [
+        "https://github.com/joernio/joern"
+      ]
+    }
+  ],
+  "supporting_documentation": [
+    {
+      "title": "Rust FFI / Rustonomicon",
+      "url": "https://doc.rust-lang.org/nomicon/ffi.html",
+      "date": "Accessed 2026-10-26",
+      "type": "Official language documentation",
+      "what_transfers": "ABI, ownership, nullability, callbacks and unwind contracts at retained native boundaries.",
+      "limitations": "Rust/C-centric; does not make foreign code safe or automatically map arbitrary languages.",
+      "opensource_status": "Official open documentation; binding tool and donor licenses separate.",
+      "inspection_depth": "FFI sections on opaque types, nullable pointers and unwinding."
+    },
+    {
+      "title": "gRPC core concepts and lifecycle",
+      "url": "https://grpc.io/docs/what-is-grpc/core-concepts/",
+      "date": "2026-05-11 page modification; accessed 2026-10-26",
+      "type": "Official RPC documentation",
+      "what_transfers": "Typed process boundaries with status/deadline/streaming/cancellation semantics.",
+      "limitations": "Client/server can disagree on success; cancellation does not roll back completed side effects. RPC adds operations, serialization and latency.",
+      "opensource_status": "Open-source gRPC ecosystem; chosen library license and versions require pinning.",
+      "inspection_depth": "Core concepts/lifecycle documentation."
+    },
+    {
+      "title": "CodeQL data-flow analysis and CLI eligibility",
+      "url": "https://codeql.github.com/docs/writing-codeql-queries/about-data-flow-analysis/",
+      "date": "Accessed 2026-10-26",
+      "type": "Official static-analysis documentation",
+      "what_transfers": "Queryable semantic relations and local/global dataflow for closure/effect checks.",
+      "limitations": "Model-dependent, language-specific analysis; CLI not blanket-free for private repositories and may need authorized builds. Not an automatic translator.",
+      "opensource_status": "Open query libraries, distinct CLI terms; private-repository eligibility must be checked.",
+      "inspection_depth": "Official dataflow and GitHub CLI terms/eligibility pages.",
+      "supporting_urls": [
+        "https://docs.github.com/en/code-security/concepts/code-scanning/codeql/codeql-cli"
+      ]
+    }
+  ]
+}

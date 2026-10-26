@@ -1,0 +1,1 @@
+Observed artifact.txt: parser returns a string. One read; no runtime check.

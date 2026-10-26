@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.validation/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+*.skill
+*.zip
+.DS_Store
+Thumbs.db

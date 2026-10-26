@@ -1,0 +1,263 @@
+{
+  "generated_at": "2026-10-26",
+  "scope": "Read-only primary-source research. No donor code executed, no installs, no external mutations. Source files inspected as untrusted data.",
+  "evidence_policy": "Published results remain claims; source/tests inspected means PRESENT/WIRED at most, not independently TESTED/OBSERVED.",
+  "items": [
+    {
+      "id": "featuregraft",
+      "title": "FeatureGraft",
+      "url": "https://github.com/light338/featuregraft",
+      "date": "2026-10-15",
+      "type": "experimental-open-source-tool",
+      "what_transfers": "TS-parser dependency capsules; frozen target tests/external contracts; detached worktree adaptation; pinned source diffs for subsequent upstream updates; preserved notices and provenance.",
+      "limitations": "JS/TS/React scope, root config only, import closure rather than semantic slicing; no universal translation; check exit status is not proof of assertions/oracle liveness; commands are not sandboxed.",
+      "opensource_status": "MIT root license read; experimental v0.1.0; no published npm package; 15 commits on inspected page, not maturity evidence.",
+      "inspection_depth": "Pinned README; all four core modules; source/core tests read, not executed. No install.",
+      "revision": "ed090a8fdce55992578ebb6056c595277df4d809",
+      "evidence_urls": [
+        "https://github.com/light338/featuregraft/blob/ed090a8fdce55992578ebb6056c595277df4d809/src/source.mjs",
+        "https://github.com/light338/featuregraft/blob/ed090a8fdce55992578ebb6056c595277df4d809/src/core.mjs",
+        "https://github.com/light338/featuregraft/blob/ed090a8fdce55992578ebb6056c595277df4d809/test/core.test.mjs"
+      ],
+      "frankenmine_relevance": "Closest inspected operational donor-to-target feature-grafting harness, not multi-donor product design."
+    },
+    {
+      "id": "foundry",
+      "title": "Foundry / prodScalpel — Software Product Line Engineering via Software Transplantation",
+      "url": "https://arxiv.org/abs/2307.10896",
+      "date": "2023-07-20 preprint; 2024 TOSEM",
+      "type": "paper-and-research-prototype",
+      "what_transfers": "Multi-organ feature extraction/integration; dependency and shared-data preservation; clone detection avoids duplicating shared feature support; compatibility wrappers; test-governed feature composition.",
+      "limitations": "Realized in C/TXL with donor entry/implantation annotations and tests; product-line construction is not arbitrary polyglot synthesis; no independent reproduction.",
+      "opensource_status": "Public source/artifact repository; root LICENSE is Unlicense. Per-file and bundled donor licenses not audited. Latest repository commit 2024-05-07; do not call maintained production tool.",
+      "inspection_depth": "Paper text excerpts, project page, README, root license, latest commit inspected; implementation not audited or executed.",
+      "revision": "2b8e076eec599ffef17ad65a948c4e734c73ffe7",
+      "evidence_urls": [
+        "https://autotransplantation-spl.github.io/foundry.github.io/index.html",
+        "https://github.com/autotransplantation-spl/foundry.github.io",
+        "https://discovery.ucl.ac.uk/id/eprint/10196236/1/Souza_2024_TOSEM.pdf"
+      ],
+      "frankenmine_relevance": "Important close prior art: multi-donor/multi-feature composition is not new."
+    },
+    {
+      "id": "lego",
+      "title": "LEGO / Code Primitives / CodeFace — Large-scale Repository Engineering via Agent-Native Reusable Code Primitives",
+      "url": "https://arxiv.org/abs/2610.09079",
+      "date": "2026-10-06",
+      "type": "preprint",
+      "what_transfers": "Reusable executable units carry contracts, dependency closures, tests and provenance; graph communities plus semantic refinement propose boundaries; adapt and integrate against executed tests.",
+      "limitations": "Python-package reconstruction benchmark, not unconstrained new-product design; tests do not prove complete semantics; plugin/registry interaction failures; license compatibility not enforced; gains are authors' results.",
+      "opensource_status": "No executable repository verified in this search; do not list as a usable installed tool. Public paper only verified.",
+      "inspection_depth": "Full HTML structure, methods, boundary extraction appendix, failure cases, licensing and limitations sections read; no implementation or benchmark executed.",
+      "revision": "arXiv:2610.09079v1",
+      "evidence_urls": [
+        "https://arxiv.org/html/2610.09079v1"
+      ],
+      "frankenmine_relevance": "Closest current conceptual predecessor. Narrows novelty claims substantially."
+    },
+    {
+      "id": "muscalpel",
+      "title": "Automated Software Transplantation / µScalpel",
+      "url": "https://earlbarr.com/publications/autotransplant.pdf",
+      "date": "2015",
+      "type": "paper-and-historical-prototype",
+      "what_transfers": "Identify an organ and insertion point; close and adapt its supporting code under host/feature tests; donor application domain need not match host.",
+      "limitations": "C implementation, human-provided locations/tests, cflow limitations for function pointers; historical research evaluation rather than currently verified toolchain.",
+      "opensource_status": "Historical artifact link exists in primary/research references; current artifact download/maintainability/license not verified.",
+      "inspection_depth": "Author PDF relevant sections and artifact references read; no execution.",
+      "evidence_urls": [
+        "https://crest.cs.ucl.ac.uk/autotransplantation/downloads/autotransplantation.pdf"
+      ],
+      "frankenmine_relevance": "Foundational transplantation prior art; not a ready all-language engine."
+    },
+    {
+      "id": "codecarboncopy",
+      "title": "CodeCarbonCopy",
+      "url": "https://dspace.mit.edu/entities/publication/c16719eb-00b3-41c1-bf12-cb363aac6b01",
+      "date": "2017-08 / ESEC-FSE 2017",
+      "type": "paper-and-research-system",
+      "what_transfers": "Paired execution aligns donor/recipient data representations and namespaces; interprocedural analysis removes irrelevant functionality; compile/run dependency closure supports extraction.",
+      "limitations": "Developer selects functionality and insertion point; eight transfers/six applications in published evaluation; not evidence of arbitrary codebase fusion.",
+      "opensource_status": "Author manuscript available; public maintained implementation not verified. Paper license must not be confused with tool/source rights.",
+      "inspection_depth": "MIT metadata/abstract and author-PDF extraction sections inspected; no source/tool execution.",
+      "evidence_urls": [
+        "https://people.csail.mit.edu/stelios/papers/codecarboncopy.pdf"
+      ],
+      "frankenmine_relevance": "Semantics/data representation matter more than identifier spelling or shared language."
+    },
+    {
+      "id": "patchweave",
+      "title": "PatchWeave — Automated Patch Transplantation",
+      "url": "https://github.com/rshariffdeen/PatchWeave",
+      "date": "2021 TOSEM; latest inspected commit 2021-04-25",
+      "type": "open-source-research-tool-and-paper",
+      "what_transfers": "Symbolic/dynamic execution aligns insertion points and variables across syntactically different programs with related behavior; differential checks after transplantation.",
+      "limitations": "C repair/recurring-vulnerability scope; legacy LLVM 3.4/7 and Python 2.7 dependencies; not a general feature-fusion engine.",
+      "opensource_status": "MIT root license verified; source and experiment Docker artifacts advertised; not recently maintained according to inspected HEAD.",
+      "inspection_depth": "README, project methods/dependencies and license read; latest commit pinned; implementation not audited/executed.",
+      "revision": "e41da9e506be8497da2ec9acacd327b8c942f7c8",
+      "evidence_urls": [
+        "https://patchweave.github.io/",
+        "https://doi.org/10.1145/3412376"
+      ],
+      "frankenmine_relevance": "Useful seam-alignment method; historical prototype, not v1 default dependency."
+    },
+    {
+      "id": "artie_lens",
+      "title": "Artie-Lens seams",
+      "url": "https://github.com/ariusxi/artie-lens",
+      "date": "latest inspected commit 2026-09-29",
+      "type": "open-source-cli",
+      "what_transfers": "TypeScript import graph community detection; local-move Louvain pass; rank candidate boundaries by internal/(crossing+1); JSON output; combine metrics and churn for exploration.",
+      "limitations": "Single-level undirected import-graph heuristic, not semantic extraction; excludes singleton communities; barrels distort graph; does not establish runtime closure or correctness.",
+      "opensource_status": "Public MIT-labeled repository; recent source/tests present; current operation not independently tested.",
+      "inspection_depth": "Pinned seam helper, CLI routine and tests plus README/seams docs inspected; no execution.",
+      "revision": "c78e84ab53bf7a1e805061bf4061100986a3d048",
+      "evidence_urls": [
+        "https://github.com/ariusxi/artie-lens/blob/c78e84ab53bf7a1e805061bf4061100986a3d048/src/helpers/seam.helpers.ts",
+        "https://github.com/ariusxi/artie-lens/blob/c78e84ab53bf7a1e805061bf4061100986a3d048/docs/seams.md"
+      ],
+      "frankenmine_relevance": "Very concrete optional seam candidate generator; not a seam oracle."
+    },
+    {
+      "id": "servicecutter",
+      "title": "Service Cutter",
+      "url": "https://github.com/ServiceCutter/ServiceCutter",
+      "date": "2016 method; latest inspected commit 2024-01-29",
+      "type": "unmaintained-open-source-research-tool",
+      "what_transfers": "Model coupling as multiple weighted criteria: domain/use-case, lifecycle, ownership, consistency, latency/security and deployment constraints; compare candidate graph cuts.",
+      "limitations": "README explicitly says no longer maintained and build broken; domain-model inputs and criteria require judgment; not a source extractor.",
+      "opensource_status": "Apache-2.0; unmaintained/broken per maintainers. Borrow methods, not recommend installing as dependable v1 infrastructure.",
+      "inspection_depth": "README, project tutorial, coupling discussion and latest commit inspected; no execution.",
+      "revision": "d547e5a6c81386b7d60eb1ddc9bd4b2fc884f8c7",
+      "evidence_urls": [
+        "https://servicecutter.github.io/",
+        "https://github.com/ServiceCutter/ServiceCutter/wiki/Coupling-Criteria"
+      ],
+      "frankenmine_relevance": "Strong warning against equating few imports with a good boundary."
+    },
+    {
+      "id": "mono2micro",
+      "title": "Mono2Micro (socialsoftware)",
+      "url": "https://github.com/socialsoftware/mono2micro",
+      "date": "latest inspected commit 2025-12-01",
+      "type": "open-source-research-tool",
+      "what_transfers": "Static/dynamic collectors, clustering, decomposition comparison; transaction-aware partitioning avoids casually breaking consistency boundaries.",
+      "limitations": "Spring Boot with FenixFramework/Spring Data ORM scope; multi-service decomposition rather than multi-donor fusion; documented multi-component setup; not executed.",
+      "opensource_status": "MIT-labeled public repo, latest commit within previous year; active suitability and build health not established.",
+      "inspection_depth": "README architecture/setup plus repository metadata/HEAD inspected; no implementation audit.",
+      "revision": "570b61d926f85ec489fbf37a767e7ff84f9f901b",
+      "frankenmine_relevance": "Use domain/state/transaction seams in addition to imports."
+    },
+    {
+      "id": "featurehouse",
+      "title": "FeatureHouse",
+      "url": "https://github.com/joliebig/featurehouse",
+      "date": "2009 method; latest inspected repository commit 2017-03-25",
+      "type": "historical-source-composition-framework",
+      "what_transfers": "Language-front-end adapters map software artifacts to feature structure trees; superimposition and three-way merge compose code, models, tests and documentation.",
+      "limitations": "Language-independent composition is not semantics-preserving translation among arbitrary languages or architecture synthesis; old repository; per-artifact parser/composition rules still needed.",
+      "opensource_status": "Public source verified; repository license not verified in this pass; not eligible as a copied-code donor without legal inspection.",
+      "inspection_depth": "README, repository metadata and latest commit only; not executed.",
+      "revision": "81724157bc638524e72af5bb689cf939e6df8599",
+      "frankenmine_relevance": "Earlier multi-representation composition prior art; inspiration for adapter architecture."
+    },
+    {
+      "id": "swe_nexus",
+      "title": "SWE-Nexus: Automated Composition of Software Engineering Tasks from Test Execution",
+      "url": "https://arxiv.org/abs/2610.20038",
+      "date": "2026-10-14; v2 2026-10-15",
+      "type": "preprint-and-benchmark-claim",
+      "what_transfers": "Observed test-execution footprints; require original tests passing and masking exercised bodies to fail; compose compatible scopes and revalidate under combined mask.",
+      "limitations": "Task-construction benchmark, not donor extraction; observed trace coverage is incomplete; benchmark results not independently reproduced.",
+      "opensource_status": "Paper verified; usable repository not verified in this pass.",
+      "inspection_depth": "Abstract/method summary on arXiv read; no artifact execution.",
+      "revision": "arXiv:2610.20038v2",
+      "frankenmine_relevance": "Excellent oracle-liveness and interaction-test pattern to borrow."
+    },
+    {
+      "id": "wideswe",
+      "title": "WideSWE: Can Coding Agents Coordinate Changes Across Repositories?",
+      "url": "https://arxiv.org/abs/2609.33382",
+      "date": "2026-09-27",
+      "type": "preprint-and-public-benchmark",
+      "what_transfers": "Joint cross-repository context, hidden tests, all-target success criterion; records unfinished work across related repositories rather than counting one successful patch.",
+      "limitations": "Coordinated evolution of existing ecosystem repos, not synthesis of a new repository; published results only; artifact license not checked.",
+      "opensource_status": "Public harness repository verified at ZJU-ACES-ISE/WideSWE; maintained/reproducible status not independently established.",
+      "inspection_depth": "Paper abstract and full repository README viewed, not executed.",
+      "revision": "arXiv:2609.33382v1",
+      "evidence_urls": [
+        "https://github.com/ZJU-ACES-ISE/WideSWE"
+      ],
+      "frankenmine_relevance": "Use interaction acceptance and complete requirement accounting, not a direct competitor."
+    },
+    {
+      "id": "theseus",
+      "title": "The Code of Theseus: Can Agents Rebuild Software from Recovered Design Documents?",
+      "url": "https://arxiv.org/abs/2610.20068",
+      "date": "2026-10-14; v2 2026-10-15",
+      "type": "preprint",
+      "what_transfers": "Recover aligned intent, requirements and architecture from compact repository representations; measure architectural structure separately from test outcomes.",
+      "limitations": "Recovered docs may be clear but wrong; reported structure gains did not significantly improve held-out correctness; reconstruction not novel synthesis.",
+      "opensource_status": "Paper and dataset-release claim verified; concrete implementation repository not verified here.",
+      "inspection_depth": "arXiv abstract/metadata read; no execution.",
+      "revision": "arXiv:2610.20068v2",
+      "frankenmine_relevance": "Recovered intent is evidence, not authority over the new product."
+    },
+    {
+      "id": "graph_mapping",
+      "title": "When Does the Dependency Graph Help Code-to-Architecture Mapping?",
+      "url": "https://arxiv.org/abs/2610.19769",
+      "date": "2026-10-14",
+      "type": "preprint",
+      "what_transfers": "Typed multi-relational dependency graphs and lexical signals; label uncertainty; evaluate whether graph structure adds value on a given codebase.",
+      "limitations": "Semi-supervised architecture mapping on ten Java/C/C++ systems; graph-free baseline competitive on some systems; not automatic feature boundaries.",
+      "opensource_status": "Paper verified; implementation availability not investigated.",
+      "inspection_depth": "Abstract and metadata read only; published claim, not independent result.",
+      "revision": "arXiv:2610.19769v1",
+      "frankenmine_relevance": "Keep typed edges and uncertainty; don't assume graphs always win."
+    },
+    {
+      "id": "openrewrite",
+      "title": "OpenRewrite Lossless Semantic Trees",
+      "url": "https://docs.openrewrite.org/concepts-and-explanations/lossless-semantic-trees",
+      "date": "documentation inspected 2026-10-26",
+      "type": "usable-open-source-transformation-framework",
+      "what_transfers": "Type-attributed format-preserving trees and deterministic recipes for structural API/import/refactoring changes after a design is chosen.",
+      "limitations": "Type attribution depends on proper project context; parser/language/recipe support varies; local LST fits memory; transformations are not behavioral proof.",
+      "opensource_status": "openrewrite/rewrite root Apache-2.0 license verified; other recipes/catalogues require separate license checks.",
+      "inspection_depth": "Official LST documentation and core LICENSE inspected; not executed.",
+      "evidence_urls": [
+        "https://github.com/openrewrite/rewrite"
+      ],
+      "frankenmine_relevance": "Optional implementation adapter, not automatic seam/value selector."
+    },
+    {
+      "id": "coccinelle",
+      "title": "Coccinelle / Semantic Patch Language",
+      "url": "https://coccinelle.gitlabpages.inria.fr/website/",
+      "date": "documentation inspected 2026-10-26",
+      "type": "usable-open-source-transformation-tool",
+      "what_transfers": "Semantic patches express C API migration, context-dependent argument changes, and data-structure updates; transformations can capture reusable port patterns.",
+      "limitations": "Primarily C/systems context; rule correctness and match completeness must be tested; does not discover product-level new behavior.",
+      "opensource_status": "Public source; root GPLv2 text inspected. Tool execution and copying its implementation are different license routes; per-file exceptions not audited.",
+      "inspection_depth": "Official project explanation and repository license inspected; no execution.",
+      "evidence_urls": [
+        "https://github.com/coccinelle/coccinelle"
+      ],
+      "frankenmine_relevance": "Useful mature pattern-transformation mechanism for selected language adapters."
+    }
+  ],
+  "unresolved_leads": [
+    {
+      "title": "skill-transplant (agent-os-lab)",
+      "url": "https://github.com/SujinHwang27/agent-os-lab/tree/main/skills-lab/skills/skill-transplant",
+      "status": "Third-party catalogue found; primary file retrieval 404 on 2026-10-26; excluded from verified prior art."
+    },
+    {
+      "title": "Code Scalpel (3D-Tech-Solutions)",
+      "url": "https://github.com/3D-Tech-Solutions/code-scalpel",
+      "status": "Search result claims extraction with dependencies; not audited. Tier/paid capability differences make it inappropriate to list as verified all-free replacement."
+    }
+  ]
+}

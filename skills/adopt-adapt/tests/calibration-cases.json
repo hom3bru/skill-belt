@@ -1,0 +1,18 @@
+{
+  "status": "visible-development-cases; historical identities must be refreshed and frozen before live evaluation",
+  "trigger_cases": [
+    {"request": "Evaluate this repository for useful mechanisms in my project", "route": "adopt-adapt-v2"},
+    {"request": "Does this paper offer a method we can adapt?", "route": "adopt-adapt-v2"},
+    {"request": "Review my PR for bugs", "route": "ordinary-review"},
+    {"request": "Implement the change I already selected", "route": "implementation"},
+    {"request": "How do I configure the OpenAI API?", "route": "product-documentation"}
+  ],
+  "families": [
+    {"id": "firecrawl", "source": "https://github.com/mendableai/firecrawl", "premises": "Pin license, SDK/server split, hosting and actual intended integration/recipient policy. Public code is not automatic permission or a universal prohibition.", "controls": ["new paid hosted integration rejected under retained paid policy", "free permissible mechanism assessed independently"], "reject_old_oracle": "AGPL label alone forces DISCARD"},
+    {"id": "langextract", "source": "https://github.com/google/langextract", "premises": "Inspect source-grounding behavior and exact recipient dimension.", "controls": ["unimplemented grounding gap", "already implemented and wired grounding", "helper present but unwired"], "reject_old_oracle": "Historically shipped mechanism forces ADAPT today"},
+    {"id": "nx", "source": "https://github.com/nrwl/nx", "premises": "Pin actual recipient build shape; inspect likely useful internals and tests even if monorepo integration is wrong.", "controls": ["whole-tool mismatch with no justified part", "seeded verified useful part in a different-domain donor"], "reject_old_oracle": "Single app implies no salvage without investigation"},
+    {"id": "gbrain", "source": "https://github.com/garrytan/gbrain", "premises": "Resolve actual default branch to commit; verify discrete mechanism and current recipient gap.", "controls": ["clean useful queue part", "recipient already covers that part"], "reject_old_oracle": "Prior accepted plans force a new ADAPT"},
+    {"id": "rtk", "source": "https://github.com/rtk-ai/rtk", "premises": "Pin release assets, actual hook source, host tool surface and runtime. Preserve installability/interception distinction.", "controls": ["binary available but hook cannot intercept active command tool", "matching supported surface"], "reject_old_oracle": "WSL alone resolves all integration prerequisites"},
+    {"id": "tencent-memory", "source": "https://github.com/Tencent/TencentDB-Agent-Memory", "premises": "Read persona behavior and mechanical parts separately, then compare to recipient need.", "controls": ["profile capture lacks opt-in", "free dedup mechanism fills verified gap", "mechanism duplicates recipient"], "reject_old_oracle": "Exactly N salvage plans or forced ADAPT independent of recipient"}
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "example-task",
+  "mode": "investigate",
+  "size": "tiny",
+  "goal": "Describe the parser contract from the fixture",
+  "non_goals": [
+    "No source edits or publication"
+  ],
+  "scope_id": "local-read-v1",
+  "revision": "fixture-v1",
+  "patch_id": "61ee2896833350acd364a23ed65eaf80c25eb43a7db695fd565bf7b833315963",
+  "author_id": "fixture-author",
+  "authority": {
+    "allowed_actions": [
+      "read",
+      "local-write"
+    ],
+    "forbidden_actions": [
+      "push",
+      "pr",
+      "merge",
+      "deploy",
+      "egress",
+      "credential-access",
+      "policy-edit",
+      "install"
+    ],
+    "allowed_paths": [
+      "src/parser"
+    ]
+  },
+  "host": {
+    "name": "synthetic",
+    "version": "fixture-1",
+    "capabilities": [
+      {
+        "name": "denied-path-enforcement",
+        "availability": "unsupported",
+        "evidence": "No host sandbox in this fixture"
+      }
+    ]
+  },
+  "requirements": [],
+  "work_units": [],
+  "acceptance": [
+    {
+      "id": "a1",
+      "claim": "Parser returns a string",
+      "required": true,
+      "requires_runtime": false,
+      "requires_negative_control": false,
+      "evidence_ids": [
+        "e1"
+      ],
+      "status": "passed"
+    }
+  ],
+  "actions": [],
+  "evidence": [
+    {
+      "id": "e1",
+      "claim_id": "a1",
+      "type": "source",
+      "revision": "fixture-v1",
+      "patch_id": "61ee2896833350acd364a23ed65eaf80c25eb43a7db695fd565bf7b833315963",
+      "scope_id": "local-read-v1",
+      "artifact": "artifact.txt",
+      "artifact_sha256": "61ee2896833350acd364a23ed65eaf80c25eb43a7db695fd565bf7b833315963",
+      "operation": "read artifact.txt",
+      "environment": "synthetic local fixture",
+      "raw_output": "output.txt",
+      "raw_sha256": "bd2fe92753720de6fb812712aa57afe899cc1103533e86ec3f5f8fc7755a1f39",
+      "recorded_at": "2026-10-26T00:00:00Z",
+      "status": "passed",
+      "collected": 1,
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "negative_control": null,
+      "coverage": "one source observation",
+      "limitations": [
+        "No runtime behavior checked"
+      ]
+    }
+  ],
+  "findings": [],
+  "reviews": [],
+  "lessons": [],
+  "docs": [],
+  "history": [
+    {
+      "id": "h1",
+      "from": "framed",
+      "to": "inspected",
+      "scope_id": "local-read-v1",
+      "patch_id": "61ee2896833350acd364a23ed65eaf80c25eb43a7db695fd565bf7b833315963"
+    },
+    {
+      "id": "h2",
+      "from": "inspected",
+      "to": "delivered",
+      "scope_id": "local-read-v1",
+      "patch_id": "61ee2896833350acd364a23ed65eaf80c25eb43a7db695fd565bf7b833315963"
+    }
+  ],
+  "state": "delivered",
+  "completion": "complete",
+  "verification": "source-audited",
+  "independent_review_required": false,
+  "delivery": "local",
+  "next_safe_action": "Report source-audited result",
+  "blockers": []
+}

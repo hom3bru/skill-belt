@@ -1,0 +1,74 @@
+# Local record and helper contract
+
+R6 RE records require `method`, `output`, `baseline`, `contribution`, `distribution` and `method_checks` on each `ledger.re_claims[]` row. [Method contracts](re-methods.md) defines exact values/check keys; each check is `{status,evidence}`. Split hybrid projects into separate, uniquely identified claims. `other` needs `method_reason`. All passing claims need a discriminating `oracle_kind`, positive executed `run_counts`, a negative control and passing method checks; matching claims need `oracle_kind: exact`. Optional `progress` carries integer numerator/denominator, unit, basis and explicit exclusions. The renderer prints this evidence before the verdict. Older records without this contract must be explicitly re-assessed; do not invent a method or convert historical results into a new pass.
+
+Use Python 3.10+ from the actual host. Run helpers with `python -B` to avoid writing bytecode into the installed bundle. Helpers use only the standard library and never fetch a URL or execute donor code.
+
+## Practical flow
+
+For a bounded manual source review, the skill permits a concise ledger with `machine validation not run`. A helper validation of QUEUED inputs confirms only those inputs; it does not validate narrative completion or change their state. When using full records, store the actual transitions and generate/check the published report from that completed record. Proposed behavior can remain untested without blocking a source-grounded adaptation with an inspected receiving seam and explicit prerequisites.
+
+Choose manual or structured mode before creating files. Manual mode needs no machine record and may finish `READY (manual assessment)`. If a record exists, `python -B scripts/aa.py status run.json` reports its actual states and whether it contains any ready records or only inputs; it never certifies a separate narrative. Keep manual completion and saved record state separate, and report only commands actually run. Apply [narrative review](narrative-review.md) before publication.
+
+`init <run-dir> --source <locator> --recipient <stable-id>` creates `run.json` and `inputs.json`. Repeat options for several inputs/recipients. IDs `s1...` and `q1...` preserve supplied input order. Source and recipient IDs must be distinct. The input manifest guards accidental source deletion; it is not a tamper-proof external log. Record `request` and actual host name. Keep the fixed host capabilities: renderer validation true, host prevention `unavailable`, detection `exported-report-only`.
+
+Resolve each source's `locator`, `revision` and `kind`. The input locator is preserved in the manifest; put the canonical resolved locator into an additional source field `resolved_locator` rather than replacing the original. Revisions are full commits or explicit captured document identities, never silently substituted HEAD. Kinds are meaningful source types (`repo`, `paper`, `docs`, etc.). Recipient rows contain `id`, `profile`, `revision`, `snapshot`. An unspecified recipient uses profile `unspecified`; no target-specific fit score or ADAPT is permitted.
+
+`snapshot <root> --path <file> ... --output <snapshot.json>` hashes explicitly selected relative files and records absolute root, Git HEAD if available, scope and time. Include relevant rules, callers and feature flags, even when untracked. A missing explicit path is recorded as null so creation is detected. Copy that object to recipient `snapshot` and set `revision` to its `id`. This is intentionally not a full disk scan. Validation rechecks those files and root identity; excluded dependencies remain limits. `--historical` replays an old record without live rechecks and cannot be used to claim present applicability or append a new live history event.
+
+`capture <run-dir> <local-file> --subject <id> --revision <identity>` copies bytes to `artifacts/<sha>.bin` and prints an evidence object. Add it to `evidence`, then change `read_scope` from `unread` to the actual inspected coverage and describe limitations. Capturing is not reading. Evidence objects require `id`, subject, revision, path, sha256, bytes, origin, captured_at, read_scope, limitations. Local receipt bytes are independently checked; remote origin and agent claims are not authenticated by this helper. Keep original acquisition traces when needed. Do not copy sensitive data beyond its authorized audience.
+
+Claims have `id`, `subject`, `text`, `kind`, `status`, `scope`, `limitations`, `evidence` IDs, optional `contradictions` claim IDs and `review`. Kinds: source_observation, mechanism, recipient_opportunity, experiment, verified_outcome. Status: supported, inferred, unvalidated, refuted, stale. **Supported requires read evidence of that exact subject/revision plus a nonempty semantic review.** The checker verifies relationships/bytes; the reviewer must actually check entailment. An agent can write a false review, so validator success is never truth certification. Verified-outcome claims need real observed outcome evidence in their review, not just source code.
+
+Each source/recipient item retains `id`, `source`, `recipient`, `state`, `transitions`. Allowed initial state QUEUED; QUEUED → RESEARCHING/UNPROCESSED/CANCELLED; RESEARCHING → READY/BLOCKED/CANCELLED/UNPROCESSED. BLOCKED/UNPROCESSED/CANCELLED can resume through RESEARCHING; READY can reopen through RESEARCHING. A state change appends to transitions and matches final state. Non-READY items require `reason` and cannot carry `decision`. Save after meaningful progress/interruption; no source vanishes. READY means ready to render, not already published.
+
+## READY item
+
+`ledger` contains:
+
+- `primary`: nonempty read evidence IDs for this source.
+- `map`: provider codewiki/deepwiki/self-synthesized/not-applicable; content; evidence IDs; limitations (include ladder attempts, unavailable rungs, unknown edges and diagram extraction here). Repos cannot use not-applicable. Inadequate raw material means BLOCKED, not a fabricated complete map.
+- `coverage`: examined names, total integer or null, refutation_targets, blind_spots (empty allowed), overlap_claims IDs, adequate boolean. Explain blind spots, not only names.
+- Optional `coverage.subsystems`: rows with unique `id`, `scope`, `mapped`, `inspected`, `exercised`, `evidence` IDs, `execution` IDs and `limitations`. Each stage is `complete|partial|unknown|not-run|not-applicable`. Inspected rows cite read donor evidence; exercised rows cite captured runs. A partial or unrun provider does not block a narrower ready assessment. Older records without rows remain selected-file coverage; they cannot imply subsystem qualification.
+- `salvage`: exactly algorithms/error_handling/data_structures/security_compliance/performance. Each has result found/none/not-applicable, note and nonempty source evidence IDs. Explain why not-applicable; unknown requires incomplete state.
+- `gates`: integrity, policy, paid_policy preserved/user-replaced, flags list; a replacement requires authorization text. Each flag has code from judgment, scope whole/mechanism/both, status unresolved/resolved/blocked, resolution. Scope keeps paid whole-tool DISCARD compatible with free mechanical ADAPT.
+- `doubt`: depth full/light, against, for, environment, resolution, evidence IDs, unknowns list, consequential boolean, decision_uncertainty boolean. The deterministic route is checked.
+
+R8 checks recipient ownership of overlap claims and doubt evidence. Another queued donor can support a comparative argument; another recipient cannot supply this recipient's facts. These checks catch identity mistakes, not semantically unrelated prose attached to correct IDs.
+
+`decision` contains whole_tool and result from judgment's result set, summary, confidence with scope/reason, mechanism_value, next_step, claims IDs and recipient_claims IDs. Referenced decision claims must be supported/inferred and belong to this pair; at least one supported source fact is required. Explain `contradiction_resolution` when cited claims have contradictions. Recipient-specific ADOPT/ADAPT/ALREADY-COVERED requires supported recipient claims and live snapshot.
+
+For such target results, `inventory` has implemented/wired/tested/observed objects, each `state` present/absent/unknown plus `scope` with cited support. ALREADY-COVERED requires implementation and wiring present; tests/observation can still be unknown and must be disclosed. This structural check cannot discover an omitted caller for you.
+
+`score` is null with `score_reason`, or `{rubric, components: [four integers in documented order], penalty, total, rationale}`. ADAPT/ADOPT results require `transfer` with behavior, donor_closure, recipient_seam, semantics, alternatives, effects_retry, composition, rollback, authorization text, and verification with donor_parity/domain_correctness/recipient_regression/entry_integration. ADAPT-with-prerequisite also requires prerequisite. Inapplicability/unresolved setup is explicit text, never fabricated passing tests.
+
+## Check and output
+
+```text
+python -B <skill>/scripts/aa.py validate <run-dir>/run.json
+python -B <skill>/scripts/aa.py render <run-dir>/run.json --output <run-dir>/report.md
+python -B <skill>/scripts/aa.py check-output <run-dir>/run.json <run-dir>/report.md
+```
+
+Render refuses existing output files and invalid records. It emits the full manifest, then each completed ledger before its result, and visibly incomplete items without results. It escapes source-controlled text so it cannot inject report markers or rows. `check-output` compares a supplied report to deterministic rendering; it catches changed order/missing items/content. It does **not** monitor chat or prevent the agent writing an early verdict elsewhere. Emit the report's ledger before the result in the actual chat, too.
+
+R7 renders exact shared donor facts once, before every dependent recipient verdict. Different mapping/coverage/salvage variants are retained and name their pairs. Recipient gates, legal route, doubt and transfer conditions remain per pair; compact output is not permission to omit them.
+
+## R7 execution evidence
+
+The supported `verified_outcome` claim and any passing RE claim need `execution: <evidence-id>`. The evidence row has `artifact_kind: execution`, the same subject/revision and reviewed `read_scope`. Supported outcomes also include that ID in `evidence`. [execution](execution.md) describes the explicit runner and bounded handoff; normal `aa.py` validation does not execute commands.
+
+The validator checks captured receipt/raw stdout/stderr bytes, recomputes positive-case `run_counts`, passing positive `assertions` and passing `negative_controls`, and compares RE declarations to those results and the captured executable hash. Passing negative-control rows mean the checker rejected a deliberately wrong result, not that the wrong result was accepted. At least one positive check and one control suffice for a narrow outcome. Live validation rechecks declared harness/input/executable identities; historical replay checks the retained bytes without claiming current applicability.
+
+This is a local consistency check, not an authenticated external witness. A reviewer must still decide whether observations support the claim's scope and whether the oracle/control are independent and meaningful. Isolated `check_re_claims(ledger)` tests check shape only; full `validate` binds evidence. Do not fabricate receipts to upgrade legacy records: use `not-run`/`unknown` or reassess with an authorized run. Supported source facts and proposed adaptations need no execution receipt. Failed runs may be recorded as supported experiment observations; they cannot become a passing verified outcome.
+
+After actual publication, `history <run.json> --ledger <configured-jsonl> --published-report <report.md>` appends timestamp, record digest and completed decisions without reading old entries. The command assumes its publication assertion is true; a written file alone does not prove user-visible publication. Repeated calls append repeated events; do not retry blindly after uncertain write completion. Inspect tool outcome/file append receipt without feeding past verdicts into evaluation.
+
+`invalidate <lessons.json> <lesson-id> --output <new-file>` marks that node and all descendants stale. Each lesson has a unique id and parents list; other fields follow lessons.md. Retain original provenance. This graph can identify dependent records, not authenticate their claims.
+
+## R5 ledger fields (checked by aa.py)
+- `ledger.donor_risks[]`: `{code, evidence, status, scope}`; codes in [due-diligence](due-diligence.md); evidence must cite `file:line` or a URL. Required when source `kind` is `skill|hook|mcp|agent-config|plugin` (may be `[]` after screening). A `present` risk forces ADAPT-with-prerequisite for live transfer and forbids whole-tool ADOPT when scope is whole/both.
+- `ledger.re_claims[]`: `{id, claim, status, scope, reported_as?, provenance{tool,version,sha256,options,label,decompiler?}, assertions, negative_controls, verified, legal_posture}` per [re-verification](re-verification.md). `verified:true` needs status `pass`, ≥1 assertion and ≥1 negative control; `campaign-pass` needs scope `campaign`; `decompiler:true` needs label `inferred`.
+- `ledger.hooks[]`: `{id, content_sha256, approved_sha256, approved_by, output_schema, env, approval_log, on_error, event?, max_iterations?, auto_answer?}` per [hook-intake](hook-intake.md).
+- R5.1 `re_claims[]` optional `oracle_kind` (required when `verified`; recompile-only/self-roundtrip/fallback cannot verify) and `run_counts{total,skipped,failed}` + `skip_allowlist[]` (pass needs total>0, failed 0, one reason per skip). New donor-risk codes listed in [due-diligence](due-diligence.md).
+- R5.2 `hooks[]` also needs `files[{path,sha256}]` (script + every loaded file), matching `approved_files{path: sha256}`, a valid regex `matcher` if present, and `decision_log: durable`. 10 more donor-risk codes (due-diligence.md).
