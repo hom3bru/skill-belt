@@ -1,65 +1,93 @@
 # Skill Belt
 
-Three complementary agent skills for deciding what to reuse, designing coherent tools from multiple sources, and carrying engineering work through to a verifiable result.
+[![Verify skills](https://github.com/hom3bru/skill-belt/actions/workflows/verify.yml/badge.svg?branch=codex%2Fskill-belt)](https://github.com/hom3bru/skill-belt/actions/workflows/verify.yml)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#verification)
+[![Node.js 24](https://img.shields.io/badge/Node.js-24-5FA04E?logo=nodedotjs&logoColor=white)](#verification)
 
-Built by **Matt Kolkin**, with agent-assisted research, implementation, adversarial review, and testing. The focus is practical judgment: inspect the source, preserve the user's intent, make a concrete change, and show evidence for what works.
+Agent skills for evaluating existing work, designing tools from multiple sources, and completing engineering tasks with verifiable results.
 
-| Skill | Use it when | It produces |
+## Skills
+
+| Skill | Purpose | Output |
 | --- | --- | --- |
-| [adopt-adapt](skills/adopt-adapt/SKILL.md) | You want to assess outside work for an existing project. | A source-backed adopt, adapt, or discard decision and a concrete transfer plan. |
-| [Frankenmine](skills/frankenmine/SKILL.md) | You want to create or continue a product built from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an authorized implementation and evaluation path. |
-| [estack](skills/estack/SKILL.md) | You have an engineering task to investigate, design, build, repair, review, or verify. | A proportionate workflow, shared task record when useful, and an evidence-based outcome. |
+| [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
+| [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
+| [estack](skills/estack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
 
-The skills can be used independently. None installs a daemon, grants permissions, or requires another skill to perform ordinary source analysis.
+Each skill works independently. Loading a skill does not install a daemon, grant permissions, or authorize implementation or publication.
 
-## Try a skill
-
-Give your agent a concrete goal and explicitly load the relevant `SKILL.md`:
-
-```text
-Use adopt-adapt to assess this repository for my existing project.
-Find transferable mechanisms, inspect the source, and make a grounded recommendation.
-```
-
-```text
-Use Frankenmine to design a new tool from these sources.
-Compare composition with the strongest existing solution and a minimal fresh build.
-Implement the agreed slice in this isolated output directory and test it.
-```
-
-```text
-Use estack to repair this failing behavior.
-Inspect the relevant code, make the smallest useful correction, and verify the result.
-```
-
-For persistent work, estack can [start its canonical task record](skills/estack/examples/start-task.md). Frankenmine can [continue an existing synthesis](skills/frankenmine/references/continue-synthesis.md) and register a prior donor-decision manifest.
-
-## Installation
-
-Clone the collection, then copy the **entire** selected skill directory into your host's skills directory. Keep its references, scripts, contracts, and fixtures together. Check for an existing installation before copying; preserve local changes.
+## Quick start
 
 ```sh
 git clone https://github.com/hom3bru/skill-belt.git
+cd skill-belt
 ```
 
-Common project-local destinations are `.agents/skills/<name>` for Codex, `.claude/skills/<name>` for Claude Code, and `.cursor/skills/<name>` for Cursor. Explicitly reading `skills/<name>/SKILL.md` is also a portable manual invocation. Native discovery and invocation remain host-dependent; see each skill's host notes.
+Open the repository in your agent host, then explicitly load the relevant `SKILL.md`:
 
-## Verify the collection
+```text
+Read skills/adopt-adapt/SKILL.md and use it to assess this repository
+for my existing project. Identify transferable mechanisms and recommend
+what to adopt, adapt, or discard.
+```
 
-Requires Python 3.10+ and Node.js 24 for the authored estack test fixtures. The helpers and collection verifier use Python's standard library; no Python packages are required.
+## Installation
+
+To make a skill available in another project, copy its **entire directory** from `skills/` into your host's skills directory. Keep references, scripts, contracts, and fixtures together. Check for an existing installation first and preserve local changes.
+
+| Host | Project-local destination |
+| --- | --- |
+| Codex | `.agents/skills/<name>` |
+| Claude Code | `.claude/skills/<name>` |
+| Cursor | `.cursor/skills/<name>` |
+
+Discovery and invocation depend on the host; see each skill's host notes. Explicitly reading a skill's `SKILL.md` is also supported as a manual invocation.
+
+## Usage
+
+Give the agent a concrete goal and the relevant sources or project context.
+
+**Design from multiple sources**
+
+```text
+Read skills/frankenmine/SKILL.md and use it to design a tool from these sources.
+Compare composition with the strongest existing solution and a minimal fresh build.
+Produce an implementation and evaluation plan before making changes.
+```
+
+**Investigate and repair**
+
+```text
+Read skills/estack/SKILL.md and use it to repair this failing behavior.
+Inspect the relevant code, make the smallest useful correction, and verify the result.
+```
+
+For longer-running work, estack can [start a canonical task record](skills/estack/examples/start-task.md). Frankenmine can [continue an existing synthesis](skills/frankenmine/references/continue-synthesis.md) using a prior donor-decision manifest.
+
+## Verification
+
+Requirements for the full verification suite:
+
+- Python 3.10+.
+- Node.js 24 for estack's authored JavaScript test fixtures.
+- No third-party Python packages; helpers and verification scripts use the standard library.
+
+Run from the repository root:
 
 ```sh
 python -B scripts/verify.py
 ```
 
-The verifier checks the collection, local links and manifests, then runs every bundled skill suite. Raw outputs go to a temporary directory, or to a new directory selected with `--output`. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
+The verifier checks repository structure, local links, and byte manifests, then runs the collection tests and all three skill suites. Raw results are written to a temporary directory; use `--output <new-directory>` to choose a new output directory. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
 
-On Windows, one inherited symbolic-link test may report `symlink creation unavailable`; only that exact test/reason is allowlisted and reported as `passed-with-platform-limitation`. Linux must execute it. All other skips, empty suites, and failures are rejected.
+On Windows, only `test_research.ResearchTests.test_linked_source_entry_is_rejected` may be skipped when its reason is `symlink creation unavailable`; this is reported as `passed-with-platform-limitation`. Linux must run it. Other skips, empty suites, and failures are rejected.
 
-Tests cover helper behavior, contracts, malformed inputs, stale or unrelated evidence, replay, provenance, and authored product fixtures. They do not establish general agent effectiveness, truthful observations, legal clearance, or host security enforcement. These are experimental skills; full model/host qualification remains incomplete.
+## Limitations
 
-## About this portfolio edition
+These skills are experimental. Tests cover helper behavior, contracts, malformed inputs, evidence consistency, replay, provenance, and authored fixtures. They do not establish general agent effectiveness, truthful observations, legal clearance, or native host security enforcement. Full model and host qualification remains incomplete.
 
-This collection contains portable snapshots, not a dump of a personal workspace. Private project architecture, machine inventories, session identifiers, local audit transcripts, credentials, and installed host settings are excluded. The installed personal versions remain separate. The distribution changes and published-byte identities are recorded in [provenance](docs/provenance.md) and each skill's manifest.
+## License and attribution
 
-The work draws on documented prior art and source studies; attribution and limitations remain with each skill. No third-party donor runtime is bundled. Existing ownership is preserved: **this repository does not grant an open-source license**. See [NOTICE](NOTICE.md).
+No open-source license is granted. Existing ownership and third-party rights are preserved; see [NOTICE](NOTICE.md).
+
+Source studies and prior art are documented with each skill. No third-party donor runtime is bundled. [Provenance](docs/provenance.md) and the skill manifests record the distributed snapshots and their published-byte identities.
