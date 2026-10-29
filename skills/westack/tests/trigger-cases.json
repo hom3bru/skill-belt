@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "not-run: model activation has not been evaluated in this package",
+  "note": "Cases with a source field were added or revised on 2026-10-27. 'routing check' cases reflect a coordinator routing test outside this package (over-triggering or runner-up selection); bug-fix, CI and PR wording is a paraphrase of the reported categories. The narrowed description has not been re-measured.",
+  "cases": [
+    {
+      "request": "Use westack to fix the one arithmetic regression.",
+      "expected": "activate"
+    },
+    {
+      "request": "westack investigate this repository without editing.",
+      "expected": "activate"
+    },
+    {
+      "request": "Review this patch using westack and show actual test evidence.",
+      "expected": "activate"
+    },
+    {
+      "request": "Resume the interrupted import task from its saved task record.",
+      "expected": "activate",
+      "source": "positive counterpart for the narrowed description"
+    },
+    {
+      "request": "Plan a scoped parser interface change and its consumer checks.",
+      "expected": "candidate; evaluate host selection"
+    },
+    {
+      "request": "What is 2 + 3?",
+      "expected": "do not activate"
+    },
+    {
+      "request": "Install westack globally.",
+      "expected": "do not activate; installation request, not permission from skill loading",
+      "source": "routing check (runner-up)"
+    },
+    {
+      "request": "Write a birthday greeting.",
+      "expected": "do not activate"
+    },
+    {
+      "request": "What does the word westack mean?",
+      "expected": "explain; do not begin engineering workflow"
+    },
+    {
+      "request": "Build a brand-new CLI from scratch.",
+      "expected": "do not activate",
+      "source": "routing check (over-triggered)"
+    },
+    {
+      "request": "Debug this flaky test, then verify the fix with evidence.",
+      "expected": "do not activate",
+      "source": "routing check (over-triggered)"
+    },
+    {
+      "request": "Fix this off-by-one bug in the pager.",
+      "expected": "do not activate",
+      "source": "routing check (runner-up; paraphrased category)"
+    },
+    {
+      "request": "Investigate why CI failed on the last push.",
+      "expected": "do not activate",
+      "source": "routing check (runner-up; paraphrased category)"
+    },
+    {
+      "request": "Review this pull request.",
+      "expected": "do not activate",
+      "source": "routing check (runner-up; paraphrased category)"
+    }
+  ]
+}

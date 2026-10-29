@@ -12,7 +12,9 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 | --- | --- | --- |
 | [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
-| [estack](skills/estack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
+| [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
+
+westack (then called estack) was renamed in 0.3.1, with no change in behaviour.
 
 Each skill works independently. Loading a skill does not install a daemon, grant permissions, or authorize implementation or publication.
 
@@ -58,18 +60,18 @@ Produce an implementation and evaluation plan before making changes.
 **Investigate and repair**
 
 ```text
-Read skills/estack/SKILL.md and use it to repair this failing behavior.
+Read skills/westack/SKILL.md and use it to repair this failing behavior.
 Inspect the relevant code, make the smallest useful correction, and verify the result.
 ```
 
-For longer-running work, estack can [start a canonical task record](skills/estack/examples/start-task.md). Frankenmine can [continue an existing synthesis](skills/frankenmine/references/continue-synthesis.md) using a prior donor-decision manifest.
+For longer-running work, westack can [start a canonical task record](skills/westack/examples/start-task.md). Frankenmine can [continue an existing synthesis](skills/frankenmine/references/continue-synthesis.md) using a prior donor-decision manifest.
 
 ## Verification
 
 Requirements for the full verification suite:
 
 - Python 3.10+.
-- Node.js 24 for estack's authored JavaScript test fixtures.
+- Node.js 24 for westack's authored JavaScript test fixtures.
 - No third-party Python packages; helpers and verification scripts use the standard library.
 
 Run from the repository root:

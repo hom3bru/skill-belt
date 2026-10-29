@@ -1,0 +1,10 @@
+# Review
+
+Review against requirements and the actual changed patch: correctness, regressions, security, scope and maintainability. Scale depth to risk; do not create parallel reviewers merely for ceremony.
+
+Generated verification instructions stay draft until they have run against the actual application path, and their proof must survive cleanup. Test a generated check against a frozen good copy and a broken copy; a constant-true verifier fails that test. Non-author review of the same patch needs an actually different reviewer or context bound to the patch hash. Generating a verifier, taking a persona name or rerunning your own checklist does not create independence.
+
+When independent context is available and authorized, provide the goal, constraints, patch and relevant raw evidence. Do not invent a review if no reviewer is available. Label self-review as self-review and record the missing independent review when required. Record each review's `level` from the shared vocabulary: self, fresh-context-same-model, different-model or human. An independent review cannot be level self, and a required independent review needs a recorded level above self. This package installs no reviewers and starts no agents.
+
+Use the canonical finding: claim, source location, consequence, evidence IDs, severity and rationale, correction, adjudication, verification IDs. A review's own receipt (type `review`, null exit codes, status passed) records only that the review ran against this patch; each defect it found is a finding, not a failed receipt. After confirming a defect, search for the same pattern at the other in-scope sites and record each as a finding or as not assessed. An empty review names the scope it assessed; a setup or tool failure means not assessed, never clean. Resolve conflicting findings through evidence. Record accepted, rejected with rationale, fixed, or deferred with residual risk. Adjudication only moves forward; to reopen a closed finding, add a new one that cites it. Unresolved required findings block a complete result; reviewer agreement alone does not resolve a contradiction.
+

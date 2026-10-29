@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-26",
+  "qualification": "not-run",
+  "package_enforces_paths": false,
+  "hosts": [
+    {
+      "name": "Codex",
+      "discovery": ".agents/skills/westack",
+      "invocation": "host picker; $westack where supported",
+      "documentation": "https://learn.chatgpt.com/docs/build-skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; host denied-path qualification blocked",
+      "permission_surfaces": {
+        "local_commands": "permission profiles (sandbox) govern local commands only",
+        "mcp_servers_and_connectors": "separate controls; not covered by command profiles",
+        "browser_and_computer_use": "separate controls; not covered by command profiles",
+        "web_search": "separate control; not covered by command profiles",
+        "network": "domain rules apply only while the proxy is active",
+        "source": "https://learn.chatgpt.com/docs/permissions (documentation read 2026-10-28; claimed, not runtime-qualified)"
+      }
+    },
+    {
+      "name": "Claude Code",
+      "discovery": ".claude/skills/westack",
+      "invocation": "/westack",
+      "documentation": "https://code.claude.com/docs/en/skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; host denied-path qualification blocked"
+    },
+    {
+      "name": "Cursor",
+      "discovery": ".cursor/skills/westack or .agents/skills/westack",
+      "invocation": "/ picker",
+      "documentation": "https://cursor.com/docs/skills",
+      "actual_invocation": "not-run",
+      "filesystem_scope": "host-owned; inspect session",
+      "sandbox": "unknown until host qualified; not provided by package",
+      "approvals": "host-owned; inspect session",
+      "hooks": "none installed",
+      "subagents": "unknown until probed",
+      "context_isolation": "unknown until probed",
+      "durable_state": "local optional task record; host-owned persistence",
+      "background_execution": "unknown until probed",
+      "artifact_delivery": "unknown until probed",
+      "denied_path_enforcement": "unsupported by package; host denied-path qualification blocked"
+    }
+  ]
+}

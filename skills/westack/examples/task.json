@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "example-task",
+  "mode": "investigate",
+  "size": "tiny",
+  "goal": "Describe the parser contract from the fixture",
+  "non_goals": [
+    "No source edits or publication"
+  ],
+  "scope_id": "local-read-v1",
+  "revision": "fixture-v1",
+  "patch_id": "821baf4ae532842da58c8664ed7a9a45af08d781049e77c39bc6b0cf4d31fcbd",
+  "author_id": "fixture-author",
+  "authority": {
+    "allowed_actions": [
+      "read",
+      "local-write"
+    ],
+    "forbidden_actions": [
+      "push",
+      "pr",
+      "merge",
+      "deploy",
+      "egress",
+      "credential-access",
+      "policy-edit",
+      "install"
+    ],
+    "allowed_paths": [
+      "src/parser"
+    ]
+  },
+  "fingerprint": {
+    "paths": [
+      "src/parser"
+    ],
+    "exclude": [
+      ".git",
+      "__pycache__",
+      ".pytest_cache",
+      "node_modules",
+      ".venv",
+      "venv",
+      ".mypy_cache",
+      ".tox",
+      "dist",
+      "build",
+      ".next"
+    ],
+    "baseline": "821baf4ae532842da58c8664ed7a9a45af08d781049e77c39bc6b0cf4d31fcbd"
+  },
+  "host": {
+    "name": "synthetic",
+    "version": "fixture-1",
+    "capabilities": [
+      {
+        "name": "denied-path-enforcement",
+        "availability": "unsupported",
+        "evidence": "No host sandbox in this fixture"
+      }
+    ]
+  },
+  "requirements": [
+    {
+      "id": "goal",
+      "text": "Describe the parser contract from the fixture",
+      "origin": "user",
+      "status": "active",
+      "supersedes": null
+    }
+  ],
+  "work_units": [],
+  "acceptance": [
+    {
+      "id": "a1",
+      "claim": "Parser returns a string",
+      "required": true,
+      "requires_runtime": false,
+      "requires_negative_control": false,
+      "evidence_ids": [
+        "e1"
+      ],
+      "status": "passed"
+    }
+  ],
+  "actions": [],
+  "evidence": [
+    {
+      "id": "e1",
+      "claim_id": "a1",
+      "type": "source",
+      "revision": "fixture-v1",
+      "patch_id": "821baf4ae532842da58c8664ed7a9a45af08d781049e77c39bc6b0cf4d31fcbd",
+      "scope_id": "local-read-v1",
+      "artifact": "snapshots/eaef80a08ec6d29afa7714c245cc000c0b6e9b2d7e786657c7e4d02c2769de05.txt",
+      "artifact_sha256": "eaef80a08ec6d29afa7714c245cc000c0b6e9b2d7e786657c7e4d02c2769de05",
+      "operation": "read workspace/src/parser/parser.txt",
+      "environment": "synthetic local fixture",
+      "raw_output": "output.txt",
+      "raw_sha256": "0188c94eb56cbcda2dd12a2feb9cb2208e07e9f40ef4efc01db7772905fa7af0",
+      "recorded_at": "2026-10-27T00:00:00Z",
+      "status": "passed",
+      "collected": 1,
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": null,
+      "expected_exit": null,
+      "negative_control": null,
+      "coverage": "one source file read",
+      "limitations": [
+        "No runtime behavior checked"
+      ]
+    }
+  ],
+  "findings": [],
+  "reviews": [],
+  "lessons": [],
+  "docs": [],
+  "history": [
+    {
+      "id": "h1",
+      "from": "framed",
+      "to": "inspected",
+      "scope_id": "local-read-v1",
+      "patch_id": "821baf4ae532842da58c8664ed7a9a45af08d781049e77c39bc6b0cf4d31fcbd"
+    },
+    {
+      "id": "h2",
+      "from": "inspected",
+      "to": "delivered",
+      "scope_id": "local-read-v1",
+      "patch_id": "821baf4ae532842da58c8664ed7a9a45af08d781049e77c39bc6b0cf4d31fcbd"
+    }
+  ],
+  "state": "delivered",
+  "completion": "complete",
+  "verification": "source-audited",
+  "independent_review_required": false,
+  "delivery": "local",
+  "next_safe_action": "Report source-audited result",
+  "blockers": []
+}

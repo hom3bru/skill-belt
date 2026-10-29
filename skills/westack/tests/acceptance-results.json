@@ -1,0 +1,295 @@
+{
+  "version": "0.3.0 (unreleased)",
+  "maturity": "experimental portable instruction skill; deterministic checks only",
+  "deterministic_suite": {
+    "collected": 201,
+    "executed": 201,
+    "passed": 201,
+    "failed": 0,
+    "skipped": 0,
+    "status": "passed",
+    "regenerated": "2026-10-28 from the full-suite record of `python -B tests/run.py --output <scratch>` after the second review and donor source review"
+  },
+  "live_model_evaluations": "not-run",
+  "host_qualification": "not-run",
+  "independent_non_author_review": "not-run",
+  "source_archive_verification": "2026-10-27: user-supplied research ZIP verified by the parent session; extracted design spec and crosswalk match the provenance hash references (provenance/build-inputs.json research_zip_verification)",
+  "cases": [
+    {
+      "id": "E01",
+      "title": "Ambiguity without invented constraints",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E01_requirement_origins"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E02",
+      "title": "Later correction supersedes earlier intent",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E02_superseded_intent",
+        "test_hardening.ImmutabilityTests.test_requirements_cannot_be_removed_or_rewritten"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E03",
+      "title": "Tiny fix takes a short route",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E03_tiny_real_fixture"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E04",
+      "title": "Real red-green and negative control",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E04_red_green_negative_control",
+        "test_hardening.NegativeControlTests.test_control_on_the_same_artifact_is_rejected",
+        "test_hardening.NegativeControlTests.test_every_passing_receipt_needs_its_own_control",
+        "test_hardening.SnapshotTests.test_red_receipt_survives_in_place_fix"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E05",
+      "title": "Dependency-aware bounded plan",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E05_dependency_integration"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E06",
+      "title": "Verifier independence",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E06_constant_verifier_rejected"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E07",
+      "title": "Lessons do not self-authorize",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E07_untrusted_lesson_no_authority"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E08",
+      "title": "Stale learning is revalidated",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E08_stale_lesson"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E09",
+      "title": "Isolation denial does not widen scope",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E09_denied_isolation_stays_denied"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E10",
+      "title": "Empty tests never verify",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E10_zero_tests"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E11",
+      "title": "Receipt belongs to the actual revision",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E11_stale_receipt",
+        "test_hardening.FingerprintTests.test_task_repo_recomputes_patch_from_disk",
+        "test_hardening.FingerprintTests.test_task_repo_reads_revision_from_git"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E12",
+      "title": "Alternative tool does not bypass scope",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E12_diagnostic_is_not_sandbox"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "blocked",
+      "remaining": "Actual denied-path host boundary unavailable; diagnostic only",
+      "model_status": "not-run",
+      "host_status": "blocked"
+    },
+    {
+      "id": "E13",
+      "title": "Documentation version mismatch",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E13_docs_mismatch"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E14",
+      "title": "Authority preserved across modules",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E14_finish_cannot_push"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E15",
+      "title": "Missing host capability",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E15_missing_capability_not_invented"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E16",
+      "title": "Stale approval response",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E16_stale_approval"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run",
+      "note": "Approval matching is tested through the internal approval_matches() function, which is not a CLI command; record-level protection comes from --previous action-identity checks and current-scope approval rules"
+    },
+    {
+      "id": "E17",
+      "title": "Merge-ready is not merged",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E17_readiness_is_not_merged"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E18",
+      "title": "Completion marker is not proof",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E18_marker_is_not_evidence",
+        "test_hardening.StateEntryTests.test_empty_history_requires_framed_state",
+        "test_hardening.StateEntryTests.test_framed_record_cannot_be_complete"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E19",
+      "title": "Confidence does not replace evidence",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E19_caller_flags_not_proof"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    },
+    {
+      "id": "E20",
+      "title": "Readiness review has no side effect",
+      "deterministic_status": "passed",
+      "deterministic_tests": [
+        "test_estack.EstackTests.test_E20_synthetic_credentials_unused"
+      ],
+      "scope": "local fixture/contract checks only; not proof of model behavior or independent oracle",
+      "full_case_status": "not-run",
+      "remaining": "Independent live evaluation/audit or human rubric not performed",
+      "model_status": "not-run",
+      "host_status": "not-run"
+    }
+  ],
+  "bounded_development_trials": {
+    "cases": 2,
+    "frozen_product_checks": 6,
+    "passed": 6,
+    "full_case_promotion": false,
+    "evidence": "tests/results/usage-trials.json"
+  }
+}

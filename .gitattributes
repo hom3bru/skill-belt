@@ -2,3 +2,6 @@
 # Skill snapshots include byte-hashed source/evidence fixtures. Preserve their
 # published bytes on every platform so manifests do not depend on checkout OS.
 skills/** -text
+# Overlays and the shared vocabulary become published skill bytes.
+public-overlays/** -text
+shared/** -text

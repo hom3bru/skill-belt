@@ -1,0 +1,19 @@
+{
+  "format": "skill-belt-public-build-1",
+  "skills": {
+    "westack": {
+      "notes": "Two records ship although the rest of tests/results/ does not: provenance/ARTIFACT_REVIEW.md (a dated review) and tests/results/tests-final.json (the final test receipt). Both are clean on the leak patterns, and westack's own rename guard lists both in its keep list, so an edition that omits them fails that guard. The other receipts stay excluded as machine-specific transcripts; 12 of them contain machine paths and private project names.",
+      "exclude": [
+        "tests/results/**",
+        "!tests/results/usage-trials.json",
+        "!tests/results/tests-final.json"
+      ],
+      "overlays": {
+        "provenance/RIGHTS.md": {
+          "base_sha256": "0f9370eb64aa80bc72397e60bc5061b4b7f095aaffbe03efed23eb56f5afeabe",
+          "reason": "The collection also publishes adopt-adapt, so 'not bundled, relicensed or redistributed' becomes 'not bundled into westack or relicensed by westack'. Re-pinned to westack 0.3.1 (commit 37feb98); every other byte is the canonical file."
+        }
+      }
+    }
+  }
+}

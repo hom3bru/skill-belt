@@ -6,7 +6,7 @@ import re
 import stat
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ("adopt-adapt", "frankenmine", "estack")
+NAMES = ("adopt-adapt", "frankenmine", "westack")
 
 
 def files(root):
@@ -22,20 +22,37 @@ def files(root):
     return result
 
 
+def skill_version(root):
+    """The skill's own version: SKILL.md front matter, else its README title confirmed by CHANGELOG.
+
+    westack keeps its version in README.md ("# westack 0.3.1 ...") and CHANGELOG.md,
+    not in front matter. A title the changelog never mentions is treated as stale.
+    """
+    root = Path(root)
+    text = (root / "SKILL.md").read_text(encoding="utf-8")
+    front = re.match(r"---\r?\n(.*?)\r?\n---\r?\n", text, re.S)
+    found = re.search(r'^\s+version: "([^"]+)"', front.group(1), re.M) if front else None
+    if found:
+        return found.group(1)
+    readme = root / "README.md"
+    title = readme.read_text(encoding="utf-8").splitlines()[0] if readme.is_file() else ""
+    found = re.match(r"# \S+ (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)(?![\w.-])", title)
+    if not found:
+        raise ValueError(str(root) + ": no version in SKILL.md front matter or a README.md title '# <Name> <x.y.z>'")
+    version = found.group(1)
+    changelog = root / "CHANGELOG.md"
+    mentioned = changelog.is_file() and re.search(r"(?<![\w.])" + re.escape(version) + r"(?![\w-]|\.\d)",
+                                                   changelog.read_text(encoding="utf-8"))
+    if not mentioned:
+        raise ValueError(str(root) + ": README.md title version " + version + " does not appear in CHANGELOG.md")
+    return version
+
+
 def main():
-    estack = ROOT / "skills/estack"
-    rows = [{"path": name, "size_bytes": (estack / name).stat().st_size, "sha256": sha}
-            for name, sha in files(estack).items() if name != "package-manifest.json"]
-    manifest = dict(name="estack", version="0.2.0-portfolio.1", archive_root="estack/",
-                    distribution="portable public portfolio edition", manifest_excludes_itself=True, files=rows)
-    (estack / "package-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     skills = []
     for name in NAMES:
         root = ROOT / "skills" / name
-        text = (root / "SKILL.md").read_text(encoding="utf-8")
-        version = re.search(r'^\s+version: "([^"]+)"', text, re.M)
-        skills.append(dict(name=name, version=version.group(1) if version else "0.2.0-portfolio.1",
-                           path="skills/" + name, files=files(root)))
+        skills.append(dict(name=name, version=skill_version(root), path="skills/" + name, files=files(root)))
     (ROOT / "skills-manifest.json").write_text(json.dumps(dict(format="skill-belt-snapshots-1", skills=skills), indent=2) + "\n",
                                                encoding="utf-8", newline="\n")
     print("Published-byte manifests refreshed for three skill snapshots.")

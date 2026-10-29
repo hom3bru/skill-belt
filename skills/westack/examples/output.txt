@@ -1,0 +1,1 @@
+Observed workspace/src/parser/parser.txt (snapshot): parser returns a string. One read; no runtime check.

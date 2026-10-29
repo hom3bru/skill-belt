@@ -1,0 +1,39 @@
+{
+  "format": "westack-lineage-1",
+  "events": [
+    {
+      "date": "2026-10-28",
+      "change": "renamed estack 0.3.0 (unreleased) to westack 0.3.1; no behaviour change",
+      "decided_by": "Matt (owner): \"careful to change all 'estack's to 'westack's\"",
+      "repository": "westack (renamed from estack with history kept)",
+      "from": {
+        "path": "skills/estack",
+        "commit": "6000e1b",
+        "version": "0.3.0 (unreleased)"
+      },
+      "to": {
+        "path": "skills/westack",
+        "version": "0.3.1"
+      },
+      "why": "a separate public project, singularityhacker/Estack, owns the estack and estack-* names",
+      "kept_unchanged": {
+        "decisions.json": "the twenty source-graded donor decisions keep their original wording, which says estack",
+        "records": "ARTIFACT_REVIEW.md, build-inputs.json, continuation.md, source-qualification.json, tests/results, tests/acceptance-results.json and the changelog entries before 0.3.1 record what ran or shipped under the old name",
+        "wire_identifiers": [
+          "estack-fingerprint-v1 (patch fingerprint header)",
+          "estack-manifest-v1",
+          "estack-shape-v1 (contract vocabulary label)",
+          "estack-bounded-source-qualification-1 (source-qualification record format)"
+        ],
+        "wire_identifier_reason": "changing them would change every recorded patch_id and stored manifest, so records written by estack would read as stale"
+      },
+      "moved": {
+        "package-manifest.json": "provenance/estack-0.2.0-package-manifest.json (it describes the 0.2.0 release, not this package)"
+      },
+      "replaced": {
+        "references/evidence-vocabulary.md": "v2 replaced byte for byte by the skill-belt master, v3 (sha256 bde4fc984f4455223956fd9f32f29f61a986ebc9213f5b800a20bf5583debbd2)"
+      },
+      "guard": "tests/test_rename_guard.py"
+    }
+  ]
+}

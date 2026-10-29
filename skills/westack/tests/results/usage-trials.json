@@ -1,0 +1,126 @@
+{
+  "kind": "two bounded independent developer tasks on a frozen skill snapshot",
+  "oracle_sha256": "764001b6d121537d42fa01643d17d71890ce2eaea2b247bf70b8e25e2a3679e0",
+  "before": {
+    "checks": [
+      {
+        "name": "fractional positive",
+        "status": "failed",
+        "error": "AssertionError()"
+      },
+      {
+        "name": "different fraction",
+        "status": "failed",
+        "error": "AssertionError()"
+      },
+      {
+        "name": "negative fraction",
+        "status": "failed",
+        "error": "AssertionError()"
+      },
+      {
+        "name": "whole mean and input preservation",
+        "status": "passed"
+      },
+      {
+        "name": "empty input ValueError",
+        "status": "failed",
+        "error": "ZeroDivisionError('division by zero')"
+      },
+      {
+        "name": "resume target applied exactly once",
+        "status": "passed"
+      }
+    ],
+    "passed": 2,
+    "total": 6
+  },
+  "after": {
+    "checks": [
+      {
+        "name": "fractional positive",
+        "status": "passed"
+      },
+      {
+        "name": "different fraction",
+        "status": "passed"
+      },
+      {
+        "name": "negative fraction",
+        "status": "passed"
+      },
+      {
+        "name": "whole mean and input preservation",
+        "status": "passed"
+      },
+      {
+        "name": "empty input ValueError",
+        "status": "passed"
+      },
+      {
+        "name": "resume target applied exactly once",
+        "status": "passed"
+      }
+    ],
+    "passed": 6,
+    "total": 6
+  },
+  "frozen_skill_sha256": "504ab4ff21a160f81a7bb7bec2dcfcbc4ed4aa05311a7ce91c22a3b9d0e1ac8c",
+  "final_record_check": "passed against final helper with previous snapshot",
+  "agent_integrity": {
+    "skillSha256": "504ab4ff21a160f81a7bb7bec2dcfcbc4ed4aa05311a7ce91c22a3b9d0e1ac8c",
+    "skillUnchanged": true,
+    "preserved": [
+      {
+        "path": "cases/resume/previous.json",
+        "sha256": "a8b814ba6aad8c6918b586857833daec5e6f45ba636c1e898cd57c6e510a1bcb",
+        "unchanged": true
+      },
+      {
+        "path": "cases/resume/out.txt",
+        "sha256": "519a0692130b89c296f0f7e2854e05bf59d2a321c8b631e2c2a82c53b2813491",
+        "unchanged": true
+      },
+      {
+        "path": "cases/resume/wait-result.json",
+        "sha256": "a593a6eea73e48e936d08de5f65145664953b282a361fc9a1a5aef9bbb585b7b",
+        "unchanged": true
+      }
+    ],
+    "finalFiles": [
+      {
+        "path": "cases/tiny/mean.py",
+        "sha256": "263db249e54ed333f6a66f3db0360a903cf0063d4d7fd8538fcee726a8382e39"
+      },
+      {
+        "path": "cases/tiny/test_mean.py",
+        "sha256": "e02c691f35136276439b3fa4dab2b52323bdfeb821bd10b2227ec3e7a965445a"
+      },
+      {
+        "path": "cases/resume/task.json",
+        "sha256": "90026cadd0fac4dd758c622a3400c4377672017377792b95ba2dccac48b18434"
+      },
+      {
+        "path": "cases/resume/inspection.json",
+        "sha256": "cb0c2b601e6e814a0f6b447f22772a77a80037c548568e7fac890f3d324e838a"
+      },
+      {
+        "path": "agent-results/tiny-before.txt",
+        "sha256": "b050810b5524854d3dd74f65d356c76db15cba44cebe5be3f00023c1d4763a9f"
+      },
+      {
+        "path": "agent-results/tiny-after.txt",
+        "sha256": "c1fdd27c9392409f134d4083573688a2f0ee16010c663320559227a49ddc4ab8"
+      },
+      {
+        "path": "agent-results/resume-validation.txt",
+        "sha256": "9c35bb697079cf412a9b8df99b2b763b86e852634fda4da2fa6b0ff911018eac"
+      }
+    ]
+  },
+  "limits": [
+    "No paired/repeated host/model qualification or comparative efficacy claim",
+    "Fixture input scopes were instructions, not an independently denied host boundary",
+    "Draft platform newline expectation corrected before oracle freeze and agent dispatch"
+  ]
+}

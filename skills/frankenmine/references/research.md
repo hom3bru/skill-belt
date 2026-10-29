@@ -23,4 +23,4 @@ The task uses ideas and the user's own design; no third-party implementation is 
 
 The installed adopt-adapt and REA instructions were read as reference material. Frankenmine's implementation mode follows the user's explicitly authorized scope; adopt-adapt's default plans-only evaluation mode is not applied as a ban on this separate build.
 
-The design specification's release gates are kept distinct: this package is a tested prototype, not a general or cross-language qualification. Estack was a future case at the original build stage and later became a bounded continuation example. That application does not establish general synthesis effectiveness or make estack-specific design choices universal requirements.
+The design specification's release gates are kept distinct: this package is a tested prototype, not a general or cross-language qualification. westack (then called estack) was a future case at the original build stage and later became a bounded continuation example. That application does not establish general synthesis effectiveness or make westack-specific design choices universal requirements.

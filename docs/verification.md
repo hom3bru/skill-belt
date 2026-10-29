@@ -4,16 +4,20 @@ The collection verifier runs the root rejection controls and all three bundled s
 
 | Layer | Evidence | Limit |
 | --- | --- | --- |
-| Collection checks | Snapshot hashes, local links, privacy-pattern controls and nonempty test counts | A bounded scan is not proof that every possible sensitive value was identified. |
+| Collection checks | Snapshot hashes, local links, privacy-pattern controls, evidence-vocabulary copies (required where a skill links to one, and always byte-identical to `shared/evidence-vocabulary.md`), a rename guard and nonempty test counts | A bounded scan is not proof that every possible sensitive value was identified. |
 | Helper and contract tests | Valid and invalid records, stale evidence, rights/provenance relationships, task startup and recovery | Consistency cannot authenticate a reviewer, receipt or permission. |
 | Authored product fixtures | Executed positive/broken examples | Small cases do not establish general task quality or benefit. |
 | Agent and host evaluation | Protocols retained with each skill | General effectiveness, native host enforcement and comparative model results remain unqualified. |
+
+The rename guard fails on the retired skill name, or on a doubled `w` prefix on westack, in any published file text or path. The allowlist in `scripts/verify.py` names each kept occurrence with the keep rule that allows it: a receipt or log, an older changelog entry, a hash-pinned input, a wire identifier, the other project that owns the old name, a real path outside this repository, or one "then called" statement of history per file.
+
+Each check has 900 seconds by default; `--timeout SECONDS` changes it. The adopt-adapt suite alone takes about three minutes on an idle Windows machine, so a timeout on a busy machine means "rerun", not "failed". The summary records each check's duration, and a timed-out check keeps its partial output.
 
 The one Windows exception is `test_research.ResearchTests.test_linked_source_entry_is_rejected` with reason `symlink creation unavailable`. It is reported visibly, cannot count as passed, and is not allowed on Linux. All-skipped suites and every other skip are rejected. The verifier never changes host permissions to force that test to run.
 
 ## Updating a snapshot
 
-Make the intended source change and preserve the skill's existing scope and tests. For an adopt-adapt change, first refresh its own manifest:
+Make the change in the canonical source, or in `public-build.json` and `public-overlays/`, and preserve the skill's existing scope and tests. Then regenerate the westack edition with `scripts/build_public.py` (see [provenance](provenance.md)); do not edit `skills/westack` by hand. The hand-made Frankenmine and adopt-adapt copies are edited in place, and the adopt-adapt copy also needs its own manifest refreshed after a change:
 
 ```sh
 cd skills/adopt-adapt

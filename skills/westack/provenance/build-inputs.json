@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-26",
+  "provenance": "Parent task continuation message (session identifier omitted)",
+  "source_route": "direct task context; independently summarized/serialized, not Library materialization",
+  "archive_materialized": false,
+  "archive_manifest_verified": false,
+  "parent_design_hash_reference": "b3728f363c049b9d552d3d2b227532f5aec143c933b58ccc2336e83829a508da",
+  "parent_crosswalk_hash_reference": "d3bab817fe5422d3cb3f0070d42beaa68f3e69ae961e5d270f726940d7a143ba",
+  "hash_fidelity_claim": "none at the 2026-10-26 build: full exact source bytes not saved; for the design spec and crosswalk see research_zip_verification (2026-10-27)",
+  "research_zip_verification": {
+    "date": "2026-10-27",
+    "supplied_by": "the user, as the original research ZIP",
+    "archive_sha256": "0e8b250b19ef0e36607d56b0b988603d7335cd0209951848de985baa6a9beb6a",
+    "archive_bytes": 4014525,
+    "archive_hash_verified_by": "parent session; not re-hashed in this change",
+    "extracted_files_hashed_in_this_change": {
+      "ESTACK_DESIGN_SPEC.md": "b3728f363c049b9d552d3d2b227532f5aec143c933b58ccc2336e83829a508da",
+      "DESIGN_SOURCE_CROSSWALK.md": "d3bab817fe5422d3cb3f0070d42beaa68f3e69ae961e5d270f726940d7a143ba",
+      "ACCEPTANCE_CASES.json": "2722341c93fa3da888fbe1a13b5d347cd81211198deaa6a3c5bc9d9956dcf8d6",
+      "design_decisions.json": "1bcaab912763770ef5d747d9ba7951e91438bb89912d830ad1161df7cc8f1f78"
+    },
+    "result": "ESTACK_DESIGN_SPEC.md and DESIGN_SOURCE_CROSSWALK.md equal parent_design_hash_reference and parent_crosswalk_hash_reference byte for byte; ACCEPTANCE_CASES.json and design_decisions.json had no earlier reference and are recorded only",
+    "method": "SHA-256 of the files in the parent session's extraction directory (estack/ inside the archive)",
+    "not_verified_here": "that the extraction directory was produced from this archive (done by the parent session); tests/acceptance-cases.json stays an independent serialization, with E02 and E14 failure conditions restored to the original wording on 2026-10-27"
+  },
+  "supporting_spec": "Complete Library text view previously read; byte-identical DOCX not materialized",
+  "scope_change": "Parent explicitly removed ZIP transfer as build prerequisite; WSL denial persists",
+  "inventory": {
+    "records": 2551,
+    "system_version_origins": 33,
+    "unit": "mixed records, not unique skills",
+    "full_corpus_included": false
+  },
+  "frankenmine": "background synthesis only; not implemented",
+  "rights": "independent authorship; no donor transfer",
+  "source_link_correction": {
+    "source": "Verified parent catalogue records supplied by task message on 2026-10-26; link correction only",
+    "decision_ids": [
+      "D14",
+      "D15",
+      "D16",
+      "D17",
+      "D18",
+      "D19",
+      "D20"
+    ],
+    "optional_shipping_source_url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/shipping.md",
+    "scope": "documentation only; no donor retrieval, audit or execution; existing inspection limits retained"
+  }
+}

@@ -1,0 +1,578 @@
+{
+  "format": "estack-bounded-source-qualification-1",
+  "date": "2026-10-26",
+  "scope": "Three selected donors only; no source/prose transplanted and no donor executed",
+  "source_integrity": "source-integrity.json",
+  "donor_count": 3,
+  "records": [
+    {
+      "id": "D06",
+      "repository": "cursor/plugins",
+      "revision": "99b609a72323b70204eab407c622f436e858e112",
+      "status": "reviewed-bounded-source",
+      "runtime_qualification": "not-run",
+      "sources": [
+        {
+          "original_url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/create-verification-skill/SKILL.md",
+          "retrieval_url": "https://raw.githubusercontent.com/cursor/plugins/99b609a72323b70204eab407c622f436e858e112/pstack/skills/create-verification-skill/SKILL.md",
+          "retrieved_at": "2026-10-26T15:39:22.646176+00:00",
+          "sha256": "d353973547bf8ad8977eca645f4cd4feaed0d32f4b43d1448f906b0a76c4d694",
+          "bytes": 6533,
+          "lines": 44,
+          "snapshot": "D06/create-verification-skill.md",
+          "inspected_ranges": [
+            [
+              1,
+              44
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/maintain-verification-skill/SKILL.md",
+          "retrieval_url": "https://raw.githubusercontent.com/cursor/plugins/99b609a72323b70204eab407c622f436e858e112/pstack/skills/maintain-verification-skill/SKILL.md",
+          "retrieved_at": "2026-10-26T15:40:00.904428+00:00",
+          "sha256": "515c0eaa054b3f6be1b1fb06f2c2f173c80fddb58bbcac57576f89c479bc68e8",
+          "bytes": 4922,
+          "lines": 39,
+          "snapshot": "D06/maintain-verification-skill.md",
+          "inspected_ranges": [
+            [
+              1,
+              39
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/shipping.md",
+          "retrieval_url": "https://raw.githubusercontent.com/cursor/plugins/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/shipping.md",
+          "retrieved_at": "2026-10-26T15:39:23.040133+00:00",
+          "sha256": "bf56339bdf7e0223bcff5abf4e8599e3f5b547b3fcc3b4ce9475e6e7dda14a9f",
+          "bytes": 4387,
+          "lines": 12,
+          "snapshot": "D06/shipping.md",
+          "inspected_ranges": [
+            [
+              1,
+              12
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        }
+      ],
+      "rights": {
+        "status": "reviewed-for-inspected-units",
+        "evidence": {
+          "original_url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/LICENSE",
+          "retrieval_url": "https://raw.githubusercontent.com/cursor/plugins/99b609a72323b70204eab407c622f436e858e112/pstack/LICENSE",
+          "retrieved_at": "2026-10-26T15:40:00.368684+00:00",
+          "sha256": "bc957ca6bee02792566a1a028d105e02e247c6e77cf057061674273da77b200e",
+          "bytes": 1067,
+          "lines": 21,
+          "snapshot": "D06/LICENSE",
+          "inspected_ranges": [
+            [
+              1,
+              21
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        "observed_licence": "MIT",
+        "route": "pattern-only; no source transplant",
+        "limitations": "Exact-unit review is not blanket closure clearance or legal assurance"
+      },
+      "retained_runtime_closure": [],
+      "target": "Existing estack modules and canonical records",
+      "authority_owner": "Current user scope and native host permission system"
+    },
+    {
+      "id": "D16",
+      "repository": "coleam00/Archon",
+      "revision": "761952e62b1d6db36fedf2ec69bc892b8ab90185",
+      "status": "reviewed-bounded-source",
+      "runtime_qualification": "not-run",
+      "sources": [
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/docs-web/src/content/docs/reference/cli.md",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/docs-web/src/content/docs/reference/cli.md",
+          "retrieved_at": "2026-10-26T15:39:23.192642+00:00",
+          "sha256": "14d8fe589c2057a6b719d13add9c555666c9f231865af5bf4e4cab924c681825",
+          "bytes": 168543,
+          "lines": 2024,
+          "snapshot": "D16/cli.md",
+          "inspected_ranges": [
+            [
+              849,
+              938
+            ],
+            [
+              1161,
+              1195
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/schemas/pause-occurrence.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/schemas/pause-occurrence.ts",
+          "retrieved_at": "2026-10-26T15:40:01.721239+00:00",
+          "sha256": "52dde679182688b856ae0d824cf6332f1286f3c60e6262752f8e00e9eb1102ed",
+          "bytes": 1504,
+          "lines": 35,
+          "snapshot": "D16/pause-occurrence.ts",
+          "inspected_ranges": [
+            [
+              1,
+              35
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-control.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-control.ts",
+          "retrieved_at": "2026-10-26T15:40:36.962619+00:00",
+          "sha256": "193913a11648d9b26acf34e901b59193acaabbf4153c32e5d4afbc65ba56ef8d",
+          "bytes": 28215,
+          "lines": 769,
+          "snapshot": "D16/workflow-control.ts",
+          "inspected_ranges": [
+            [
+              1,
+              126
+            ],
+            [
+              274,
+              296
+            ],
+            [
+              373,
+              437
+            ],
+            [
+              446,
+              550
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/answer-admission.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/answer-admission.ts",
+          "retrieved_at": "2026-10-26T15:41:47.720375+00:00",
+          "sha256": "1e7acf80c2033b57b4e4050159db73b911a49b24a06b3dbd35bd94ff58ef50cb",
+          "bytes": 8940,
+          "lines": 221,
+          "snapshot": "D16/answer-admission.ts",
+          "inspected_ranges": [
+            [
+              92,
+              152
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/answer.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/answer.ts",
+          "retrieved_at": "2026-10-26T15:41:48.339666+00:00",
+          "sha256": "6dfd21678ea6b387ce0925de31f13eeadb1257b17f9acfde4c516311f34c26da",
+          "bytes": 5590,
+          "lines": 155,
+          "snapshot": "D16/answer.ts",
+          "inspected_ranges": [
+            [
+              100,
+              155
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/run-actions.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow/run-actions.ts",
+          "retrieved_at": "2026-10-26T15:41:48.542990+00:00",
+          "sha256": "a7e93e295eca424d1916f34fbc9ccccecf6c9b5838a58152a968b1ee5c37b684",
+          "bytes": 4556,
+          "lines": 126,
+          "snapshot": "D16/run-actions.ts",
+          "inspected_ranges": [
+            [
+              79,
+              110
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow-operations.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/core/src/operations/workflow-operations.ts",
+          "retrieved_at": "2026-10-26T15:41:22.431505+00:00",
+          "sha256": "48cf21e6de8ab2969ef7a34ea4764441a23fbb279540b821c5bb8868f6d3e62d",
+          "bytes": 6913,
+          "lines": 175,
+          "snapshot": "D16/workflow-operations.ts",
+          "inspected_ranges": [
+            [
+              1,
+              60
+            ],
+            [
+              149,
+              175
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-wait-continuation.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-wait-continuation.ts",
+          "retrieved_at": "2026-10-26T15:40:02.101338+00:00",
+          "sha256": "3adc5b96f26ea7912f1f7920c220a4a5b0cde2a1e60cc05aee2bf6de6aed6490",
+          "bytes": 5433,
+          "lines": 160,
+          "snapshot": "D16/workflow-wait-continuation.ts",
+          "inspected_ranges": [
+            [
+              1,
+              160
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-run-owned.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-run-owned.ts",
+          "retrieved_at": "2026-10-26T15:40:37.913834+00:00",
+          "sha256": "b73de46f33b1549c9c2a9b0a584f4a68f741853550db5a9b256cba7cbc7d09ec",
+          "bytes": 5960,
+          "lines": 155,
+          "snapshot": "D16/workflow-run-owned.ts",
+          "inspected_ranges": [
+            [
+              95,
+              149
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/resume-transition.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/resume-transition.ts",
+          "retrieved_at": "2026-10-26T15:40:02.322598+00:00",
+          "sha256": "ecb4671305f95e1354321c6ba0ef3b0c781b0a2a87cf5c37a9c428b885ecc790",
+          "bytes": 2030,
+          "lines": 56,
+          "snapshot": "D16/resume-transition.ts",
+          "inspected_ranges": [
+            [
+              1,
+              56
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/stale-resume.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/stale-resume.ts",
+          "retrieved_at": "2026-10-26T15:40:02.544462+00:00",
+          "sha256": "cbc3f93d809ee27660b40828e9cf717fbdb1343b40b7a4a0c93d4bf74831eb72",
+          "bytes": 2523,
+          "lines": 65,
+          "snapshot": "D16/stale-resume.ts",
+          "inspected_ranges": [
+            [
+              1,
+              65
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/stale-resume.test.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/stale-resume.test.ts",
+          "retrieved_at": "2026-10-26T15:40:38.527959+00:00",
+          "sha256": "3b113d40044ad12b29a8477fda05c9e556c68c752d0ce7aab448c590b8d2053c",
+          "bytes": 4419,
+          "lines": 108,
+          "snapshot": "D16/stale-resume.test.ts",
+          "inspected_ranges": [
+            [
+              44,
+              108
+            ]
+          ],
+          "inspection_depth": "authored-test-source-inspected-not-executed",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/store/resume-snapshot.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/workflows/src/store/resume-snapshot.ts",
+          "retrieved_at": "2026-10-26T15:40:38.108073+00:00",
+          "sha256": "de6bbc9c32a82d5168459826c2fa6fb7cf32facea087a1cb9e29d186b257ef6a",
+          "bytes": 3007,
+          "lines": 57,
+          "snapshot": "D16/resume-snapshot.ts",
+          "inspected_ranges": [
+            [
+              1,
+              57
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-attention.ts",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/packages/cli/src/commands/workflow-attention.ts",
+          "retrieved_at": "2026-10-26T15:40:37.504874+00:00",
+          "sha256": "378212a0ad7fba1e6eb030e5f7cecb57e32146eb21162673a42a2ec9024a92eb",
+          "bytes": 15775,
+          "lines": 434,
+          "snapshot": "D16/workflow-attention.ts",
+          "inspected_ranges": [],
+          "inspection_depth": "targeted-symbol-search-only",
+          "executed": false
+        }
+      ],
+      "rights": {
+        "status": "reviewed-for-inspected-units",
+        "evidence": {
+          "original_url": "https://github.com/coleam00/Archon/blob/761952e62b1d6db36fedf2ec69bc892b8ab90185/LICENSE",
+          "retrieval_url": "https://raw.githubusercontent.com/coleam00/Archon/761952e62b1d6db36fedf2ec69bc892b8ab90185/LICENSE",
+          "retrieved_at": "2026-10-26T15:40:01.332257+00:00",
+          "sha256": "be39e59fb1d5f09c831ab6d8d38cba6d07812afb27eed300520dc493580cc7f6",
+          "bytes": 1072,
+          "lines": 21,
+          "snapshot": "D16/LICENSE",
+          "inspected_ranges": [
+            [
+              1,
+              21
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        "observed_licence": "MIT",
+        "route": "pattern-only; no source transplant",
+        "limitations": "Exact-unit review is not blanket closure clearance or legal assurance"
+      },
+      "retained_runtime_closure": [],
+      "target": "Existing estack modules and canonical records",
+      "authority_owner": "Current user scope and native host permission system"
+    },
+    {
+      "id": "D18",
+      "repository": "snarktank/ralph",
+      "revision": "6c53cb0b831ebe8739c6a003e22af14902d8b0b5",
+      "status": "reviewed-bounded-source",
+      "runtime_qualification": "not-run",
+      "sources": [
+        {
+          "original_url": "https://github.com/snarktank/ralph/blob/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/ralph.sh",
+          "retrieval_url": "https://raw.githubusercontent.com/snarktank/ralph/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/ralph.sh",
+          "retrieved_at": "2026-10-26T15:39:23.407494+00:00",
+          "sha256": "b42738266de696a2807ae6af6a7f588bd7c8c8a1c01b71b0f4eece207b9e8d76",
+          "bytes": 3524,
+          "lines": 113,
+          "snapshot": "D18/ralph.sh",
+          "inspected_ranges": [
+            [
+              1,
+              113
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/snarktank/ralph/blob/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/prompt.md",
+          "retrieval_url": "https://raw.githubusercontent.com/snarktank/ralph/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/prompt.md",
+          "retrieved_at": "2026-10-26T15:40:03.164418+00:00",
+          "sha256": "ece4a98cc96ba79b12637a8e653d1fa7ec41caf053a0ba809e8e93f0788101e9",
+          "bytes": 4199,
+          "lines": 108,
+          "snapshot": "D18/prompt.md",
+          "inspected_ranges": [
+            [
+              1,
+              35
+            ],
+            [
+              96,
+              108
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        {
+          "original_url": "https://github.com/snarktank/ralph/blob/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/CLAUDE.md",
+          "retrieval_url": "https://raw.githubusercontent.com/snarktank/ralph/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/CLAUDE.md",
+          "retrieved_at": "2026-10-26T15:40:03.590873+00:00",
+          "sha256": "4dfe2e6d157db340680a4610a354b78840ea280f8384f96fba736316194fcbb5",
+          "bytes": 4069,
+          "lines": 104,
+          "snapshot": "D18/CLAUDE.md",
+          "inspected_ranges": [
+            [
+              1,
+              30
+            ],
+            [
+              92,
+              104
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        }
+      ],
+      "rights": {
+        "status": "reviewed-for-inspected-units",
+        "evidence": {
+          "original_url": "https://github.com/snarktank/ralph/blob/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/LICENSE",
+          "retrieval_url": "https://raw.githubusercontent.com/snarktank/ralph/6c53cb0b831ebe8739c6a003e22af14902d8b0b5/LICENSE",
+          "retrieved_at": "2026-10-26T15:40:02.748098+00:00",
+          "sha256": "102b6470e861e782d90a42d9086f48b8a2f38cbc4c0229216bcf0364f79ea5a3",
+          "bytes": 1066,
+          "lines": 21,
+          "snapshot": "D18/LICENSE",
+          "inspected_ranges": [
+            [
+              1,
+              21
+            ]
+          ],
+          "inspection_depth": "source-inspected",
+          "executed": false
+        },
+        "observed_licence": "MIT",
+        "route": "pattern-only; no source transplant",
+        "limitations": "Exact-unit review is not blanket closure clearance or legal assurance"
+      },
+      "retained_runtime_closure": [],
+      "target": "Existing estack modules and canonical records",
+      "authority_owner": "Current user scope and native host permission system"
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "Q-D06-lifecycle",
+      "donor": "D06",
+      "route": "pattern-only",
+      "stage": "qualified-design-candidate",
+      "directions": [
+        "target-led: trustworthy harness evidence",
+        "donor-led: proof survives teardown and instance failure"
+      ],
+      "target_modules": [
+        "verify",
+        "review"
+      ],
+      "applicable_when": "Task starts or drives an application instance",
+      "ownership": "One driver owns instance identity and teardown; evidence remains outside disposable state",
+      "proposal": "Add bounded instance diagnostics and a surviving-evidence check to real harness verification",
+      "oracle": "Reject missing post-cleanup artifacts and a wrong/shared build; keep liveness and independent review distinct",
+      "acceptance_status": "not-run",
+      "implementation": "not-started",
+      "provenance_correction": "Frozen positive/broken controls are estack additions; generator proves one mapped user journey"
+    },
+    {
+      "id": "Q-D16-ack",
+      "donor": "D16",
+      "route": "pattern-only",
+      "stage": "qualified-design-candidate",
+      "directions": [
+        "target-led: correct resume and evidence state",
+        "donor-led: control success can report no execution"
+      ],
+      "target_modules": [
+        "build",
+        "verify"
+      ],
+      "applicable_when": "A tool returns an acknowledgment, wait or recovery payload",
+      "ownership": "Host owns authority; task record owns action identity; payload evidence describes outcome",
+      "proposal": "Record acknowledged, executed and terminal outcomes distinctly using existing evidence/action records",
+      "oracle": "Reject executed:false as applied; reject wait attention/failed/owner-lost as success despite exit zero",
+      "acceptance_status": "not-run",
+      "implementation": "not-started"
+    },
+    {
+      "id": "Q-D16-retry",
+      "donor": "D16",
+      "route": "pattern-only",
+      "stage": "lesson",
+      "directions": [
+        "target-led: avoid duplicate effects",
+        "donor-led: retry eligibility depends on emitted events"
+      ],
+      "target_modules": [
+        "build"
+      ],
+      "applicable_when": "A provider adapter explicitly supports stale-session recovery",
+      "ownership": "One retry policy; actual host adapter must prove a fresh attempt is allowed",
+      "proposal": "Never infer safe replay from elapsed time or a generic error; inspect uncertain actions first",
+      "oracle": "Any meaningful output or tool event prevents blind fresh-session retry; repeated stale errors stop",
+      "acceptance_status": "not-run",
+      "implementation": "deferred-runtime-adapter"
+    },
+    {
+      "id": "Q-D18-progress",
+      "donor": "D18",
+      "route": "pattern-only",
+      "stage": "lesson",
+      "directions": [
+        "target-led: bounded attempts",
+        "donor-led: restartable work survives rejection of controller"
+      ],
+      "target_modules": [
+        "build",
+        "learn"
+      ],
+      "applicable_when": "Work spans contexts or interruption",
+      "ownership": "Canonical estack task record owns progress; native host owns permissions",
+      "proposal": "Retain explicit work identity and progress without adding a shell loop, bypass flags or donor PRD schema",
+      "oracle": "Failed command plus completion marker cannot pass; a changed patch invalidates old proof",
+      "acceptance_status": "not-run",
+      "implementation": "existing-estack-pattern-source-corroborated"
+    }
+  ],
+  "other_decisions": "D01-D05,D07-D15,D17,D19-D20 were not qualified here; on 2026-10-28 their pinned sources were read and graded (see decisions.json source_review), without runtime qualification",
+  "alternatives": {
+    "minimal_fresh": "Extend current estack modules and one contract",
+    "best_existing": "Evaluate pstack harness workflow when a full verification maintainer is actually needed",
+    "fusion": "Small independent pattern adaptation only; durable runtime integration deferred"
+  },
+  "blind_spots": [
+    "No donor runtime, test suite, host, or concurrency qualification",
+    "Archon database/store CAS implementations and full provider callers not inspected",
+    "No complete catalogue or upstream dependency closure assessment",
+    "Research observations do not authenticate a reviewer or grant authority"
+  ],
+  "snapshots_bundled": false,
+  "snapshot_resolution": "Snapshot paths resolve under source-qualification/ in the original continuation build, not this product package. Pinned original/retrieval URLs, SHA-256 values and inspected ranges remain portable metadata.",
+  "reconfirmation": {
+    "date": "2026-10-28",
+    "result": "D06, D16 and D18: recorded SHA-256 values match the bytes at the pin and at HEAD",
+    "D16_drift": "cli.md changed-minor on dev HEAD 6f4af7f7 outside the inspected ranges (68992fcf doctor wording, ef046844 bounded inventory scan); the wait and resume ranges shift by 11 lines to 860-949 and 1172-1206; the 13 other Archon files are unchanged"
+  }
+}

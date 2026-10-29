@@ -1,0 +1,184 @@
+{
+  "kind": "deterministic unit/contract/synthetic integration tests",
+  "qualification": "not a live model or host qualification",
+  "collected": 43,
+  "executed": 43,
+  "passed": 43,
+  "failed": 0,
+  "skipped": 0,
+  "status": "passed",
+  "tests": [
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_all_optional_unrun_criteria_cannot_complete",
+      "status": "passed"
+    },
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_fixed_finding_cannot_use_old_patch_evidence",
+      "status": "passed"
+    },
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_pending_action_cannot_be_reported_applied",
+      "status": "passed"
+    },
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_receipt_for_other_claim_cannot_certify_acceptance",
+      "status": "passed"
+    },
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_unrelated_old_runtime_receipt_cannot_upgrade_source_audit",
+      "status": "passed"
+    },
+    {
+      "test": "test_counterexamples.CounterexampleTests.test_unrun_review_evidence_cannot_satisfy_independence",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E01_requirement_origins",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E02_superseded_intent",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E03_tiny_real_fixture",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E04_red_green_negative_control",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E05_dependency_integration",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E06_constant_verifier_rejected",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E07_untrusted_lesson_no_authority",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E08_stale_lesson",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E09_denied_isolation_stays_denied",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E10_zero_tests",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E11_stale_receipt",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E12_diagnostic_is_not_sandbox",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E13_docs_mismatch",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E14_finish_cannot_push",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E15_missing_capability_not_invented",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E16_stale_approval",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E17_readiness_is_not_merged",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E18_marker_is_not_evidence",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E19_caller_flags_not_proof",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_E20_synthetic_credentials_unused",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_adversarial_event_replay_and_history",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_applied_action_cannot_revert_for_retry",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_changed_action_identity",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_denied_not_bypassed_by_observation",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_fixed_finding_needs_actual_receipt",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_illegal_transition_and_expanded_scope",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_malformed_records_and_duplicate_keys",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_missing_host_observed_context",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_negative_control_required",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_package_links_and_single_entrypoint",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_path_aliases_and_absolute_paths",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_review_cannot_impersonate_independence",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_source_read_cannot_certify_runtime",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_stale_output_and_missing_output",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_uncertain_already_applied_reconciliation",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_valid_source_audit_and_cli",
+      "status": "passed"
+    },
+    {
+      "test": "test_estack.EstackTests.test_zero_test_discovery_rejected",
+      "status": "passed"
+    }
+  ]
+}

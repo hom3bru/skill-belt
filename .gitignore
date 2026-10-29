@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 .validation/
+.public-build/
 .pytest_cache/
 .env
 .env.*
