@@ -22,7 +22,7 @@ the neutral behavior. Prefer these concerns over repository names or languages
 when looking for related facts; retain the original provenance and limits. Tags
 are navigation aids, not a taxonomy every lesson must satisfy.
 
-`python -B scripts/research.py search lessons.json --query "interrupted writes"`
+`python -B "<skill-directory>/scripts/research.py" search lessons.json --query "interrupted writes"`
 retrieves fact candidates using lexical matching. Repeated `--problem TAG` and
 `--invariant TAG` filters narrow their respective tags and descriptive fact text;
 `--limit N` bounds output when desired. No limit or tag backfill is mandatory,
@@ -40,7 +40,7 @@ To retain a pinned local source tree as review data, call `research.create_archi
 
 Design inputs inspected on 2026-10-09 (not promises of local gains):
 
-Practical CLI: `python -B scripts/research.py dependencies ROOT --path FILE --output dependencies.json`; attach that declaration to its lesson. Before reuse, run `freshness lessons.json ROOT --output lessons-rechecked.json` (optional `--source-revision` on either command). `archive SOURCE ARCHIVE.zip --identity LOCATOR --revision SHA`, `verify-archive ARCHIVE.zip`, and `restore ARCHIVE.zip FRESH_DIRECTORY` support offline preservation. These commands do not install or execute sources; existing output destinations are refused.
+Practical CLI (`<skill-directory>` is the folder holding SKILL.md): `python -B "<skill-directory>/scripts/research.py" dependencies ROOT --path FILE --output dependencies.json`; attach that declaration to its lesson. Before reuse, run `freshness lessons.json ROOT --output lessons-rechecked.json` (optional `--source-revision` on either command). `archive SOURCE ARCHIVE.zip --identity LOCATOR --revision SHA`, `verify-archive ARCHIVE.zip`, and `restore ARCHIVE.zip FRESH_DIRECTORY` support offline preservation. These commands do not install or execute sources; existing output destinations are refused.
 
 Review filename exclusions: legitimate source such as `BrowserScenarioSecrets.ts` can match a secret-name rule. After inspecting that exact file, `archive --include-path relative/source.ts` includes it and records the exception while retaining other exclusions. Do not disable secret exclusions broadly or treat a source-looking filename as proof of safe contents.
 

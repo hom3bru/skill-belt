@@ -6,4 +6,4 @@ Known fixture answers in this package are development examples, not held-out evi
 
 Gate promotion on evidence of benefit versus best existing and minimal fresh baselines, plus ablation of material donors. Record failed, skipped, blocked and not-run separately. Human architectural judgment and executable product oracles answer different questions.
 
-Private exploratory audit transcripts are excluded from this public edition and do not complete this protocol. Package tests and source provenance answer narrower questions than agent effectiveness.
+The v0.1.1 audit's mixed-version exploratory offline trial is a build record, omitted from this public edition. It was reconciled against final instructions, but had no frozen initial source snapshot, paired control, repeated runs or blinded graders. It does not complete this protocol. Independent package artifact review is recorded separately from both this protocol and review of the authored ReplayTotal example.

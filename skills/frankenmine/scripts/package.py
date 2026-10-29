@@ -11,7 +11,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_HASHES = {
-    "FRANKENMINE_DESIGN_SPEC.md": "23963bcbb31b0233d3d7d9d24acd11e45b30a96017157139c402cfd9d07b5f3d",
+    "FRANKENMINE_DESIGN_SPEC.md": "3670e37cc1b764d9cd47dcde13140a573e8168bd20bea642eebdfa4fc18f31a3",
     "prior_art.json": "9da39037f96be4d1e579d64187e69a0577c57e63be7b22ad9d8b15e7c3c99b6b",
     "translation-research.json": "d4dcab448abebd0d4dbd38ad0558714bde6fac22349855ae800710935eef5bd6",
     "tool_map.json": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23",
@@ -45,7 +45,17 @@ def validate():
         return [str(exc)]
     required = ["SKILL.md", "README.md", "agents/openai.yaml", "scripts/frankenmine.py", "schemas/run.schema.json",
                 "tests/run_tests.py", "tests/fixture_builder.py", "tests/adversarial_tests.py", "evals/evals.json",
-                "evals/LIVE_AGENT_PROTOCOL.md", "examples/synthetic/run.json", "examples/no-fusion/run.json"]
+                "evals/LIVE_AGENT_PROTOCOL.md", "examples/synthetic/run.json", "examples/no-fusion/run.json",
+                "scripts/synthesis_handoff.py", "tests/handoff_tests.py",
+                # 0.2.0: frozen 1.0 contract (still used to validate 1.0 records), lite tier, 0.2 tests.
+                "schemas/run-1.0.schema.json", "examples/lite-dossier.md", "tests/v0_2_tests.py",
+                # 0.2.0 round 2: authoring helpers, lite checker and their tests.
+                "scripts/authoring.py", "scripts/lite_check.py", "tests/v0_2_round2_tests.py",
+                "tests/fixtures/lite/DOSSIER.md", "tests/v0_2_lite_tests.py",
+                # Rename guard: the old name appears only in the allowlisted receipts and records.
+                "tests/westack_rename_tests.py",
+                # Fix round after the 2026-10-28 blind comparison: proportionality budget, wording and defaults.
+                "tests/v0_2_fix_round_tests.py"]
     errors = ["Missing " + x for x in required if not (ROOT / x).is_file()]
     for name, sha in SOURCE_HASHES.items():
         source = ROOT / "research" / name

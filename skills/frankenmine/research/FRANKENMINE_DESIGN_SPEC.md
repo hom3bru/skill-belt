@@ -110,4 +110,4 @@ REA was inspected at commit 721dd3d1aa271b99feaf56559af6d3ed24cc101a: [skill ver
 
 The accompanying research dossier records close predecessors, practical candidate tools and cross-language research, with source/inspection limits. No donor tool was installed or executed. The estack worked case is a design exercise, not a benchmark result or demonstrated fused implementation.
 
-Public distribution note: private source citations were replaced with links to this collection. This copy is not byte-identical to the original research input.
+Public distribution note: private source citations were replaced with links to this collection's current adopt-adapt files, which can be a later edition than the snapshot the original cited. This copy is not byte-identical to the original research input.

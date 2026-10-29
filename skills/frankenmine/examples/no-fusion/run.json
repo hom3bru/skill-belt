@@ -1,11 +1,12 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "id": "minimal-fresh-wins",
   "mode": "design",
   "synthetic": true,
   "brief": {
     "outcome": "New resumable exact batch total",
     "users": "Batch import operator",
+    "question": "product-led",
     "non_goals": [
       "No database, service, deployment or donor execution"
     ],
@@ -31,7 +32,7 @@
     {
       "id": "game",
       "url": "fixture://game",
-      "revision": "game-v1",
+      "revision": "game-v1@sha256:6a0f5135eedd647abbf6f017949dd8a446137aca35ff3c0a94a1ff4d8b37837c",
       "languages": [
         "Python"
       ],
@@ -45,7 +46,7 @@
     {
       "id": "math",
       "url": "fixture://math",
-      "revision": "math-v1",
+      "revision": "math-v1@sha256:021017ed5a880bdc73f054281da5e0ec537e48e8e0c6369a2f8b46b26acb3ed8",
       "languages": [
         "JavaScript"
       ],
@@ -61,7 +62,7 @@
     {
       "id": "ev-game",
       "donor": "game",
-      "revision": "game-v1",
+      "revision": "game-v1@sha256:6a0f5135eedd647abbf6f017949dd8a446137aca35ff3c0a94a1ff4d8b37837c",
       "path": "donors/game_save/checkpoint.py",
       "start_line": 1,
       "end_line": 7,
@@ -74,7 +75,7 @@
     {
       "id": "ev-math",
       "donor": "math",
-      "revision": "math-v1",
+      "revision": "math-v1@sha256:021017ed5a880bdc73f054281da5e0ec537e48e8e0c6369a2f8b46b26acb3ed8",
       "path": "donors/exact_math/total.js",
       "start_line": 1,
       "end_line": 5,
@@ -85,78 +86,94 @@
       "sha256": "021017ed5a880bdc73f054281da5e0ec537e48e8e0c6369a2f8b46b26acb3ed8"
     }
   ],
+  "supporting_evidence": [],
   "discoveries": [
     {
       "id": "game-target-led",
       "donor": "game",
       "direction": "target-led",
-      "problem": "Repeated input or lossy amounts",
-      "mechanism": "Identity set",
-      "invariant": "One application per identity",
-      "assumptions": "Stable identities",
+      "problem": "A batch import replayed after interruption applies the same event twice",
+      "mechanism": "Membership set checked before mutation; remember() refuses a seen checkpoint",
+      "invariant": "Each identity is applied at most once",
+      "assumptions": "Callers supply identities that are stable across restarts",
       "target_need": "once",
       "evidence": [
         "ev-game"
       ],
-      "falsifier": "Conflicting replay mutates ledger",
+      "falsifier": "Replaying a completed batch changes the total",
       "stage": "candidate",
       "disposition": "promising",
-      "rationale": "Game checkpoints suggest workflow restart recovery beyond original purpose"
+      "rationale": "Directly serves the replay requirement"
     },
     {
       "id": "game-donor-led",
       "donor": "game",
       "direction": "donor-led",
-      "problem": "Repeated input or lossy amounts",
-      "mechanism": "Identity set",
-      "invariant": "One application per identity",
-      "assumptions": "Stable identities",
-      "target_need": "once",
+      "problem": "Unlock flows need to know whether an unlock was new, not just record it",
+      "mechanism": "remember() returns a first-seen boolean, so one call both records and reports novelty",
+      "invariant": "The caller learns whether this call changed state without a second lookup",
+      "assumptions": "Callers act on the signal instead of discarding it",
+      "target_need": "hypothesis: expose a replay counter so operators see how much of a resumed batch was already applied",
       "evidence": [
         "ev-game"
       ],
-      "falsifier": "Conflicting replay mutates ledger",
-      "stage": "candidate",
+      "falsifier": "Operators never use the count, or counting still needs a second lookup",
+      "stage": "hypothesis",
       "disposition": "promising",
-      "rationale": "Game checkpoints suggest workflow restart recovery beyond original purpose"
+      "rationale": "Beyond the donor's purpose: the return value is an observability hook, not only deduplication"
     },
     {
       "id": "math-target-led",
       "donor": "math",
       "direction": "target-led",
-      "problem": "Repeated input or lossy amounts",
-      "mechanism": "Decimal-string exact arithmetic",
-      "invariant": "No float rounding",
-      "assumptions": "Canonical decimal integer strings",
+      "problem": "Totals above 2**53 lose precision with binary floats",
+      "mechanism": "Exact BigInt reduction over decimal strings",
+      "invariant": "No rounding at any magnitude",
+      "assumptions": "Inputs are integer minor units written as strings",
       "target_need": "exact",
       "evidence": [
         "ev-math"
       ],
-      "falsifier": "2**53+1 rounds",
+      "falsifier": "2**53 + 1 sums incorrectly",
       "stage": "candidate",
       "disposition": "promising",
-      "rationale": "BigInt boundary suggests exact serialization across runtimes"
+      "rationale": "Directly serves the exact-arithmetic requirement"
     },
     {
       "id": "math-donor-led",
       "donor": "math",
       "direction": "donor-led",
-      "problem": "Repeated input or lossy amounts",
-      "mechanism": "Decimal-string exact arithmetic",
-      "invariant": "No float rounding",
-      "assumptions": "Canonical decimal integer strings",
-      "target_need": "exact",
+      "problem": "Values crossing a JSON or JavaScript boundary silently become floats",
+      "mechanism": "Amounts and totals stay decimal strings at every interface; exact integers exist only inside",
+      "invariant": "Serialized state never holds a binary float amount",
+      "assumptions": "Every consumer parses strings rather than JSON numbers",
+      "target_need": "hypothesis: checkpoint files stay exact when another runtime reads them",
       "evidence": [
         "ev-math"
       ],
-      "falsifier": "2**53+1 rounds",
-      "stage": "candidate",
+      "falsifier": "A consumer that reads the checkpoint as JSON numbers loses digits",
+      "stage": "lesson",
       "disposition": "promising",
-      "rationale": "BigInt boundary suggests exact serialization across runtimes"
+      "rationale": "Beyond arithmetic: a representation rule for the checkpoint format"
     }
   ],
   "candidates": [
     {
+      "phase": "selected",
+      "implementation": "not-started",
+      "closure": [
+        "No third-party dependencies; built-in set or integer arithmetic"
+      ],
+      "target_language": "Python",
+      "owner": "ReplayTotal",
+      "caller": "Batch importer",
+      "contract": "Canonical decimal-string integer events applied once; conflicting duplicates reject",
+      "approval_boundary": "Local authored example only; no donor execution, publication, credentials or host mutation",
+      "recovery": "Atomic in-memory validation; versioned checkpoint restore; caller persists checkpoint",
+      "maintenance": "Example maintainer owns the Python slice and frozen product oracle",
+      "update_strategy": "Review source changes against pinned snapshots; rerun oracle and controls",
+      "falsifier": "Frozen oracle accepts a disconnected contribution",
+      "alternative": "A tiny fresh implementation may be simpler than reuse; no measured superiority claim",
       "id": "component-game",
       "donor": "game",
       "evidence": [
@@ -166,30 +183,35 @@
         "game-target-led",
         "game-donor-led"
       ],
-      "need": "once",
+      "need": [
+        "once"
+      ],
       "unit": "donors/game_save/checkpoint.py",
-      "route": "defer",
-      "phase": "deferred",
-      "implementation": "not-started",
-      "closure": [
-        "No third-party dependencies; built-in set or integer arithmetic"
+      "route": "pattern-only",
+      "touches": [
+        "state:entries",
+        "policy:duplicate"
       ],
       "seam": {
-        "exports_consumers": "ReplayTotal.add called by batch importer",
-        "closure": "Only built-in types; original fixture not imported",
-        "initialization": "Empty ledger initialized before use; no global registry",
-        "state_transactions": "ReplayTotal owns entries; validate all fields before mutation",
-        "resources_lifetime": "Caller owns ledger and checkpoint dict; no open resources",
+        "exports_consumers": "Donor remember(seen, checkpoint) has one caller shape; ReplayTotal.add re-expresses it",
+        "closure": "Donor unit uses only a built-in set; nothing is imported from the fixture",
+        "initialization": "Donor relies on a caller-created set; ReplayTotal creates its ledger in __init__",
+        "state_transactions": "Donor mutates the caller's set; ReplayTotal owns entries and validates before mutating",
+        "resources_lifetime": "No files, sockets or handles in either side",
         "concurrency_cancellation": "Single-threaded calls; caller serializes access; no async",
-        "errors_retries": "ValueError before mutation; same event retries return False",
-        "serialization": "Versioned dictionary of string identities and decimal strings",
-        "permissions_effects": "In-memory computation only; checkpoint I/O belongs to caller",
-        "tests": "Frozen independent oracle plus disconnect and rounding controls",
-        "licensing": "Locally authored fixture; no external source copied"
+        "errors_retries": "Donor never raises; product raises ValueError before mutation and returns False on a same-value retry",
+        "serialization": "Donor keeps no format; product snapshots a versioned dictionary",
+        "permissions_effects": "In-memory computation only; checkpoint I/O belongs to the caller",
+        "tests": "Frozen independent oracle plus disconnected-dedupe control",
+        "licensing": "Locally authored fixture; no external source copied",
+        "evidence": [
+          "ev-game"
+        ]
       },
       "rights": {
         "status": "reviewed",
         "route": "idea-only",
+        "category": "task-authored",
         "license": "Task-authored synthetic fixture",
         "unit": "donors/game_save/checkpoint.py",
         "evidence": [
@@ -201,31 +223,27 @@
         "rationale": "Original fixture and new implementation authored for this task; no third-party reuse"
       },
       "source_language": "Python",
-      "target_language": "Python",
       "deltas": [],
-      "protocol": {
-        "version_rejection": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "authentication": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "idempotency": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "reordering_duplicates": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "backpressure": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "shutdown_restart_identity": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "performance_budget": "Not applicable: in-process synchronous value API, no transport or native ABI"
-      },
-      "owner": "ReplayTotal",
-      "caller": "Batch importer",
-      "contract": "Decimal-string integer events applied once; conflicting duplicates reject",
-      "approval_boundary": "Local authored example only; no donor execution, publication, credentials or host mutation",
-      "intentional_changes": "Reject booleans, floats and noncanonical strings; no JavaScript permissive BigInt conversion",
-      "recovery": "Atomic in-memory validation; versioned checkpoint restore; caller persists checkpoint",
-      "maintenance": "Example maintainer owns Python slice and frozen product oracle",
-      "update_strategy": "Review source changes against pinned snapshots; rerun oracle and controls",
+      "intentional_changes": "Conflicting duplicates raise instead of returning False; identities must be nonempty strings",
       "acceptance": "accept-game",
-      "negative_control": "control-game",
-      "falsifier": "Frozen oracle accepts a disconnected contribution",
-      "alternative": "A tiny fresh implementation may be simpler than reuse; no measured superiority claim"
+      "negative_control": "control-game"
     },
     {
+      "phase": "selected",
+      "implementation": "not-started",
+      "closure": [
+        "No third-party dependencies; built-in set or integer arithmetic"
+      ],
+      "target_language": "Python",
+      "owner": "ReplayTotal",
+      "caller": "Batch importer",
+      "contract": "Canonical decimal-string integer events applied once; conflicting duplicates reject",
+      "approval_boundary": "Local authored example only; no donor execution, publication, credentials or host mutation",
+      "recovery": "Atomic in-memory validation; versioned checkpoint restore; caller persists checkpoint",
+      "maintenance": "Example maintainer owns the Python slice and frozen product oracle",
+      "update_strategy": "Review source changes against pinned snapshots; rerun oracle and controls",
+      "falsifier": "Frozen oracle accepts a disconnected contribution",
+      "alternative": "A tiny fresh implementation may be simpler than reuse; no measured superiority claim",
       "id": "component-math",
       "donor": "math",
       "evidence": [
@@ -235,30 +253,35 @@
         "math-target-led",
         "math-donor-led"
       ],
-      "need": "exact",
+      "need": [
+        "exact"
+      ],
       "unit": "donors/exact_math/total.js",
-      "route": "defer",
-      "phase": "deferred",
-      "implementation": "not-started",
-      "closure": [
-        "No third-party dependencies; built-in set or integer arithmetic"
+      "route": "pattern-only",
+      "touches": [
+        "state:entries",
+        "policy:error"
       ],
       "seam": {
-        "exports_consumers": "ReplayTotal.add called by batch importer",
-        "closure": "Only built-in types; original fixture not imported",
-        "initialization": "Empty ledger initialized before use; no global registry",
-        "state_transactions": "ReplayTotal owns entries; validate all fields before mutation",
-        "resources_lifetime": "Caller owns ledger and checkpoint dict; no open resources",
-        "concurrency_cancellation": "Single-threaded calls; caller serializes access; no async",
-        "errors_retries": "ValueError before mutation; same event retries return False",
-        "serialization": "Versioned dictionary of string identities and decimal strings",
-        "permissions_effects": "In-memory computation only; checkpoint I/O belongs to caller",
-        "tests": "Frozen independent oracle plus disconnect and rounding controls",
-        "licensing": "Locally authored fixture; no external source copied"
+        "exports_consumers": "Donor total(decimalStrings) reduces an array; ReplayTotal.total derives the sum",
+        "closure": "Donor uses only BigInt; the Python slice uses only int",
+        "initialization": "Donor starts from 0n; an empty ledger totals '0'",
+        "state_transactions": "Donor is stateless; ReplayTotal owns entries",
+        "resources_lifetime": "No files, sockets or handles in either side",
+        "concurrency_cancellation": "Synchronous on both sides; no async",
+        "errors_retries": "Donor throws SyntaxError midway; product validates every event before mutation",
+        "serialization": "Decimal strings at every interface; versioned checkpoint",
+        "permissions_effects": "In-memory computation only",
+        "tests": "Frozen independent oracle plus lossy-numeric control",
+        "licensing": "Locally authored fixture; no external source copied",
+        "evidence": [
+          "ev-math"
+        ]
       },
       "rights": {
         "status": "reviewed",
         "route": "idea-only",
+        "category": "task-authored",
         "license": "Task-authored synthetic fixture",
         "unit": "donors/exact_math/total.js",
         "evidence": [
@@ -270,147 +293,10 @@
         "rationale": "Original fixture and new implementation authored for this task; no third-party reuse"
       },
       "source_language": "JavaScript",
-      "target_language": "Python",
-      "deltas": [
-        {
-          "dimension": "numeric",
-          "status": "mapped",
-          "donor_semantics": "BigInt exact integer and decimal string boundary",
-          "target_semantics": "Python int; strict decimal strings and ValueError",
-          "conversion": "Reject permissive coercions; encode exact total as string",
-          "test": "accept-math",
-          "reason": "Independent >2**53/malformed/resume oracle"
-        },
-        {
-          "dimension": "null_missing",
-          "status": "mapped",
-          "donor_semantics": "BigInt exact integer and decimal string boundary",
-          "target_semantics": "Python int; strict decimal strings and ValueError",
-          "conversion": "Reject permissive coercions; encode exact total as string",
-          "test": "accept-math",
-          "reason": "Independent >2**53/malformed/resume oracle"
-        },
-        {
-          "dimension": "unicode_regex",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "equality_order",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "time_units",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "errors",
-          "status": "mapped",
-          "donor_semantics": "BigInt exact integer and decimal string boundary",
-          "target_semantics": "Python int; strict decimal strings and ValueError",
-          "conversion": "Reject permissive coercions; encode exact total as string",
-          "test": "accept-math",
-          "reason": "Independent >2**53/malformed/resume oracle"
-        },
-        {
-          "dimension": "async_cancellation",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "ownership",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "memory_threads",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "persistence_transactions",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "abi_layout",
-          "status": "not-applicable",
-          "donor_semantics": "No behavior in bounded arithmetic unit",
-          "target_semantics": "No corresponding capability retained",
-          "conversion": "No conversion required",
-          "test": "not-applicable",
-          "reason": "Unit has no async, native ABI, time, persistence, threads or mutable object sharing"
-        },
-        {
-          "dimension": "serialization",
-          "status": "mapped",
-          "donor_semantics": "BigInt exact integer and decimal string boundary",
-          "target_semantics": "Python int; strict decimal strings and ValueError",
-          "conversion": "Reject permissive coercions; encode exact total as string",
-          "test": "accept-math",
-          "reason": "Independent >2**53/malformed/resume oracle"
-        },
-        {
-          "dimension": "initialization",
-          "status": "mapped",
-          "donor_semantics": "BigInt exact integer and decimal string boundary",
-          "target_semantics": "Python int; strict decimal strings and ValueError",
-          "conversion": "Reject permissive coercions; encode exact total as string",
-          "test": "accept-math",
-          "reason": "Independent >2**53/malformed/resume oracle"
-        }
-      ],
-      "protocol": {
-        "version_rejection": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "authentication": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "idempotency": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "reordering_duplicates": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "backpressure": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "shutdown_restart_identity": "Not applicable: in-process synchronous value API, no transport or native ABI",
-        "performance_budget": "Not applicable: in-process synchronous value API, no transport or native ABI"
-      },
-      "owner": "ReplayTotal",
-      "caller": "Batch importer",
-      "contract": "Decimal-string integer events applied once; conflicting duplicates reject",
-      "approval_boundary": "Local authored example only; no donor execution, publication, credentials or host mutation",
-      "intentional_changes": "Reject booleans, floats and noncanonical strings; no JavaScript permissive BigInt conversion",
-      "recovery": "Atomic in-memory validation; versioned checkpoint restore; caller persists checkpoint",
-      "maintenance": "Example maintainer owns Python slice and frozen product oracle",
-      "update_strategy": "Review source changes against pinned snapshots; rerun oracle and controls",
+      "deltas": [],
+      "intentional_changes": "Only the decimal-string representation lesson is applied; no donor code or behaviour is reimplemented",
       "acceptance": "accept-math",
-      "negative_control": "control-math",
-      "falsifier": "Frozen oracle accepts a disconnected contribution",
-      "alternative": "A tiny fresh implementation may be simpler than reuse; no measured superiority claim"
+      "negative_control": "control-math"
     }
   ],
   "ownership": [
@@ -440,12 +326,42 @@
       "rationale": "Single ledger; derived totals and one public API"
     }
   ],
-  "interactions": [],
+  "interactions": [
+    {
+      "components": [
+        "component-game",
+        "component-math"
+      ],
+      "status": "resolved",
+      "rationale": "Both touch state:entries: the identity check runs before amount parsing, so a conflicting duplicate is rejected before arithmetic",
+      "evidence": [
+        "ev-game",
+        "ev-math"
+      ],
+      "test": "integrate-game-math"
+    }
+  ],
+  "requirement_coverage": [
+    {
+      "requirement": "once",
+      "by": [
+        "component-game",
+        "new:Fresh ledger class"
+      ]
+    },
+    {
+      "requirement": "exact",
+      "by": [
+        "component-math",
+        "new:Fresh ledger class"
+      ]
+    }
+  ],
   "global_review": {
     "cycles": "Acyclic one-class slice; no controller loops",
     "shared_versions": "Version 1 checkpoint schema rejects unknown versions",
     "resource_budget": "Linear memory in unique identities; bounded example only",
-    "higher_order": "Two donors only; no higher-order set beyond pair"
+    "higher_order": "Two donors only; no higher-order set beyond the pair"
   },
   "alternatives": [
     {
@@ -467,7 +383,7 @@
     },
     {
       "kind": "fusion",
-      "name": "Game identity + exact decimal boundary",
+      "name": "Game identity lesson + reimplemented exact decimal boundary",
       "evidence": [
         "ev-game",
         "ev-math"
@@ -477,15 +393,15 @@
   ],
   "decision": {
     "choice": "minimal-fresh",
-    "rationale": "For this tiny fixture a new class is cheaper than carrying transplanted code; retain both lessons with attribution."
+    "rationale": "For this tiny fixture a new class is cheaper than carrying transplanted code; both donor lessons stay selected as pattern-only with provenance."
   },
   "tests": [
     {
       "id": "accept-game",
       "purpose": "product",
-      "spec": "Run frozen >2**53/replay/conflict/malformed/order/restart cases",
+      "spec": "Run frozen >2**53/replay/conflict/malformed/canonical-spelling/order/restart cases",
       "oracle": "oracle.py",
-      "oracle_sha256": "78ea9d58f85f33069801dafec067c73e449d34cc18b5acc781fee492ba3b0af3",
+      "oracle_sha256": "234fc61ade77f2573718ba687f462751e9bdc6dd7295713db809debf49131122",
       "frozen": true,
       "status": "not-run"
     },
@@ -494,16 +410,16 @@
       "purpose": "negative-control",
       "spec": "Disconnect duplicate protection",
       "oracle": "oracle.py",
-      "oracle_sha256": "78ea9d58f85f33069801dafec067c73e449d34cc18b5acc781fee492ba3b0af3",
+      "oracle_sha256": "234fc61ade77f2573718ba687f462751e9bdc6dd7295713db809debf49131122",
       "frozen": true,
       "status": "not-run"
     },
     {
       "id": "accept-math",
       "purpose": "product",
-      "spec": "Run frozen >2**53/replay/conflict/malformed/order/restart cases",
+      "spec": "Run frozen >2**53/replay/conflict/malformed/canonical-spelling/order/restart cases",
       "oracle": "oracle.py",
-      "oracle_sha256": "78ea9d58f85f33069801dafec067c73e449d34cc18b5acc781fee492ba3b0af3",
+      "oracle_sha256": "234fc61ade77f2573718ba687f462751e9bdc6dd7295713db809debf49131122",
       "frozen": true,
       "status": "not-run"
     },
@@ -512,15 +428,25 @@
       "purpose": "negative-control",
       "spec": "Introduce floating-point rounding",
       "oracle": "oracle.py",
-      "oracle_sha256": "78ea9d58f85f33069801dafec067c73e449d34cc18b5acc781fee492ba3b0af3",
+      "oracle_sha256": "234fc61ade77f2573718ba687f462751e9bdc6dd7295713db809debf49131122",
+      "frozen": true,
+      "status": "not-run"
+    },
+    {
+      "id": "integrate-game-math",
+      "purpose": "integration",
+      "spec": "Identity check precedes amount parsing: a conflicting replay is rejected and the exact total is unchanged",
+      "oracle": "oracle.py",
+      "oracle_sha256": "234fc61ade77f2573718ba687f462751e9bdc6dd7295713db809debf49131122",
       "frozen": true,
       "status": "not-run"
     }
   ],
   "receipts": [],
   "review": {
-    "independent": false,
+    "author": "Example builder",
     "reviewer": "Builder self-review",
+    "independence": "self",
     "disposition": "not-run",
     "findings": [
       "Independent design reviewer has not evaluated this authored example"

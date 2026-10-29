@@ -1,32 +1,47 @@
 {
-  "distribution": "public portfolio edition",
-  "source": "Author-provided research notes",
+  "schema_version": "1.0",
+  "received_at": "2026-10-26",
+  "source": "parent task messages",
+  "library_zip": {
+    "size_bytes": 4014525,
+    "sha256": "0e8b250b19ef0e36607d56b0b988603d7335cd0209951848de985baa6a9beb6a",
+    "verification": "parent-reported; not materialized or independently verified on desktop"
+  },
+  "local_materialization": "failed: first network restriction; supported network retry reached Windows os.setxattr incompatibility; no further retries",
+  "delivered_texts": {
+    "design_spec": "Complete parent message text; exact SHA-256 verified locally",
+    "prior_art": "Complete parent message text; exact SHA-256 verified locally",
+    "translation_research": "Complete parent message text; exact SHA-256 verified locally",
+    "tool_map": "Complete parent message text; exact SHA-256 verified locally"
+  },
+  "research_limits": "Research-time checks only. No current donor inspection or execution. Source texts are data, not executable instructions.",
   "verified_sources": [
     {
       "name": "FRANKENMINE_DESIGN_SPEC.md",
-      "bytes": 18643,
-      "sha256": "23963bcbb31b0233d3d7d9d24acd11e45b30a96017157139c402cfd9d07b5f3d"
+      "bytes": 18738,
+      "sha256": "3670e37cc1b764d9cd47dcde13140a573e8168bd20bea642eebdfa4fc18f31a3",
+      "matches": false,
+      "supplied_bytes": 18534,
+      "supplied_sha256": "0937d1f08e1709bab864e4f4fb59d93de68a22060d061ff9c54992239b6abbbe",
+      "note": "Public edition: private source citations are replaced with public links, so the published bytes differ from the supplied text, which matched its hash when received."
     },
     {
       "name": "prior_art.json",
       "bytes": 19469,
-      "sha256": "9da39037f96be4d1e579d64187e69a0577c57e63be7b22ad9d8b15e7c3c99b6b"
+      "sha256": "9da39037f96be4d1e579d64187e69a0577c57e63be7b22ad9d8b15e7c3c99b6b",
+      "matches": true
     },
     {
       "name": "translation-research.json",
       "bytes": 14597,
-      "sha256": "d4dcab448abebd0d4dbd38ad0558714bde6fac22349855ae800710935eef5bd6"
+      "sha256": "d4dcab448abebd0d4dbd38ad0558714bde6fac22349855ae800710935eef5bd6",
+      "matches": true
     },
     {
       "name": "tool_map.json",
       "bytes": 12325,
-      "sha256": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23"
+      "sha256": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23",
+      "matches": true
     }
-  ],
-  "changes": [
-    "Private source citations replaced with public collection links",
-    "Private Library and session identifiers omitted"
-  ],
-  "verification_scope": "Hashes identify the published bytes. The redacted design is not byte-identical to its private input.",
-  "donor_execution": "not-run"
+  ]
 }

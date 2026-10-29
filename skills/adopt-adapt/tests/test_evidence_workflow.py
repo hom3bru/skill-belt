@@ -66,13 +66,16 @@ class EvidenceWorkflowTests(unittest.TestCase):
         self.assertIn('execution evidence', ' '.join(aa.validate(self.record, self.run)))
 
     def test_unexecuted_outcome_can_remain_a_research_unknown(self):
-        self.record['claims'].append({'id': 'planned', 'subject': 's1', 'kind': 'verified_outcome', 'text': 'Runtime result remains unknown', 'status': 'unvalidated', 'scope': 'owned fixture', 'limitations': 'Not run', 'evidence': []})
+        self.record['claims'].append({'id': 'planned', 'subject': 's1', 'kind': 'verified_outcome', 'text': 'Runtime result remains unknown', 'status': 'unvalidated', 'scope': 'owned fixture', 'limitations': 'Not run', 'evidence': [], 'level': 'claimed'})
         self.assertEqual(aa.validate(self.record, self.run), [])
 
     def test_owned_execution_satisfies_outcome_without_signature_service(self):
         claim = self.record['claims'][0]
         claim.update(kind='verified_outcome', text='Owned decimal checks rejected a wrong expected value', review='Read positive observations and the wrong-value control in the captured stdout')
         attach_execution(self.run, self.record, claim)
+        # r16 fourth pass: a supported verified outcome is at ladder level TESTED (it ran in this work).
+        self.assertIn('TESTED or OBSERVED', ' '.join(aa.validate(self.record, self.run)))
+        claim['level'] = 'tested'
         self.assertEqual(aa.validate(self.record, self.run), [])
 
     def test_execution_cannot_be_borrowed_from_another_revision(self):

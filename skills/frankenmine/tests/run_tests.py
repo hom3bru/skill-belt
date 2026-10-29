@@ -14,7 +14,7 @@ PACKAGE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PACKAGE / "scripts"))
 sys.path.insert(0, str(PACKAGE / "tests"))
 import frankenmine as fm
-from fixture_builder import make_run
+from fixture_builder import make_run, accept_review
 
 
 def load_authored_module(name, path):
@@ -38,8 +38,7 @@ def main():
     authored = make_run(runroot)
     fixture = copy.deepcopy(authored)
     # Test-only input to cover validator's success path; NOT a real review receipt.
-    fixture["review"].update(independent=True, reviewer="Synthetic positive-control field",
-                             disposition="accepted", findings=[], adjudication="Artificial validator fixture only")
+    accept_review(fixture, runroot, reviewer="Synthetic positive-control field")
     fixture["unresolved"] = []
     records, commands = [], []
     oracle = load_authored_module("authored_oracle", PACKAGE / "examples/synthetic/oracle.py")
@@ -175,6 +174,8 @@ def main():
         for c in r["candidates"]:
             c.update(phase="deferred", route="defer")
         r["interactions"] = []
+        # Coverage may not cite deferred candidates; the fresh class meets every requirement.
+        r["requirement_coverage"] = [dict(requirement=need, by=["new:Fresh ledger class"]) for need in ("once", "exact")]
         assert fm.check(r, runroot) == [], fm.check(r, runroot)
         return "Non-fusion decision passes record checks with synthetic review control"
     test("minimal fresh can win without a positive fusion quota", no_fusion_valid)
@@ -215,12 +216,31 @@ def main():
     adversarial_tests(test, fixture, runroot, scratch)
     from continuation_tests import run_tests as continuation_tests
     continuation_tests(test, cli, scratch)
+    from handoff_tests import run_tests as handoff_tests
+    handoff_tests(test, scratch)
+    from v0_2_tests import run_tests as v0_2_tests
+    v0_2_tests(test, scratch)
+    from v0_2_round2_tests import run_tests as round2_tests
+    round2_tests(test, scratch)
+    from v0_2_lite_tests import run_tests as lite_tests
+    lite_tests(test, scratch)
+    from westack_rename_tests import run_tests as rename_guard_tests
+    rename_guard_tests(test, scratch)
+    from v0_2_fix_round_tests import run_tests as fix_round_tests
+    fix_round_tests(test, scratch)
 
     # Capture an honest worked output with executed slice/controls, self-review still blocked.
     worked = copy.deepcopy(authored)
     worked["mode"] = "implementation"
     for c in worked["candidates"]:
         c["implementation"] = "tested"
+    # The product file under test, with its provenance; every receipt names the bytes it ran against.
+    product_rel = "product/replay_total.py"
+    (runroot / "product").mkdir()
+    (runroot / product_rel).write_bytes((PACKAGE / "examples/synthetic/replay_total.py").read_bytes())
+    product_sha = fm.digest((runroot / product_rel).read_bytes())
+    worked["artifacts"] = [dict(path=product_rel, sha256=product_sha, origin="authored",
+                                candidates=["component-game", "component-math"])]
     for t in worked["tests"]:
         t["status"] = "pass"
         control = t["purpose"] == "negative-control"
@@ -232,13 +252,14 @@ def main():
             command="tests/run_tests.py: authored oracle/control factory (see test source)",
             environment="Python " + platform.python_version() + "; synthetic authored fixture",
             raw_output=rel, raw_sha256=fm.digest((runroot / rel).read_bytes()), exit_code=0,
-            cases=1, passed=1, failed=0, skipped=0, control_detected=control))
+            cases=1, passed=1, failed=0, skipped=0, control_detected=control,
+            artifacts=[dict(path=product_rel, sha256=product_sha)]))
     fm.write_new(runroot / "worked-run.json", fm.encode(worked))
     errors = fm.check(worked, runroot)
-    assert len(errors) == 2 and "independent design review not accepted" in errors and any(
+    assert len(errors) == 2 and any(e.startswith("independent design review not accepted") for e in errors) and any(
         "unresolved items remain" in error for error in errors), errors
     fm.write_new(out / "WORKED_DOSSIER.md", fm.report(worked, errors))
-    result = dict(schema_version="1.0", scope="Package mechanics and authored synthetic product only",
+    result = dict(schema_version="1.1", scope="Package mechanics and authored synthetic product only",
         command=[sys.executable, "tests/run_tests.py", "--output", str(out)], environment=platform.platform(),
         python=platform.python_version(), total=len(records),
         passed=sum(r["status"] == "pass" for r in records), failed=sum(r["status"] == "fail" for r in records),
@@ -248,7 +269,13 @@ def main():
             PACKAGE/"scripts/frankenmine.py", PACKAGE/"schemas/run.schema.json",
             PACKAGE/"examples/synthetic/oracle.py", PACKAGE/"examples/synthetic/replay_total.py",
             PACKAGE/"tests/run_tests.py", PACKAGE/"tests/fixture_builder.py",
-            PACKAGE/"tests/adversarial_tests.py", PACKAGE/"tests/continuation_tests.py", PACKAGE/"scripts/package.py"]},
+            PACKAGE/"tests/adversarial_tests.py", PACKAGE/"tests/continuation_tests.py", PACKAGE/"scripts/package.py",
+            PACKAGE/"scripts/synthesis_handoff.py", PACKAGE/"tests/handoff_tests.py",
+            PACKAGE/"schemas/run-1.0.schema.json", PACKAGE/"tests/v0_2_tests.py",
+            PACKAGE/"tests/v0_2_round2_tests.py", PACKAGE/"scripts/authoring.py", PACKAGE/"scripts/lite_check.py",
+            PACKAGE/"tests/v0_2_lite_tests.py", PACKAGE/"tests/westack_rename_tests.py",
+            PACKAGE/"tests/v0_2_fix_round_tests.py"]
+            if p.is_file()},
         tests=records, cli_commands=commands)
     fm.write_new(out / "results.json", fm.encode(result))
     print(fm.encode({k:result[k] for k in ("total","passed","failed","skipped","live_agent_qualification")}), end="")

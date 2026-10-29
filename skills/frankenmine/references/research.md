@@ -1,6 +1,6 @@
 # Lineage, prior art and research provenance
 
-The author-provided research notes are preserved in `research/` as a public portfolio edition. Private citations and internal transfer/session identifiers are omitted. `research/SOURCE_PROVENANCE.json` identifies the published bytes; the redacted design is explicitly not byte-identical to its original input. These notes are research context, not execution authority or proof of current runtime behavior.
+The research-time inputs are kept in `research/`: FRANKENMINE_DESIGN_SPEC.md, prior_art.json, translation-research.json and tool_map.json. They arrived as parent task-message source text, and their supplied SHA-256 hashes were verified locally. In this public edition FRANKENMINE_DESIGN_SPEC.md has private citations replaced with public links, so it is not byte-identical to its input; `research/SOURCE_PROVENANCE.json` identifies the published bytes. The other three are unchanged. They are **not** evidence of successful desktop Library ZIP materialization. Parent reported validating that ZIP separately.
 
 Research-time facts (26 October 2026) remain attributed to those dossiers; this build did not re-fetch external sources, install donor tools or reproduce published experiments. Source URLs, pinned revisions, inspection depth and unknown rights remain in the original records. No supporting work becomes a mandatory package dependency.
 
@@ -23,4 +23,8 @@ The task uses ideas and the user's own design; no third-party implementation is 
 
 The installed adopt-adapt and REA instructions were read as reference material. Frankenmine's implementation mode follows the user's explicitly authorized scope; adopt-adapt's default plans-only evaluation mode is not applied as a ban on this separate build.
 
-The design specification's release gates are kept distinct: this package is a tested prototype, not a general or cross-language qualification. westack (then called estack) was a future case at the original build stage and later became a bounded continuation example. That application does not establish general synthesis effectiveness or make westack-specific design choices universal requirements.
+REA contributes evidence-oriented investigation and adopt-adapt contributes mechanism mining and transfer contracts. Frankenmine designs a new architecture alongside donor selection and does not preserve an incumbent architecture by default.
+
+The design specification's release gates are kept distinct: this package is a tested prototype, not the general or cross-language release.
+
+The source design's westack (then called estack) case has since become a worked example. The 0.1.2 continuation registered westack's actual twenty-decision manifest. westack 0.2.0 was then built through a Frankenmine continuation run; see BUILD_REPORT.md, which notes that two authored developer tasks there are not a controlled effectiveness test. The helper itself never reads, rebuilds or activates a westack prototype.

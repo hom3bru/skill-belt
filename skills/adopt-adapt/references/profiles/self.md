@@ -1,18 +1,37 @@
 # Profile: SELF (adopt-adapt itself)
 
-Load only on an explicit request to review or improve adopt-adapt. Ordinary runs may retain a possible SELF lesson without evaluating or changing the skill.
+Load only on **explicit** request to review or improve adopt-adapt (routing.md §2.2). Ordinary runs may note "possible SELF lesson" but never evaluate or mutate the skill.
 
-## Protected boundaries
+## Routing signals
+The user explicitly asks to review or improve adopt-adapt itself, or names a path to an adopt-adapt bundle → `self`, high and explicit. A skill donor or a skill recipient alone makes `self` a candidate only ("possible SELF lesson, not evaluated").
 
-- The protected core remains: verify before trust; never aim for a positive finding; breadth proportional to scope; converge; inspect raw source and its map; separate ground truth from donor parity. Weakening section 0 requires Matt Kolkin's explicit architectural sign-off.
-- A SELF evaluation yields a proposal, never a live edit. At most one accepted self-change per session, as a separate authorized step; do not evade that boundary with multiple small edits.
-- Every accepted change bumps the version, updates CHANGES and belongs in a tracked canonical Git source before release. Installed copies are mirrors, not automatically canonical. Determine the user's declared source root rather than assuming a personal path or a host's filesystem layout.
-- Consent follows the recipient's inspected rules and the user's concrete authorization. Agreement to a finding is not authorization to install or mutate a skill.
-- No candidate promotes itself. The editor cannot alter grader criteria or hidden gold; selection holdouts used across iterations are no longer fresh. Show a checker can fail before trusting its pass.
-- Bind the exact bundle, version, file hashes and host. A highest version number, matching manifest or tracked source is not behavioral qualification.
+## 1. Hard rules
+| Rule | Source |
+|---|---|
+| MP-0 protected core (verify before trust; never aim to find; breadth ∝ size; converge; two views; ground truth) cannot be weakened by a routine meta-finding; core changes need the owner's architectural sign-off (§2) | SKILL.md §0.9 |
+| A run yields a proposal, never a live self-edit; ≤1 accepted self-change per session; no micro-edit evasion | SKILL.md §0.9; [evolution](../evolution.md) |
+| MP-6: every accepted change bumps the version, appends CHANGES and is committed in the tracked canonical source (§2) before release; never release from an installed mirror | [evolution](../evolution.md) |
+| Consent: ordinary agreement from the owner counts for the concrete preceding question; no magic word | SKILL.md §0.9 |
+| No candidate promotes itself; editor may not alter grader criteria, eval cases or hidden gold | [evaluation](../evaluation.md) |
+| Bind exact bundle + host; don't treat the highest version number as authority | §2 |
+| A selection holdout spent across iterations is no longer held out; keep a never-used final set | [evaluation](../evaluation.md) |
+| Show a checker can fail before trusting its pass | SKILL.md §6 |
 
-## META-PROPOSAL rubric (uncalibrated)
+## 2. Current package identity
+Owner (architectural sign-off for §0, release approval): Matt Kolkin. Legal overlay for SELF: injection, undisclosed persistence or an unclear skill licence raises the flag.
+Resolve the live version from SKILL.md, release.json and the claimed host. Canonical source, in order: the `self.canonical_source` entry in `local-roots.json` beside this profile, when that private file is installed; otherwise a tracked root the user supplies; otherwise ask. A sibling skill-belt checkout's `skills/adopt-adapt` is a published edition, never the canonical source. Package `skills/adopt-adapt`; installed directories are mirrors. Bind exact bytes and inspect local changes before publication. A tracked source does not complete formal behavioral/host qualification. Historical lineage and corrected defects remain in [CHANGES](../../CHANGES.md) and the canonical research archive.
 
-Failure evidence 0–3, scope discipline 0–3, protected-core preservation 0–2, falsifying test quality 0–2, with the strongest applicable penalty for self-grading/promotion or an unnecessary universal rule. State the evidence for each value; helper structure is not semantic proof.
+## 3. Rubric for a META-PROPOSAL (uncalibrated)
+| Component | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| Failure evidence (0-3) | opinion/critique only | one anecdote | reproduced defect (test/command output) | defect observed across ≥2 hosts or runs |
+| Scope discipline (0-3) | broad always-on rule | several coupled edits | one coherent change + nearby negative control | — plus removes/consolidates text |
+| Protection (0-2) | weakens §0 / MP-0 | neutral | strengthens a protected rule with a test | — |
+| Testability (0-2) | no falsifying test | structural test only | behavioral paired test defined | — |
+| Penalty | −2 self-grading or promotion by the editor; −1 adds a new universal section without removal | | | |
 
-A proposal records baseline identity, observed defect, smallest correction, preserved invariants, affected files, expected benefit, falsifying test, complexity and rollback. Keep observed, proposed, approved candidate, implemented/evaluated and approved release states distinct. Release checks include `python -B scripts/package.py verify .` and the separately scoped evaluation requirements in [evaluation](../evaluation.md). Public edition lineage is recorded in [CHANGES](../../CHANGES.md); private history is not part of the distributed record.
+## 4. Gates and critical fails
+SELF-WITHOUT-INTENT; LIVE-SELF-EDIT; SELF-GRADING (author writes the rubric/evals it is judged by); MP-6-BYPASS (release without Git); HOLDOUT-SPEND; INSTALL-ON-AGREEMENT.
+
+## 5. Seams and valid proposals
+Fields: baseline identity (path + sha) · failure evidence · smallest correction · preserved non-negotiables · files · expected benefit · falsifying test · complexity added/removed. States: observed → proposed → approved candidate → candidate → evaluated → approved release → released. Release check: `python -B "<skill-directory>/scripts/package.py" verify "<skill-directory>"` then paired evaluation (evaluation.md).

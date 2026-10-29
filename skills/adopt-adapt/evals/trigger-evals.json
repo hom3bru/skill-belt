@@ -1,306 +1,385 @@
 [
-  {
-    "query": "adopt-adapt these 4 links for my application",
-    "should_trigger": true
-  },
-  {
-    "query": "should my application use splink for entity resolution? here's the repo",
-    "should_trigger": true
-  },
-  {
-    "query": "mine this arxiv paper for anything my research workflow could take",
-    "should_trigger": true
-  },
-  {
-    "query": "is there anything worth salvaging from this repo for my recipient",
-    "should_trigger": true
-  },
-  {
-    "query": "evaluate this agent skill zip someone sent me before I install it",
-    "should_trigger": true
-  },
-  {
-    "query": "compare these three dedup libraries and tell me which pattern to borrow",
-    "should_trigger": true
-  },
-  {
-    "query": "this trending mod-anything repo, anything in it for my coding workflow?",
-    "should_trigger": true
-  },
-  {
-    "query": "look at this product launch post, could we adapt the idea",
-    "should_trigger": true
-  },
-  {
-    "query": "review the adopt-adapt skill itself and propose an upgrade",
-    "should_trigger": true
-  },
-  {
-    "query": "go through these saved links and tell me adopt, adapt or discard",
-    "should_trigger": true
-  },
-  {
-    "query": "review my latest PR for bugs",
-    "should_trigger": false
-  },
-  {
-    "query": "install splink and wire it into the resolver",
-    "should_trigger": false
-  },
-  {
-    "query": "how do I configure feedparser timeouts",
-    "should_trigger": false
-  },
-  {
-    "query": "fix the failing test in my application",
-    "should_trigger": false
-  },
-  {
-    "query": "summarize this article for me",
-    "should_trigger": false
-  },
-  {
-    "query": "write a README for my research workflow",
-    "should_trigger": false
-  },
-  {
-    "query": "what's the license of RSSHub",
-    "should_trigger": false
-  },
-  {
-    "query": "refactor my recipient's discovery agent",
-    "should_trigger": false
-  },
-  {
-    "query": "search the web for funding news today",
-    "should_trigger": false
-  },
-  {
-    "query": "draft a reply to this investor email",
-    "should_trigger": false
-  },
-  {
-    "query": "adopt-adapt this repo: https://github.com/aljazfrancic/funding-extract (cwd: user-supplied-recipient)",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "mine this experiment-loop repo for anything for the lab, I'm in the user-supplied research workspace",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "is there anything in crawlee worth taking? (cwd: user-supplied-recipient)",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "here's an MCP server zip, should my Claude/Codex setup use it?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "coding-workflow"
-      ],
-      "not_profiles": [
-        "self"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "evaluate this agent skill and tell me what adopt-adapt itself should steal from it",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "self",
-        "coding-workflow"
-      ],
-      "ask_user": false,
-      "type": "multi",
-      "note": "explicit self intent"
-    }
-  },
-  {
-    "query": "adopt-adapt splink for both my application and my recipient",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "multi"
-    }
-  },
-  {
-    "query": "salvage what you can from this news-dedup library (no project named, cwd is home dir)",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "low_confidence_ok": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "multi"
-    }
-  },
-  {
-    "query": "should we port this event-clustering method into a receiving seam that the supplied current recipient rules mark frozen?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": true,
-      "type": "single",
-      "note": "synthetic recipient: clarify the consequential frozen-boundary constraint; no private policy assumed"
-    }
-  },
-  {
-    "query": "this is a cool skill-pack, adopt-adapt it",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "coding-workflow"
-      ],
-      "not_profiles": [
-        "self"
-      ],
-      "ask_user": false,
-      "type": "single",
-      "note": "skill donor makes self a candidate only"
-    }
-  },
-  {
-    "query": "mine this research-agent repo for my application and my research workflow",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "multi"
-    }
-  },
-  {
-    "query": "legal flag and defensible route for adopting this GPL console recompiler into my recipient",
-    "should_trigger": true
-  },
-  {
-    "query": "closed-source SaaS — mine mechanisms from their public docs and patents only",
-    "should_trigger": true
-  },
-  {
-    "query": "use Chrome DevTools / HAR to map this web app's APIs for adopt-adapt",
-    "should_trigger": true
-  },
-  {
-    "query": "this repo claims its decompiler output is equivalent to the original binary — what should my port borrow from its verify scripts?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "coding-workflow"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "adopt-adapt the ILSpy roundtrip tests and Ghidra datatests for my research workflow's parity checks",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "should my coding workflow take this Claude Code hook pack? it auto-answers AskUserQuestion",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "coding-workflow"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "audit this MCP server's verify script — it prints verified:true; anything to salvage for my application?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "mine REA's strace no-exec proof and residual-unknowns contract for adopt-adapt itself",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "self"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "decompile this exe for me with Ghidra",
-    "should_trigger": false
-  },
-  {
-    "query": "write a PreToolUse hook that blocks rm -rf",
-    "should_trigger": false
-  },
-  {
-    "query": "this donor's CI is green but half its tests self-skip — should my application copy its test harness?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "generic"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "opening this repo in Claude Code adds a SessionStart hook — anything worth salvaging for my coding workflow?",
-    "should_trigger": true,
-    "routing": {
-      "expected_profiles": [
-        "coding-workflow"
-      ],
-      "ask_user": false,
-      "type": "single"
-    }
-  },
-  {
-    "query": "what is the weather in Seattle",
-    "should_trigger": false
+ {
+  "query": "adopt-adapt these 4 links for the ingestion service",
+  "should_trigger": true
+ },
+ {
+  "query": "should the ingestion service use splink for entity resolution? here's the repo",
+  "should_trigger": true
+ },
+ {
+  "query": "mine this arxiv paper for anything the experiment lab could take",
+  "should_trigger": true
+ },
+ {
+  "query": "is there anything worth salvaging from this repo for my crawler project",
+  "should_trigger": true
+ },
+ {
+  "query": "evaluate this agent skill zip someone sent me before I install it",
+  "should_trigger": true
+ },
+ {
+  "query": "compare these three dedup libraries and tell me which pattern to borrow",
+  "should_trigger": true
+ },
+ {
+  "query": "this trending mod-anything repo, anything in it for my coding workflow?",
+  "should_trigger": true
+ },
+ {
+  "query": "look at this product launch post, could we adapt the idea",
+  "should_trigger": true
+ },
+ {
+  "query": "review the adopt-adapt skill itself and propose an upgrade",
+  "should_trigger": true
+ },
+ {
+  "query": "go through these saved links and tell me adopt, adapt or discard",
+  "should_trigger": true
+ },
+ {
+  "query": "review my latest PR for bugs",
+  "should_trigger": false
+ },
+ {
+  "query": "install splink and wire it into the resolver",
+  "should_trigger": false
+ },
+ {
+  "query": "how do I configure feedparser timeouts",
+  "should_trigger": false
+ },
+ {
+  "query": "fix the failing test in the ingestion service",
+  "should_trigger": false
+ },
+ {
+  "query": "summarize this article for me",
+  "should_trigger": false
+ },
+ {
+  "query": "write a README for the experiment lab",
+  "should_trigger": false
+ },
+ {
+  "query": "what's the license of RSSHub",
+  "should_trigger": false
+ },
+ {
+  "query": "refactor the crawler project's discovery agent",
+  "should_trigger": false
+ },
+ {
+  "query": "search the web for funding news today",
+  "should_trigger": false
+ },
+ {
+  "query": "draft a reply to this investor email",
+  "should_trigger": false
+ },
+ {
+  "query": "adopt-adapt this repo: https://github.com/aljazfrancic/funding-extract (cwd: acme-ingest)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "the cwd names a repository without a dedicated profile: generic (medium)"
   }
+ },
+ {
+  "query": "mine this experiment-loop repo for anything for the lab, I'm in tools/lab (cwd: acme-lab)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "a named repository without a dedicated profile routes to generic"
+  }
+ },
+ {
+  "query": "is there anything in crawlee worth taking? (cwd: acme-crawler)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "a named repository without a dedicated profile routes to generic"
+  }
+ },
+ {
+  "query": "here's an MCP server zip, should my Claude/Codex setup use it?",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "coding-workflow"
+   ],
+   "not_profiles": [
+    "self"
+   ],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "evaluate this agent skill and tell me what adopt-adapt itself should steal from it",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "self",
+    "coding-workflow"
+   ],
+   "ask_user": false,
+   "type": "multi",
+   "note": "explicit self intent"
+  }
+ },
+ {
+  "query": "adopt-adapt splink for both the ingestion service and the crawler project",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "multi",
+   "note": "two named repositories without dedicated profiles: one shared donor ledger, a separate routing row and verdict per recipient"
+  }
+ },
+ {
+  "query": "salvage what you can from this news-dedup library (no project named, cwd is home dir)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "no recipient named or detectable: generic, or OPPORTUNITY with no fit score"
+  }
+ },
+ {
+  "query": "should we port this event-clustering method into the ingestion service's entity-resolution module? (its AGENTS.md marks src/entity/ as frozen)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": true,
+   "type": "single",
+   "note": "target is a path the repository's own rules mark frozen"
+  }
+ },
+ {
+  "query": "this is a cool skill-pack, adopt-adapt it",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "coding-workflow"
+   ],
+   "not_profiles": [
+    "self"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "skill donor makes self a candidate only"
+  }
+ },
+ {
+  "query": "mine this research-agent repo for the ingestion service and the experiment lab",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "multi",
+   "note": "two named repositories without dedicated profiles: one shared donor ledger, a separate routing row and verdict per recipient"
+  }
+ },
+ {
+  "query": "legal flag and defensible route for adopting this GPL console recompiler into my emulator project",
+  "should_trigger": true
+ },
+ {
+  "query": "closed-source SaaS — mine mechanisms from their public docs and patents only",
+  "should_trigger": true
+ },
+ {
+  "query": "use Chrome DevTools / HAR to map this web app's APIs for adopt-adapt",
+  "should_trigger": true
+ },
+ {
+  "query": "this repo claims its decompiler output is equivalent to the original binary — what should my port borrow from its verify scripts?",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "coding-workflow"
+   ],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "adopt-adapt the ILSpy roundtrip tests and Ghidra datatests for the lab's parity checks (cwd: acme-lab)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "a named repository without a dedicated profile routes to generic"
+  }
+ },
+ {
+  "query": "should my coding workflow take this Claude Code hook pack? it auto-answers AskUserQuestion",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "coding-workflow"
+   ],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "audit this MCP server's verify script — it prints verified:true; anything to salvage for the ingestion service?",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "a named repository without a dedicated profile routes to generic"
+  }
+ },
+ {
+  "query": "mine REA's strace no-exec proof and residual-unknowns contract for adopt-adapt itself",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "self"
+   ],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "decompile this exe for me with Ghidra",
+  "should_trigger": false
+ },
+ {
+  "query": "write a PreToolUse hook that blocks rm -rf",
+  "should_trigger": false
+ },
+ {
+  "query": "this donor's CI is green but half its tests self-skip — should the ingestion service copy its test harness?",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "generic"
+   ],
+   "ask_user": false,
+   "type": "single",
+   "note": "a named repository without a dedicated profile routes to generic"
+  }
+ },
+ {
+  "query": "opening this repo in Claude Code adds a SessionStart hook — anything worth salvaging for my coding workflow?",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": [
+    "coding-workflow"
+   ],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "adopt-adapt this retry mechanism for Frankenmine",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["frankenmine"],
+   "not_profiles": ["self"],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "mine these docs for improvements to westack",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["westack"],
+   "not_profiles": ["self"],
+   "ask_user": false,
+   "type": "single"
+  }
+ },
+ {
+  "query": "adopt-adapt this repo for Frankenmine and westack",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["frankenmine", "westack"],
+   "not_profiles": ["self"],
+   "ask_user": false,
+   "type": "multi"
+  }
+ },
+ {
+  "query": "evaluate this paper for Frankenmine at ~/.codex/skills/frankenmine (cwd: acme-ingest)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["frankenmine"],
+   "not_profiles": ["generic", "coding-workflow", "self"],
+   "ask_user": false,
+   "type": "single",
+   "note": "named package overrides host path and outer launch repository"
+  }
+ },
+ {
+  "query": "adopt-adapt this evidence pattern for westack at acme-ingest/.data/westack-build/westack (cwd: acme-ingest)",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["westack"],
+   "not_profiles": ["generic", "self"],
+   "ask_user": false,
+   "type": "single",
+   "note": "a package root supplied inside the launch repository still routes to the named skill"
+  }
+ },
+ {
+  "query": "adopt-adapt Frankenmine as a donor for the ingestion service",
+  "should_trigger": true,
+  "routing": {
+   "expected_profiles": ["generic"],
+   "not_profiles": ["frankenmine", "self"],
+   "ask_user": false,
+   "type": "single",
+   "note": "a donor name does not select a recipient profile"
+  }
+ },
+ {
+  "query": "just wire westack's paths into adopt-adapt's recipient routing",
+  "should_trigger": false,
+  "note": "routing maintenance is separately authorized implementation, not a new donor assessment or skill activation"
+ },
+ {
+  "query": "just add Frankenmine as a named recipient path, no review yet",
+  "should_trigger": false,
+  "note": "routing-only maintenance does not start recipient review or implementation"
+ },
+ {
+  "query": "what is the weather in Seattle",
+  "should_trigger": false
+ }
 ]

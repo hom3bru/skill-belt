@@ -96,6 +96,10 @@ def _wire(*names):
     return "(?:" + "|".join(re.escape(_OLD + "-" + name) for name in names) + ")"
 
 
+# Every use of the old name in any casing, for a file whose count is fixed by the skill's own rename guard.
+_ANY_CASE = r"(?i:(?<![A-Za-z0-9])" + _OLD + r")"
+
+
 # Every pre-rename occurrence that may stay in a published file or path, with the keep rule that allows it.
 # "path" is a whole relative path or an fnmatch glob ("*" also spans "/"). Without "pattern" the whole file
 # (its text and its path) is allowed; with "pattern" only matches of that regex are, at most "max" per file.
@@ -104,6 +108,17 @@ STALE_NAME_ALLOWED = (
          why="A file stating a historical fact writes 'westack (then called <old>)' once, then uses westack"),
     dict(path="skills/frankenmine/research/FRANKENMINE_DESIGN_SPEC.md", rule="3",
          why="Research note pinned by scripts/package.py SOURCE_HASHES and research/SOURCE_PROVENANCE.json"),
+    dict(path="public-overlays/frankenmine/research/FRANKENMINE_DESIGN_SPEC.md", rule="3",
+         why="The redacted public copy of the same pinned note; the package.py overlay pins its published hash"),
+    # skills/frankenmine: the rows of its own rename guard (tests/westack_rename_tests.py) for files this edition ships.
+    # Its guard counts these exactly, so the maximum here matches it.
+    dict(path="skills/frankenmine/BUILD_REPORT.md", rule="2", max=4, pattern=_ANY_CASE,
+         why="Release notes of the pre-rename 0.1.x iterations; Frankenmine's guard counts exactly four"),
+    dict(path="public-overlays/frankenmine/BUILD_REPORT.md", rule="2", max=4, pattern=_ANY_CASE,
+         why="The overlay copy of the same release notes"),
+    dict(path="skills/frankenmine/CHANGELOG.md", rule="5", max=2, pattern=_ANY_CASE,
+         why="The rename entry names the other public project that owns the old names, and those names; "
+             "Frankenmine's guard counts exactly two besides its one 'then called' note"),
     # skills/westack: the keep list of the 0.3.1 source (its own tests/test_rename_guard.py), whole files first.
     dict(path=_WESTACK + "CHANGELOG.md", rule="2",
          why="Entries for versions released under the old name stay as written; the rename entry names it"),

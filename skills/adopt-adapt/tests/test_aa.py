@@ -26,15 +26,17 @@ def fixture(root, two_recipients=False):
     record["host"]["name"] = "unit-test"
     record["sources"][0].update(revision=aa.digest(donor.read_bytes()), kind="docs")
     snap = aa.snapshot(recipient, ["entry.py", "flags.json"])
-    record["recipients"][0].update(revision=snap["id"], snapshot=snap)
+    record["recipients"][0].update(profile="generic", revision=snap["id"], snapshot=snap)
+    # r16 fourth pass: every recipient with a verdict carries a routing row for its profile.
+    record["routing"] = [{"profile": "generic", "confidence": "high", "evidence": ["Test fixture: the user named the target repository, which has no dedicated profile."], "explicit": True}]
     e1 = aa.capture(run, donor, "s1", record["sources"][0]["revision"])
     e2 = aa.capture(run, recipient / "entry.py", "target", snap["id"])
     e1["read_scope"] = "full document, line 1"
     e2["read_scope"] = "full file, lines 1-2"
     record["evidence"] = [e1, e2]
     record["claims"] = [
-        {"id": "c1", "subject": "s1", "text": "Document describes a stable request ID.", "kind": "source_observation", "status": "supported", "scope": "documented method", "limitations": "Not an executed implementation.", "evidence": [e1["id"]], "review": "The sole sentence explicitly describes stable request ID."},
-        {"id": "c2", "subject": "target", "text": "The inspected sender passes payload directly.", "kind": "recipient_opportunity", "status": "supported", "scope": "entry.py only", "limitations": "Client internals not covered.", "evidence": [e2["id"]], "review": "entry.py lines 1-2 send payload without request ID."},
+        {"id": "c1", "subject": "s1", "text": "Document describes a stable request ID.", "kind": "source_observation", "status": "supported", "scope": "documented method", "limitations": "Not an executed implementation.", "evidence": [e1["id"]], "review": "The sole sentence explicitly describes stable request ID.", "level": "present"},
+        {"id": "c2", "subject": "target", "text": "The inspected sender passes payload directly.", "kind": "recipient_opportunity", "status": "supported", "scope": "entry.py only", "limitations": "Client internals not covered.", "evidence": [e2["id"]], "review": "entry.py lines 1-2 send payload without request ID.", "level": "present"},
     ]
     ledger = {
         "primary": [e1["id"]],
@@ -42,21 +44,21 @@ def fixture(root, two_recipients=False):
         "coverage": {"examined": ["documented method"], "total": 1, "refutation_targets": ["server acceptance assumption"], "blind_spots": ["Remote server not provided; must test before integration."], "overlap_claims": ["c2"], "adequate": True},
         "salvage": {axis: {"result": "none", "note": "Inspected complete short method; no separate claim on this axis.", "evidence": [e1["id"]]} for axis in aa.AXES},
         "gates": {"integrity": "No source instructions or executable artifact.", "policy": "Only existing local dependencies proposed.", "paid_policy": "preserved", "flags": []},
-        "legal": {"flag": "GREEN", "route": "n/a-open-permissive", "ladder_steps_tried": ["n/a-open-permissive"], "escalate_to_lawyer": False, "advice_notice": "This is process guidance, not legal counsel.", "sources": [{"title": "17 U.S.C. § 107", "url": "https://www.law.cornell.edu/uscode/text/17/107", "accessed": "2026-10-09"}]},
+        "legal": {"flag": "GREEN", "route": "n/a-open-permissive", "ladder_steps_tried": ["n/a-open-permissive"], "escalate_to_lawyer": False, "hard_line_hit": False, "patent_signal": "none", "advice_notice": "This is process guidance, not legal counsel.", "sources": [{"title": "17 U.S.C. § 107", "url": "https://www.law.cornell.edu/uscode/text/17/107", "accessed": "2026-10-09"}]},
         "doubt": {"depth": "full", "against": "Server may not support stable IDs.", "for": "Could avoid duplicate effects.", "environment": "Recipient sender inspected; server contract remains a prerequisite.", "resolution": "Adapt only after contract probe; not whole-tool adoption.", "evidence": [e1["id"], e2["id"]], "unknowns": ["Server contract"], "consequential": False, "decision_uncertainty": True},
     }
     ledger["salvage"]["error_handling"]["result"] = "found"
     ledger["salvage"]["error_handling"]["note"] = "Stable request ID provides a concrete retry pattern to investigate."
     transfer = {key: "Explicit proposed condition; no implementation claimed." for key in aa.TRANSFER_KEYS}
-    transfer.update(behavior="Avoid duplicate effects when a send times out.", recipient_seam="entry.py send(payload), inspected lines 1-2.", prerequisite="Verify server supports stable idempotency keys and query/reconciliation.", verification={"donor_parity": "Document only; implementation parity inapplicable.", "domain_correctness": "Timeout after acceptance produces one effect in controlled server.", "recipient_regression": "Existing successful sends unchanged.", "entry_integration": "Exercise real send caller in sandbox."})
-    decision = {"whole_tool": "DISCARD", "result": "ADAPT-with-prerequisite", "summary": "Investigate stable IDs at the existing send seam.", "confidence": "Documented pattern supported; server viability unknown.", "mechanism_value": "Potential duplicate-effect prevention.", "next_step": "Probe server semantics before implementing.", "claims": ["c1", "c2"], "recipient_claims": ["c2"], "inventory": {k: {"state": "unknown", "scope": "Only inspected entry.py; other behavior unknown."} for k in ("implemented", "wired", "tested", "observed")}, "score": {"rubric": "generic", "components": [2, 2, 1, 2], "penalty": -1, "total": 6, "rationale": "Method fit with unresolved server semantics."}, "transfer": transfer}
+    transfer.update(relation="new", seam_status="ungoverned", behavior="Avoid duplicate effects when a send times out.", recipient_seam="entry.py send(payload), inspected lines 1-2.", prerequisite="Verify server supports stable idempotency keys and query/reconciliation.", verification={"donor_parity": "Document only; implementation parity inapplicable.", "domain_correctness": "Timeout after acceptance produces one effect in controlled server.", "recipient_regression": "Existing successful sends unchanged.", "entry_integration": "Exercise real send caller in sandbox."})
+    decision = {"whole_tool": "DISCARD", "result": "ADAPT-with-prerequisite", "summary": "Investigate stable IDs at the existing send seam.", "confidence": "Documented pattern supported; server viability unknown.", "confidence_level": "medium", "mechanism_value": 2, "next_step": "Probe server semantics before implementing.", "claims": ["c1", "c2"], "recipient_claims": ["c2"], "inventory": {k: {"state": "unknown", "scope": "Only inspected entry.py; other behavior unknown."} for k in ("implemented", "wired", "tested", "observed")}, "score": {"rubric": "generic", "components": [2, 2, 1, 2], "penalty": -1, "total": 6, "rationale": "Method fit with unresolved server semantics."}, "transfer": transfer}
     record["items"][0].update(state="READY", transitions=["QUEUED", "RESEARCHING", "READY"], ledger=ledger, decision=decision)
     if two_recipients:
-        record["recipients"][1].update(revision=snap["id"], snapshot=snap)
+        record["recipients"][1].update(profile="generic", revision=snap["id"], snapshot=snap)
         e3 = aa.capture(run, recipient / "entry.py", "target2", snap["id"])
         e3["read_scope"] = "full file, lines 1-2"
         record["evidence"].append(e3)
-        record["claims"].append({"id": "c3", "subject": "target2", "text": "Second recipient sender passes payload directly.", "kind": "recipient_opportunity", "status": "supported", "scope": "entry.py only", "limitations": "Client internals not covered.", "evidence": [e3["id"]], "review": "entry.py lines 1-2 send payload without request ID."})
+        record["claims"].append({"id": "c3", "subject": "target2", "text": "Second recipient sender passes payload directly.", "kind": "recipient_opportunity", "status": "supported", "scope": "entry.py only", "limitations": "Client internals not covered.", "evidence": [e3["id"]], "review": "entry.py lines 1-2 send payload without request ID.", "level": "present"})
         d2 = copy.deepcopy(decision)
         d2.update(result="DISCARD", claims=["c1", "c3"], recipient_claims=["c3"], score=None, score_reason="Second recipient: not scored.")
         d2.pop("transfer"); d2.pop("inventory")
@@ -160,6 +162,8 @@ class RecordTests(unittest.TestCase):
         decision["inventory"]["wired"]["state"] = "absent"
         self.assert_bad(contains="unwired")
         decision["inventory"]["wired"]["state"] = "present"
+        self.assert_bad(contains="mechanism_value 0")  # r16 fourth pass: already wired means value 0
+        decision["mechanism_value"] = 0
         self.assertEqual(aa.validate(self.record, self.run), [])
 
     def test_changed_untracked_configuration_detected(self):
@@ -189,7 +193,7 @@ class RecordTests(unittest.TestCase):
         s["total"] = 6; s["components"][0] = True; self.assert_bad(contains="component")
 
     def test_score_extremes_and_doubt_routes(self):
-        for rubric, components in (("generic", [3, 3, 2, 2]), ("eddie", [3, 3, 2, 2]), ("tooling", [3, 2, 3, 2])):
+        for rubric, components in (("generic", [3, 3, 2, 2]), ("self", [3, 3, 2, 2]), ("tooling", [3, 2, 3, 2])):
             self.assertEqual(aa.score(rubric, components, 0), 10)
             self.assertEqual(aa.score(rubric, [0, 0, 0, 0], -2), -2)
         self.assertEqual(aa.doubt_depth("ADOPT", 10), "full")
@@ -286,19 +290,27 @@ class RoutingAndMultiRecipientTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    # Portable profiles only, so these tests also run in an edition without project profiles.
     def test_routing_valid(self):
-        self.record["recipients"][0]["profile"] = "radar"
-        self.record["routing"] = [{"profile": "radar", "confidence": "high", "evidence": ["cwd is Radar repo"], "explicit": False}]
+        self.record["recipients"][0]["profile"] = "coding-workflow"
+        self.record["routing"] = [{"profile": "coding-workflow", "confidence": "high", "evidence": ["target is ~/.codex/config.toml"], "explicit": False}]
+        self.assertIn("rubric", " ".join(aa.validate(self.record, self.run)))  # r16 fourth pass: scored on its own rubric
+        self.record["items"][0]["decision"]["score"]["rubric"] = "coding-workflow"
         self.assertEqual(aa.validate(self.record, self.run), [])
         self.assertIn("## Routing", aa.render(self.record, self.run))
 
     def test_profile_without_routing_entry_rejected(self):
-        self.record["recipients"][0]["profile"] = "eddie"
-        self.record["routing"] = [{"profile": "radar", "confidence": "high", "evidence": ["x"], "explicit": False}]
+        self.record["recipients"][0]["profile"] = "coding-workflow"
+        self.record["routing"] = [{"profile": "generic", "confidence": "high", "evidence": ["x"], "explicit": False}]
         self.assertIn("not justified", " ".join(aa.validate(self.record, self.run)))
+
+    def test_uninstalled_profile_name_rejected(self):
+        self.record["recipients"][0]["profile"] = "not-installed-profile"
+        self.assertIn("unknown recipient profile", " ".join(aa.validate(self.record, self.run)))
 
     def test_self_requires_explicit(self):
         self.record["recipients"][0]["profile"] = "self"
+        self.record["items"][0]["decision"]["score"]["rubric"] = "self"  # r16 fourth pass: rubric follows the profile
         self.assertTrue(aa.validate(self.record, self.run))
         self.record["routing"] = [{"profile": "self", "confidence": "medium", "evidence": ["donor is a skill"], "explicit": False}]
         self.assertIn("explicit", " ".join(aa.validate(self.record, self.run)))
@@ -306,9 +318,9 @@ class RoutingAndMultiRecipientTests(unittest.TestCase):
         self.assertEqual(aa.validate(self.record, self.run), [])
 
     def test_bad_confidence_and_empty_evidence(self):
-        self.record["routing"] = [{"profile": "radar", "confidence": "sure", "evidence": ["x"], "explicit": False}]
+        self.record["routing"] = [{"profile": "coding-workflow", "confidence": "sure", "evidence": ["x"], "explicit": False}]
         self.assertTrue(aa.validate(self.record, self.run))
-        self.record["routing"] = [{"profile": "radar", "confidence": "low", "evidence": [], "explicit": False}]
+        self.record["routing"] = [{"profile": "coding-workflow", "confidence": "low", "evidence": [], "explicit": False}]
         self.assertTrue(aa.validate(self.record, self.run))
 
     def test_recipient_claim_bleed_rejected(self):
@@ -335,6 +347,58 @@ class RoutingAndMultiRecipientTests(unittest.TestCase):
 
     def test_single_recipient_has_no_cross_summary(self):
         self.assertNotIn("Cross-recipient summary", aa.render(self.record, self.run))
+
+    def test_named_skill_recipients_validate_and_render_with_generic_rubric(self):
+        for profile in ("frankenmine", "westack"):
+            with self.subTest(profile=profile):
+                self.record["recipients"][0]["profile"] = profile
+                self.record["routing"] = [{"profile": profile, "confidence": "high", "evidence": [f"User named {profile} as recipient; explicit package root inspected."], "explicit": True}]
+                self.assertEqual(self.record["items"][0]["decision"]["score"]["rubric"], "generic")
+                self.assertEqual(aa.validate(self.record, self.run), [])
+                output = aa.render(self.record, self.run)
+                self.assertIn(f"- {profile} (high, explicit):", output)
+                self.assertIn(f"Recipient identity: {profile}@", output)
+                self.assertLess(output.index("aa:ledger:q1"), output.index("aa:verdict:q1"))
+                self.assertTrue(aa.check_output(self.record, self.run, output))
+
+    def test_named_skill_recipients_require_routing_record(self):
+        for profile in ("frankenmine", "westack"):
+            with self.subTest(profile=profile):
+                self.record["recipients"][0]["profile"] = profile
+                self.assertIn("requires a routing entry", " ".join(aa.validate(self.record, self.run)))
+
+    def test_named_skill_recipient_rejects_other_profile_justification(self):
+        for profile, other in (("frankenmine", "westack"), ("westack", "frankenmine")):
+            with self.subTest(profile=profile):
+                self.record["recipients"][0]["profile"] = profile
+                self.record["routing"] = [{"profile": other, "confidence": "high", "evidence": ["User named another recipient."], "explicit": True}]
+                self.assertIn("not justified in routing", " ".join(aa.validate(self.record, self.run)))
+
+    def test_named_skill_recipients_share_donor_but_keep_claims_separate(self):
+        multi = self.root / "named-skills"; multi.mkdir()
+        run, record = fixture(multi, two_recipients=True)
+        for recipient, profile in zip(record["recipients"], ("frankenmine", "westack")):
+            recipient["profile"] = profile
+        record["routing"] = [{"profile": profile, "confidence": "high", "evidence": [f"User named {profile}."], "explicit": True} for profile in ("frankenmine", "westack")]
+        self.assertEqual(aa.validate(record, run), [])
+        output = aa.render(record, run)
+        self.assertIn("CONFLICT", output)
+        for item in record["items"]:
+            self.assertLess(output.index(f"aa:ledger:{item['id']}"), output.index(f"aa:verdict:{item['id']}"))
+        record["items"][1]["decision"]["recipient_claims"] = ["c2"]
+        self.assertIn("recipient decision needs supported recipient facts", " ".join(aa.validate(record, run)))
+
+    def test_named_skill_recipients_do_not_grant_self_intent(self):
+        for profile in ("frankenmine", "westack"):
+            with self.subTest(profile=profile):
+                self.record["recipients"][0]["profile"] = profile
+                self.record["routing"] = [
+                    {"profile": profile, "confidence": "high", "evidence": [f"User named {profile}."], "explicit": True},
+                    {"profile": "self", "confidence": "medium", "evidence": ["Recipient is a skill."], "explicit": False},
+                ]
+                self.assertIn("never route to self without explicit user intent", " ".join(aa.validate(self.record, self.run)))
+                self.record["routing"].pop()
+                self.assertEqual(aa.validate(self.record, self.run), [])
 
 
 class R5Tests(unittest.TestCase):
@@ -538,76 +602,7 @@ class R5Tests(unittest.TestCase):
 
 
 
-class RecipientPathTests(unittest.TestCase):
-    """Portfolio variant: synthetic caller rules preserve conservative path semantics."""
-    def rules(self):
-        return {"revision": "synthetic-rules-v1", "governed_prefixes": ["src/protected/"],
-                "governed_exact": ["src/exact.ts"], "measurement_dependencies": ["metrics/bridge.ts", "notes/measurement.ts"],
-                "policy_prefixes": [".policy/"], "preflight_self": ["tools/preflight.ts"],
-                "documentation_prefixes": ["notes/"], "test_suffixes": [".test.ts", ".test.js", ".test.mjs"]}
-
-    def test_caller_rules_are_required_and_preserved(self):
-        with self.assertRaisesRegex(ValueError, "No bundled recipient rules"):
-            aa.radar_path_class("src/protected/x.ts")
-        rules = self.rules()
-        before = copy.deepcopy(rules)
-        self.assertEqual(aa.recipient_path_class("src/exact.ts", rules)["pin"], "synthetic-rules-v1")
-        self.assertEqual(rules, before)
-
-    def test_measurement_dependency_is_not_safe(self):
-        r = aa.recipient_path_class("metrics/bridge.ts", self.rules())
-        self.assertEqual(r["class"], "measurement-dependency")
-        self.assertFalse(r["safe_to_change"])
-
-    def test_unlisted_file_ungoverned_but_needs_disposition(self):
-        r = aa.recipient_path_class("src/other/index.ts", self.rules())
-        self.assertEqual(r["class"], "ungoverned-needs-disposition")
-        self.assertFalse(r["safe_to_change"])
-
-    def test_governed_prefix_exact_and_windows_path(self):
-        self.assertEqual(aa.recipient_path_class("src/protected/x.ts", self.rules())["class"], "governed")
-        self.assertEqual(aa.recipient_path_class("src\\exact.ts", self.rules())["class"], "governed")
-
-    def test_explicit_test_exclusions_policy_and_docs(self):
-        self.assertNotEqual(aa.recipient_path_class("src/protected/x.test.ts", self.rules())["class"], "governed")
-        self.assertEqual(aa.recipient_path_class(".policy/freeze.md", self.rules())["class"], "freeze-policy-drift")
-        r = aa.recipient_path_class("notes/a.md", self.rules())
-        self.assertTrue(r["safe_to_change"])
-        self.assertIn("not-granted", r["authorization"])
-
-    def test_cli(self):
-        with tempfile.TemporaryDirectory() as directory:
-            rules = Path(directory) / "rules.json"
-            rules.write_text(json.dumps(self.rules()), encoding="utf-8")
-            for command in ("classify-path", "radar-path"):
-                out = subprocess.run([sys.executable, "-B", str(SCRIPT), command, "metrics/bridge.ts", "--rules", str(rules)], capture_output=True, text=True, check=True).stdout
-                self.assertEqual(json.loads(out)[0]["class"], "measurement-dependency")
-            refused = subprocess.run([sys.executable, "-B", str(SCRIPT), "radar-path", "metrics/bridge.ts"], capture_output=True, text=True)
-            self.assertEqual(refused.returncode, 2)
-            self.assertIn("No bundled recipient rules", refused.stderr)
-
-    def test_measurement_precedes_documentation(self):
-        r = aa.recipient_path_class("notes/measurement.ts", self.rules())
-        self.assertEqual(r["class"], "measurement-dependency")
-        self.assertFalse(r["safe_to_change"])
-
-    def test_missing_or_malformed_rules_refused(self):
-        for rules in ({}, None, {"revision": "unverified"}, dict(self.rules(), governed_prefixes="src/"),
-                      dict(self.rules(), documentation_prefixes=["../"]), dict(self.rules(), revision="")):
-            with self.subTest(rules=rules), self.assertRaises(ValueError):
-                aa.recipient_path_class("notes/a.md", rules)
-
-    def test_noncanonical_and_absolute_paths_refused(self):
-        for path in ("../outside", "/absolute", "C:\\absolute", "src/../notes/a.md", "src//x", "./x", "x\n"):
-            with self.subTest(path=path), self.assertRaises(ValueError):
-                aa.recipient_path_class(path, self.rules())
-
-    def test_duplicate_rule_keys_refused(self):
-        with tempfile.TemporaryDirectory() as directory:
-            rules = Path(directory) / "rules.json"
-            rules.write_text('{"revision":"a","revision":"b"}', encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "duplicate path-rule JSON key"):
-                aa.load_path_rules(rules)
+# RadarPathTests moved to test_private_profiles.py (needs a private profile's rules file).
 
 if __name__ == "__main__":
     unittest.main()
@@ -641,6 +636,8 @@ class LegalGateTests(unittest.TestCase):
     def test_legal_yellow_requires_prerequisite(self):
         self.record["items"][0]["ledger"]["legal"]["flag"] = "YELLOW"
         self.record["items"][0]["ledger"]["legal"]["route"] = "idea-only"
+        # r16: idea-only routes record both idea checks; an open patent question is a legitimate YELLOW.
+        self.record["items"][0]["ledger"]["legal"].update(patent_signal="unknown", terms_restriction="none")
         self.record["items"][0]["decision"]["result"] = "ADAPT"
         # keep transfer present from fixture
         err = " ".join(aa.validate(self.record, self.run))
@@ -649,12 +646,15 @@ class LegalGateTests(unittest.TestCase):
     def test_inferred_claim_needs_confidence(self):
         self.record["claims"].append({
             "id": "c_inf", "subject": "s1", "text": "Inferred internal queue.", "kind": "mechanism",
-            "status": "inferred", "scope": "docs", "limitations": "not observed", "evidence": [self.record["evidence"][0]["id"]],
+            "status": "inferred", "scope": "docs", "limitations": "not observed", "evidence": [self.record["evidence"][0]["id"]], "level": "claimed",
         })
         self.record["items"][0]["decision"]["claims"] = ["c1", "c2", "c_inf"]
         err = " ".join(aa.validate(self.record, self.run))
         self.assertIn("confidence", err)
         self.record["claims"][-1]["confidence"] = "inferred"
+        # r16 fourth pass: a decisive inferred claim caps the verdict's confidence at low.
+        self.assertIn("confidence_level must be low", " ".join(aa.validate(self.record, self.run)))
+        self.record["items"][0]["decision"]["confidence_level"] = "low"
         self.assertEqual(aa.validate(self.record, self.run), [])
 
     def test_legal_green_render(self):

@@ -1,6 +1,6 @@
 # Pinned RE source re-audit — 2026-10-10
 
-Recipient: adopt-adapt itself. This note assesses mechanisms for the five-method contract against pinned public sources. This is a bounded source review, not a runtime audit or a recommendation to install any donor. Historical R5 citations retain their historical pins; this note records the new ones. No game binaries, assets, keys or firmware were obtained and no donor scripts/tests were executed.
+Recipient: adopt-adapt itself. The skill owner requested implementation of the five-method upgrade and another look at cited repositories. This is a bounded source review, not a runtime audit or a recommendation to install any donor. Historical R5 citations retain their historical pins; this note records the new ones. No game binaries, assets, keys or firmware were obtained and no donor scripts/tests were executed.
 
 ## Queue and evidence ledger
 

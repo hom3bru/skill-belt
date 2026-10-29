@@ -178,9 +178,9 @@ Gov report URL located (Mar. 2026). Secondary summaries (Bird & Bird): preferred
 
 ## F. Contracts, robots, privacy
 
-- **EULA anti-RE:** Enforceable under **Bowers** / **Davidson** in those circuits for assenting parties; UK/EU interoperability exceptions may void contrary terms (**CDPA s.50B(4)**; Software Directive Art. 8 style — confirm). Skill: if the relevant user or organization accepted anti-RE terms, flag YELLOW/RED even if copyright fair use would allow RE.
+- **EULA anti-RE:** Enforceable under **Bowers** / **Davidson** in those circuits for assenting parties; UK/EU interoperability exceptions may void contrary terms (**CDPA s.50B(4)**; Software Directive Art. 8 style — confirm). Skill: if the user clicked/accepted anti-RE, flag YELLOW/RED even if copyright fair use would allow RE.
 - **Browsewrap vs clickwrap:** Formation is fact-specific; X/Bright Data and Meta/Bright Data opinions discuss whether scraper was bound. Do not assume browsewrap binds.
-- **robots.txt:** RFC 9309 — rules are **not** access authorization; still skill default to honor; stricter recipient rules require inspection.
+- **robots.txt:** RFC 9309 — rules are **not** access authorization; still skill default to honor (a profile may make it a hard gate).
 - **GDPR / EDPB:** Opinion 28/2024 — legitimate interest needs three-part test; not automatic for AI training. Guidelines 03/2026 (July 2026) address web scraping for GenAI — **parse PDF before detailed claims**. Special-category data needs Art. 9 basis.
 - **CCPA:** Personal information broadly defined; “sale”/“share” defined in §1798.140; publicly available exceptions exist but are narrow — scraping CA consumer data can trigger obligations. Prefer official leginfo/CPPA text.
 
@@ -203,7 +203,7 @@ START donor
  │    └─ else → RED for circumvention path
  ├─ Closed-source / only OSINT?
  │    └─ idea-only or public-API or clean-room (legal.md) → YELLOW typically
- └─ Else GREEN (still apply inspected recipient overlays)
+ └─ Else GREEN (still apply recipient profile overlays)
 ```
 
 ---
@@ -227,14 +227,14 @@ START donor
 3. Bypass auth walls / CAPTCHA gates / private APIs on third-party hosts.
 4. Ship GPL/AGPL/SSPL code into a proprietary recipient without counsel acceptance.
 5. Claim “clean-room” when the implementer/agent ingested protected source or tests.
-6. Ignore inspected recipient privacy, terms, egress, paid-policy or anti-detect restrictions.
+6. Ignore a recipient profile's privacy/robots/ToS/egress or no-paid / no-stealth overlays.
 7. Rely on fair use alone to ship productized copies of protected expression (ROSS; NYT pending).
 
 ---
 
 ## J. Jurisdiction notes
-- **US (when applicable to the recipient):** copyright + DMCA + CFAA + DTSA + state contract + CCPA if CA personal data.
-- **EU exposure (when applicable):** Software Directive, DSM TDM opt-out, AI Act if placing GPAI/systems on EU market, Trade Secrets Directive, GDPR/EDPB.
+- **US (default for the owner):** copyright + DMCA + CFAA + DTSA + state contract + CCPA if CA personal data.
+- **EU exposure (personal-data recipients):** Software Directive, DSM TDM opt-out, AI Act if placing GPAI/systems on EU market, Trade Secrets Directive, GDPR/EDPB.
 - **UK:** CDPA s.50B (contract override void); TDM reform **not** delivering broad commercial exception as of Mar. 2026 report (PARTIAL).
 - Circuit splits matter (Bowers vs Vault Fifth Cir. tradition; Bartz vs Kadrey on piracy).
 
@@ -268,3 +268,26 @@ START donor
 
 ## M. Distillation pointer
 Skill-facing procedure: `r4/adopt-adapt/references/legal.md` (to be written from §§ G–K + flags GREEN/YELLOW/RED/UNKNOWN).
+
+## UNKNOWNs carried into the skill (moved from legal.md in r16)
+Live eCFR 201.40; full 2009/24 text; gnu.org GPL/AGPL bodies (403 here); hiQ consent $ terms not re-parsed; UK AI report / EDPB 03/2026 / GPAI CoP chapter PDFs not fully parsed; Ryujinx/Dolphin no merits opinions; NYT fair use unruled; AnyPS5 Sony silence ≠ clearance.
+
+## Status notes moved from legal.md (r16; fetched 2026-10-09)
+
+### Fair use + AI rulings (do not invent)
+- §107 factors (LII).
+- Sega; Connectix; Oracle (API declaring code fair use, copyrightability assumed).
+- **ROSS** 3d Cir. Sept. 29, 2026 — non-generative competitive training on headnotes **not** fair use (https://www2.ca3.uscourts.gov/opinarch/252153p.pdf ).
+- **Bartz** / **Kadrey** (June 2025) — district split on piracy framing; both primary PDFs in dossier.
+- **Doe v. GitHub** Sept. 16, 2026 — §1202(b) output theory fails (https://cdn.ca9.uscourts.gov/datastore/opinions/2026/09/16/24-7700.pdf ).
+- **NYT v. OpenAI** — SJ briefing in 2026; **no fair-use merits ruling as of 2026-10-09** (docket + secondary).
+
+### EU / UK / privacy (overlays)
+- Software Dir. 2009/24 Arts. 5–6 — **PARTIAL** (EUR-Lex wall); use SAS C-406/10 + CELEX cite; re-fetch before relying.
+- DSM 2019/790 Art. 3 (research TDM, no opt-out) / Art. 4 (general TDM **with machine-readable opt-out**) — legislation.gov.uk fetched 2026-10-09.
+- AI Act Art. 53(1)(c)–(d): copyright policy + comply with Art. 4(3) reservations; training summary — https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-53 (fetched 2026-10-09).
+- Trade Secrets Dir. 2016/943 Art. 3(1)(b) — RE of lawfully possessed product lawful absent valid duty — https://www.legislation.gov.uk/eudr/2016/943/article/3/adopted .
+- DTSA: RE not “improper means” (§1839(6)).
+- GDPR: EDPB Opinion 28/2024; Guidelines 03/2026 on scraping (PDF parse incomplete → escalate for EU personal data).
+- CCPA: Cal. Civ. Code §1798.140 et seq. (leginfo/CPPA).
+- UK TDM commercial reform: Mar. 2026 report URL in dossier — **PARTIAL**; do not claim a new broad exception without reading the PDF.

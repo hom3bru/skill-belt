@@ -83,6 +83,8 @@ def run_tests(test, fixture, runroot, scratch):
             ident = "adversarial-" + kind + "-oracle"
             extra = copy.deepcopy(record["tests"][0])
             extra.update(id=ident, status="not-run")
+            if kind == "interaction":
+                extra["purpose"] = "integration"  # Only interaction/integration tests verify a pair.
             record["tests"].append(extra)
             if kind == "delta":
                 delta = next(item for item in record["candidates"][1]["deltas"]
@@ -109,6 +111,7 @@ def run_tests(test, fixture, runroot, scratch):
         record["mode"] = "implementation"
         record["decision"].update(choice="minimal-fresh")
         record["interactions"] = []
+        record.pop("requirement_coverage", None)
         for item in record["candidates"]:
             item.update(phase="deferred", route="defer")
         record["candidates"][0]["implementation"] = "tested"
@@ -133,7 +136,8 @@ def run_tests(test, fixture, runroot, scratch):
                 command="synthetic validator positive-control fields",
                 environment="authored fixture, not product execution",
                 raw_output=raw.name, raw_sha256=fm.digest(raw.read_bytes()),
-                exit_code=0, cases=1, passed=1, failed=0, skipped=0, control_detected=True))
+                exit_code=0, cases=1, passed=1, failed=0, skipped=0, control_detected=True,
+                raw_shared="One synthetic validator log covers both receipts"))
         errors = fm.check(record, runroot)
         assert any("acceptance must test" in item for item in errors), errors
         assert not any("runtime promotion" in item or "receipt" in item for item in errors), errors
@@ -159,8 +163,9 @@ def run_tests(test, fixture, runroot, scratch):
         record["evidence"][0]["limitations"] = "Author-supplied observation; bytes do not authenticate its observer"
         errors = fm.check(record, runroot)
         assert not errors, errors
-        dossier = fm.report(record, errors)
+        dossier = fm.report(record, errors, include_record=True)
         assert "not semantic proof" in dossier
+        assert "[observed]" in dossier.split("## Full portable record", 1)[0]
         assert '"kind": "observed"' in dossier
         return "Observed claim retained as author data with the report's structural-proof limitation"
 
@@ -232,7 +237,7 @@ def run_tests(test, fixture, runroot, scratch):
         record["brief"]["outcome"] = payload
         record["donors"][0]["reason"] = payload
         record["decision"]["rationale"] = payload
-        text = fm.report(record, [payload])
+        text = fm.report(record, [payload], include_record=True)
         preamble, full = text.split("## Full portable record\n\n", 1)
         assert "<script>" not in preamble
         assert "[click](https://" not in preamble

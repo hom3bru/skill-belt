@@ -15,10 +15,10 @@ Then advance the next useful slice: sharpen the brief, inspect a source seam, re
 Account for every supplied decision before triage. The optional helper accepts a generic local manifest with a nonempty `decisions` array; each object needs a unique text `id` and an absolute HTTP(S) `source_url`. Optional `catalogue_id` is retained as an untrusted scope note. Other fields are not evidence or execution authority.
 
 ```powershell
-python scripts/frankenmine.py init ../continuation/run.json --decisions ../prior-product/provenance/decisions.json
+python "<skill-directory>/scripts/frankenmine.py" init "<output-root>/continuation/run.json" --decisions "<prior-product>/provenance/decisions.json"
 ```
 
-This creates a new incomplete run using the existing schema. Every entry starts queued, languages remain empty, and no source is fetched. A literal full 40-hex commit in an unambiguous GitHub blob/tree URL is recorded as the URL-declared revision; its existence is unverified. Other URLs stay `unpinned` with a blind spot. The helper rejects malformed input and duplicate IDs and refuses output replacement. It does not modify or merge into the old build/manifest.
+This creates a new incomplete run using the current schema (1.1). Every entry starts queued, languages remain empty, and no source is fetched. A literal full 40-hex commit in an unambiguous GitHub blob/tree URL is recorded as the URL-declared revision; its existence is unverified. Other URLs stay `unpinned` with a blind spot. The helper rejects malformed input and duplicate IDs and refuses output replacement. It does not modify or merge into the old build/manifest.
 
 Choose a subset based on the next product need. Each donor finishes reviewed, deferred with a reason/reopening condition, blocked with an exact missing prerequisite, or unprocessed with an honest reason. Do not equate a queued manifest, a catalogue label, several reviewed entries, or a claim of previous coverage with qualification of an entire catalogue. Preserve aliases and coverage limitations instead of silently deduplicating distinct decisions.
 
@@ -32,6 +32,8 @@ Freeze acceptance and a discriminating broken/disconnected control before implem
 
 ## Deliver at the right weight
 
-A narrative dossier may be the working record: brief and baseline; donor manifest with explicit scope/deferrals; source facts and two-way lessons; selected contracts and ownership; alternatives; implemented delta; exact verification outcomes; remaining blockers. Stable IDs and source paths/lines/hashes keep it recoverable. Name only artifacts actually produced. Use the full JSON envelope when machine checking, interchange or the user warrants it; do not spend the whole continuation transcribing a schema instead of advancing the product. Custom records must not claim package-schema compliance.
+For an existing machine record, an optional [handoff index](handoff-index.md) can expose source/owner locators and pending joins without replacing this recovery narrative. Run `python "<skill-directory>/scripts/frankenmine.py" handoff RUN.json --output "<output-root>/NEW-HANDOFF.json"`; incomplete runs retain honest blockers. A prior 1.0 record still loads unchanged; its new readiness messages name the 1.1 fields to add.
+
+A narrative dossier (the [lite template](../examples/lite-dossier.md) works for a bounded continuation) may be the working record: brief and baseline; donor manifest with explicit scope/deferrals; source facts and two-way lessons; selected contracts and ownership; alternatives; implemented delta; exact verification outcomes; remaining blockers. Stable IDs and source paths/lines/hashes keep it recoverable. Name only artifacts actually produced. Use the full JSON envelope when machine checking, interchange or the user warrants it; do not spend the whole continuation transcribing a schema instead of advancing the product. Custom records must not claim package-schema compliance.
 
 Distinguish a useful bounded result, design readiness, implementation state and demonstrated benefit. Put only material design blockers in `unresolved`; optional future donors/features belong in the narrative. Self-review remains independence=false and cannot promote design readiness. Unrun tests stay not-run. Report which product behavior improved and which evidence supports it, with the limits that remain.

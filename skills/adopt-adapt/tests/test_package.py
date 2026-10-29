@@ -27,7 +27,7 @@ class ParsedCommand(BaseException):
 
 
 def check_documented_aa_commands(root):
-    prefix = "python -B <skill>/scripts/aa.py "
+    prefix = 'python -B "<skill-directory>/scripts/aa.py" '
     guide = (root / "references" / "records.md").read_text(encoding="utf-8")
     examples = [line.strip()[len(prefix):] for line in guide.splitlines()
                 if line.strip().startswith(prefix)]
@@ -140,7 +140,7 @@ class PackageTests(unittest.TestCase):
     def test_documented_aa_command_typo_fails_after_manifest_regeneration(self):
         doc = self.source / "references" / "records.md"
         doc.write_text(doc.read_text(encoding="utf-8").replace(
-            "scripts/aa.py validate ", "scripts/aa.py validatx "), encoding="utf-8")
+            "scripts/aa.py\" validate ", "scripts/aa.py\" validatx "), encoding="utf-8")
         self.write_manifest()
         package.verify(self.source)
         with self.assertRaisesRegex(AssertionError, "validatx"):
@@ -156,14 +156,14 @@ class PackageTests(unittest.TestCase):
     def test_documented_aa_empty_selection_fails(self):
         doc = self.source / "references" / "records.md"
         doc.write_text("\n".join(line for line in doc.read_text(encoding="utf-8").splitlines()
-                                 if not line.startswith("python -B <skill>/scripts/aa.py ")), encoding="utf-8")
+                                 if not line.startswith('python -B "<skill-directory>/scripts/aa.py" ')), encoding="utf-8")
         with self.assertRaisesRegex(AssertionError, "No documented aa.py commands"):
             check_documented_aa_commands(self.source)
 
     def test_documented_aa_missing_required_example_fails(self):
         doc = self.source / "references" / "records.md"
         doc.write_text("\n".join(line for line in doc.read_text(encoding="utf-8").splitlines()
-                                 if not line.startswith("python -B <skill>/scripts/aa.py check-output ")), encoding="utf-8")
+                                 if not line.startswith('python -B "<skill-directory>/scripts/aa.py" check-output ')), encoding="utf-8")
         with self.assertRaisesRegex(AssertionError, "Missing documented aa.py commands: check-output"):
             check_documented_aa_commands(self.source)
 

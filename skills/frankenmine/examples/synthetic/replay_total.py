@@ -10,9 +10,11 @@ class ReplayTotal:
     def add(self, identity, amount):
         if not isinstance(identity, str) or not identity:
             raise ValueError("nonempty identity required")
-        if not isinstance(amount, str) or re.fullmatch(r"-?(0|[1-9][0-9]*)", amount) is None:
+        # ASCII-only canonical spelling: no '-0', leading zeros, signs, whitespace, underscores
+        # or non-ASCII digits, which Python int() would otherwise accept.
+        if not isinstance(amount, str) or re.fullmatch(r"0|-?[1-9][0-9]*", amount) is None:
             raise ValueError("canonical decimal-string integer required")
-        canonical = str(int(amount))
+        canonical = amount
         if identity in self.entries:
             if self.entries[identity] != canonical:
                 raise ValueError("conflicting duplicate")

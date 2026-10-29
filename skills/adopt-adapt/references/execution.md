@@ -60,7 +60,7 @@ receipt/log consistency.
 The CLI form is:
 
 ```text
-python -B scripts/execution.py RUN_DIR --authorization "user-approved fixture run" \
+python -B "<skill-directory>/scripts/execution.py" RUN_DIR --authorization "user-approved fixture run" \
   --cwd OWNED_WORKDIR --timeout 60 --harness HARNESS.py --input fixture.json \
   --subject example --revision local -- COMMAND ARGUMENT ...
 ```

@@ -4,13 +4,13 @@ Read when a repository, paper, workflow or blocked whole tool contains a potenti
 
 **mechanism → dependency closure → semantic contract → target seam → portable tests**
 
-Preserve the existing full five-axis hunt for every source; whole-tool rejection, language, purpose, platform and low score do not exempt a source. This reference strengthens how a discovered mechanism is specified, rather than adding a sixth axis or replacing the hunt. Keep reporting and deeper transfer analysis proportional to the size and consequence of the reuse unit. An abstract design idea does not require an exhaustive type matrix. A port of a stateful algorithm usually does.
+Every source gets the five-lens hunt of SKILL.md §5; whole-tool rejection, language, purpose, platform and low score do not exempt a source. Reporting follows SKILL.md §5 (structured records: all five axes; bounded and full manual reports: lenses with a finding plus one line naming what else was inspected). This reference strengthens how a discovered mechanism is specified, rather than adding a sixth axis or replacing the hunt. Keep reporting and deeper transfer analysis proportional to the size and consequence of the reuse unit. An abstract design idea does not require an exhaustive type matrix. A port of a stateful algorithm usually does.
 
 ## The protected five-axis hunt
 
 For every source, compare Algorithms, Error handling, Data structures, Security/compliance and Performance against the selected target. Cite the source file/function and target evidence for each concrete yes/no. Algorithms include deduplication, ranking/scoring, scheduling, caching, retry and rate limiting; performance includes streaming, batching, memoisation and concurrency. “I did not see anything” without checking is not a supported no. Unavailable evidence leaves the affected axis BLOCKED/UNPROCESSED.
 
-Every concrete yes becomes a salvage finding even below the old six-point triage mark. If preserving the historical SKIPPED label in a batch, use “SKIPPED (salvage found)” rather than plain SKIPPED; clearer new records separate whole-tool disposition from mechanism findings and completion. Breadth must reflect source size and likely hiding places, not an arbitrary fixed file count or only the advertised purpose.
+Every concrete yes becomes a salvage finding whatever the whole-tool fit; records separate whole-tool disposition from mechanism findings and completion. Breadth must reflect source size and likely hiding places, not an arbitrary fixed file count or only the advertised purpose.
 
 ## 1. Identify a concrete mechanism
 

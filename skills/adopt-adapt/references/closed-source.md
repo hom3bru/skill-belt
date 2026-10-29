@@ -1,4 +1,3 @@
-<!-- R4: new. OSINT process for closed-source donors. -->
 # Closed-source adopt/adapt from open-source intelligence
 
 Use when the donor product’s core source is not lawfully available under an open license. Always pair with [legal.md](legal.md). Use [web-forensics.md](web-forensics.md) for web surfaces.
@@ -27,7 +26,7 @@ Rewrite as recipient requirements + acceptance tests; invent new identifiers; no
 ## Output
 `closed_source: {mode, sources_consulted, mechanisms[], triangulation_log, buildable_spec, red_line_checks}`.
 
-## R5: when the closed donor is a binary
-Use [re-verification](re-verification.md). Default posture for commercial binaries is **methods-only**: read-only observation (M17), no writes/hooks/suspension, respect platform protections (no re-signing with get-task-allow, REA verify-native-calls.mjs:211-262), synthetic or self-built fixtures preferred (REA verify-real-ghidra-dos.mjs:26,30). Every decompiler-derived statement is `inferred` with provenance (M8).
+## When the closed donor is a binary
+Use [re-verification](re-verification.md). Default posture for commercial binaries is **methods-only**: read-only observation, no writes/hooks/suspension, respect platform protections (never re-sign or weaken hardened-runtime protections), synthetic or self-built fixtures preferred. Every decompiler-derived statement is `inferred` with provenance. Actually investigating an opaque binary or app is a separate reverse-engineer-anything task; this skill judges only what to borrow.
 
 Classify the [claimed output](re-methods.md) before choosing evidence. An executable relinker/API compatibility layer, static instruction translator, replacement engine and recovered-source port have different baselines; the word "port" or a native binary does not identify which occurred. Public observations cannot recover an absent server implementation; write the observable contract and mark unobserved behavior unknown.
