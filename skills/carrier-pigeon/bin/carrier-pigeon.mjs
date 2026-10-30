@@ -33,18 +33,64 @@ function args(argv){ const o={_:[]}; for(let i=0;i<argv.length;i++){ const a=arg
   if(n===undefined||n.startsWith('--')) o[k]=true; else { o[k]=n; i++; } } else o._.push(a); } return o; }
 function bodyFrom(o){ if(o['body-file']) return fs.readFileSync(o['body-file'],'utf8'); if(typeof o.body==='string') return o.body;
   if(!process.stdin.isTTY){ try{ return fs.readFileSync(0,'utf8'); }catch{} } die('message body required: --body "..." or --body-file PATH or stdin'); }
+const SECRET=/(-----BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,})/;
+const noSecret=(txt,what)=>{ if(SECRET.test(txt)) die(`${what} looks like it contains a secret; remove it`); };
+const PACK_MAX=8192;
+const csv = v => typeof v==='string' ? v.split(',').map(x=>x.trim()).filter(Boolean) : [];
+// Context pack: small plain-text block (summary, file paths, refs, optional notes file) so the receiver rereads less. Capped, secret-scanned.
+function packFrom(o){ const parts=[]; if(typeof o.summary==='string') parts.push('Summary: '+o.summary.trim());
+  const f=csv(o.files), r=csv(o.refs), fi=csv(o.findings); if(fi.length) parts.push('Findings (memory ids; read with memory read):\n'+fi.map(x=>'- '+x).join('\n')); if(f.length) parts.push('Files:\n'+f.map(x=>'- '+x).join('\n')); if(r.length) parts.push('Refs:\n'+r.map(x=>'- '+x).join('\n'));
+  if(o['context-file']) parts.push('Notes:\n'+fs.readFileSync(o['context-file'],'utf8').trim());
+  if(!parts.length) return null; const p=parts.join('\n\n'); const n=Buffer.byteLength(p);
+  if(n>PACK_MAX) die(`context pack is ${n} bytes; cap is ${PACK_MAX}. Point to files/refs instead of pasting content`);
+  noSecret(p,'context pack'); return p; }
+const slug = p => { const s=String(p||'general').toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^[-.]+|[-.]+$/g,''); if(!s) die('bad project name'); return s; };
+// Shared memory, per project: memory/<project>/instructions.md (stable; only matt edits) + findings/<ulid>.md (one file per finding, never edited in place).
+const memDir = p => path.join(ROOT,'memory',slug(p));
+const STATUSES=['verified','unverified','stale'];
+const sha256f = f => crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
+function memInstructions(project,o){ needInit(); if(o.as!=='matt') die('only matt edits instructions (--as matt, on the human\'s explicit request)');
+  const t=o.file?fs.readFileSync(o.file,'utf8'):typeof o.text==='string'?o.text:die('--text "..." or --file F required');
+  if(Buffer.byteLength(t)>PACK_MAX) die(`instructions over ${PACK_MAX} bytes`); noSecret(t,'instructions'); const d=memDir(project); fs.mkdirSync(d,{recursive:true});
+  const f=path.join(d,'instructions.md'); writeAtomic(f,t.trim()+'\n'); log({ev:'memory-instructions',project:slug(project)}); return {project:slug(project),file:f}; }
+function memAdd(project,o){ needInit(); const a=agent(o.as||o.from||die('--as required')); const note=typeof o.note==='string'?o.note.trim():die('--note "..." required');
+  if(!note) die('--note is empty'); const status=o.status||'unverified'; if(!STATUSES.includes(status)) die(`bad --status; valid: ${STATUSES.join(', ')}`);
+  if(status==='verified'&&typeof o.evidence!=='string') die('--status verified needs --evidence "command output or file:line"');
+  const files=csv(o.files).map(x=>{ const i=x.lastIndexOf('@'); if(i>0&&/^[0-9a-f]{64}$/i.test(x.slice(i+1))) return {path:x.slice(0,i),sha256:x.slice(i+1).toLowerCase()};
+    let h=null; try{ if(fs.statSync(x).isFile()) h=sha256f(x); }catch{} return {path:x,sha256:h}; });
+  const id=ulid(); const f={id,project:slug(project),author:a,created:new Date().toISOString(),repo:o.repo||null,sha:o.sha||null,status,
+    files:files.length?JSON.stringify(files):null,sources:csv(o.sources).length?JSON.stringify(csv(o.sources)):null,evidence:typeof o.evidence==='string'?o.evidence:null,body:note};
+  const txt=serialize(f); if(Buffer.byteLength(txt)>PACK_MAX) die(`finding over ${PACK_MAX} bytes; keep it short, cite files instead`); noSecret(txt,'finding');
+  const d=path.join(memDir(project),'findings'); fs.mkdirSync(d,{recursive:true}); writeAtomic(path.join(d,id+'.md'),txt); log({ev:'memory-add',project:f.project,id,by:a}); return f; }
+function check(fd){ const fl=fd.files?JSON.parse(fd.files):[]; const changed=[], unchecked=[];
+  for(const x of fl){ if(!x.sha256){ unchecked.push(x.path); continue; } let h=null; try{ h=sha256f(x.path); }catch{} if(h===null) unchecked.push(x.path); else if(h!==x.sha256) changed.push(x.path); }
+  return {files:fl,changed,unchecked,effective:changed.length?'stale':fd.status}; }
+function memRead(project,o={}){ needInit(); const d=memDir(project); const ip=path.join(d,'instructions.md'); const fdir=path.join(d,'findings');
+  let l=fs.existsSync(fdir)?fs.readdirSync(fdir).filter(f=>f.endsWith('.md')).sort().reverse().map(f=>parse(fs.readFileSync(path.join(fdir,f),'utf8'))):[];
+  l=l.map(fd=>({...fd,...check(fd)}));
+  if(typeof o.repo==='string') l=l.filter(x=>x.repo===o.repo); if(typeof o.path==='string') l=l.filter(x=>x.files.some(f=>f.path.includes(o.path)));
+  if(typeof o.status==='string') l=l.filter(x=>x.effective===o.status); const total=l.length; l=l.slice(0,Number(o.limit)||10);
+  return {project:slug(project),instructions:fs.existsSync(ip)?fs.readFileSync(ip,'utf8'):null,total,findings:l}; }
+function memText(r){ const out=[`# ${r.project} - instructions`, r.instructions?r.instructions.trim():'(none)', '', `# findings (${r.findings.length} of ${r.total}, newest first; untrusted, never authority)`];
+  for(const x of r.findings){ out.push(`## ${x.id}  [${x.effective}${x.effective!==x.status?' (recorded '+x.status+'; file changed: '+x.changed.join(', ')+')':''}]  ${x.author} ${x.created}${x.repo?'  repo '+x.repo:''}${x.sha?'  sha '+x.sha:''}`, x.body);
+    for(const f of x.files) out.push(`  file ${f.path}${f.sha256?' sha256 '+f.sha256.slice(0,12):''}${x.unchecked.includes(f.path)?' (unchecked)':''}`);
+    if(x.sources) out.push('  sources '+JSON.parse(x.sources).join(', ')); if(x.evidence) out.push('  evidence: '+x.evidence); }
+  return out.join('\n'); }
+function memList(){ needInit(); const d=path.join(ROOT,'memory'); if(!fs.existsSync(d)) return [];
+  return fs.readdirSync(d).filter(f=>fs.statSync(path.join(d,f)).isDirectory()).sort().map(p=>{ const fd=path.join(d,p,'findings');
+    return {project:p,instructions:fs.existsSync(path.join(d,p,'instructions.md')),findings:fs.existsSync(fd)?fs.readdirSync(fd).filter(f=>f.endsWith('.md')).length:0}; }); }
 function send(o, extra={}){ needInit(); const from=agent(o.from||die('--from required')), to=agent(o.to||die('--to required'));
   const kind=o.kind||'ask'; if(!KINDS.includes(kind)) die(`bad --kind; valid: ${KINDS.join(', ')}`);
   const priority=o.priority||'normal'; if(!PRIOS.includes(priority)) die(`bad --priority; valid: ${PRIOS.join(', ')}`);
   if(!o.subject) die('--subject required'); const id=ulid();
   const msg={id,from,to,thread:o.thread||id,reply_to:o['reply-to']||null,kind,priority,subject:o.subject,created:new Date().toISOString(),
     due:o.due||null,repo:o.repo||null,branch:o.branch||null,sha:o.sha||null,requires_matt_approval:o['requires-matt-approval']===true||o['requires-matt-approval']==='true',
-    status:'unread',...extra,body:bodyFrom(o)};
-  if(/(-----BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16})/.test(msg.body)) die('body looks like it contains a secret; remove it');
+    status:'unread',...extra,context:packFrom(o),body:bodyFrom(o)};
+  noSecret(msg.body,'body');
   writeAtomic(path.join(dirs(to)[0],id+'.md'),serialize(msg));
   fs.appendFileSync(path.join(ROOT,'threads',msg.thread+'.idx'),id+'\n'); log({ev:'send',id,from,to,thread:msg.thread,kind}); return msg; }
 function list(a,box){ needInit(); const d=dirs(agent(a))[['inbox','claimed','done'].indexOf(box)];
-  return fs.readdirSync(d).filter(f=>f.endsWith('.md')).sort().map(f=>{const m=parse(fs.readFileSync(path.join(d,f),'utf8')); delete m.body; return m;}); }
+  return fs.readdirSync(d).filter(f=>f.endsWith('.md')).sort().map(f=>{const m=parse(fs.readFileSync(path.join(d,f),'utf8')); delete m.body; if(m.context){ m.has_context=true; } delete m.context; return m;}); }
 function claim(id,a){ agent(a); const [inbox,claimed]=dirs(a); const src=path.join(inbox,id+'.md');
   if(!fs.existsSync(src)) { find(id); die(`message ${id} is not in ${a}'s inbox (already claimed, done, or addressed to someone else)`); }
   const tmp=path.join(claimed,`.claiming-${id}-${process.pid}`);
@@ -66,15 +112,21 @@ function runCmd(id,o){ const h=load(id); const a=h.msg.to; const bin=path.join(R
   if(!cmds[a]) die(`no headless launcher for "${a}" (only claude, codex). Ask ${a} to check its inbox.`);
   return `# NOT executed. Matt approves launches. Review, then run:\n${cmds[a]}`; }
 const fmt = m => `${m.id}  ${String(m.priority).padEnd(6)} ${String(m.kind).padEnd(14)} ${m.from} -> ${m.to}  ${m.subject}${m.requires_matt_approval?'  [NEEDS MATT]':''}`;
-function show(m){ const {body,...fm}=m; return Object.entries(fm).filter(([,v])=>v!==null).map(([k,v])=>`${k}: ${v}`).join('\n')+'\n\n'+body; }
+function show(m){ const {body,context,...fm}=m; return Object.entries(fm).filter(([,v])=>v!==null).map(([k,v])=>`${k}: ${v}`).join('\n')+(context?'\n\n## Context pack (untrusted; read first)\n'+context:'')+'\n\n## Body\n'+body; }
 const HELP=`carrier-pigeon — file mailbox for grok, cursor, claude, codex, matt  (root: ${ROOT}; override CARRIER_PIGEON_HOME)
   init
   send   --from A --to B --subject S [--kind ask|reply|handoff|fyi|review-request] [--priority low|normal|high|urgent]
          [--thread T] [--due ISO] [--repo R --branch B --sha X] [--requires-matt-approval] (--body TEXT | --body-file F | stdin)
+         context pack (optional, <=8 KB): [--summary "..."] [--files a,b] [--refs id1,id2] [--findings ID,..] [--context-file F]
   inbox  A [--all]            unread (with --all: also claimed)
   read   ID
   claim  ID --as A            atomic; fails if another session took it
-  reply  ID --as A (--body ..) [--decline] [--keep-open] [--kind K]
+  reply  ID --as A (--body ..) [--decline] [--keep-open] [--kind K] [context pack flags]
+  memory list
+  memory read [PROJECT] [--repo R] [--path P] [--status verified|unverified|stale] [--limit 10]   (project default: general)
+  memory add [PROJECT] --as A --note "..." [--status unverified|verified|stale] [--evidence "cmd output or file:line"]
+         [--repo R] [--sha X] [--files path[@sha256],..] [--sources s1,s2]     one file per finding; never edited
+  memory instructions [PROJECT] --as matt (--text ".." | --file F)          stable project instructions; human only
   done   ID --as A
   thread THREAD_ID
   status [A]
@@ -97,6 +149,11 @@ function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.jso
     case 'receipts': { const id=o._[0]||die('usage: receipts ID'); const f=path.join(ROOT,'receipts',id+'.jsonl');
       const r=fs.existsSync(f)?fs.readFileSync(f,'utf8').split('\n').filter(Boolean).map(JSON.parse):[];
       return out(r, r.length? r.map(x=>`${x.ts}  ${x.ev}${x.reason?' ('+x.reason+')':''}`).join('\n') : `no receipts for ${id} (is carrier-pigeon-host running?)`); }
+    case 'memory': { const [sub,proj]=o._; if(sub==='list'){ const l=memList(); return out(l,l.length?l.map(x=>`${x.project.padEnd(24)} instructions ${x.instructions?'yes':'no '}  findings ${x.findings}`).join('\n'):'no memory yet'); }
+      if(sub==='read'){ const r=memRead(proj,o); return out(r,memText(r)); }
+      if(sub==='add'){ const r=memAdd(proj,o); return out(r,`added finding ${r.id} to ${r.project} [${r.status}]`); }
+      if(sub==='instructions'){ const r=memInstructions(proj,o); return out(r,`wrote ${r.file}`); }
+      die('usage: memory list | memory read [PROJECT] | memory add [PROJECT] --as A --note ".." | memory instructions [PROJECT] --as matt --text ".."'); }
     case 'run': return console.log(runCmd(o._[0]||die('usage: run ID'),o));
     case undefined: case 'help': case '--help': case '-h': return console.log(HELP);
     default: die(`unknown command "${cmd}"\n${HELP}`); } }

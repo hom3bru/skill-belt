@@ -1,6 +1,6 @@
 // node carrier-pigeon-host.test.mjs — temp CARRIER_PIGEON_HOME, fake adapters; never launches claude/codex or touches the real bus.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync,spawn} from 'node:child_process'; import {EventEmitter} from 'node:events';
-import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,cursorDeeplink,claudeArgs,claudeShell} from './carrier-pigeon-host.mjs';
+import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,cursorDeeplink,wakePrompt,claudeArgs,claudeShell} from './carrier-pigeon-host.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.resolve(here,'../bin/carrier-pigeon.mjs');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)); const until=async(f,ms=3000)=>{ const t=Date.now(); while(Date.now()-t<ms){ if(f()) return true; await sleep(20);} return false; };
 function bus(){ const root=fs.mkdtempSync(path.join(os.tmpdir(),'abhost-')); const env={...process.env,CARRIER_PIGEON_HOME:root};
@@ -72,6 +72,9 @@ await t('cursor cloud: steer body, Basic auth, no retry on 5xx, dedup', async()=
   assert.equal(calls[0].o.headers.authorization,'Basic '+Buffer.from('ckey:').toString('base64')); assert.equal(await ad.deliver({id:'C1'}),false); });
 await t('toast script escapes XML/quotes; cursor deeplink is prefill-only URL', ()=>{ const s=toastScript({title:"a'b",text:'<x&y>',launch:cursorDeeplink('hi there')});
   assert.match(s,/&lt;x&amp;y&gt;/); assert.match(s,/a''b/); assert.match(s,/cursor:\/\/anysphere\.cursor-deeplink\/prompt\?text=hi%20there/); });
+await t('wake prompt points at context pack and project memory, mailbox CLI only', async()=>{ const p=wakePrompt({id:'01A',kind:'ask',from:'grok',to:'codex',subject:'s',repo:'Org/Repo'});
+  assert.match(p,/memory read org-repo/); assert.match(p,/Context pack/); assert.match(p,/memory add org-repo --as codex/); assert.match(wakePrompt({id:'1',kind:'ask',from:'a',to:'b',subject:'s',repo:null}),/memory read general/);
+  for(const c of p.match(/node \S+ [a-z]+/g)) assert.match(c,/^node bin\/carrier-pigeon\.mjs /); });
 console.log(`# ${n} host tests passed`);
 
 await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw new Error('not ready'); got.push(m.id); return true; }};
