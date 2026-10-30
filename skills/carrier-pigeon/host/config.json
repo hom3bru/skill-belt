@@ -1,0 +1,18 @@
+{
+  "rescanMs": 15000,
+  "maxHops": 8,
+  "rate": { "max": 6, "windowMs": 600000 },
+  "noWakeKinds": ["reply", "fyi"],
+  "adapters": ["claude", "codex", "toast", "grokWebhook", "cursorCloud"],
+  "routes": {
+    "claude": ["claude", "toast"],
+    "codex": ["codex", "toast"],
+    "cursor": ["cursorCloud", "toast"],
+    "grok": ["grokWebhook", "toast"],
+    "matt": ["toast"]
+  },
+  "claude": { "bin": "claude", "extraArgs": [] },
+  "codex": { "bin": "codex", "port": 4500, "model": null, "sandbox": "busOnly" },
+  "toast": { "enabled": true },
+  "restart": { "baseMs": 1000, "maxMs": 60000, "stableMs": 60000 }
+}

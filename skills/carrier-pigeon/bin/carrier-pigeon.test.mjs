@@ -1,0 +1,23 @@
+// node carrier-pigeon.test.mjs  — uses a temp CARRIER_PIGEON_HOME; never touches the real bus.
+import {execFileSync,spawn} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
+const CLI=path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')),'carrier-pigeon.mjs');
+const HOME=fs.mkdtempSync(path.join(os.tmpdir(),'abtest-')); const env={...process.env,CARRIER_PIGEON_HOME:HOME};
+const run=(...a)=>JSON.parse(execFileSync('node',[CLI,...a,'--json'],{env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+const fail=(...a)=>{ try{ execFileSync('node',[CLI,...a],{env,stdio:['ignore','pipe','pipe']}); }catch(e){ return e.stderr.toString(); } assert.fail('expected failure: '+a.join(' ')); };
+let n=0; const t=(name,fn)=>{fn(); n++; console.log('ok',n,name);};
+run('init');
+t('send lands in inbox, no tmp files', ()=>{ const m=run('send','--from','grok','--to','claude','--subject','hi','--body','ask: say "x"\n---\nline'); 
+  assert.equal(run('inbox','claude')[0].id,m.id); assert.deepEqual(fs.readdirSync(path.join(HOME,'agents/claude/inbox')).filter(f=>f.startsWith('.')),[]);
+  assert.equal(run('read',m.id).body,'ask: say "x"\n---\nline'); });
+t('validation errors are clear', ()=>{ assert.match(fail('send','--from','bob','--to','claude','--subject','s','--body','b'),/unknown agent "bob"/);
+  assert.match(fail('send','--from','grok','--to','claude','--subject','s','--body','key sk-abcdefghijklmnopqrstuvwx'),/secret/); });
+t('claim, reply, thread, done', ()=>{ const id=run('inbox','claude')[0].id; assert.equal(run('claim',id,'--as','claude').status,'claimed');
+  assert.match(fail('claim',id,'--as','claude'),/not in claude's inbox/); const r=run('reply',id,'--as','claude','--body','claude here');
+  assert.equal(r.to,'grok'); assert.equal(r.reply_to,id); const th=run('thread',id); assert.equal(th.length,2); assert.equal(th[0]._box,'claude/done'); assert.equal(run('inbox','grok').length,1); });
+t('ids are time-sortable and unique', ()=>{ const ids=Array.from({length:20},(_,i)=>run('send','--from','matt','--to','codex','--subject','s'+i,'--body','b').id);
+  assert.deepEqual([...ids].sort(),ids); assert.equal(new Set(ids).size,20); });
+await (async()=>{ const id=run('send','--from','grok','--to','codex','--subject','race','--body','b').id;
+  const res=await Promise.all(Array.from({length:8},()=>new Promise(r=>{const p=spawn('node',[CLI,'claim',id,'--as','codex'],{env}); p.on('exit',c=>r(c));})));
+  assert.equal(res.filter(c=>c===0).length,1,'exactly one claimer wins: '+res); assert.equal(res.filter(c=>c===2).length,7); n++; console.log('ok',n,'8 concurrent claims -> exactly 1 winner'); })();
+t('run prints but does not execute', ()=>{ const id=run('inbox','codex')[0].id; const s=execFileSync('node',[CLI,'run',id],{env,encoding:'utf8'}); assert.match(s,/NOT executed/); assert.match(s,/codex exec/); });
+fs.rmSync(HOME,{recursive:true,force:true}); console.log(`all ${n} passed`);

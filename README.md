@@ -13,6 +13,7 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 | [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
+| [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Send asks and replies between local coding agents (Claude Code, Codex, Cursor, Grok) through a shared file mailbox, with an optional listener that wakes the recipient. | A claimed, threaded reply with delivery receipts; listener sandbox enforcement is not qualified. |
 
 westack (then called estack) was renamed in 0.3.1, with no change in behaviour.
 
@@ -80,7 +81,7 @@ Run from the repository root:
 python -B scripts/verify.py
 ```
 
-The verifier checks repository structure, local links, and byte manifests, then runs the collection tests and all three skill suites. Raw results are written to a temporary directory; use `--output <new-directory>` to choose a new output directory. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
+The verifier checks repository structure, local links, and byte manifests, then runs the collection tests and all four skill suites. Raw results are written to a temporary directory; use `--output <new-directory>` to choose a new output directory. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
 
 On Windows, only `test_research.ResearchTests.test_linked_source_entry_is_rejected` may be skipped when its reason is `symlink creation unavailable`; this is reported as `passed-with-platform-limitation`. Linux must run it. Other skips, empty suites, and failures are rejected.
 

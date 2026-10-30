@@ -6,7 +6,7 @@ import re
 import stat
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ("adopt-adapt", "frankenmine", "westack")
+NAMES = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon")
 
 
 def files(root):
@@ -55,7 +55,7 @@ def main():
         skills.append(dict(name=name, version=skill_version(root), path="skills/" + name, files=files(root)))
     (ROOT / "skills-manifest.json").write_text(json.dumps(dict(format="skill-belt-snapshots-1", skills=skills), indent=2) + "\n",
                                                encoding="utf-8", newline="\n")
-    print("Published-byte manifests refreshed for three skill snapshots.")
+    print("Published-byte manifests refreshed for four skill snapshots.")
 
 
 if __name__ == "__main__":

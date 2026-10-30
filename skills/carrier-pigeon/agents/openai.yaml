@@ -1,0 +1,4 @@
+interface:
+  display_name: "Carrier Pigeon"
+  short_description: "File mailbox for asks between coding agents"
+  default_prompt: "Use $carrier-pigeon to check my agent inbox or send an ask to another agent."

@@ -1,4 +1,4 @@
-"""Verify portable snapshots and run all three local skill suites. Standard library only."""
+"""Verify portable snapshots and run all four local skill suites. Standard library only."""
 import argparse
 import fnmatch
 import hashlib
@@ -14,7 +14,7 @@ import time
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ("adopt-adapt", "frankenmine", "westack")
+SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon")
 WINDOWS_SKIP = ("test_research.ResearchTests.test_linked_source_entry_is_rejected", "symlink creation unavailable")
 # The adopt-adapt suite alone takes about three minutes on an idle Windows machine.
 DEFAULT_TIMEOUT = 900
@@ -258,7 +258,7 @@ def structure():
     expected = {"skills/" + name + "/SKILL.md" for name in SKILLS}
     actual = {name for name in all_files if name.endswith("/SKILL.md")}
     if actual != expected:
-        raise ValueError("Expected exactly the three collection entrypoints")
+        raise ValueError("Expected exactly the four collection entrypoints")
     for name in SKILLS:
         check_vocabulary(ROOT / "skills" / name, name, ROOT)
     # Overlay links resolve inside the skill they replace a file in; build_public.py checks them there.
@@ -316,7 +316,7 @@ def main():
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
-        elif label in {"frankenmine-tests", "westack-tests"}:
+        elif label in {"frankenmine-tests", "westack-tests", "carrier-pigeon-tests"}:
             counts = json.loads(result.stdout)
             total = counts.get("total", counts.get("collected", 0))
             if total <= 0 or counts["failed"] or counts["skipped"] or counts["passed"] != total:
@@ -335,6 +335,7 @@ def main():
         run("frankenmine-tests", [python, "-B", "tests/run_tests.py", "--output", str(output / "frankenmine-results")], fm)
         run("westack-package", [python, "-B", "scripts/validate.py", "package", "."], westack)
         run("westack-tests", [python, "-B", "tests/run.py", "--output", str(output / "westack-results.json")], westack)
+        run("carrier-pigeon-tests", [python, "-B", "tests/run.py"], ROOT / "skills/carrier-pigeon")
         structure()  # Tests must not mutate the published snapshots.
         status = "passed-with-platform-limitation" if any(row.get("skipped", 0) for row in records) else "passed"
         summary = dict(status=status, publication_files=count, checks=records,

@@ -74,6 +74,11 @@
         }
       }
     },
+    "carrier-pigeon": {
+      "notes": "Original skill: CLI, listener host and their tests. Runtime mailbox data, receipts, logs and host/secrets are not part of the snapshot.",
+      "exclude": [],
+      "overlays": {}
+    },
     "westack": {
       "notes": "Two records ship although the rest of tests/results/ does not: provenance/ARTIFACT_REVIEW.md (a dated review) and tests/results/tests-final.json (the final test receipt). Both are clean on the leak patterns, and westack's own rename guard lists both in its keep list, so an edition that omits them fails that guard. The other receipts stay excluded as machine-specific transcripts; 12 of them contain machine paths and private project names.",
       "exclude": [
