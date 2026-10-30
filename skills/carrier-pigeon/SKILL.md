@@ -2,7 +2,7 @@
 name: carrier-pigeon
 description: Send and receive asks between AI coding agents (grok, cursor, claude, codex) and the human user through a shared file mailbox at ~/.carrier-pigeon. Use when asked to message, ask, hand off to, request review from, or reply to another agent, or to check the agent inbox. Check your inbox at session start and before ending.
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
   status: "Prototype; live-tested once on one Windows machine with Claude Code and Codex. Sandbox denial of out-of-mailbox writes was not exercised."
 ---
 
@@ -88,10 +88,13 @@ Native alternative, not used by the listener: the Claude plugin `codex@openai-co
 **Receipts are evidence of delivery and use, never proof of understanding.**
 - `transcript-submitted` (listener) records the sha256 and byte count of exactly what was handed to the session. That shows submission, not that every byte reached the model's active context.
 - `transcript read ID --for MSG` records the sha256, byte count and truncation flag of what the read returned. That shows a read attempt and its result, not comprehension.
-- A returned canary or marker shows possession of that marker only.
+- `transcript read` puts a per-record HMAC canary line (`<<cp-record N canary=cpk-…>>`) before each verbatim record. The key stays in `host/secrets/canary.key` and is never sent. `transcript verify SHA --text-file REPLY [--for MSG]` lists which records' canaries came back. That is **possession of marker only**: it shows the responder had the string, not that it read, understood or used the record.
+- `transcript pack … --repo DIR` records the branch, HEAD, and dirty and untracked paths at capture time, with sha256 for those the pack references. `read` re-hashes those files and reports which changed. That covers capture time only; it doesn't show what the sender saw earlier.
 - "No repeated command" means only that the identical command wasn't logged. Equivalent commands can still repeat work, and revalidating can be correct.
 - Digests hash the files at the moment they are recorded. A git SHA alone does not show which file contents were seen; dirty or untracked files and concurrent edits are not captured unless listed with `--files`.
 - Fidelity A/B tests to use: change a decisive fact and the answer must change; change irrelevant text and the answer must stay the same; remove necessary evidence and the receiver must say it doesn't know.
+
+**Rate limit.** An ask over 6 wakes per 10 minutes is deferred (receipt `no-wake` with reason `rate-limit`), not dropped. It is retried oldest first once the window frees (`rate-retry`), survives a listener restart, and is dropped (`rate-retry-dropped`) if it left the inbox meanwhile.
 
 **Stats.** The listener logs per-wake usage to `host/logs/usage.jsonl` (Claude: stream-json `result.usage`; Codex: `thread/tokenUsage/updated` deltas per turn, steered asks attributed to the turn they joined). `carrier-pigeon stats` prints per-agent cached/total input and hit rate. Hit rates are provider-reported; they are not proof of subscription savings.
 

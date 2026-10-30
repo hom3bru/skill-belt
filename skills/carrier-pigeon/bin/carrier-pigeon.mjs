@@ -130,7 +130,9 @@ const HELP=`carrier-pigeon — file mailbox for grok, cursor, claude, codex, mat
          [--repo R] [--sha X] [--files path[@sha256],..] [--sources s1,s2]     one file per finding; never edited
   memory digest [PROJECT] --as A (--note ".." | --body-file F) --files p1,p2 [--sha X] [--status ..]   reusable result of expensive work
   transcript pack FILE --as A [--last N] [--format claude|codex] [--render]   byte-exact JSONL slice + span index (reasoning omitted); --render = lossy text
-  transcript read SHA         hash-verified
+  transcript pack ... [--repo DIR]   also records git branch/HEAD + dirty/untracked files (sha256 of those the pack references)
+  transcript read SHA [--for MSG] [--no-canaries]   hash-verified; per-record HMAC canary markers; re-hashes referenced files
+  transcript verify SHA --text-file F [--for MSG]   which canaries came back (possession of marker only)
   send ... [--transcript SHA] [--fork-codex-thread ID] [--fork-claude-session ID]   most faithful handoffs (see SKILL.md)
   prefix [PROJECT]            the byte-stable wake prefix (rules + instructions + findings oldest first)
   stats [--since ISO]         per-agent cached vs total input tokens from the host
@@ -163,10 +165,13 @@ function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.jso
       if(sub==='digest'){ const r=memAdd(proj,{...o,kind:'digest'}); return out(r,`added digest ${r.id} to ${r.project} [${r.status}]`); }
       if(sub==='instructions'){ const r=memInstructions(proj,o); return out(r,`wrote ${r.file}`); }
       die('usage: memory list | memory read [PROJECT] | memory add [PROJECT] --as A --note ".." | memory instructions [PROJECT] --as matt --text ".."'); }
-    case 'transcript': { const [sub,arg]=o._; if(sub==='pack'){ needInit(); const r=ctx.packTranscript(ROOT,arg||die('usage: transcript pack FILE --as A [--last N]'),{format:o.format||'auto',last:Number(o.last)||0,render:o.render===true,from:agent(o.as||die('--as required'))}); log({ev:'transcript-pack',sha256:r.sha256,by:o.as}); return out(r,`packed ${r.items} ${r.mode} records (${r.bytes} bytes${r.mode==='byte-exact'?', '+r.omitted+' reasoning records omitted':', '+r.redactions+' redactions'}) -> transcript ${r.sha256}`); }
-      if(sub==='read'){ const b=ctx.readTranscript(ROOT,arg||die('usage: transcript read SHA')); const ev={transcript:arg,returned_sha256:ctx.sha256(b),returned_bytes:Buffer.byteLength(b),truncated:false,by:o.as||null};
+    case 'transcript': { const [sub,arg]=o._; if(sub==='pack'){ needInit(); const r=ctx.packTranscript(ROOT,arg||die('usage: transcript pack FILE --as A [--last N]'),{format:o.format||'auto',last:Number(o.last)||0,render:o.render===true,repo:typeof o.repo==='string'?o.repo:null,from:agent(o.as||die('--as required'))}); log({ev:'transcript-pack',sha256:r.sha256,by:o.as}); return out(r,`packed ${r.items} ${r.mode} records (${r.bytes} bytes${r.mode==='byte-exact'?', '+r.omitted+' reasoning records omitted':', '+r.redactions+' redactions'}) -> transcript ${r.sha256}`); }
+      if(sub==='read'){ const info=ctx.readTranscriptInfo(ROOT,arg||die('usage: transcript read SHA'),{canaries:o['no-canaries']!==true}); const b=info.text; const ev={transcript:arg,returned_sha256:ctx.sha256(b),returned_bytes:Buffer.byteLength(b),truncated:false,canaries:info.canaries,files_at_read:info.files,head_at_capture:info.head_at_capture||null,head_now:info.head_now||null,by:o.as||null};
         log({ev:'transcript-read',...ev}); if(typeof o.for==='string'){ const d=path.join(ROOT,'receipts'); fs.mkdirSync(d,{recursive:true}); fs.appendFileSync(path.join(d,o.for+'.jsonl'),JSON.stringify({ts:new Date().toISOString(),ev:'transcript-read',...ev})+'\n'); }
-        return out({sha256:arg,...ev,text:b},b); } die('usage: transcript pack FILE --as A [--last N] | transcript read SHA'); }
+        return out({sha256:arg,...ev,text:b},b); }
+      if(sub==='verify'){ const t=typeof o['text-file']==='string'?fs.readFileSync(o['text-file'],'utf8'):typeof o.text==='string'?o.text:die('usage: transcript verify SHA --text-file F | --text S'); const r=ctx.verifyCanaries(ROOT,arg||die('SHA required'),t);
+        log({ev:'canary-verify',transcript:arg,matched:r.matched_records.length,of:r.records}); if(typeof o.for==='string'){ const d=path.join(ROOT,'receipts'); fs.mkdirSync(d,{recursive:true}); fs.appendFileSync(path.join(d,o.for+'.jsonl'),JSON.stringify({ts:new Date().toISOString(),ev:'canary-verify',...r})+'\n'); }
+        return out(r,`canaries matched ${r.matched_records.length}/${r.records} records (${r.label})`); } die('usage: transcript pack FILE --as A [--last N] | transcript read SHA'); }
     case 'prefix': { needInit(); const r=ctx.stablePrefix(ROOT,o._[0]); return out(r,r.text); }
     case 'stats': { const r=ctx.stats(ROOT,{since:o.since||null}); return out(r.agents,r.agents.length?r.agents.map(a=>`${a.agent.padEnd(7)} wakes ${a.wakes}  input ${a.input_total}  cached ${a.cached}  hit ${a.hit_rate}  median ${a.median_latency_ms} ms`).join('\n'):'no usage logged yet'); }
     case 'run': return console.log(runCmd(o._[0]||die('usage: run ID'),o));

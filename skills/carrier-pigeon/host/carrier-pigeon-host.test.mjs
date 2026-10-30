@@ -33,7 +33,13 @@ await t('rate limit: max 6 auto-wakes per agent per window', async()=>{ const {r
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a,toast},now:()=>now}); await h.start(); const ids=[];
   for(let i=0;i<7;i++){ ids.push(run('send','--from','grok','--to','claude','--subject','r'+i,'--body','b').id); await h.scanAll(); }
   assert.equal(a.got.length,6); assert.equal(readReceipts(root,ids[6]).find(r=>r.ev==='no-wake').reason,'rate-limit'); assert.equal(toast.notes.length,1);
-  now+=600001; run('send','--from','grok','--to','claude','--subject','later','--body','b'); await h.scanAll(); assert.equal(a.got.length,7); await h.stop(); });
+  now+=600001; const later=run('send','--from','grok','--to','claude','--subject','later','--body','b').id; await h.scanAll(); assert.deepEqual(a.got.slice(6),[ids[6],later]); assert.ok(evs(root,ids[6]).includes('rate-retry')); await h.stop(); });
+await t('rate-limited ask: retried once window frees, survives restart, dropped if claimed meanwhile, toast not repeated', async()=>{ const {root,run}=bus(); const a=fake('claude'), toast=fake('toast',false); toast.deliver=async function(m){ this.got.push(m.id); return true; }; let now=1e6;
+  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{claude:['claude','toast']}},adapters:{claude:a,toast},now:()=>now}); await h.start(); const ids=[];
+  for(let i=0;i<8;i++){ ids.push(run('send','--from','grok','--to','claude','--subject','q'+i,'--body','b').id); await h.scanAll(); }
+  assert.equal(a.got.length,6); await h.scanAll(); assert.equal(a.got.length,6,'no retry while window full'); await h.stop();
+  run('claim',ids[7],'--as','claude'); now+=600001; h=new Host({root,config:{watch:false,rescanMs:60000,routes:{claude:['claude','toast']}},adapters:{claude:a,toast},now:()=>now}); await h.start(); await h.scanAll();
+  assert.deepEqual(a.got.slice(6),[ids[6]]); assert.ok(evs(root,ids[7]).includes('rate-retry-dropped')); assert.equal(toast.got.filter(x=>x===ids[6]).length,1); await h.scanAll(); assert.equal(a.got.length,7); await h.stop(); });
 await t('reply and fyi never auto-wake (toast still notifies)', async()=>{ const {root,run}=bus(); const a=fake('claude'), toast=fake('toast',false); toast.deliver=async function(m){ this.got.push(m.id); return true; };
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a,toast}}); await h.start();
   const f=run('send','--from','grok','--to','claude','--subject','f','--body','b','--kind','fyi'); const r=run('send','--from','grok','--to','claude','--subject','r','--body','b','--kind','reply'); await h.scanAll();
@@ -75,8 +81,8 @@ await t('toast script escapes XML/quotes; cursor deeplink is prefill-only URL', 
 await t('wake prompt points at context pack and project memory, mailbox CLI only', async()=>{ const p=wakePrompt({id:'01A',kind:'ask',from:'grok',to:'codex',subject:'s',repo:'Org/Repo'});
   assert.match(p,/memory read org-repo/); assert.match(p,/Context pack/); assert.match(p,/memory add org-repo --as codex/); assert.match(wakePrompt({id:'1',kind:'ask',from:'a',to:'b',subject:'s',repo:null}),/memory read general/);
   for(const c of p.match(/node \S+ [a-z]+/g)) assert.match(c,/^node bin\/carrier-pigeon\.mjs /); });
-console.log(`# ${n} host tests passed`);
 
 await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw new Error('not ready'); got.push(m.id); return true; }};
   const h=new Host({root,config:{rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','matt','--to','codex','--subject','p','--body','x').id;
   assert.ok(await until(()=>got.includes(id),3000),'redelivered after ready'); assert.ok(readReceipts(root,id).some(r=>r.ev==='notified:codex')); await h.stop(); });
+console.log(`# ${n} host tests passed`);
