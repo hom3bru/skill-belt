@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // carrier-pigeon: dependency-free file mailbox for coding agents. Node >= 18.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import crypto from 'node:crypto';
+import * as ctx from './cp-context.mjs';
 const ROOT = process.env.CARRIER_PIGEON_HOME || path.join(os.homedir(), '.carrier-pigeon');
 const AGENTS = ['grok','cursor','claude','codex','matt'];
 const KINDS = ['ask','reply','handoff','fyi','review-request'];
@@ -53,12 +54,13 @@ function memInstructions(project,o){ needInit(); if(o.as!=='matt') die('only mat
   const t=o.file?fs.readFileSync(o.file,'utf8'):typeof o.text==='string'?o.text:die('--text "..." or --file F required');
   if(Buffer.byteLength(t)>PACK_MAX) die(`instructions over ${PACK_MAX} bytes`); noSecret(t,'instructions'); const d=memDir(project); fs.mkdirSync(d,{recursive:true});
   const f=path.join(d,'instructions.md'); writeAtomic(f,t.trim()+'\n'); log({ev:'memory-instructions',project:slug(project)}); return {project:slug(project),file:f}; }
-function memAdd(project,o){ needInit(); const a=agent(o.as||o.from||die('--as required')); const note=typeof o.note==='string'?o.note.trim():die('--note "..." required');
+function memAdd(project,o){ needInit(); const a=agent(o.as||o.from||die('--as required')); const note=typeof o.note==='string'?o.note.trim():o['body-file']?fs.readFileSync(o['body-file'],'utf8').trim():die('--note "..." required');
   if(!note) die('--note is empty'); const status=o.status||'unverified'; if(!STATUSES.includes(status)) die(`bad --status; valid: ${STATUSES.join(', ')}`);
   if(status==='verified'&&typeof o.evidence!=='string') die('--status verified needs --evidence "command output or file:line"');
   const files=csv(o.files).map(x=>{ const i=x.lastIndexOf('@'); if(i>0&&/^[0-9a-f]{64}$/i.test(x.slice(i+1))) return {path:x.slice(0,i),sha256:x.slice(i+1).toLowerCase()};
     let h=null; try{ if(fs.statSync(x).isFile()) h=sha256f(x); }catch{} return {path:x,sha256:h}; });
-  const id=ulid(); const f={id,project:slug(project),author:a,created:new Date().toISOString(),repo:o.repo||null,sha:o.sha||null,status,
+  const id=ulid(); const kind=o.kind==='digest'?'digest':'note'; if(kind==='digest'&&!csv(o.files).length&&!o.sha) die('a digest needs --files and/or --sha so others can tell when it is stale');
+  const f={id,project:slug(project),kind,author:a,created:new Date().toISOString(),repo:o.repo||null,sha:o.sha||null,status,
     files:files.length?JSON.stringify(files):null,sources:csv(o.sources).length?JSON.stringify(csv(o.sources)):null,evidence:typeof o.evidence==='string'?o.evidence:null,body:note};
   const txt=serialize(f); if(Buffer.byteLength(txt)>PACK_MAX) die(`finding over ${PACK_MAX} bytes; keep it short, cite files instead`); noSecret(txt,'finding');
   const d=path.join(memDir(project),'findings'); fs.mkdirSync(d,{recursive:true}); writeAtomic(path.join(d,id+'.md'),txt); log({ev:'memory-add',project:f.project,id,by:a}); return f; }
@@ -85,7 +87,7 @@ function send(o, extra={}){ needInit(); const from=agent(o.from||die('--from req
   if(!o.subject) die('--subject required'); const id=ulid();
   const msg={id,from,to,thread:o.thread||id,reply_to:o['reply-to']||null,kind,priority,subject:o.subject,created:new Date().toISOString(),
     due:o.due||null,repo:o.repo||null,branch:o.branch||null,sha:o.sha||null,requires_matt_approval:o['requires-matt-approval']===true||o['requires-matt-approval']==='true',
-    status:'unread',...extra,context:packFrom(o),body:bodyFrom(o)};
+    status:'unread',transcript:o.transcript?(ctx.readTranscript(ROOT,o.transcript),o.transcript):null,fork_codex_thread:o['fork-codex-thread']||null,fork_claude_session:o['fork-claude-session']||null,...extra,context:packFrom(o),body:bodyFrom(o)};
   noSecret(msg.body,'body');
   writeAtomic(path.join(dirs(to)[0],id+'.md'),serialize(msg));
   fs.appendFileSync(path.join(ROOT,'threads',msg.thread+'.idx'),id+'\n'); log({ev:'send',id,from,to,thread:msg.thread,kind}); return msg; }
@@ -126,6 +128,12 @@ const HELP=`carrier-pigeon — file mailbox for grok, cursor, claude, codex, mat
   memory read [PROJECT] [--repo R] [--path P] [--status verified|unverified|stale] [--limit 10]   (project default: general)
   memory add [PROJECT] --as A --note "..." [--status unverified|verified|stale] [--evidence "cmd output or file:line"]
          [--repo R] [--sha X] [--files path[@sha256],..] [--sources s1,s2]     one file per finding; never edited
+  memory digest [PROJECT] --as A (--note ".." | --body-file F) --files p1,p2 [--sha X] [--status ..]   reusable result of expensive work
+  transcript pack FILE --as A [--last N] [--format claude|codex] [--render]   byte-exact JSONL slice + span index (reasoning omitted); --render = lossy text
+  transcript read SHA         hash-verified
+  send ... [--transcript SHA] [--fork-codex-thread ID] [--fork-claude-session ID]   most faithful handoffs (see SKILL.md)
+  prefix [PROJECT]            the byte-stable wake prefix (rules + instructions + findings oldest first)
+  stats [--since ISO]         per-agent cached vs total input tokens from the host
   memory instructions [PROJECT] --as matt (--text ".." | --file F)          stable project instructions; human only
   done   ID --as A
   thread THREAD_ID
@@ -152,8 +160,15 @@ function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.jso
     case 'memory': { const [sub,proj]=o._; if(sub==='list'){ const l=memList(); return out(l,l.length?l.map(x=>`${x.project.padEnd(24)} instructions ${x.instructions?'yes':'no '}  findings ${x.findings}`).join('\n'):'no memory yet'); }
       if(sub==='read'){ const r=memRead(proj,o); return out(r,memText(r)); }
       if(sub==='add'){ const r=memAdd(proj,o); return out(r,`added finding ${r.id} to ${r.project} [${r.status}]`); }
+      if(sub==='digest'){ const r=memAdd(proj,{...o,kind:'digest'}); return out(r,`added digest ${r.id} to ${r.project} [${r.status}]`); }
       if(sub==='instructions'){ const r=memInstructions(proj,o); return out(r,`wrote ${r.file}`); }
       die('usage: memory list | memory read [PROJECT] | memory add [PROJECT] --as A --note ".." | memory instructions [PROJECT] --as matt --text ".."'); }
+    case 'transcript': { const [sub,arg]=o._; if(sub==='pack'){ needInit(); const r=ctx.packTranscript(ROOT,arg||die('usage: transcript pack FILE --as A [--last N]'),{format:o.format||'auto',last:Number(o.last)||0,render:o.render===true,from:agent(o.as||die('--as required'))}); log({ev:'transcript-pack',sha256:r.sha256,by:o.as}); return out(r,`packed ${r.items} ${r.mode} records (${r.bytes} bytes${r.mode==='byte-exact'?', '+r.omitted+' reasoning records omitted':', '+r.redactions+' redactions'}) -> transcript ${r.sha256}`); }
+      if(sub==='read'){ const b=ctx.readTranscript(ROOT,arg||die('usage: transcript read SHA')); const ev={transcript:arg,returned_sha256:ctx.sha256(b),returned_bytes:Buffer.byteLength(b),truncated:false,by:o.as||null};
+        log({ev:'transcript-read',...ev}); if(typeof o.for==='string'){ const d=path.join(ROOT,'receipts'); fs.mkdirSync(d,{recursive:true}); fs.appendFileSync(path.join(d,o.for+'.jsonl'),JSON.stringify({ts:new Date().toISOString(),ev:'transcript-read',...ev})+'\n'); }
+        return out({sha256:arg,...ev,text:b},b); } die('usage: transcript pack FILE --as A [--last N] | transcript read SHA'); }
+    case 'prefix': { needInit(); const r=ctx.stablePrefix(ROOT,o._[0]); return out(r,r.text); }
+    case 'stats': { const r=ctx.stats(ROOT,{since:o.since||null}); return out(r.agents,r.agents.length?r.agents.map(a=>`${a.agent.padEnd(7)} wakes ${a.wakes}  input ${a.input_total}  cached ${a.cached}  hit ${a.hit_rate}  median ${a.median_latency_ms} ms`).join('\n'):'no usage logged yet'); }
     case 'run': return console.log(runCmd(o._[0]||die('usage: run ID'),o));
     case undefined: case 'help': case '--help': case '-h': return console.log(HELP);
     default: die(`unknown command "${cmd}"\n${HELP}`); } }

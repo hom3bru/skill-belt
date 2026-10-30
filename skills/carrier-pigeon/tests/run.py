@@ -1,4 +1,4 @@
-"""Run both Node suites (CLI and host) and print combined counts as JSON. Standard library only."""
+"""Run the Node suites (CLI, host, context) and print combined counts as JSON. Standard library only."""
 import json
 import re
 import subprocess
@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"))
+SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"))
 
 
 def main():

@@ -203,19 +203,21 @@
     },
     {
       "name": "carrier-pigeon",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "path": "skills/carrier-pigeon",
       "files": {
         "agents/openai.yaml": "cd594063546795fc3acf8c779118919b4abe8565511d432bbc7bd71e4c238431",
-        "bin/carrier-pigeon.mjs": "d44ddcbe43fb671b5bb66cf8f8080ebd6509f6a3de8aefb90b44c0ae0143c39e",
+        "bin/carrier-pigeon.mjs": "358ceed2200844d7ece7440c0df4785f3f377daa394f9773225025e2b5416e79",
         "bin/carrier-pigeon.test.mjs": "0d7420ac382ef2670b841491450911d16757bb243968f622623e10316798bb14",
-        "host/carrier-pigeon-host.mjs": "06bd7aa7243372c05d06c62e1ad9b4bb82ee0d4b7185f135f821ae768299d17b",
+        "bin/cp-context.mjs": "e7cc28d68e8fe722778b970c50ecb2e2b5db071054e9051a2ef8f46622dfee5d",
+        "bin/cp-context.test.mjs": "48c4d2e817716ee2d487335b3dbc95cdf8bf1cf0f172d6cb45ce317f2bedf9ab",
+        "host/carrier-pigeon-host.mjs": "3cae4d212bd1374cb5d91eee674ad0af5a1d43fdd36cc30da8fd69ceaa1d97cf",
         "host/carrier-pigeon-host.test.mjs": "453b962481333a483037ef577b0796d9ddfa71be05b50ccbd2f4025c438a33f7",
         "host/config.json": "a0a01d54caae43fde067f4acc37a23902e6c1c3f2a62edd675d60fe425b1caf5",
         "host/start-host.ps1": "550d5ae715bbe146c4a9e53eaae1338949cebe4b35b4914dc485f9d2df6a934e",
         "host/stop-host.ps1": "2cdb7c715dc49d2496a370e9010bcdad8da18b8c5be8e441a1b313b90b31cc15",
-        "SKILL.md": "00d2092e1ab0cdea1eed273b189b0222b1e7bd882b2556e11e9c731230697608",
-        "tests/run.py": "369c25321a265ff7ab11ef33de73d4ede304acbc4abcc80dbfa317913ee1300b"
+        "SKILL.md": "8a89e598573c706fd04604e985044298fcc5c6c9e055041112c19d187c9db609",
+        "tests/run.py": "8cbf36dd72f1134308f03b21e4dbcb4c58d37a74d193e78d43cb07e0465ab1ea"
       }
     }
   ]
