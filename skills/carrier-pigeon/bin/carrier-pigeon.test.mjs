@@ -112,6 +112,19 @@ t('status counts files without parsing them; read flags matt as unauthenticated;
   assert.match(execFileSync('node',[CLI,'read',m.id],{env,encoding:'utf8'}),/"matt" is not authenticated/); assert.match(run('version').version,/^\d+\.\d+\.\d+$/); });
 t('a non-usage error prints one line, no stack trace', ()=>{ const r=spawnSync('node',[CLI,'transcript','pack',path.join(HOME,'missing.jsonl'),'--as','claude'],{env,encoding:'utf8'});
   assert.equal(r.status,1); assert.match(r.stderr,/^carrier-pigeon: ENOENT/); assert.doesNotMatch(r.stderr,/\n\s+at /); });
+t('file flags refuse host secrets, credential stores and .env files, including through a junction; ordinary files still work', ()=>{
+  const H=fs.mkdtempSync(path.join(os.tmpdir(),'cpdeny-')); const e3={...process.env,CARRIER_PIGEON_HOME:HOME,USERPROFILE:H,HOME:H};
+  const f3=(...a)=>{ try{ execFileSync('node',[CLI,...a],{env:e3,stdio:['ignore','pipe','pipe']}); }catch(e){ return e.stderr.toString(); } assert.fail('expected refusal: '+a.join(' ')); };
+  const put=(p,s='x')=>{ fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,s); return p; };
+  const sec=put(path.join(HOME,'host','secrets','probe.txt')), ssh=put(path.join(H,'.ssh','id_test')), env=put(path.join(H,'proj','.env.local')), auth=put(path.join(H,'.codex','auth.json'),'{}');
+  const link=path.join(H,'link'); fs.symlinkSync(path.join(HOME,'host','secrets'),link,'junction'); const tj=put(path.join(H,'.ssh','s.jsonl'),'{}\n');
+  const send=['send','--from','claude','--to','grok','--subject','s'];
+  assert.match(f3(...send,'--body-file',sec),/refusing to read the host secrets folder/); assert.match(f3(...send,'--body-file',path.join(link,'probe.txt')),/host secrets folder/,'junction resolved');
+  assert.match(f3(...send,'--body','b','--context-file',ssh),/refusing to read ~\/\.ssh/); assert.match(f3(...send,'--body-file',env),/a \.env file/);
+  assert.match(f3('memory','add','p','--as','codex','--body-file',auth),/~\/\.codex\/auth\.json/); assert.match(f3('memory','instructions','p','--as','matt','--file',env),/\.env file/);
+  assert.match(f3('transcript','pack',tj,'--as','claude'),/refusing to read ~\/\.ssh/); assert.match(f3('transcript','verify','0'.repeat(64),'--text-file',sec),/host secrets/);
+  const ok=put(path.join(H,'proj','notes.md'),'plain notes'); assert.equal(JSON.parse(execFileSync('node',[CLI,...send,'--body-file',ok,'--json'],{env:e3,encoding:'utf8'})).body,'plain notes');
+  fs.unlinkSync(link); fs.rmSync(H,{recursive:true,force:true}); fs.rmSync(path.join(HOME,'host','secrets'),{recursive:true,force:true}); });
 t('install: copies code into the root, keeps an existing config, backs up what it replaces, leaves mailbox data alone', ()=>{ const T=fs.mkdtempSync(path.join(os.tmpdir(),'cpinst-')); const e2={...process.env,CARRIER_PIGEON_HOME:T};
   const inst=(cli=CLI)=>JSON.parse(execFileSync('node',[cli,'install','--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']})); const SK=path.dirname(path.dirname(CLI));
   const r=inst(); for(const f of ['bin/carrier-pigeon.mjs','bin/cp-context.mjs','host/carrier-pigeon-host.mjs','host/start-host.ps1','host/config.json']){ assert.ok(r.copied.includes(f),f); assert.ok(fs.readFileSync(path.join(T,f)).equals(fs.readFileSync(path.join(SK,f))),f); }

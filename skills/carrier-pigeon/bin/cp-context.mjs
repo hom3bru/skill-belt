@@ -1,7 +1,7 @@
 // carrier-pigeon context layer (v0.4): cache-stable prefix, transcript packs, digests, usage stats. Pure Node, no deps.
 // Shared by bin/carrier-pigeon.mjs (CLI) and host/carrier-pigeon-host.mjs (listener).
-import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto';
-export const VERSION = '0.4.0';
+import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import os from 'node:os';
+export const VERSION = '0.4.1';
 export const sha256 = s => crypto.createHash('sha256').update(s).digest('hex');
 // One secret list for the CLI, packs and renders. Detection only needs a PEM header; render redaction removes the whole block (or the rest, if unterminated).
 // Token patterns need a non-alphanumeric left edge, so words like "risk-assessment-..." or "task-based-..." are not mistaken for an sk- key.
@@ -29,6 +29,16 @@ export const CLAUDE_READ_DENY = ['Read(./host/secrets/**)','Read(~/.ssh/**)','Re
 export function ensureClaudeSettings(hostDir){ fs.mkdirSync(hostDir,{recursive:true}); const f=path.join(hostDir,'claude-settings.json'); let s={disableClaudeAiConnectors:true};
   if(fs.existsSync(f)){ try{ s=JSON.parse(fs.readFileSync(f,'utf8')); }catch{ return f; } if(s.permissions) return f; }
   s.permissions={deny:CLAUDE_READ_DENY}; fs.writeFileSync(f,JSON.stringify(s,null,1)+'\n'); return f; }
+// The CLI's twin of CLAUDE_READ_DENY, for every flag that reads a file into a message, finding or pack (--body-file, --context-file, --file,
+// --text-file, transcript pack). Without it the listener's Claude, denied Read on these, could still send one with the mailbox CLI.
+// Paths are resolved through links and junctions first and compared case-insensitively on Windows. Returns why a read is refused, or null.
+const real = p => { try{ return fs.realpathSync.native(path.resolve(p)); }catch{ return path.resolve(p); } };
+export function deniedRead(file, root){ if(isRemotePath(file)) return 'a network path'; const ci=process.platform==='win32', norm=s=>ci?s.toLowerCase():s;
+  const p=norm(real(file)), home=norm(real(os.homedir())), under=d=>p===d||p.startsWith(d+path.sep);
+  if(under(norm(real(path.join(root,'host','secrets'))))) return 'the host secrets folder';
+  for(const d of ['.ssh','.aws',path.join('.config','gh')]) if(under(path.join(home,d))) return `~/${d.replace(/\\/g,'/')}`;
+  for(const f of [path.join('.codex','auth.json'),path.join('.claude','.credentials.json')]) if(p===path.join(home,f)) return `~/${f.replace(/\\/g,'/')}`;
+  const b=path.basename(p); return b==='.env'||b.startsWith('.env.') ? 'a .env file' : null; }
 export function ensureEmptyMcp(hostDir){ fs.mkdirSync(hostDir,{recursive:true}); const f=path.join(hostDir,'empty-mcp.json'); if(!fs.existsSync(f)) fs.writeFileSync(f,'{"mcpServers": {}}\n'); return f; }
 export const TRANSCRIPT_MAX = 400*1024;
 import {execFileSync} from 'node:child_process';

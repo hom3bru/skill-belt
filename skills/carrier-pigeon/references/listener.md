@@ -4,6 +4,7 @@ Read this when you start, configure or debug `host/carrier-pigeon-host.mjs`, or 
 
 The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the recipient right away.
 - The wake prompt tells the agent to read the context pack and run `memory read <project>`, using the message's `repo` as the project. It does not inline files.
+- The wake prompt allows reading (files and read-only commands), and only the mailbox commands may write. 0.4.0 said "read-only (mailbox commands only)", and Codex once took that as a ban on listing a folder.
 - It never changes the mailbox rules. A message the listener delivers is still only a request.
 - Live-tested with 0.3.1 on one Windows laptop on 2026-10-29: about 45 s from ask to reply, for both Claude and Codex.
 
@@ -16,12 +17,13 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - The host writes this file when it is missing.
   - It merges the deny list into a 0.3 settings file that has no `permissions` block.
   - It leaves a `permissions` block you wrote alone.
+  - The CLI applies the same list to its file flags, so the session can't send one of those files with `node bin/carrier-pigeon.mjs` either. Both refusals were seen in a real session (`tests/live/claude-deny.mjs`).
 - The session is recycled once its context passes `claude.recycleAtContextTokens` (default 120000; 0 turns it off).
   - Context is measured from the last API call of a wake.
   - Recycling waits until no wake is in flight. Wakes that arrive during the restart are retried.
 
 **Codex.** A local app-server on `ws://127.0.0.1:4500`: `turn/start` when idle, `turn/steer` when busy.
-- Approvals are `never`, and the sandbox can write only to the mailbox.
+- Approvals are `never`, and the sandbox is workspace-write with the mailbox as the workspace. `tests/live/codex-sandbox.mjs` ran that sandbox profile: a write to a folder in the home directory was blocked, while the OS temp folder stays writable by design.
 - Lean by default (`codex.lean: true`): plugins and apps are off, and every MCP server the user's config still enables is turned off by name (`-c mcp_servers.<name>.enabled=false`). 0.3.1 launched every one of them, including servers that failed auth on each start.
 - Lean mode does not shrink a wake much. One measured lean wake on 2026-10-30 read 153k input tokens (121k cached). 0.3.1's full-profile wakes read 109k to 448k. Most of a Codex wake is the provider's own base prompt, repeated across the turn's model calls.
 - If the websocket can't connect, or drops later, the host kills the app-server so the supervisor restarts both, with backoff. 0.3.1 instead stayed "not ready" until the host itself was restarted.
@@ -53,7 +55,9 @@ A file that fails is logged as `bad-message` with the reason and skipped. So a h
 
 ## Receipts, loop limits, rate limit
 
-- **Receipts.** `carrier-pigeon receipts <id>` shows `queued → notified:<adapter> → received → replied|declined`, or `no-wake (reason)`. A delivery that fails because a session is starting or recycling is retried automatically (up to 20 times).
+- **Receipts.** `carrier-pigeon receipts <id>` shows `queued → notified:<adapter> → received → replied|declined`, or `no-wake (reason)`.
+  - A delivery that fails because a session is starting or recycling is retried automatically, up to 20 times.
+  - Each failed delivery is retried exactly once, even when the adapter's ready signal and a rescan retry at the same moment. 0.4.0 could deliver it twice.
 - **Loop limits.**
   - `reply` and `fyi` never auto-wake.
   - A thread stops auto-waking after 8 messages, and the user gets an alert.

@@ -85,7 +85,10 @@ await t('toast: the PowerShell script is constant (text only via env, XML-escape
   const s=toastScript(); assert.ok(!s.includes('Start-Process')&&!s.includes('a\'b')&&!s.includes('’'),'no message text in the script'); assert.match(s,/LoadXml\(\$env:CP_TOAST_XML\)/); assert.match(s,/\$env:CP_TOAST_TITLE,\$env:CP_TOAST_TEXT/); });
 await t('wake prompt points at context pack and project memory, mailbox CLI only', async()=>{ const p=wakePrompt({id:'01A',kind:'ask',from:'grok',to:'codex',subject:'s',repo:'Org/Repo'});
   assert.match(p,/memory read org-repo/); assert.match(p,/Context pack/); assert.match(p,/memory add org-repo --as codex/); assert.match(wakePrompt({id:'1',kind:'ask',from:'a',to:'b',subject:'s',repo:null}),/memory read general/);
-  for(const c of p.match(/node \S+ [a-z]+/g)) assert.match(c,/^node bin\/carrier-pigeon\.mjs /); });
+  for(const c of p.match(/node \S+ [a-z]+/g)) assert.match(c,/^node bin\/carrier-pigeon\.mjs /);
+  // 0.4.1: reading is explicitly allowed (0.4.0's "read-only (mailbox commands only)" made Codex refuse to list a folder); writes stay mailbox-only
+  assert.match(p,/Reading is allowed/); assert.match(p,/only writes allowed are the mailbox commands/); assert.doesNotMatch(p,/mailbox commands only/);
+  assert.match(claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1],/Read files freely with Read, Grep and Glob/); });
 
 await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw new Error('not ready'); got.push(m.id); return true; }};
   const h=new Host({root,config:{rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','matt','--to','codex','--subject','p','--body','x').id;
@@ -173,4 +176,10 @@ await t('toast adapter (win32): constant -EncodedCommand script, message text pa
   const c=calls[0]; assert.equal(c.bin,'powershell.exe'); assert.equal(Buffer.from(c.args.at(-1),'base64').toString('utf16le'),toastScript()); assert.match(c.opt.env.CP_TOAST_TEXT,/Start-Process calc/);
   const lin=[]; const ad2=toastAdapter({spawnFn:(b,a)=>{ lin.push(a); const e=new EventEmitter(); setTimeout(()=>e.emit('exit',0),0); return e; },platform:'linux'}); ad2.start({cfg:{toast:{enabled:true}}});
   await ad2.deliver({id:'T2',from:'grok',to:'claude',kind:'ask',subject:'-u critical'}); await sleep(10); assert.equal(lin[0][0],'--'); });
+await t('retry: two concurrent retry passes (adapter ready + rescan) deliver a failed ask once; a failed retry stays queued', async()=>{ const {root,run}=bus(); let ready=false; const got=[];
+  const a={name:'codex',wakes:true,deliver:async m=>{ if(!ready) throw new Error('not ready'); await sleep(50); got.push(m.id); return true; }};
+  const h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','grok','--to','codex','--subject','r','--body','b').id;
+  await h.scanAll(); assert.equal(h.retryQ.size,1,'queued after the first failure'); await h.retry(); assert.equal(h.retryQ.size,1,'still queued after a failed retry');
+  ready=true; await Promise.all([h.retry(),h.retry('codex'),h.retry()]); assert.deepEqual(got,[id],'delivered exactly once');
+  assert.equal(readReceipts(root,id).filter(r=>r.ev==='notified:codex').length,1); assert.equal(h.retryQ.size,0); await h.stop(); });
 console.log(`# ${n} tests, ${failed} failed (host)`); process.exit(failed?1:0);
