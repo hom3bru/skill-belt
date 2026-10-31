@@ -123,6 +123,8 @@ t('file flags refuse host secrets, credential stores and .env files, including t
   assert.match(f3(...send,'--body','b','--context-file',ssh),/refusing to read ~\/\.ssh/); assert.match(f3(...send,'--body-file',env),/a \.env file/);
   assert.match(f3('memory','add','p','--as','codex','--body-file',auth),/~\/\.codex\/auth\.json/); assert.match(f3('memory','instructions','p','--as','matt','--file',env),/\.env file/);
   assert.match(f3('transcript','pack',tj,'--as','claude'),/refusing to read ~\/\.ssh/); assert.match(f3('transcript','verify','0'.repeat(64),'--text-file',sec),/host secrets/);
+  const coEntry=put(path.join(HOME,'co','co-01M69500000000000000000000','entries','0001.json'),'{"text":"blind work"}'); // a peer's co entry: only co view may show it
+  assert.match(f3(...send,'--body-file',coEntry),/refusing to read the co-work project store/); fs.rmSync(path.join(HOME,'co','co-01M69500000000000000000000'),{recursive:true,force:true});
   const ok=put(path.join(H,'proj','notes.md'),'plain notes'); assert.equal(JSON.parse(execFileSync('node',[CLI,...send,'--body-file',ok,'--json'],{env:e3,encoding:'utf8'})).body,'plain notes');
   fs.unlinkSync(link); fs.rmSync(H,{recursive:true,force:true}); fs.rmSync(path.join(HOME,'host','secrets'),{recursive:true,force:true}); });
 // ---------- 0.5.0 ----------

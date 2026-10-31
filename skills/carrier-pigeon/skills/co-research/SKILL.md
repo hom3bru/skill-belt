@@ -2,7 +2,7 @@
 name: co-research
 description: "Use when two or more agents should research one question together and attack each other's findings before any is accepted: blind independent research into cited claims at evidence-vocabulary strengths, cross-challenge, answers, a judge, then a synthesis of what survived. A carrier-pigeon sub-skill (needs its mailbox). Not for a solo lookup (westack-research or one search), auditing code (co-audit), design choices (co-design) or building (co-build)."
 metadata:
-  version: "0.8.1"
+  version: "0.8.2"
   parent: carrier-pigeon
 ---
 

@@ -15,10 +15,18 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 - Tools: Read, Grep and Glob, plus the carrier-pigeon MCP server (`host/claude-mcp.json`, speaking for `claude`). The session has no shell at all.
   - 0.4.x gave it a shell limited to `node bin/carrier-pigeon.mjs *`. Claude Code 2.1.310 matched that rule inconsistently: in one session `read` and `reply` were allowed while `claim` and `status` were denied, so a woken Claude could stall without replying.
   - MCP tool permissions are exact. A live run of 0.5.0 went from wake to reply in 81 s.
-- `host/claude-settings.json` denies reads of `host/secrets/**`, `~/.ssh`, `~/.aws`, `~/.config/gh`, the Codex and Claude credential files, and `.env` files.
+- `host/claude-settings.json` denies reads of:
+  - `host/secrets/**`;
+  - `~/.ssh`, `~/.aws` and `~/.config/gh`;
+  - the Codex and Claude credential files;
+  - `.env` files;
+  - (since 0.8.2) `co/**`, the co-work store, which the listener's Claude reads only through `co_view`.
+
+  How the host keeps the file current:
   - The host writes this file when it is missing.
   - It merges the deny list into a 0.3 settings file that has no `permissions` block.
-  - It leaves a `permissions` block you wrote alone.
+  - It upgrades a file whose permissions are exactly an earlier host-written default.
+  - It leaves any other `permissions` block, one you wrote or extended, alone.
   - The CLI applies the same list to its file flags, and the MCP `send` tool takes text only, never a file. So no mailbox route can carry one of those files either. Read refusal was seen in a real session (`tests/live/claude-deny.mjs`).
 - **One session per conversation** (`claude.mode: "per-thread"`, the default).
   - Each mailbox thread is its own Claude session. Every later wake in that thread resumes it (`--resume <session>`), so the agent remembers the conversation and unrelated asks never share a context.

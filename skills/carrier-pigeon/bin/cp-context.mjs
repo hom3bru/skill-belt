@@ -1,7 +1,7 @@
 // carrier-pigeon context layer (v0.4): cache-stable prefix, transcript packs, digests, usage stats. Pure Node, no deps.
 // Shared by bin/carrier-pigeon.mjs (CLI) and host/carrier-pigeon-host.mjs (listener).
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import os from 'node:os';
-export const VERSION = '0.8.1';
+export const VERSION = '0.8.2';
 export const sha256 = s => crypto.createHash('sha256').update(s).digest('hex');
 // One secret list for the CLI, packs and renders. Detection only needs a PEM header; render redaction removes the whole block (or the rest, if unterminated).
 // Token patterns need a non-alphanumeric left edge, so words like "risk-assessment-..." or "task-based-..." are not mistaken for an sk- key.
@@ -24,10 +24,15 @@ export const isCodexThread = s => /^[A-Za-z0-9][A-Za-z0-9_-]{7,63}$/.test(String
 export const isClaudeFork = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s))
   || (path.isAbsolute(String(s)) && !isRemotePath(s) && String(s).endsWith('.jsonl') && fs.existsSync(String(s)));
 // Read deny rules for every headless Claude launch (the listener and `run`); Claude applies Read rules to Grep and Glob too.
-export const CLAUDE_READ_DENY = ['Read(./host/secrets/**)','Read(~/.ssh/**)','Read(~/.aws/**)','Read(~/.config/gh/**)','Read(~/.codex/auth.json)','Read(~/.claude/.credentials.json)','Read(**/.env)','Read(**/.env.*)'];
-// Host-owned settings: created if missing; a settings file without a permissions block (the 0.3 default) gets the deny list merged in. A user-written permissions block is left alone.
+// ./co/** keeps co-work entries behind the engine: the listener's Claude sees them only through co_view, which applies the blind phase.
+const READ_DENY_0_4 = ['Read(./host/secrets/**)','Read(~/.ssh/**)','Read(~/.aws/**)','Read(~/.config/gh/**)','Read(~/.codex/auth.json)','Read(~/.claude/.credentials.json)','Read(**/.env)','Read(**/.env.*)'];
+export const CLAUDE_READ_DENY = [...READ_DENY_0_4,'Read(./co/**)'];
+// Host-owned settings: created if missing; a settings file without a permissions block (the 0.3 default) gets the deny list merged in, and one
+// whose permissions are exactly an earlier host-written default (0.4 to 0.8.1) is upgraded to the current list. Any other permissions block
+// is the user's and is left alone.
 export function ensureClaudeSettings(hostDir){ fs.mkdirSync(hostDir,{recursive:true}); const f=path.join(hostDir,'claude-settings.json'); let s={disableClaudeAiConnectors:true};
-  if(fs.existsSync(f)){ try{ s=JSON.parse(fs.readFileSync(f,'utf8')); }catch{ return f; } if(s.permissions) return f; }
+  if(fs.existsSync(f)){ try{ s=JSON.parse(fs.readFileSync(f,'utf8')); }catch{ return f; }
+    if(s.permissions && !(Object.keys(s.permissions).length===1 && JSON.stringify(s.permissions.deny)===JSON.stringify(READ_DENY_0_4))) return f; }
   s.permissions={deny:CLAUDE_READ_DENY}; fs.writeFileSync(f,JSON.stringify(s,null,1)+'\n'); return f; }
 // The CLI's twin of CLAUDE_READ_DENY, for every flag that reads a file into a message, finding or pack (--body-file, --context-file, --file,
 // --text-file, transcript pack). Without it the listener's Claude, denied Read on these, could still send one with the mailbox CLI.
@@ -36,6 +41,7 @@ const real = p => { try{ return fs.realpathSync.native(path.resolve(p)); }catch{
 export function deniedRead(file, root){ if(isRemotePath(file)) return 'a network path'; const ci=process.platform==='win32', norm=s=>ci?s.toLowerCase():s;
   const p=norm(real(file)), home=norm(real(os.homedir())), under=d=>p===d||p.startsWith(d+path.sep);
   if(under(norm(real(path.join(root,'host','secrets'))))) return 'the host secrets folder';
+  if(under(norm(real(path.join(root,'co'))))) return 'the co-work project store (use co view, which applies the blind phase)';
   for(const d of ['.ssh','.aws',path.join('.config','gh')]) if(under(path.join(home,d))) return `~/${d.replace(/\\/g,'/')}`;
   for(const f of [path.join('.codex','auth.json'),path.join('.claude','.credentials.json')]) if(p===path.join(home,f)) return `~/${f.replace(/\\/g,'/')}`;
   const b=path.basename(p); return b==='.env'||b.startsWith('.env.') ? 'a .env file' : null; }

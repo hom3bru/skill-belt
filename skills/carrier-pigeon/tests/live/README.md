@@ -15,6 +15,20 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `co-modes.mjs --mode audit\|design\|build\|solo` | The other co modes, and a baseline. Every project mode gates on: closed, a clean protocol check, every real member doing its work, no member messages in the project thread.<br>`audit`: Claude and Codex audit a limiter with three planted defects; which ones the findings name is reported.<br>`design`: competing designs under three acceptance criteria, which the script rates untested.<br>`build`: real Codex builds a unit in its own git worktree, while the script plays Claude, cross-reviews, merges and rates criteria from the merged `node --test`.<br>`solo`: no project; Claude and Codex each answer the co-research question alone. | Per mode: about 3 Haiku runs and 1 to 3 Codex turns (`build`: Codex only) |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
 
+## Results on 2026-10-31 (one Windows machine, 0.8.2)
+
+- **`claude-deny`, now with a co-work canary:** passed.
+  - A real headless Claude, launched with the listener's arguments, was denied both `host/secrets/probe.txt` and a planted co entry ("File is in a directory that is denied by your permission settings"). It read the ordinary file.
+  - The `--legacy` negative control (no deny list) read both canaries, so the check detects the leak it guards against.
+  - $0.004 + $0.003.
+- **`co-modes --mode solo-audit` (baseline for co-audit):** each agent got the same limiter audit as one ordinary ask.
+  - Claude (Haiku) named all three planted defects in 113 s for $0.0045.
+  - Codex confirmed one contract defect (the off-by-one, with a Node reproduction) in 201 s with 327k input tokens. It mentioned the boundary but did not claim it.
+  - The co-audit run named all three too, in 585 s with about 1.3M Codex tokens.
+  - Across both baselines (research and audit), a single agent found the planted items faster and much more cheaply on tasks this small.
+  - What co-work added was argument over the findings: reproductions run, severity calibrated, contract violations separated from policy observations, and claims re-checked against their sources.
+  - This is two small tasks, one run each, not a matched-budget study. The measured case for co-work rests on its error-catching (run 1 of co-research found four real defects in this skill), not on raw detection.
+
 ## Results on 2026-10-31 (one Windows machine, 0.8.1)
 
 - **`co-modes --mode audit`:** passed in 585 s, going through all five phases including adjudication.

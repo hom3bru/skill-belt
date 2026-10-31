@@ -124,5 +124,7 @@ co/<project>/ready/<phase>~<agent>  readiness; advanced~<phase> marks the one ad
   - The mailbox's `thread` view (CLI and MCP) shows a member only its own messages in the project thread. A reader who does not say who it is gets nothing.
   - Phase notices refuse replies. A reply would land in the shared thread; the first live run had exactly that leak.
 
-  The files still sit in a shared folder. A member who reads them directly breaks the protocol, and nothing records that. The report says so.
+  - **The listener's Claude cannot read the files.** Its deny list includes `Read(./co/**)`, and the CLI refuses to read a co file into a message, so it reaches entries only through `co_view`. `tests/live/claude-deny.mjs` checks this with a real session. An existing host-written settings file is upgraded on the next listener start.
+
+  For everything else (Codex, whose sandbox cannot deny reads, and interactive sessions) the files still sit in a shared folder. A member who reads them directly breaks the protocol, and nothing records that. The report says so.
 - **Engine checks:** it enforces membership, phase order, and authorship for responses and revisions. It also enforces the judge's non-party rule, quotas, and disjoint build files. It cannot judge whether a citation says what its excerpt claims, or whether a verification receipt is real; that is the challengers' job.

@@ -2,7 +2,7 @@
 name: co-build
 description: "Use when two or more agents should build one authorised change together: the lead splits it into units with disjoint file ownership and stated contracts, each member builds its unit in its own worktree with a verification receipt, then they cross-review for bugs, test gaps, contract breaks and regressions before the lead integrates. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent changes (westack-build), audits (co-audit) or design (co-design)."
 metadata:
-  version: "0.8.1"
+  version: "0.8.2"
   parent: carrier-pigeon
 ---
 

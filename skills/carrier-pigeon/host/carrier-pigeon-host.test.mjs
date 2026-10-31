@@ -109,7 +109,11 @@ await t('claude: system prompt shows --as (the CLI flag), never --from; settings
   const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/carrier-pigeon tools/); assert.match(sp,/you have no shell/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"matt" is unauthenticated/);
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'cps-')); const f=ensureClaudeSettings(d); const s=JSON.parse(fs.readFileSync(f,'utf8')); assert.equal(s.disableClaudeAiConnectors,true); assert.deepEqual(s.permissions.deny,CLAUDE_READ_DENY);
   assert.ok(CLAUDE_READ_DENY.includes('Read(./host/secrets/**)')); fs.writeFileSync(f,'{"disableClaudeAiConnectors": true}\n'); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,CLAUDE_READ_DENY,'legacy file upgraded');
-  fs.writeFileSync(f,JSON.stringify({permissions:{deny:['Read(./mine)']}})); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,['Read(./mine)'],'user block untouched'); });
+  fs.writeFileSync(f,JSON.stringify({permissions:{deny:['Read(./mine)']}})); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,['Read(./mine)'],'user block untouched');
+  assert.ok(CLAUDE_READ_DENY.includes('Read(./co/**)'),'co-work entries are behind the engine');
+  const old=CLAUDE_READ_DENY.filter(r=>r!=='Read(./co/**)'); fs.writeFileSync(f,JSON.stringify({disableClaudeAiConnectors:true,permissions:{deny:old}})); ensureClaudeSettings(d);
+  assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,CLAUDE_READ_DENY,'an earlier host-written default is upgraded');
+  fs.writeFileSync(f,JSON.stringify({permissions:{deny:old,allow:['Read(./x)']}})); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,old,'a block the user extended is left alone'); });
 await t('claude: recycles the warm session once its context passes the limit (when idle), refuses delivery meanwhile, and survives stdin errors', async()=>{ const {root}=bus(); const kids=[];
   const ad=claudeAdapter({spawnFn:(b,a)=>fakeKid(kids,a)}); const h=new Host({root,config:{watch:false,rescanMs:60000,restart:{baseMs:10,maxMs:10,stableMs:1e6},claude:{mode:'shared',recycleAtContextTokens:1000}},adapters:{claude:ad}}); await h.start();
   kids[0].stdin.emit('error',Object.assign(new Error('write EPIPE'),{code:'EPIPE'})); // would be an uncaught 'error' event without a handler

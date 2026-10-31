@@ -11,13 +11,15 @@
 //                  Codex rightly refuses to write code on an unsigned notice (it filed a deviation saying so in the first attempt).
 //   --mode solo    No project: Claude and Codex each get the co-research question (same two files, same planted 5-vs-6 mismatch) as one
 //                  ordinary ask. Reported: whether each answer names the mismatch, with latency and usage, as a baseline for co-research.
+//   --mode solo-audit  No project: Claude and Codex each audit the same limiter alone, as one ordinary ask. Reported: which planted
+//                  defects each answer names, with latency and usage, as a baseline for co-audit.
 // In every project mode the script is lead and judge (matt) and rules "unresolved" on any defended dispute. Pass (project modes): the
 // project closed with a clean protocol check, every real member added work and challenged or passed, and no member wrote into the
 // project thread.
 // Usage: node tests/live/co-modes.mjs --mode audit|design|build|solo [--claude BIN] [--claude-model haiku] [--codex BIN] [--port 4521] [--keep]
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import crypto from 'node:crypto'; import {execFileSync, spawnSync} from 'node:child_process'; import {fileURLToPath} from 'node:url';
 const SK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..'); const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
-const mode = arg('mode'); if (!['audit', 'design', 'build', 'solo'].includes(mode)) throw new Error('--mode audit|design|build|solo');
+const mode = arg('mode'); if (!['audit', 'design', 'build', 'solo', 'solo-audit'].includes(mode)) throw new Error('--mode audit|design|build|solo|solo-audit');
 const cfgFile = path.join(os.homedir(), '.carrier-pigeon', 'host', 'config.json'); const live = fs.existsSync(cfgFile) ? JSON.parse(fs.readFileSync(cfgFile, 'utf8')) : {};
 const liveLog = path.join(os.homedir(), '.carrier-pigeon', 'log.jsonl'); const liveMtime = fs.existsSync(liveLog) ? fs.statSync(liveLog).mtimeMs : null;
 const root = fs.mkdtempSync(path.join(os.tmpdir(), `cp-co${mode}-`)); const env = {...process.env, CARRIER_PIGEON_HOME: root};
@@ -82,6 +84,18 @@ if (mode === 'solo') { const q = 'What limits does this carrier-pigeon listener 
   const names = b => /\b5\b/.test(b || '') && /\b6\b/.test(b || '') && /mismatch|discrepan|contradict|differ|disagree|stale|do(es)? not match|doesn't match|inconsisten/i.test(b || '');
   const report = {mode, elapsed_s: Math.round((Date.now() - t0) / 1000), answers: Object.fromEntries(['claude', 'codex'].map(a => [a, {answered: !!got[a], at_s: got[a]?.s ?? null, names_mismatch: names(got[a]?.body), usage: usageOf(a),
     excerpt: (got[a]?.body || '').replace(/\s+/g, ' ').slice(0, 400)}]))};
+  await finish(report, ['claude', 'codex'].every(a => got[a])); }
+
+// ---------- solo audit baseline ----------
+if (mode === 'solo-audit') { const f = path.join(work, 'limiter.mjs'); fs.writeFileSync(f, LIMITER);
+  const asks = Object.fromEntries(['claude', 'codex'].map(a => [a, cli('send', '--from', 'grok', '--to', a, '--subject', 'wake limiter audit', '--body',
+    ['Ask: What defects does this wake limiter have against the contract stated on its line 1?', `Only this file; no web; do not edit it. File: ${f}.`,
+      'Return: each defect with its location (path:line), severity and evidence.'].join('\n'))]));
+  const got = {}; for (const t1 = Date.now(); Date.now() - t1 < 1200000 && Object.keys(got).length < 2; await sleep(5000))
+    for (const [a, m] of Object.entries(asks)) if (!got[a]) { const r = cli('inbox', 'grok', '--all-sessions').find(x => x.reply_to === m.id); if (r) got[a] = {s: Math.round((Date.now() - t0) / 1000), body: cli('read', r.id).body}; }
+  for (const t1 = Date.now(); Date.now() - t1 < 180000 && !['claude', 'codex'].every(a => usageOf(a).length); await sleep(5000));
+  const report = {mode, elapsed_s: Math.round((Date.now() - t0) / 1000), answers: Object.fromEntries(['claude', 'codex'].map(a => [a, {answered: !!got[a], at_s: got[a]?.s ?? null,
+    planted_named: Object.keys(PLANTED).filter(k => PLANTED[k].test(got[a]?.body || '')), usage: usageOf(a), excerpt: (got[a]?.body || '').replace(/\s+/g, ' ').slice(0, 500)}]))};
   await finish(report, ['claude', 'codex'].every(a => got[a])); }
 
 // ---------- projects ----------
