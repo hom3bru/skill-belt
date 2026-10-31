@@ -70,15 +70,26 @@ An agent id (`claude`, `codex`, …) names a kind. Any running Claude may take a
 - `to_session` on `send` or `ask` addresses one session directly.
 - The listener's own sessions are `listener`.
 
+## Signed authority (Windows Hello)
+
+A message from `matt` carries Matt's authority only when it is signed with his Windows Hello key.
+- **Setup:** `hello init`, once, in Matt's own terminal. Windows Hello creates the key in the TPM, and it never leaves it.
+- **Signing:** `send --from matt … --sign` (or `reply … --as matt --sign`) prints what is about to be signed. Windows Hello then asks for his PIN, face or fingerprint in Windows' own prompt.
+  - The signature covers that message's id, sender, recipient, session, thread, reply-to, kind, subject, body and context hashes, and an expiry (`--expires-min`, default 60).
+  - Changing any of them breaks it.
+- **Checking:** `read` (CLI and MCP) and the listener check the signature themselves, so no model decides. They read the public key from the same Windows Hello credential, never from a file, so an agent that can write the mailbox can't substitute its own key. The listener records the result as an `authority` receipt.
+  - `verified`: Matt's authority for exactly what the message says, until it expires.
+  - `unsigned`, `expired`, `invalid` or `unverifiable`: unauthenticated.
+- **What it stops:** an agent or malware running as Matt can request a signature, which shows a Windows Hello prompt on his screen. It can't complete that prompt.
+- **What it doesn't stop:** malware that already controls Matt's session could change a message between the moment it's displayed and the moment it's signed. A separate low-privilege account for the agents is the next layer.
+- There is no MCP tool for signing: only a human at the terminal signs.
+
 ## Not built yet (the rest of the design)
 
-- **Your authority, signed with Windows Hello.**
-  - "matt" in the mailbox is unauthenticated today.
-  - Next: a TPM-held key that needs your Windows Hello PIN or face for every signature. Each approval is bound to one message, short-lived, single-use and logged, and the CLI and MCP server check signatures, not the model.
-  - Agents, and malware running as you, can request a signature but can't supply your presence.
 - **Structured replies.** An ask could declare the shape of the answer it wants (fields and types), and the reply would be checked against it.
 - **Per-ask effort and budget.** For example low effort for triage and high for review, so a trivial ask doesn't cost a full Codex turn (about 150k input tokens today).
-- **Machines other than this one.** Grok is pull-only through the user's approval. A relay that keeps the same message format would be next. Authentication can't be solved while every agent runs as the same OS user.
+- **Machines other than this one.** Grok is pull-only through the user's approval. A relay that keeps the same message format would be next.
+- **A separate low-privilege account for the agents.** This would stop a compromised agent from reading Matt's files or keystrokes. It's the layer after Windows Hello signing.
 
 ## Verified (2026-10-30, one Windows machine)
 

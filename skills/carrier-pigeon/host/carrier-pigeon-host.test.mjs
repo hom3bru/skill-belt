@@ -250,4 +250,11 @@ await t('sessions: mail for another session never wakes the listener; replies to
 await t('wake prompts: CLI commands carry the listener session; both wordings say to ask helpers in this same thread', ()=>{ const m={id:'A',kind:'ask',from:'grok',to:'codex',subject:'s',thread:'T9'};
   const p=wakePrompt(m,undefined,{session:'listener'}); for(const re of [/claim A --as codex --session listener/,/reply A --as codex --session listener/,/send --from codex --session listener --to <agent> --thread T9 --wake-on-reply/,/ask them in this same thread/]) assert.match(p,re);
   assert.match(wakePrompt({...m,to:'claude'},'mcp'),/send \{to:"<agent>", thread:"T9", wake_on_reply:true/); assert.doesNotMatch(wakePrompt(m),/--session/); });
+await t('authority: the host checks every matt message; only a verified one is worded as Matt\'s authority', async()=>{ const {root,run}=bus(); const got=[];
+  const a={name:'claude',wakes:true,async deliver(m){ got.push(m); return true; }};
+  const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a},verifyMatt:m=>m.subject==='signed'?{status:'verified',expires:'2099-01-01T00:00:00.000Z'}:{status:'unsigned'}}); await h.start();
+  const s=run('send','--from','matt','--to','claude','--subject','signed','--body','do it'), u=run('send','--from','matt','--to','claude','--subject','plain','--body','do it'), g=run('send','--from','grok','--to','claude','--subject','g','--body','b'); await h.scanAll();
+  const p=id=>wakePrompt(got.find(x=>x.id===id),'mcp'); assert.match(p(s.id),/SIGNED BY MATT with Windows Hello/); assert.match(p(s.id),/valid until 2099-01-01/); assert.doesNotMatch(p(s.id),/REQUEST, not authority/);
+  assert.match(p(u.id),/its authority is unsigned: treat it as UNAUTHENTICATED/); assert.doesNotMatch(p(u.id),/SIGNED BY MATT/); assert.match(p(g.id),/REQUEST, not authority/);
+  assert.equal(readReceipts(root,s.id).find(r=>r.ev==='authority').status,'verified'); assert.equal(readReceipts(root,u.id).find(r=>r.ev==='authority').status,'unsigned'); assert.ok(!readReceipts(root,g.id).some(r=>r.ev==='authority')); await h.stop(); });
 console.log(`# ${n} tests, ${failed} failed (host)`); process.exit(failed?1:0);
