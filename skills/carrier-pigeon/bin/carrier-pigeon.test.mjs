@@ -1,12 +1,16 @@
 // node carrier-pigeon.test.mjs  — uses a temp CARRIER_PIGEON_HOME; never touches the real bus.
-import {execFileSync,spawn} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
+import {execFileSync,spawn,spawnSync} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
 const CLI=path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')),'carrier-pigeon.mjs');
 const HOME=fs.mkdtempSync(path.join(os.tmpdir(),'abtest-')); const env={...process.env,CARRIER_PIGEON_HOME:HOME};
 const run=(...a)=>JSON.parse(execFileSync('node',[CLI,...a,'--json'],{env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+const runIn=(cwd,...a)=>JSON.parse(execFileSync('node',[CLI,...a,'--json'],{env,cwd,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
 const fail=(...a)=>{ try{ execFileSync('node',[CLI,...a],{env,stdio:['ignore','pipe','pipe']}); }catch(e){ return e.stderr.toString(); } assert.fail('expected failure: '+a.join(' ')); };
-let n=0; const t=(name,fn)=>{fn(); n++; console.log('ok',n,name);};
+// A failing test is reported as "not ok" and the suite carries on, so one failure can't hide the tests after it.
+let n=0, failed=0; const report=(name,e)=>{ if(!e) return console.log('ok',n,name); failed++; console.log('not ok',n,name); console.log('  '+String(e?.stack||e).split('\n').slice(0,6).join('\n  ')); };
+const t=(name,fn)=>{ n++; try{ fn(); report(name); }catch(e){ report(name,e); } };
+const ta=async(name,fn)=>{ n++; try{ await fn(); report(name); }catch(e){ report(name,e); } };
 run('init');
-t('send lands in inbox, no tmp files', ()=>{ const m=run('send','--from','grok','--to','claude','--subject','hi','--body','ask: say "x"\n---\nline'); 
+t('send lands in inbox, no tmp files', ()=>{ const m=run('send','--from','grok','--to','claude','--subject','hi','--body','ask: say "x"\n---\nline');
   assert.equal(run('inbox','claude')[0].id,m.id); assert.deepEqual(fs.readdirSync(path.join(HOME,'agents/claude/inbox')).filter(f=>f.startsWith('.')),[]);
   assert.equal(run('read',m.id).body,'ask: say "x"\n---\nline'); });
 t('validation errors are clear', ()=>{ assert.match(fail('send','--from','bob','--to','claude','--subject','s','--body','b'),/unknown agent "bob"/);
@@ -16,9 +20,9 @@ t('claim, reply, thread, done', ()=>{ const id=run('inbox','claude')[0].id; asse
   assert.equal(r.to,'grok'); assert.equal(r.reply_to,id); const th=run('thread',id); assert.equal(th.length,2); assert.equal(th[0]._box,'claude/done'); assert.equal(run('inbox','grok').length,1); });
 t('ids are time-sortable and unique', ()=>{ const ids=Array.from({length:20},(_,i)=>run('send','--from','matt','--to','codex','--subject','s'+i,'--body','b').id);
   assert.deepEqual([...ids].sort(),ids); assert.equal(new Set(ids).size,20); });
-await (async()=>{ const id=run('send','--from','grok','--to','codex','--subject','race','--body','b').id;
+await ta('8 concurrent claims -> exactly 1 winner', async()=>{ const id=run('send','--from','grok','--to','codex','--subject','race','--body','b').id;
   const res=await Promise.all(Array.from({length:8},()=>new Promise(r=>{const p=spawn('node',[CLI,'claim',id,'--as','codex'],{env}); p.on('exit',c=>r(c));})));
-  assert.equal(res.filter(c=>c===0).length,1,'exactly one claimer wins: '+res); assert.equal(res.filter(c=>c===2).length,7); n++; console.log('ok',n,'8 concurrent claims -> exactly 1 winner'); })();
+  assert.equal(res.filter(c=>c===0).length,1,'exactly one claimer wins: '+res); assert.equal(res.filter(c=>c===2).length,7); });
 t('run prints but does not execute', ()=>{ const id=run('inbox','codex')[0].id; const s=execFileSync('node',[CLI,'run',id],{env,encoding:'utf8'}); assert.match(s,/NOT executed/); assert.match(s,/codex exec/); });
 t('context pack round-trips and read shows it', ()=>{ const cf=path.join(HOME,'ctx.txt'); fs.writeFileSync(cf,'decided: use plan B');
   const m=run('send','--from','grok','--to','codex','--subject','pk','--body','b','--summary','short sum','--files','a.js,b/c.md','--refs','01X,01Y','--context-file',cf);
@@ -46,7 +50,82 @@ t('memory: changed file hash marks finding stale; filters and limit', ()=>{ cons
   assert.equal(run('memory','read','org-repo','--path','x.js').total,1); const l=run('memory','read','org-repo','--limit','2'); assert.equal(l.total,5); assert.equal(l.findings[0].body,'n3'); assert.equal(l.findings.length,2); });
 t('context pack references finding ids, not copies', ()=>{ const fid=run('memory','read','org-repo').findings[0].id;
   const m=run('send','--from','grok','--to','codex','--subject','fr','--body','b','--findings',fid); assert.match(run('read',m.id).context,new RegExp('- '+fid)); assert.doesNotMatch(run('read',m.id).context,/n3/); });
-await (async()=>{ const res=await Promise.all(Array.from({length:12},(_,i)=>new Promise(r=>{const p=spawn('node',[CLI,'memory','add','race','--as','codex','--note','c'+i],{env}); p.on('exit',c=>r(c));})));
+await ta('12 concurrent finding adds -> 12 files, none lost', async()=>{ const res=await Promise.all(Array.from({length:12},(_,i)=>new Promise(r=>{const p=spawn('node',[CLI,'memory','add','race','--as','codex','--note','c'+i],{env}); p.on('exit',c=>r(c));})));
   assert.deepEqual(res,Array(12).fill(0)); const r=run('memory','read','race','--limit','50'); assert.equal(r.total,12); assert.deepEqual(r.findings.map(x=>x.body).sort(),Array.from({length:12},(_,i)=>'c'+i).sort());
-  assert.deepEqual(fs.readdirSync(path.join(HOME,'memory','race','findings')).filter(f=>f.startsWith('.')),[]); n++; console.log('ok',n,'12 concurrent finding adds -> 12 files, none lost'); })();
-fs.rmSync(HOME,{recursive:true,force:true}); console.log(`all ${n} passed`);
+  assert.deepEqual(fs.readdirSync(path.join(HOME,'memory','race','findings')).filter(f=>f.startsWith('.')),[]); });
+
+// ---------- 0.4.0 ----------
+t('ids and thread names are validated before any path is built (no reads or writes outside the root)', ()=>{ const outside=path.join(path.dirname(HOME),'escaped.idx');
+  assert.match(fail('send','--from','grok','--to','claude','--subject','x','--body','b','--thread','../../escaped'),/bad thread id/); assert.ok(!fs.existsSync(outside));
+  for(const cmd of [['read','../../../memory/org-repo/instructions'],['claim','../x','--as','claude'],['done','..\\x','--as','claude'],['receipts','../../log'],['thread','../threads/x'],['reply','01X','--as','claude','--body','b']])
+    assert.match(fail(...cmd),/bad (message|thread) id/,cmd.join(' '));
+  assert.match(fail('send','--from','grok','--to','claude','--subject','x','--body','b','--reply-to','../x'),/bad --reply-to id/);
+  assert.match(fail('transcript','read','0'.repeat(64),'--for','../../x'),/bad --for message id/); });
+t('reply: checks run before the claim; a reply to a done ask is a follow-up, not an error; --from is accepted for --as', ()=>{
+  const m=run('send','--from','grok','--to','claude','--subject','q','--body','b'); assert.match(fail('reply',m.id,'--as','claude','--body',''),/body is empty/);
+  assert.match(fail('reply',m.id,'--as','claude','--body','token ghp_abcdefghijklmnopqrstuvwxyz12'),/body looks like it contains a secret/);
+  assert.match(fail('reply',m.id,'--as','claude','--body','ok','--context-file',path.join(HOME,'big.txt')),/cap is 8192/);
+  assert.equal(run('read',m.id).status,'unread','a rejected reply leaves the ask unclaimed'); const before=run('inbox','grok').length;
+  run('reply',m.id,'--as','claude','--body','first'); const again=run('reply',m.id,'--as','claude','--body','second'); assert.equal(again.follow_up,true);
+  assert.equal(run('inbox','grok').length,before+2); assert.equal(run('read',m.id).status,'done');
+  const m2=run('send','--from','grok','--to','claude','--subject','q2','--body','b'); assert.equal(run('reply',m2.id,'--from','claude','--body','ok').to,'grok'); });
+t('flag values may start with --; empty body and bad subject/sha/due are rejected', ()=>{
+  assert.equal(run('read',run('send','--from','grok','--to','codex','--subject','d','--body','--decline is a word here').id).body,'--decline is a word here');
+  assert.equal(run('read',run('send','--from','grok','--to','codex','--subject','d','--body=--x=y').id).body,'--x=y');
+  assert.match(fail('send','--from','grok','--to','codex','--subject','d'),/body is empty|body required/); assert.match(fail('send','--from','grok','--to','codex','--subject','d','--body'),/--body needs a value/);
+  assert.match(fail('send','--from','grok','--to','codex','--subject','a\nb','--body','b'),/one line/); assert.match(fail('send','--from','grok','--to','codex','--subject','S'.repeat(301),'--body','b'),/max 300/);
+  assert.match(fail('send','--from','grok','--to','codex','--subject','key ghp_abcdefghijklmnopqrstuvwxyz12','--body','b'),/subject\/metadata looks like it contains a secret/);
+  assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--sha','not-a-sha'),/bad --sha/); assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--due','someday'),/bad --due/);
+  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-matt-approval').requires_matt_approval,true);
+  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-matt-approval=false').requires_matt_approval,false,'--flag=false is false');
+  assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--json=maybe'),/--json is yes\/no/);
+  const k=run('send','--from','grok','--to','claude','--subject','kd','--body','b').id; run('reply',k,'--as','claude','--body','not a decline','--decline=false'); assert.equal(run('read',k).status,'done','--decline=false does not decline');
+  for(const s of ['see docs/risk-assessment-framework-notes.md','task-based-onboarding-workflow']) assert.ok(run('send','--from','grok','--to','codex','--subject',s,'--body',s).id,'no false secret: '+s);
+  assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--thread','ghp_abcdefghijklmnopqrstuvwxyz12'),/subject\/metadata looks like it contains a secret/); });
+t('fork ids that look like options are refused; valid ones pass', ()=>{
+  assert.match(fail('send','--from','grok','--to','claude','--subject','f','--body','b','--fork-claude-session','--dangerously-skip-permissions'),/bad --fork-claude-session/);
+  assert.match(fail('send','--from','grok','--to','codex','--subject','f','--body','b','--fork-codex-thread','-c'),/bad --fork-codex-thread/);
+  const u='0f8fad5b-d9cb-469f-a165-70867728950e'; assert.equal(run('send','--from','grok','--to','claude','--subject','f','--body','b','--fork-claude-session',u).fork_claude_session,u);
+  const jf=path.join(HOME,'sess.jsonl'); fs.writeFileSync(jf,'{}\n'); assert.equal(runIn(HOME,'send','--from','grok','--to','claude','--subject','f','--body','b','--fork-claude-session','sess.jsonl').fork_claude_session,jf);
+  const th='f0f0f0f0-0000-7000-8000-000000000001'; assert.equal(run('send','--from','grok','--to','codex','--subject','f','--body','b','--fork-codex-thread',th).fork_codex_thread,th); });
+t('memory: a file found on disk is stored absolute, so a reader in another cwd re-hashes the same file', ()=>{ const a=fs.mkdtempSync(path.join(os.tmpdir(),'cpa-')), b=fs.mkdtempSync(path.join(os.tmpdir(),'cpb-'));
+  fs.writeFileSync(path.join(a,'f.txt'),'v1'); fs.writeFileSync(path.join(b,'f.txt'),'another file with the same name'); const f=runIn(a,'memory','add','rel','--as','codex','--note','n','--files','f.txt');
+  assert.equal(JSON.parse(f.files)[0].path,path.join(a,'f.txt')); const x=runIn(b,'memory','read','rel').findings[0]; assert.equal(x.effective,'unverified'); assert.deepEqual(x.changed,[]);
+  fs.writeFileSync(path.join(a,'f.txt'),'v2'); assert.equal(runIn(b,'memory','read','rel').findings[0].effective,'stale'); fs.rmSync(a,{recursive:true,force:true}); fs.rmSync(b,{recursive:true,force:true}); });
+t('run: the printed cd line round-trips a root with an apostrophe and a curly quote; listener-equivalent flags; codex workspace = mailbox', ()=>{
+  const Q=fs.mkdtempSync(path.join(os.tmpdir(),'cp o\'neil’s-')); const eq={...process.env,CARRIER_PIGEON_HOME:Q}; const cq=(...a)=>execFileSync('node',[CLI,...a],{env:eq,encoding:'utf8'});
+  cq('init'); const c=JSON.parse(cq('send','--from','grok','--to','codex','--subject','r','--body','b','--json')).id, k=JSON.parse(cq('send','--from','grok','--to','claude','--subject','r','--body','b','--json')).id;
+  const sc=cq('run',c).split(/\r?\n/), sk=cq('run',k).split(/\r?\n/); assert.match(sc[0],/NOT executed/); assert.match(sc[1],/^(Set-Location|cd) '/);
+  const here=process.platform==='win32'
+    ? Buffer.from(execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',sc[1]+'; [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((Get-Location).Path))'],{encoding:'utf8'}).trim(),'base64').toString('utf8')
+    : execFileSync('sh',['-c',sc[1]+' && pwd'],{encoding:'utf8'}).trim();
+  const norm=p=>process.platform==='win32'?path.resolve(p).toLowerCase():path.resolve(p); assert.equal(norm(here),norm(fs.realpathSync(Q)),'the printed cd line lands in the root');
+  assert.match(sc[2],/^codex exec --sandbox workspace-write --skip-git-repo-check -C '/); assert.ok(sc[2].includes(sc[1].replace(/^(Set-Location|cd) /,'')),'codex -C is the same quoted root');
+  for(const f of ['(node bin/carrier-pigeon.mjs *)','--permission-mode dontAsk','--strict-mcp-config','--mcp-config host/empty-mcp.json','--settings host/claude-settings.json']) assert.ok(sk[2].includes(f),f);
+  assert.ok(JSON.parse(fs.readFileSync(path.join(Q,'host/claude-settings.json'),'utf8')).permissions.deny.includes('Read(./host/secrets/**)')); assert.ok(fs.existsSync(path.join(Q,'host/empty-mcp.json')));
+  for(const s of [sc.join('\n'),sk.join('\n')]){ assert.doesNotMatch(s,/\\"/); assert.doesNotMatch(s,/Bash\(node:\*\)/); } fs.rmSync(Q,{recursive:true,force:true}); });
+t('memory: a UNC path in a finding is never opened (reported unchecked)', ()=>{ const unc='\\\\example.invalid\\share\\x.txt'; const t0=Date.now();
+  run('memory','add','unc','--as','codex','--note','n','--files',unc+'@'+'b'.repeat(64)+','+unc.replace('x.txt','y.txt')); const x=run('memory','read','unc').findings[0];
+  assert.deepEqual(x.unchecked.sort(),[unc,unc.replace('x.txt','y.txt')].sort()); assert.ok(Date.now()-t0<20000,'no network wait'); });
+t('status counts files without parsing them; read flags matt as unauthenticated; version', ()=>{ fs.writeFileSync(path.join(HOME,'agents/codex/done/01ZZZZZZZZZZZZZZZZZZZZZZZZ.md'),'not a message');
+  assert.ok(run('status','codex').codex.done>=1); const m=run('send','--from','matt','--to','codex','--subject','m','--body','b');
+  assert.match(execFileSync('node',[CLI,'read',m.id],{env,encoding:'utf8'}),/"matt" is not authenticated/); assert.match(run('version').version,/^\d+\.\d+\.\d+$/); });
+t('a non-usage error prints one line, no stack trace', ()=>{ const r=spawnSync('node',[CLI,'transcript','pack',path.join(HOME,'missing.jsonl'),'--as','claude'],{env,encoding:'utf8'});
+  assert.equal(r.status,1); assert.match(r.stderr,/^carrier-pigeon: ENOENT/); assert.doesNotMatch(r.stderr,/\n\s+at /); });
+t('install: copies code into the root, keeps an existing config, backs up what it replaces, leaves mailbox data alone', ()=>{ const T=fs.mkdtempSync(path.join(os.tmpdir(),'cpinst-')); const e2={...process.env,CARRIER_PIGEON_HOME:T};
+  const inst=(cli=CLI)=>JSON.parse(execFileSync('node',[cli,'install','--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']})); const SK=path.dirname(path.dirname(CLI));
+  const r=inst(); for(const f of ['bin/carrier-pigeon.mjs','bin/cp-context.mjs','host/carrier-pigeon-host.mjs','host/start-host.ps1','host/config.json']){ assert.ok(r.copied.includes(f),f); assert.ok(fs.readFileSync(path.join(T,f)).equals(fs.readFileSync(path.join(SK,f))),f); }
+  assert.ok(fs.existsSync(path.join(T,'agents/claude/inbox'))); const m=JSON.parse(execFileSync('node',[CLI,'send','--from','grok','--to','codex','--subject','keep','--body','b','--json'],{env:e2,encoding:'utf8'}));
+  fs.writeFileSync(path.join(T,'host/config.json'),'{"rescanMs": 5000}\n'); fs.appendFileSync(path.join(T,'bin/cp-context.mjs'),'\n// local edit\n');
+  const r2=inst(); assert.deepEqual(r2.copied,['bin/cp-context.mjs']); assert.deepEqual(r2.kept,['host/config.json']); assert.equal(fs.readFileSync(path.join(T,'host/config.json'),'utf8'),'{"rescanMs": 5000}\n');
+  assert.match(fs.readFileSync(path.join(r2.backup,'bin/cp-context.mjs'),'utf8'),/local edit/); assert.ok(fs.existsSync(path.join(T,'agents/codex/inbox',m.id+'.md')),'messages untouched');
+  assert.deepEqual(inst().copied,[],'idempotent'); try{ execFileSync('node',[path.join(T,'bin/carrier-pigeon.mjs'),'install'],{env:e2,stdio:['ignore','pipe','pipe']}); assert.fail('expected refusal'); }catch(e){ assert.match(String(e.stderr),/already installed/); }
+  const {CARRIER_PIGEON_HOME:_, ...bare}=process.env; const st=JSON.parse(execFileSync('node',[path.join(T,'bin/carrier-pigeon.mjs'),'status','codex','--json'],{env:bare,cwd:T,encoding:'utf8'}));
+  assert.equal(st.codex.inbox,1,'an installed CLI without CARRIER_PIGEON_HOME acts on its own mailbox');
+  // The skill folder has agents/openai.yaml: run from there without the variable, the CLI must target ~/.carrier-pigeon (a temp home here), not itself.
+  const H2=fs.mkdtempSync(path.join(os.tmpdir(),'cphome-')); const home={...bare,USERPROFILE:H2,HOME:H2}; assert.ok(fs.existsSync(path.join(SK,'agents')),'fixture: skill folder has agents/');
+  assert.ok(execFileSync('node',[CLI,'help'],{env:home,encoding:'utf8'}).includes('root: '+path.join(H2,'.carrier-pigeon')),'help names the home mailbox');
+  const r3=JSON.parse(execFileSync('node',[CLI,'install','--json'],{env:home,encoding:'utf8'})); assert.equal(r3.root,path.join(H2,'.carrier-pigeon')); assert.ok(fs.existsSync(path.join(H2,'.carrier-pigeon','bin','carrier-pigeon.mjs')));
+  assert.ok(!fs.existsSync(path.join(SK,'agents','claude')),'nothing created in the skill folder'); fs.rmSync(H2,{recursive:true,force:true});
+  fs.rmSync(T,{recursive:true,force:true}); });
+fs.rmSync(HOME,{recursive:true,force:true}); console.log(`# ${n} tests, ${failed} failed (cli)`); process.exit(failed?1:0);

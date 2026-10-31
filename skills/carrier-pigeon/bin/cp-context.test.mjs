@@ -7,7 +7,8 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms)); const until=async(f,ms=3000)=>
 function bus(){ const root=fs.mkdtempSync(path.join(os.tmpdir(),'cpx-')); const env={...process.env,CARRIER_PIGEON_HOME:root};
   const run=(...a)=>JSON.parse(execFileSync('node',[CLI,...a,'--json'],{env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
   const fail=(...a)=>{ try{ execFileSync('node',[CLI,...a],{env,stdio:['ignore','pipe','pipe']}); }catch(e){ return e.stderr.toString(); } assert.fail('expected failure'); }; run('init'); return {root,run,fail}; }
-let n=0; const t=async(name,fn)=>{ await fn(); console.log('ok',++n,name); };
+// A failing test is reported as "not ok" and the suite carries on, so one failure can't hide the tests after it.
+let n=0, failed=0; const t=async(name,fn)=>{ n++; try{ await fn(); console.log('ok',n,name); }catch(e){ failed++; console.log('not ok',n,name); console.log('  '+String(e?.stack||e).split('\n').slice(0,6).join('\n  ')); } };
 const J=o=>JSON.stringify(o);
 const CODEX=[J({type:'session_meta',payload:{id:'x'}}),J({type:'response_item',payload:{type:'message',role:'developer',content:[{type:'input_text',text:'SYSTEM RULES'}]}}),
   J({type:'response_item',payload:{type:'message',role:'user',content:[{type:'input_text',text:'count lines in a.txt'}]}}),
@@ -50,7 +51,7 @@ await t('digest: needs --files or --sha, marked DIGEST in prefix, body from file
   assert.equal(d.kind,'digest'); assert.match(cpx.stablePrefix(root,'p').text,new RegExp(d.id+' DIGEST')); fs.writeFileSync(src,'v2'); assert.equal(run('memory','read','p').findings[0].effective,'stale'); });
 await t('wakeTurn: prefix first and only once per session; transcript verbatim before the message; message last', ()=>{ const {root,run}=bus(); run('memory','add','general','--as','codex','--note','N1');
   const f=path.join(root,'c.jsonl'); fs.writeFileSync(f,CLAUDE); const tr=run('transcript','pack',f,'--as','claude').sha256; const sent=new Map();
-  const w1=wakeTurn({id:'1',kind:'ask',from:'claude',to:'codex',subject:'s',transcript:tr},root,sent); assert.ok(w1.startsWith('[carrier-pigeon v0.3 stable prefix]'));
+  const w1=wakeTurn({id:'1',kind:'ask',from:'claude',to:'codex',subject:'s',transcript:tr},root,sent); assert.ok(w1.startsWith('[carrier-pigeon v0.4 stable prefix]'));
   const rc=fs.readFileSync(path.join(root,'receipts','1.jsonl'),'utf8'); assert.match(rc,/transcript-submitted/); assert.match(rc,/submitted_sha256/);
   assert.ok(w1.indexOf('N1')<w1.indexOf('PORT=4593')&&w1.indexOf('PORT=4593')<w1.indexOf('New ask 1')); const w2=wakeTurn({id:'2',kind:'ask',from:'a',to:'codex',subject:'s'},root,sent); assert.match(w2,/memory unchanged/); assert.ok(!w2.includes('N1'));
   run('memory','add','general','--as','codex','--note','N2'); assert.match(wakeTurn({id:'3',kind:'ask',from:'a',to:'codex',subject:'s'},root,sent),/N2/); });
@@ -64,13 +65,14 @@ await t('claude adapter logs result usage per wake; fork uses --resume ID --fork
   const ad=claudeAdapter({spawnFn}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}}); await h.start();
   await ad.deliver({id:'M1',from:'grok',to:'claude',kind:'ask',subject:'s'}); kids[0].stdout.emit('data',Buffer.from(J({type:'result',session_id:'S',usage:{input_tokens:3,cache_read_input_tokens:97,cache_creation_input_tokens:0,output_tokens:1}})+'\n'));
   assert.ok(await until(()=>fs.existsSync(path.join(root,'host/logs/usage.jsonl')))); const u=JSON.parse(fs.readFileSync(path.join(root,'host/logs/usage.jsonl'),'utf8').trim()); assert.deepEqual([u.agent,u.msg,u.input_total,u.cached],['claude','M1',100,97]);
-  await ad.deliver({id:'M2',from:'grok',to:'claude',kind:'ask',subject:'s',fork_claude_session:'SESS'}); const fk=kids.at(-1); assert.deepEqual(fk.args.slice(-3),['--resume','SESS','--fork-session']); assert.ok(!fk.args.includes('--input-format')); assert.match(fk.lines.join(''),/New ask M2/);
+  const SESS='0f8fad5b-d9cb-469f-a165-70867728950e'; // session ids are UUIDs; the host refuses anything else (0.4.0)
+  await ad.deliver({id:'M2',from:'grok',to:'claude',kind:'ask',subject:'s',fork_claude_session:SESS}); const fk=kids.at(-1); assert.deepEqual(fk.args.slice(-3),['--resume',SESS,'--fork-session']); assert.ok(!fk.args.includes('--input-format')); assert.match(fk.lines.join(''),/New ask M2/);
   assert.deepEqual(claudeForkArgs('.','X').slice(-2),['X','--fork-session']); await h.stop(); });
 await t('codex adapter: logs per-turn cached/total delta; fork_codex_thread -> thread/fork then turn/start on the fork', async()=>{ const {root}=bus(); const sent=[]; let srv;
   class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=res=>setTimeout(()=>this.onmessage({data:J({id:m.id,result:res})}),0);
       if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr1'}}); if(m.method==='thread/fork') r({thread:{id:'fork1'}}); if(m.method==='turn/start'||m.method==='turn/steer') r({}); } close(){} }
   const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
-  const ad=codexAdapter({spawnFn,WS}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
+  const ad=codexAdapter({spawnFn,WS,mcpList:async()=>[]}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
   const N=(method,params)=>srv.onmessage({data:J({method,params})});
   N('thread/tokenUsage/updated',{threadId:'thr1',tokenUsage:{total:{inputTokens:1000,cachedInputTokens:0}}}); await ad.deliver({id:'A1',from:'grok',to:'codex',kind:'ask',subject:'s'});
   N('turn/started',{threadId:'thr1',turn:{id:'T1'}}); N('thread/tokenUsage/updated',{threadId:'thr1',tokenUsage:{total:{inputTokens:3000,cachedInputTokens:1500,outputTokens:20}}}); N('turn/completed',{threadId:'thr1',turn:{id:'T1',status:'completed'}});
@@ -98,4 +100,29 @@ await t('canaries: per-record HMAC markers, key stays in host/secrets, verify re
   const ans=path.join(root,'ans.txt'); fs.writeFileSync(ans,`saw ${cs[0]} and ${cs[2]} and cpk-${'0'.repeat(20)}`); const v=run('transcript','verify',p.sha256,'--text-file',ans,'--for','M3');
   assert.deepEqual(v.matched_records,[0,2]); assert.deepEqual(v.missing_records,[1]); assert.equal(v.unknown_markers,1); assert.match(v.label,/possession of marker only/); assert.match(fs.readFileSync(path.join(root,'receipts','M3.jsonl'),'utf8'),/canary-verify/);
   const body=fs.readFileSync(p.file,'utf8'); assert.ok(!body.includes('cpk-'),'pack bytes unchanged'); });
-console.log(`# ${n} context tests passed`); process.exit(0);
+
+// ---------- 0.4.0 ----------
+await t('secrets: one list for CLI and packs; newer token families caught; a lone PEM header is refused; render redacts an unterminated key to the end', ()=>{
+  for(const s of ['AIza'+'a'.repeat(35),'hf_'+'A'.repeat(34),'npm_'+'b'.repeat(36),'glpat-'+'c'.repeat(20),'sk_live_'+'d'.repeat(24),'gho_'+'e'.repeat(36),'ASIA'+'F'.repeat(16),'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N','-----BEGIN RSA '+'PRIVATE KEY-----'])
+    assert.ok(cpx.hasSecret('x '+s+' y'),s.slice(0,8));
+  for(const s of ['hf_hub_download','npm_config_cache','sk-short','eyJ alone','docs/risk-assessment-framework-notes.md','task-based-onboarding-workflow']) assert.ok(!cpx.hasSecret(s),s);
+  assert.ok(cpx.hasSecret('-----BEGIN PGP PRIVATE KEY BLOCK-----'),'PGP key block'); assert.ok(cpx.hasSecret('KEY=sk-'+'a'.repeat(30)),'after =');
+  const {root,run,fail}=bus(); const f=path.join(root,'k.jsonl'); fs.writeFileSync(f,J({type:'user',message:{role:'user',content:'-----BEGIN OPENSSH '+'PRIVATE KEY-----\nAAAA (truncated, no END)'}}) /* split: the repo's privacy scan blocks literal key headers */+'\n');
+  assert.match(fail('transcript','pack',f,'--as','claude'),/secret-looking/); const r=run('transcript','read',run('transcript','pack',f,'--as','claude','--render').sha256).text;
+  assert.ok(!r.includes('AAAA')); assert.match(r,/\[REDACTED-SECRET\]/); });
+await t('verify and read reject bad ids cleanly; verify on a render-only pack says why', ()=>{ const {root,run,fail}=bus();
+  assert.match(fail('transcript','verify','../../x','--text','t'),/bad transcript id/); const f=path.join(root,'r.jsonl'); fs.writeFileSync(f,CODEX.split('\n').slice(0,3).join('\n'));
+  const p=run('transcript','pack',f,'--as','codex','--render'); assert.match(fail('transcript','verify',p.sha256,'--text','t'),/no byte-exact index/); });
+await t('prefix cap: findings past the cap are counted, not inlined; the inlined head stays byte-stable', ()=>{ const {root,run}=bus();
+  for(let i=0;i<6;i++) run('memory','add','cap','--as','codex','--note','F'+i+' '+'x'.repeat(1500)); const p=cpx.stablePrefix(root,'cap',{maxBytes:6000});
+  assert.ok(p.bytes<=6000+200,'near the cap'); assert.ok(p.omitted>0); assert.match(p.text,new RegExp(`\\[${p.omitted} newer finding\\(s\\) not inlined`)); assert.equal(p.ids.length+p.omitted,6);
+  run('memory','add','cap','--as','codex','--note','F6'); const q=cpx.stablePrefix(root,'cap',{maxBytes:6000}); assert.deepEqual(q.ids,p.ids); assert.equal(q.omitted,p.omitted+1);
+  assert.ok(q.text.startsWith(p.text.slice(0,p.text.indexOf('['+p.omitted+' newer'))),'head unchanged'); assert.ok(cpx.stablePrefix(root,'cap').omitted===0,'default cap fits these'); });
+await t('wakeTurn delta: a warm session gets only findings added since its prefix; changed instructions resend the whole prefix', ()=>{ const {root,run}=bus(); const sent=new Map(); const m=id=>({id,kind:'ask',from:'a',to:'codex',subject:'s'});
+  run('memory','add','general','--as','codex','--note','OLD-FINDING'); const w1=wakeTurn(m('1'),root,sent); assert.match(w1,/OLD-FINDING/);
+  run('memory','add','general','--as','codex','--note','NEW-FINDING'); const w2=wakeTurn(m('2'),root,sent); assert.match(w2,/NEW-FINDING/); assert.ok(!w2.includes('OLD-FINDING'),'old finding not resent');
+  assert.match(w2,/1 finding\(s\) added since prefix/); assert.ok(!w2.includes('[carrier-pigeon v0.4 stable prefix]'));
+  run('memory','instructions','general','--as','matt','--text','New rule.'); const w3=wakeTurn(m('3'),root,sent); assert.ok(w3.startsWith('[carrier-pigeon v0.4 stable prefix]')); assert.match(w3,/OLD-FINDING[\s\S]*NEW-FINDING/);
+  assert.match(wakeTurn(m('4'),root,sent),/memory unchanged/); assert.match(wakeTurn(m('5'),root,new Map()),/OLD-FINDING/,'a fresh session gets everything'); });
+await t('gitState: a non-repo is reported as git:false, never thrown', ()=>{ const {root}=bus(); const d=path.join(root,'plain'); fs.mkdirSync(d); assert.deepEqual(cpx.gitState(d),{repo:d,git:false}); });
+console.log(`# ${n} tests, ${failed} failed (context)`); process.exit(failed?1:0);

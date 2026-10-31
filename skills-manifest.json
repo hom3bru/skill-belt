@@ -203,21 +203,23 @@
     },
     {
       "name": "carrier-pigeon",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "path": "skills/carrier-pigeon",
       "files": {
         "agents/openai.yaml": "cd594063546795fc3acf8c779118919b4abe8565511d432bbc7bd71e4c238431",
-        "bin/carrier-pigeon.mjs": "ea19211bd4a02e55ff24b11f59f51b0335899cf6b70c4102dffd7211757ff2bb",
-        "bin/carrier-pigeon.test.mjs": "0d7420ac382ef2670b841491450911d16757bb243968f622623e10316798bb14",
-        "bin/cp-context.mjs": "badb3c7e630e813540d0bff9c3fd342432fd717cf3bcb110b9a072178083768e",
-        "bin/cp-context.test.mjs": "5b0b27442ee341ee321412849fa4a17e33612418461a291b2681c61ac0b715fd",
-        "host/carrier-pigeon-host.mjs": "d5f8377205ff6c6a3e7193bdd11c43263597a9a91cda2d7b42a70bfcc65ff93b",
-        "host/carrier-pigeon-host.test.mjs": "b8eea0314380d5afe6808f4f12710e99f4b401ba1aa46d25b8e551f4f055ad53",
+        "bin/carrier-pigeon.mjs": "b65477a9c26268bd57b433049dff220e9553f4a8ea070486029d83ef6c84a5a3",
+        "bin/carrier-pigeon.test.mjs": "0c9b1ee3a13480cb6b566bc458396f3e8eb2e4fbe0cb38c31014624f0bfd9486",
+        "bin/cp-context.mjs": "907321dd5e776940bf1f7e2a357333c817f570e103b397075bd5bbc886b5dcdb",
+        "bin/cp-context.test.mjs": "7b123dc163867f6417a0de9c4fc5c10ee496e5c0105b92b064d8d865024fd3d9",
+        "host/carrier-pigeon-host.mjs": "9b796b30dd94f72c52374b38b8c5eb1b3252f7d8b90da303d7575e5e36190d20",
+        "host/carrier-pigeon-host.test.mjs": "d97ba1c20891f3d5174155919535a8fd093317b6172ff0df206a44ce8eab3016",
         "host/config.json": "a0a01d54caae43fde067f4acc37a23902e6c1c3f2a62edd675d60fe425b1caf5",
         "host/start-host.ps1": "550d5ae715bbe146c4a9e53eaae1338949cebe4b35b4914dc485f9d2df6a934e",
         "host/stop-host.ps1": "2cdb7c715dc49d2496a370e9010bcdad8da18b8c5be8e441a1b313b90b31cc15",
-        "SKILL.md": "7498e742d258c0d50315894a03a9ca3fad6aa051901dd164b34e0f2ec3e5de80",
-        "tests/run.py": "8cbf36dd72f1134308f03b21e4dbcb4c58d37a74d193e78d43cb07e0465ab1ea"
+        "references/context-transfer.md": "ac36343f30b81ed4a63bf149c412877d5a211432577de2dc628d7f0b481495b8",
+        "references/listener.md": "c17b28c3783c69b7428881cf9becaa80f70bb66765846bee37075e3c8bcc07aa",
+        "SKILL.md": "f831a22a5f5f67b9b874cbfd3b0de132bd709857cd6c0b5b3f473a53b4940516",
+        "tests/run.py": "4c7d1a088772de29342092bd2721ccfc66de66384f1ab3bd35eb42743c5afb0a"
       }
     }
   ]
