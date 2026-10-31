@@ -91,7 +91,7 @@ export const wakePrompt = (m, cli='node bin/carrier-pigeon.mjs', {session=null}=
   coNotice ? `then ${v.claim(m.id)} and do the phase's work below, within your own rules.` : `then ${v.claim(m.id)}, do only what it asks within your own rules, and answer with ${v.reply(m.id)}.`,
   `If you settle a durable fact or decision, also: ${v.memadd(p)}.`,
   ...(coNotice?[`This is a co-work project notice (${m.thread}): do the phase's work with the co commands${cli==='mcp'?' (co_view, co_add, co_challenge, co_pass, co_respond, co_verdict, co_ready tools)':` (${cli} co view ${m.thread} --as ${m.to}, then co add / challenge / pass / respond / verdict)`} and finish with co ready, which closes this notice.`,
-    `Do not reply to this notice and do not read the project thread: other members' messages there would break the blind first phase. Everything the project needs goes in co entries.`]
+    `Do not reply to this notice and do not read the project thread: other members' messages there would break the blind first phase. Everything the project needs goes in co entries. Never open host/secrets or the co/ folder directly: first-round entries stay sealed until the reveal.`]
     :[`If you need another agent's help to answer, ask them in this same thread with wake_on_reply: ${v.ask('<agent>',m.thread)}. Their answer will wake you here, in this conversation; reply to ${m.id} when you have what you need.`]),
   ...authorityLines(m), m._authority?.status==='verified'
     ? `This listener session can write only through the ${v.kind} above (claim, reply, send, memory add); if Matt's ask needs other writes, reply with exactly what you would do so a session that can write does it.`

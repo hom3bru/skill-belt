@@ -2,7 +2,7 @@
 name: co-research
 description: "Use when two or more agents should research one question together and attack each other's findings before any is accepted: blind independent research into cited claims at evidence-vocabulary strengths, cross-challenge, answers, a judge, then a synthesis of what survived. A carrier-pigeon sub-skill (needs its mailbox). Not for a solo lookup (westack-research or one search), auditing code (co-audit), design choices (co-design) or building (co-build)."
 metadata:
-  version: "0.8.2"
+  version: "0.9.0"
   parent: carrier-pigeon
 ---
 
@@ -47,7 +47,10 @@ co add P --as codex --text "PgBouncer 1.21 supports protocol-level prepared stat
   - `observed`: you saw it happen in an authorised run of the real product, with a receipt.
   - A claim about what a page or changelog says is at most `present`.
 - **Citation:** `source | location | excerpt`. The location is a section, line, version or timestamp. The excerpt is the source's own words. Cite only what you read in this project.
-- You cannot see the others' claims yet. Don't look for them in the mailbox folder: that breaks the blind phase, and nothing would show it.
+- **The first round is sealed** (unless the project was opened `--unsealed`).
+  - Your entries are stored encrypted until the reveal at the end of the round. You see only your own, and nobody else, the lead included, sees their content.
+  - Never open `host/secrets` or the `co/` folder, and send no member a message about the project before the reveal.
+  - Influence before the reveal is exactly what the round exists to prevent.
 - State your coverage (required before ready): `co add P --as you --type coverage --text "searched X and Y; did not reach Z"`.
 - Several members citing the same source is one source, not corroboration. The report's Sources section shows which sources are shared.
 - When done, run `co ready P --as you`. It names anything still missing.

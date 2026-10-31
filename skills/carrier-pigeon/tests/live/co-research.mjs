@@ -30,7 +30,10 @@ const p = cli('co', 'new', '--mode', 'research', '--as', 'matt', '--lead', 'matt
   '--scope', `Only these two files; no web. Code: ${code}. Docs: ${doc}. Cite as "path | line N | exact words".`,
   '--assign', `codex: the code (${code})`, '--assign', `claude: the docs (${doc})`);
 const timeline = [{phase: 'independent', s: 0}]; let last = 'independent', lastChange = Date.now();
+// 0.9.0: while the first round is open, every member entry on disk must be sealed (no plaintext a peer could read)
+const plaintextBeforeReveal = new Set(); let sealedSeen = 0;
 while (Date.now() - t0 < 1800000) { const pr = co.load(p.id);
+  if (pr.phase === 'independent') for (const e of co.entries(p.id).filter(e => ['claude', 'codex'].includes(e.by))) { if (e.type === 'sealed') sealedSeen++; else plaintextBeforeReveal.add(`${e.id} ${e.type} by ${e.by}`); }
   if (pr.phase !== last) { timeline.push({phase: pr.phase, s: Math.round((Date.now() - t0) / 1000)}); last = pr.phase; lastChange = Date.now(); }
   if (pr.phase === 'adjudicate') { const all = co.entries(p.id);
     for (const c of all.filter(e => e.type === 'challenge' && all.some(r => r.type === 'response' && r.target === e.id && r.outcome === 'defend') && !all.some(v => v.type === 'verdict' && v.target === e.id)))
@@ -54,7 +57,9 @@ const surfaced = all.filter(e => { const s = [e.text, e.evidence, e.reason].filt
   return /\b5\b/.test(s) && /\b6\b/.test(s) && /mismatch|discrepan|contradict|differ|stale|does not (match|describe)|doesn't match|inconsisten/i.test(s); }).map(e => e.id);
 const report = {elapsed_s: Math.round((Date.now() - t0) / 1000), project: p.id, phase: pr.phase, timeline, members,
   passed: pr.phase === 'closed' && chk.clean && Object.values(members).every(m => m.claims > 0 && m.cited && m.coverage && (m.challenges > 0 || m.passes > 0))
-    && !cli('thread', p.id, '--as', 'matt').some(m => ['claude', 'codex'].includes(m.from)), // a member's message in the shared thread is the blind-phase leak 0.8.0 closes
+    && !cli('thread', p.id, '--as', 'matt').some(m => ['claude', 'codex'].includes(m.from)) // a member's message in the shared thread is the blind-phase leak 0.8.0 closes
+    && pr.sealed === true && !plaintextBeforeReveal.size && pr.revealed?.opened > 0 && !pr.revealed?.failed, // 0.9.0: sealed until one clean reveal
+  sealed: {sealed: !!pr.sealed, sealed_records_seen_before_reveal: sealedSeen > 0, plaintext_before_reveal: [...plaintextBeforeReveal], revealed: pr.revealed || null},
   check: chk.findings.map(f => `${f.code} ${f.id || ''}: ${f.msg}`), survived: rep.survived.length, overturned: rep.overturned.length, disputed: rep.disputed.length,
   member_messages_in_thread: cli('thread', p.id, '--as', 'matt').filter(m => ['claude', 'codex'].includes(m.from)).map(m => `${m.from} ${m.kind}: ${String(m.body).replace(/\s+/g, ' ').slice(0, 80)}`),
   planted_mismatch_surfaced_in: surfaced,

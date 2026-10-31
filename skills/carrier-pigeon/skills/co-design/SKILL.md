@@ -2,7 +2,7 @@
 name: co-design
 description: "Use when two or more agents should each propose a design and then attack each other's: an architecture, interface, data model, plan or visual direction. Blind independent proposals with rationale, tradeoffs and risks; challenges by failure mode, constraint, alternative and cost; revisions; a judge; then a decision record. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent design-doc review (westack-review), UI critique (westack-design) or building (co-build)."
 metadata:
-  version: "0.8.2"
+  version: "0.9.0"
   parent: carrier-pigeon
 ---
 
@@ -34,6 +34,8 @@ Put the success criteria in `--criterion`. The lead rates each one `pass`, `fail
 ## Phase by phase (members)
 
 **Independent: propose.** One proposal per distinct design; two genuinely different options are better than one hedged one.
+
+The round is sealed (unless the project was opened `--unsealed`). Your proposals stay encrypted until the reveal at its end, so no one's first design can anchor anyone else's. Never open `host/secrets` or the `co/` folder, and do not message another member about the project before the reveal.
 
 - `--text`: the design itself, concrete enough to build from: the components, data and flow, the interfaces, and what changes in existing code.
 - `--rationale`: why it meets the constraints and success criteria, point by point.
