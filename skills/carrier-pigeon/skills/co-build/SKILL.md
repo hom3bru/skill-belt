@@ -2,7 +2,7 @@
 name: co-build
 description: "Use when two or more agents should build one authorised change together: the lead splits it into units with disjoint file ownership and stated contracts, each member builds its unit in its own worktree with a verification receipt, then they cross-review for bugs, test gaps, contract breaks and regressions before the lead integrates. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent changes (westack-build), audits (co-audit) or design (co-design)."
 metadata:
-  version: "0.8.0"
+  version: "0.8.1"
   parent: carrier-pigeon
 ---
 
@@ -33,7 +33,10 @@ co new --mode build --title "CSV export" --question "Add CSV export to the repor
        --members claude,codex --judge matt --min-challenges 1 --subject "main@9e1d2c0"
        --scope "integration check: npm test && npm run typecheck; contract: exportRows(rows: Row[]): string (RFC 4180, CRLF)"
        --assign "codex: src/export/csv.ts + tests (exportRows)" --assign "claude: src/reports/ExportButton.tsx + route wiring"
+       --criterion "npm test && npm run typecheck pass on the merged branch" --criterion "each branch changes only its own unit's files"
 ```
+
+When the project closes, rate each criterion from the integration run: `co add P --as lead --type rating --criterion C1 --result pass|fail|untested --text "<receipt>"`. Untested is never a pass, and the report says "accepted" only when every criterion passes.
 
 ## Phase by phase (members)
 

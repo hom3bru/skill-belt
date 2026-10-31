@@ -2,7 +2,7 @@
 name: co-design
 description: "Use when two or more agents should each propose a design and then attack each other's: an architecture, interface, data model, plan or visual direction. Blind independent proposals with rationale, tradeoffs and risks; challenges by failure mode, constraint, alternative and cost; revisions; a judge; then a decision record. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent design-doc review (westack-review), UI critique (westack-design) or building (co-build)."
 metadata:
-  version: "0.8.0"
+  version: "0.8.1"
   parent: carrier-pigeon
 ---
 
@@ -26,7 +26,10 @@ Run commands as `node ~/.carrier-pigeon/bin/carrier-pigeon.mjs co ...`, or use t
 ```text
 co new --mode design --title "job queue for ingest" --question "How should ingest jobs be queued and retried?"
        --members claude,codex --judge matt --scope "Postgres only, no new services; at-least-once; 10k jobs/day; must survive deploys"
+       --criterion "survives a deploy mid-job without losing or duplicating side effects" --criterion "no new service"
 ```
+
+Put the success criteria in `--criterion`. The lead rates each one `pass`, `fail` or `untested` against the chosen design before closing. A criterion nobody could check stays untested, and the decision is not "accepted".
 
 ## Phase by phase (members)
 

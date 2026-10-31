@@ -151,6 +151,20 @@ await t('sources cited by absolute and by relative path join, and a revision tha
   cover(p, 'codex'); cover(p, 'claude'); co.ready(p.id, 'codex'); co.ready(p.id, 'claude'); const c = co.challenge(p.id, 'claude', {target: a.id, kind: 'weak-evidence', text: 'excerpt garbled'});
   co.pass(p.id, 'codex', {reason: 'fine'}); co.ready(p.id, 'claude'); co.ready(p.id, 'codex'); claim(p, 'codex', 'a', {cites: ['C:\\tmp\\run\\docs\\listener.md | line 75 | exact words'], revises: a.id});
   co.respond(p.id, 'codex', {target: c.id, outcome: 'revise', text: 'fixed the excerpt'}); assert.match(co.report(p.id).markdown, /revised: same text; its citations or fields changed/); });
+await t('acceptance criteria: fixed in the brief, rated by the lead after adjudication; untested or unrated is never accepted', () => {
+  const b = co.create({mode: 'build', title: 'b', question: 'b', members: 'claude,codex', lead: 'matt', subject: SUBJECT, criteria: ['npm test passes on the merged branch', 'no new dependency'], as: 'matt'});
+  assert.deepEqual(b.criteria.map(c => c.id), ['C1', 'C2']); assert.match(cp.load(notices('codex').find(m => m.thread === b.id).id).msg.body, /Acceptance criteria: C1 npm test passes on the merged branch; C2 no new dependency/);
+  assert.throws(() => co.add(b.id, 'matt', {type: 'rating', criterion: 'C1', result: 'pass', text: 'x'}), /after adjudication/);
+  while (co.load(b.id).phase !== 'closed') co.advance(b.id, 'matt', 'go'); co.add(b.id, 'matt', {type: 'synthesis', text: 's'});
+  assert.throws(() => co.ready(b.id, 'matt'), /rate C1, C2/); assert.ok(co.check(b.id).findings.some(f => f.code === 'criterion-unrated' && f.id === 'C2'));
+  assert.throws(() => co.add(b.id, 'codex', {type: 'rating', criterion: 'C1', result: 'pass', text: 'x'}), /only the lead/);
+  assert.throws(() => co.add(b.id, 'matt', {type: 'rating', criterion: 'C9', result: 'pass', text: 'x'}), /one of this project's criteria/);
+  assert.throws(() => co.add(b.id, 'matt', {type: 'rating', criterion: 'C1', result: 'mostly', text: 'x'}), /--result/);
+  co.add(b.id, 'matt', {type: 'rating', criterion: 'c1', result: 'pass', text: 'npm test: exit 0, 12 passed'}); co.add(b.id, 'matt', {type: 'rating', criterion: 'C2', result: 'untested', text: 'lockfile not diffed'});
+  const r = co.report(b.id); assert.equal(r.accepted, false); assert.match(r.markdown, /## Acceptance criteria: NOT accepted \(1 pass, 0 fail, 1 untested, 0 unrated\)/);
+  co.add(b.id, 'matt', {type: 'rating', criterion: 'C2', result: 'pass', text: 'lockfile unchanged'}); assert.equal(co.report(b.id).accepted, true); co.ready(b.id, 'matt');
+  assert.ok(!co.check(b.id).findings.some(f => f.code === 'criterion-unrated'));
+  const old = research(); const f = path.join(HOME, 'co', old.id, 'project.json'); assert.ok(co.check(old.id).clean, 'a project without criteria keeps its hash'); assert.equal(JSON.parse(fs.readFileSync(f, 'utf8')).criteria, undefined); });
 await t('a bad project id is refused before any path is built', () => { for (const id of ['../agents', 'co-short', 'co-' + 'U'.repeat(26)]) assert.throws(() => co.load(id), /bad project id/); });
 
 await t('CLI: co new takes repeated --assign and co add repeated --cite; co check exits 1 on findings', () => {

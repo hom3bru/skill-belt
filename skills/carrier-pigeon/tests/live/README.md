@@ -12,7 +12,37 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
 | `conversation.mjs [--mode wake\|ask]` | A real multi-turn conversation between the listener's Claude (Haiku) and Codex. Grok asks Claude to get two answers from Codex; the second question ("add 100 to your previous answer") omits the number, so Codex must remember the conversation. In `wake` mode (the default) each answer has to wake Claude's resumed per-thread session. | 3 Haiku runs, 2 Codex turns |
 | `co-research.mjs [--claude-model haiku]` | A real co-research project between the listener's Claude and Codex. The question is answerable from two files in the throwaway mailbox: the host code, and a docs copy with one planted mismatch (5 wakes per 10 minutes where the code says 6). The script is lead and judge. It rules "unresolved" on any defended dispute and writes a placeholder synthesis. Pass: the project closes with a clean protocol check, and each member adds cited claims and coverage, then challenges or passes. Whether the mismatch surfaced is reported, not gated. | About 3 Haiku runs and 3 Codex turns |
+| `co-modes.mjs --mode audit\|design\|build\|solo` | The other co modes, and a baseline. Every project mode gates on: closed, a clean protocol check, every real member doing its work, no member messages in the project thread.<br>`audit`: Claude and Codex audit a limiter with three planted defects; which ones the findings name is reported.<br>`design`: competing designs under three acceptance criteria, which the script rates untested.<br>`build`: real Codex builds a unit in its own git worktree, while the script plays Claude, cross-reviews, merges and rates criteria from the merged `node --test`.<br>`solo`: no project; Claude and Codex each answer the co-research question alone. | Per mode: about 3 Haiku runs and 1 to 3 Codex turns (`build`: Codex only) |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Results on 2026-10-31 (one Windows machine, 0.8.1)
+
+- **`co-modes --mode audit`:** passed in 585 s, going through all five phases including adjudication.
+  - Clean check; no member wrote into the project thread.
+  - Claude made 6 findings and Codex 2, and each challenged three times. Codex reproduced findings by running assertions.
+  - The surviving and disputed findings name all three planted defects: the inclusive boundary, the off-by-one and the missing eviction.
+  - Codex defended its three challenged findings, and the script, as judge, ruled them unresolved.
+  - Claude (Haiku) $0.019 over 2 runs; Codex 919k + 344k input tokens.
+  - An earlier attempt's members did the work, but it stalled at adjudication because of a bug in this script's judge hook (a filter that referred to the loop variable before it existed). In that attempt Codex argued two of the planted defects down: the boundary only makes the guard stricter, and memory growth breaks no line-1 promise. Claude conceded both.
+- **`co-modes --mode build`:** the co-build protocol ran end to end with a real Codex: closed, clean check, no member messages in the thread. Codex worked in its own git worktree, one `codex exec` session per phase:
+  - **Independent:** implemented `slugify` with 12 tests, committed it and recorded the unit with its receipt (562 s, 1.24M input tokens).
+  - **Challenge:** reran Claude's tests, wrote 27 extra cases of its own, then passed with that reason (262 s).
+  - **Respond:** answered the script's test-gap challenge with a new test and commit, then re-recorded the unit with a fresh receipt of 13 passed (346 s).
+  - **Integration:** the script's own merge failed. An octopus merge runs git's shell-script strategy, and Git-Bash's `sh` cannot fork on this machine (0xC0000142), so the script rated C1 fail. It now merges one branch at a time. Redone that way on the kept mailbox: `node --test` on the merged branch passed 15 of 15, and C2 (each branch changed only its own files) passed.
+  - **A listener-woken Codex refuses to build, as designed.** In the first attempt the notice only woke Codex through the listener. Codex declined to write code, because an unsigned notice allows mailbox writes only. It filed a deviation saying so, quoting co-build's "does not grant permission to edit". That is why the check launches write-capable sessions instead.
+- **`co-modes --mode design`:** passed in 667 s. Clean check; no member wrote into the project thread.
+  - Claude proposed 6 entries and Codex 2; Codex challenged 4 times, Claude once, and every challenge landed.
+  - Codex's failure-mode challenges found real gaps in Claude's token-budget design:
+    - its check points missed `Host.retry()`, which dispatches straight to an adapter;
+    - a completion-only usage log treats a crashed run as free.
+  - One of Claude's proposals was overturned. The three criteria were rated untested by design (the script does not judge designs), so the report reads "NOT accepted".
+  - Claude (Haiku) $0.195 over 3 runs. Codex used one 643 s turn (1.19M input tokens).
+- **`co-modes --mode solo` (baseline for co-research):** Claude and Codex each answered the co-research question alone. Both named the planted mismatch (docs 5, code 6).
+  - Claude: 143 s, $0.0125, 184k input tokens. Codex: 229 s, 677k input tokens.
+  - Co-research run 2 found the same mismatch in 661 s, at $0.076 plus 1.55M Codex tokens.
+  - On this small, single-fact task, one agent was faster and cheaper. Co-research's extra yield came in run 1: four real defects in the skill, found by cross-checking code against docs.
+  - The solo runs came after those defects were fixed, so this is not a matched comparison of what each finds.
+- **Parallel runs exhausted memory.** Running four live checks at once on this machine made Claude and Node exit with 0xC0000409, which here means commit-memory exhaustion (39 of 49 GB was committed even after they ended). The audit project stalled because its Claude never woke; the build run's process died. Run live checks one at a time.
 
 ## Results on 2026-10-31 (one Windows machine, 0.8.0)
 

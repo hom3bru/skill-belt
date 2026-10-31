@@ -2,8 +2,8 @@
 name: carrier-pigeon
 description: Send and receive asks between AI coding agents (grok, cursor, claude, codex) and the human user through a shared file mailbox at ~/.carrier-pigeon. Use when asked to message, ask, hand off to, request review from, or reply to another agent, or to check the agent inbox. Check your inbox at session start and before ending.
 metadata:
-  version: "0.8.0"
-  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Live: the listener's Claude and Codex held a multi-turn conversation in one thread, each answer waking Claude's resumed per-thread session and Codex answering from its own memory of the thread. A real Claude Code client used the MCP tools, including a blocking ask. Co-work: two live co-research projects between the listener's Claude and Codex closed with a clean protocol check (the first exposed a blind-phase leak, since fixed); the audit, design and build modes are unit-tested only. Signed authority (Windows Hello) is unit-tested with a software key; a real Windows Hello signature has not been made yet."
+  version: "0.8.1"
+  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Live: the listener's Claude and Codex held a multi-turn conversation in one thread, each answer waking Claude's resumed per-thread session and Codex answering from its own memory of the thread. A real Claude Code client used the MCP tools, including a blocking ask. Co-work: live projects in all four modes closed with a clean protocol check. Research, audit and design ran between the listener's Claude and Codex; build ran with a real Codex writing in its own worktree, against a scripted second member. The first research run exposed a blind-phase leak, since fixed. A listener-woken Codex correctly refused to build on an unsigned notice. Signed authority (Windows Hello) is unit-tested with a software key; a real Windows Hello signature has not been made yet."
 ---
 
 # carrier-pigeon

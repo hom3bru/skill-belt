@@ -63,7 +63,7 @@ function args(argv){ const o={_:[]}; for(let i=0;i<argv.length;i++){ const a=arg
   const k=a.slice(2), n=argv[i+1];
   if(BOOL.has(k)){ if(n==='true'||n==='false'){ o[k]=n==='true'; i++; } else o[k]=true; }
   else if(n===undefined) die(`--${k} needs a value`); else { put(o,k,n); i++; } } return o; }
-const REPEAT=new Set(['cite','assign']); // repeatable flags collect a list; any other repeated flag keeps its last value
+const REPEAT=new Set(['cite','assign','criterion']); // repeatable flags collect a list; any other repeated flag keeps its last value
 const put=(o,k,v)=>{ if(REPEAT.has(k)) (o[k]||=[]).push(v); else o[k]=v; };
 // Every file read into a message, finding or pack passes the read-deny list first (ctx.deniedRead: host secrets, credential stores, .env).
 const readable = (f,flag) => { const why=ctx.deniedRead(f,ROOT); if(why) die(`${flag} ${f}: refusing to read ${why}; never put secrets in the mailbox`); return f; };
@@ -245,7 +245,7 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
   wait   ID --as A [--wait SECONDS] [--keep]   wait for the reply to ask ID (a found reply is marked done unless --keep)
   agents                      who is reachable now: auto-wake (listener), notify-only (toast) or pull; inbox size; median reply time
   send ... [--wake-on-reply]  the listener wakes you when the reply arrives (for agents the listener runs; hop/rate limits apply)
-  co new --mode research|audit|design|build --title T --question Q --members a,b[,c] [--lead A] [--judge J] [--min-challenges 2] [--scope S] [--subject repo@sha] [--assign "a: part"]...
+  co new --mode research|audit|design|build --title T --question Q --members a,b[,c] [--lead A] [--judge J] [--min-challenges 2] [--scope S] [--subject repo@sha] [--assign "a: part"]... [--criterion "..."]...
   co view|ready|report|check P --as A     co add P --as A ...   co challenge P --as A --target E3 --kind K --text ..   co pass|respond|verdict ...
          adversarial co-work: independent (blind) -> challenge -> respond -> adjudicate -> closed  (references/co.md)
   hello status | hello init   Matt's signing key in Windows Hello (init once, in your own terminal)
@@ -280,11 +280,11 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
 async function coCommand(o,out){ const co=await import('./cp-co.mjs'); const [sub,pid]=o._; const as=()=>o.as||die('--as required'), need=()=>pid||die(`usage: co ${sub} PROJECT --as A ...`);
   const short=e=>`${e.id} ${e.type} by ${e.by}${e.target?' on '+e.target:''}${e.kind?' ['+e.kind+']':''}${e.outcome?' -> '+e.outcome:''}${e.strength?' ('+e.strength+')':''}${e.severity?' ('+e.severity+')':''}: ${String(e.text||e.reason||'').replace(/\s+/g,' ').slice(0,140)}`;
   switch(sub){
-    case 'new': { const p=co.create({mode:o.mode,title:o.title,question:o.question,members:o.members,lead:o.lead||o.as,judge:o.judge,minChallenges:o['min-challenges']??2,scope:o.scope,subject:o.subject,assign:o.assign,as:o.as||o.lead,session:sessionOf(o)});
+    case 'new': { const p=co.create({mode:o.mode,title:o.title,question:o.question,members:o.members,lead:o.lead||o.as,judge:o.judge,minChallenges:o['min-challenges']??2,scope:o.scope,subject:o.subject,assign:o.assign,criteria:o.criterion,as:o.as||o.lead,session:sessionOf(o)});
       return out(p,`opened ${p.id} (${p.mode}): ${p.title}\nmembers ${p.members.map(m=>m.agent).join(', ')}; lead ${p.lead}; judge ${p.judge}; phase ${p.phase}; notices sent`); }
     case 'list': { const l=co.list(); return out(l,l.length?l.map(x=>`${x.id}  ${x.mode.padEnd(8)} ${x.phase.padEnd(11)} ${x.title}  (${x.members.join(', ')})`).join('\n'):'no co projects'); }
     case 'view': { const v=co.view(need(),as()); return out(v,[`${v.project.title} (${v.project.mode}, ${v.project.id}) phase ${v.phase}; waiting for ${v.waiting_for.join(', ')||'nobody'}`,`Question: ${v.project.question}`,
-      v.project.subject?`Subject (pinned): ${v.project.subject}`:'', v.project.scope?`Scope: ${v.project.scope}`:'', ...v.project.members.filter(m=>m.part).map(m=>`part of ${m.agent}: ${m.part}`), v.blind?`(independent phase: ${v.hidden} entries by others are hidden until it ends)`:'',...v.entries.map(short),...(v.state?['','status:',...v.state.map(s=>`  ${s.id} ${s.status} (${s.by})${s.challenges.length?' challenges '+s.challenges.map(c=>c.id+':'+c.outcome).join(', '):''}`)]:[])].filter(Boolean).join('\n')); }
+      v.project.subject?`Subject (pinned): ${v.project.subject}`:'', v.project.scope?`Scope: ${v.project.scope}`:'', ...(v.project.criteria||[]).map(c=>`criterion ${c.id}: ${c.text}`), ...v.project.members.filter(m=>m.part).map(m=>`part of ${m.agent}: ${m.part}`), v.blind?`(independent phase: ${v.hidden} entries by others are hidden until it ends)`:'',...v.entries.map(short),...(v.state?['','status:',...v.state.map(s=>`  ${s.id} ${s.status} (${s.by})${s.challenges.length?' challenges '+s.challenges.map(c=>c.id+':'+c.outcome).join(', '):''}`)]:[])].filter(Boolean).join('\n')); }
     case 'add': { const e=co.add(need(),as(),{...o,cites:o.cite,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
     case 'challenge': { const e=co.challenge(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
     case 'pass': { const e=co.pass(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }

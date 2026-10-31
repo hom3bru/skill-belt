@@ -40,6 +40,8 @@ co new --mode research|audit|design|build --title T --question Q --members a,b[,
        [--min-challenges 2] [--scope S] [--subject repo@sha (audit, build: required)] [--assign "a: part"]...
 co add P --as A --type coverage --text "what I checked; what I did not"   (research, audit: required before ready)
 co add P --as A --type deviation --text "the change the brief needs, and why"   (never edits the brief)
+co new ... --criterion "node --test passes on the merged branch" --criterion "..."   (acceptance criteria C1, C2, ... in the brief)
+co add P --as LEAD --type rating --criterion C1 --result pass|fail|untested --text "evidence"   (closed phase; every criterion before ready)
 co view P --as A          brief, phase, who it waits for, entries you may see, each entry's status
 co add P --as A --text ... (mode fields below) [--revises E3]   |   --type synthesis (lead, closed)
 co challenge P --as A --target E3 --kind K --text ... [--evidence ...]
@@ -69,6 +71,16 @@ Challenge kinds:
 | build | `bug`, `test-gap`, `contract`, `regression` |
 
 Any kind fits any mode where it applies.
+
+## Acceptance criteria
+
+`--criterion` (repeatable) fixes acceptance criteria in the brief as C1, C2, and so on. They are part of the brief hash, and members see them in every notice. After adjudication, the lead rates each one with its evidence:
+
+- `pass`.
+- `fail`.
+- `untested`: never a pass. A run that could not check a criterion says so.
+
+`co ready` refuses to close until every criterion is rated, and `co check` reports `criterion-unrated`. The report heads its criteria table "accepted" only when every criterion passes; agreement among members never stands in for a rating.
 
 ## Status of an entry
 
