@@ -11,7 +11,28 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `claude-deny.mjs [--legacy]` | A real headless Claude, launched with the listener's arguments, can't read `host/secrets`. It can't do it with Read, or by sending the file with the mailbox CLI. An ordinary file stays readable. `--legacy` reruns the Read part with 0.3.1's settings as a negative control. | One Haiku session, about $0.003 |
 | `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
 | `conversation.mjs [--mode wake\|ask]` | A real multi-turn conversation between the listener's Claude (Haiku) and Codex. Grok asks Claude to get two answers from Codex; the second question ("add 100 to your previous answer") omits the number, so Codex must remember the conversation. In `wake` mode (the default) each answer has to wake Claude's resumed per-thread session. | 3 Haiku runs, 2 Codex turns |
+| `co-research.mjs [--claude-model haiku]` | A real co-research project between the listener's Claude and Codex. The question is answerable from two files in the throwaway mailbox: the host code, and a docs copy with one planted mismatch (5 wakes per 10 minutes where the code says 6). The script is lead and judge. It rules "unresolved" on any defended dispute and writes a placeholder synthesis. Pass: the project closes with a clean protocol check, and each member adds cited claims and coverage, then challenges or passes. Whether the mismatch surfaced is reported, not gated. | About 3 Haiku runs and 3 Codex turns |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Results on 2026-10-31 (one Windows machine, 0.8.0)
+
+- **`co-research`, run 1 (pre-release build):** passed the protocol gate in 612 s. The project closed and `co check` was clean.
+  - Claude (docs) and Codex (code) added 7 and 14 claims, all cited, each with a coverage statement.
+  - Codex made 3 challenges and Claude 1. All 4 ended in revisions; nothing was overturned or left disputed.
+  - **Planted mismatch:** both members flagged it in challenges. Codex challenged Claude's docs-only "5 per 10 minutes"; Claude challenged Codex's "6" for omitting the docs comparison.
+  - **Real defects in the skill:** the members found four, all since fixed:
+    - the co-thread hop alert named `maxHops`;
+    - `listener.md` said a reply never auto-wakes;
+    - the 100-thread Codex cap is only an eviction target;
+    - the citation parser rewrote `||` inside excerpts.
+  - **Blind-phase leak:** Claude replied to every phase notice with a summary of its work. Codex read the thread during the blind phase and said so in its coverage statement.
+  - Fix: notices refuse replies; the wake prompt for a notice no longer points at the thread or asks for a reply; and `thread` hides other members' messages until the blind phase ends.
+- **`co-research`, run 2 (with those fixes):** passed in 661 s. Clean check; 9 + 10 claims; 3 challenges and 1 pass; every challenge ended in a revision.
+  - No member wrote into the project thread, which is now part of the gate.
+  - **Planted mismatch:** neither member challenged on it. Codex instead recorded it in its pass reason: the docs claim quotes the docs accurately, but the docs do not match the code.
+  - Pass reasons were missing from the report, so the report now lists them.
+  - Claude (Haiku) cost $0.076 over 3 resumed runs.
+  - Codex handled all three notices in one 451 s turn (later notices were steered into it), using 1.55M input tokens.
 
 ## Results on 2026-10-31 (one Windows machine, 0.6.0)
 

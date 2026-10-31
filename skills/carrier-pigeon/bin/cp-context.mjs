@@ -1,7 +1,7 @@
 // carrier-pigeon context layer (v0.4): cache-stable prefix, transcript packs, digests, usage stats. Pure Node, no deps.
 // Shared by bin/carrier-pigeon.mjs (CLI) and host/carrier-pigeon-host.mjs (listener).
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import os from 'node:os';
-export const VERSION = '0.7.0';
+export const VERSION = '0.8.0';
 export const sha256 = s => crypto.createHash('sha256').update(s).digest('hex');
 // One secret list for the CLI, packs and renders. Detection only needs a PEM header; render redaction removes the whole block (or the rest, if unterminated).
 // Token patterns need a non-alphanumeric left edge, so words like "risk-assessment-..." or "task-based-..." are not mistaken for an sk- key.

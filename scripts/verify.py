@@ -15,6 +15,8 @@ import time
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon")
+# Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
+SUB_SKILLS = {"carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research")}
 WINDOWS_SKIP = ("test_research.ResearchTests.test_linked_source_entry_is_rejected", "symlink creation unavailable")
 # The adopt-adapt suite alone takes about three minutes on an idle Windows machine.
 DEFAULT_TIMEOUT = 900
@@ -256,9 +258,11 @@ def check_vocabulary(skill, name, root):
 def structure():
     all_files = source_files(ROOT)
     expected = {"skills/" + name + "/SKILL.md" for name in SKILLS}
+    expected |= {"skills/" + parent + "/skills/" + sub + "/SKILL.md" for parent, subs in SUB_SKILLS.items() for sub in subs}
     actual = {name for name in all_files if name.endswith("/SKILL.md")}
     if actual != expected:
-        raise ValueError("Expected exactly the four collection entrypoints")
+        raise ValueError("Expected exactly the four collection entrypoints and their declared sub-skills; unexpected: "
+                         + ", ".join(sorted(actual - expected)) + "; missing: " + ", ".join(sorted(expected - actual)))
     for name in SKILLS:
         check_vocabulary(ROOT / "skills" / name, name, ROOT)
     # Overlay links resolve inside the skill they replace a file in; build_public.py checks them there.

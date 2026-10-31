@@ -53,6 +53,10 @@ class PublishedFixture:
             (skill / "references").mkdir(parents=True)
             (skill / "SKILL.md").write_text("# Authored fixture\n", encoding="utf-8")
             (skill / "references/evidence-vocabulary.md").write_bytes(VOCABULARY)
+        for parent, subs in verify.SUB_SKILLS.items():
+            for sub in subs:
+                (self.root / "skills" / parent / "skills" / sub).mkdir(parents=True)
+                (self.root / "skills" / parent / "skills" / sub / "SKILL.md").write_text("# Sub-skill fixture\n", encoding="utf-8")
         self.write_manifest()
         return self.root
 
@@ -95,6 +99,20 @@ class PublicationTests(unittest.TestCase):
     def test_broken_local_link_is_rejected(self):
         (self.root / "README.md").write_text("[missing](absent.md)", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "Broken/escaping"):
+            verify.structure()
+
+    def test_undeclared_nested_skill_is_rejected(self):
+        extra = self.root / "skills/carrier-pigeon/skills/co-stray"
+        extra.mkdir()
+        (extra / "SKILL.md").write_text("# Stray\n", encoding="utf-8")
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "unexpected: skills/carrier-pigeon/skills/co-stray/SKILL.md"):
+            verify.structure()
+
+    def test_missing_declared_sub_skill_is_rejected(self):
+        (self.root / "skills/carrier-pigeon/skills/co-build/SKILL.md").unlink()
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "missing: skills/carrier-pigeon/skills/co-build/SKILL.md"):
             verify.structure()
 
     def test_changed_skill_bytes_are_rejected(self):

@@ -1,4 +1,4 @@
-"""Run the Node suites (CLI, host, context) and print combined counts as JSON. Standard library only.
+"""Run the Node suites (CLI, host, context, MCP, hello, co) and print combined counts as JSON. Standard library only.
 
 Each suite reports every test as "ok N" or "not ok N" and ends with "# N tests, F failed (name)".
 A suite that exits without a matching summary line stopped part-way, so it counts as a failure
@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"),
-          (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"))
+          (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"), (ROOT / "bin", "cp-co.test.mjs"))
 SUMMARY = re.compile(r"^# (\d+) tests, (\d+) failed", re.M)
 
 

@@ -75,7 +75,7 @@
       }
     },
     "carrier-pigeon": {
-      "notes": "Original skill: CLI, listener host and their tests. Runtime mailbox data, receipts, logs and host/secrets are not part of the snapshot.",
+      "notes": "Original skill: CLI, listener host, MCP server, the co-work engine and its four sub-skills (skills/co-*), and their tests. Runtime mailbox data, receipts, logs and host/secrets are not part of the snapshot.",
       "exclude": [],
       "overlays": {}
     },

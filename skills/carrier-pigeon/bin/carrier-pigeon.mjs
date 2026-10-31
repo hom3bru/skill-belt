@@ -59,10 +59,12 @@ function load(id){ const h=find(id); return {...h,msg:parse(fs.readFileSync(h.fi
 const BOOL=new Set(['json','all','decline','keep-open','requires-matt-approval','render','no-canaries','help','wake-on-reply','keep','all-sessions','sign']);
 function args(argv){ const o={_:[]}; for(let i=0;i<argv.length;i++){ const a=argv[i]; if(!a.startsWith('--')||a==='--'){ o._.push(a); continue; }
   const eq=a.indexOf('='); if(eq>2){ const k=a.slice(2,eq), v=a.slice(eq+1);
-    if(BOOL.has(k)){ if(v!=='true'&&v!=='false') die(`--${k} is yes/no: write --${k}, --${k}=true or --${k}=false`); o[k]=v==='true'; } else o[k]=v; continue; }
+    if(BOOL.has(k)){ if(v!=='true'&&v!=='false') die(`--${k} is yes/no: write --${k}, --${k}=true or --${k}=false`); o[k]=v==='true'; } else put(o,k,v); continue; }
   const k=a.slice(2), n=argv[i+1];
   if(BOOL.has(k)){ if(n==='true'||n==='false'){ o[k]=n==='true'; i++; } else o[k]=true; }
-  else if(n===undefined) die(`--${k} needs a value`); else { o[k]=n; i++; } } return o; }
+  else if(n===undefined) die(`--${k} needs a value`); else { put(o,k,n); i++; } } return o; }
+const REPEAT=new Set(['cite','assign']); // repeatable flags collect a list; any other repeated flag keeps its last value
+const put=(o,k,v)=>{ if(REPEAT.has(k)) (o[k]||=[]).push(v); else o[k]=v; };
 // Every file read into a message, finding or pack passes the read-deny list first (ctx.deniedRead: host secrets, credential stores, .env).
 const readable = (f,flag) => { const why=ctx.deniedRead(f,ROOT); if(why) die(`${flag} ${f}: refusing to read ${why}; never put secrets in the mailbox`); return f; };
 const readIn = (f,flag) => fs.readFileSync(readable(f,flag),'utf8');
@@ -180,6 +182,7 @@ function done(id,a,status='done'){ agent(a); vid(id); const [,claimed,dn]=dirs(a
 // Every check (body, pack, secrets) runs before the claim, so a rejected reply leaves the ask where it was.
 // Replying again to an ask that is already done sends a follow-up on the same thread and leaves the ask in done/.
 function reply(id,o){ const a=agent(o.as||o.from||die('--as required (reply ID --as AGENT --body ...)')); const h=load(id); if(h.msg.to!==a) die(`message ${id} is addressed to ${h.msg.to}, not ${a}`);
+  if(isCoNotice(h.msg)) die(`message ${id} is a co-work phase notice: it needs no reply, and a reply would land in the shared project thread where the other members can read it. Do the phase's work with the co commands and finish with: co ready ${h.msg.thread} --as ${a} (it closes the notice).`);
   // the reply goes back to the session that asked (to_session = its from_session), from this session
   const follow=h.box==='done'; const r=build({...o,from:a,to:h.msg.from,subject:o.subject||('Re: '+h.msg.subject).slice(0,SUBJECT_MAX),thread:h.msg.thread,'reply-to':id,kind:o.kind||'reply','to-session':h.msg.from_session||undefined});
   if(h.box==='inbox') claim(id,a,sessionOf(o)); write(r); if(!o['keep-open']&&!follow) done(id,a,o.decline?'declined':'done'); return follow?{...r,follow_up:true}:r; }
@@ -207,8 +210,15 @@ function agentsStatus(){ needInit(); let pid=null, pres=null; try{ pid=+fs.readF
     const reach=ads.some(x=>x.wakes&&x.state==='ready')?'auto-wake':ads.some(x=>x.wakes&&x.state!=='dormant')?'auto-wake (not ready)':ads.some(x=>x.state==='ready')?'notify-only':'pull';
     return {agent:a,reach,listener_pid:pid,adapters:ads,inbox:count(a,'inbox'),wakes_logged:s?.wakes??0,median_reply_ms:s?.median_latency_ms??null,
       sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null}))}; }); }
-function thread(t){ needInit(); vthread(t); const f=path.join(ROOT,'threads',t+'.idx'); if(!fs.existsSync(f)) die(`thread ${t} not found`);
-  return [...new Set(fs.readFileSync(f,'utf8').split('\n').filter(Boolean))].map(id=>{const h=load(id); return {...h.msg,_box:`${h.agent}/${h.box}`};}); }
+// A co-work phase notice (cp-co.mjs notify): an ask in a co- thread whose subject names the phase. co ready closes it; it takes no reply.
+const isCoNotice=m=>m.kind==='ask'&&String(m.thread).startsWith('co-')&&/^\[co-[a-z]+\] .*: phase [a-z]+$/.test(String(m.subject||''));
+// as: who is reading. In a co project's blind first phase a member sees only messages from or to itself (others' replies would leak their
+// work), and a reader who does not say who it is gets nothing; the lead or a non-member sees everything. Build mode is open throughout.
+function thread(t,as=null){ needInit(); vthread(t); const f=path.join(ROOT,'threads',t+'.idx'); if(!fs.existsSync(f)) die(`thread ${t} not found`);
+  const l=[...new Set(fs.readFileSync(f,'utf8').split('\n').filter(Boolean))].map(id=>{const h=load(id); return {...h.msg,_box:`${h.agent}/${h.box}`};});
+  const pf=path.join(ROOT,'co',t,'project.json'); if(!t.startsWith('co-')||!fs.existsSync(pf)) return l; const p=JSON.parse(fs.readFileSync(pf,'utf8'));
+  if(p.phase!=='independent'||p.mode==='build') return l; if(!as) die(`thread ${t} is a co project in its blind phase: pass --as`); agent(as);
+  return p.members.some(m=>m.agent===as) ? l.filter(m=>m.from===as||m.to===as) : l; }
 // Prints a launch for the human to review, quoted for this platform's shell. It mirrors the listener: cwd = mailbox root, no MCP servers,
 // the listener's read-deny settings, the shell tool limited to the CLI. PowerShell also ends a '…' string at a curly quote, so those are doubled too.
 function runCmd(id){ const h=load(id); const a=h.msg.to; const win=process.platform==='win32'; const sh=win?'PowerShell':'Bash'; const cli='node bin/carrier-pigeon.mjs';
@@ -235,6 +245,9 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
   wait   ID --as A [--wait SECONDS] [--keep]   wait for the reply to ask ID (a found reply is marked done unless --keep)
   agents                      who is reachable now: auto-wake (listener), notify-only (toast) or pull; inbox size; median reply time
   send ... [--wake-on-reply]  the listener wakes you when the reply arrives (for agents the listener runs; hop/rate limits apply)
+  co new --mode research|audit|design|build --title T --question Q --members a,b[,c] [--lead A] [--judge J] [--min-challenges 2] [--scope S] [--subject repo@sha] [--assign "a: part"]...
+  co view|ready|report|check P --as A     co add P --as A ...   co challenge P --as A --target E3 --kind K --text ..   co pass|respond|verdict ...
+         adversarial co-work: independent (blind) -> challenge -> respond -> adjudicate -> closed  (references/co.md)
   hello status | hello init   Matt's signing key in Windows Hello (init once, in your own terminal)
   send/reply ... --from matt --sign [--expires-min 60]   Windows Hello signs this exact message; read shows "authority: verified"
   sessions: an agent id is a kind; --session S (or CARRIER_PIGEON_SESSION) names this running instance. Replies go back to the asking
@@ -263,6 +276,25 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
   receipts ID                 delivery receipts from carrier-pigeon-host (queued, notified:*, received, replied)
   run    ID                   PRINTS the headless command for claude/codex; never executes
   add --json to any command for machine output`;
+// co-work projects (co-research, co-audit, co-design, co-build): the engine is bin/cp-co.mjs, loaded here on demand (it imports this file).
+async function coCommand(o,out){ const co=await import('./cp-co.mjs'); const [sub,pid]=o._; const as=()=>o.as||die('--as required'), need=()=>pid||die(`usage: co ${sub} PROJECT --as A ...`);
+  const short=e=>`${e.id} ${e.type} by ${e.by}${e.target?' on '+e.target:''}${e.kind?' ['+e.kind+']':''}${e.outcome?' -> '+e.outcome:''}${e.strength?' ('+e.strength+')':''}${e.severity?' ('+e.severity+')':''}: ${String(e.text||e.reason||'').replace(/\s+/g,' ').slice(0,140)}`;
+  switch(sub){
+    case 'new': { const p=co.create({mode:o.mode,title:o.title,question:o.question,members:o.members,lead:o.lead||o.as,judge:o.judge,minChallenges:o['min-challenges']??2,scope:o.scope,subject:o.subject,assign:o.assign,as:o.as||o.lead,session:sessionOf(o)});
+      return out(p,`opened ${p.id} (${p.mode}): ${p.title}\nmembers ${p.members.map(m=>m.agent).join(', ')}; lead ${p.lead}; judge ${p.judge}; phase ${p.phase}; notices sent`); }
+    case 'list': { const l=co.list(); return out(l,l.length?l.map(x=>`${x.id}  ${x.mode.padEnd(8)} ${x.phase.padEnd(11)} ${x.title}  (${x.members.join(', ')})`).join('\n'):'no co projects'); }
+    case 'view': { const v=co.view(need(),as()); return out(v,[`${v.project.title} (${v.project.mode}, ${v.project.id}) phase ${v.phase}; waiting for ${v.waiting_for.join(', ')||'nobody'}`,`Question: ${v.project.question}`,
+      v.project.subject?`Subject (pinned): ${v.project.subject}`:'', v.project.scope?`Scope: ${v.project.scope}`:'', ...v.project.members.filter(m=>m.part).map(m=>`part of ${m.agent}: ${m.part}`), v.blind?`(independent phase: ${v.hidden} entries by others are hidden until it ends)`:'',...v.entries.map(short),...(v.state?['','status:',...v.state.map(s=>`  ${s.id} ${s.status} (${s.by})${s.challenges.length?' challenges '+s.challenges.map(c=>c.id+':'+c.outcome).join(', '):''}`)]:[])].filter(Boolean).join('\n')); }
+    case 'add': { const e=co.add(need(),as(),{...o,cites:o.cite,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
+    case 'challenge': { const e=co.challenge(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
+    case 'pass': { const e=co.pass(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
+    case 'respond': { const e=co.respond(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
+    case 'verdict': { const e=co.verdict(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
+    case 'ready': { const r=co.ready(need(),as(),sessionOf(o)); return out(r,r.advanced?`ready; everyone is done: the project moved to phase ${r.phase} and the next notices went out`:`ready for ${r.phase} (${r.ready.join(', ')} so far)`); }
+    case 'advance': { const r=co.advance(need(),as(),o.reason); return out(r,`forced on to phase ${r.phase}; skipped ${r.forced.join(', ')||'nobody'}`); }
+    case 'check': { const r=co.check(need()); out(r,r.findings.length?r.findings.map(x=>`${x.code} ${x.id||''}: ${x.msg}`).join('\n'):'protocol check clean'); return r.clean?0:1; }
+    case 'report': { const r=co.report(need()); return out(r,r.markdown); }
+    default: die('usage: co new|list|view|add|challenge|pass|respond|verdict|ready|advance|check|report  (see references/co.md)'); } }
 const replyText = r => r.status==='replied' ? `reply ${r.reply.id} from ${r.reply.from} (thread ${r.reply.thread}):\n${r.reply.body}` : `${r.ask}: ${r.hint}`;
 async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.json; const out=(obj,txt)=>console.log(J?JSON.stringify(obj,null,2):txt);
   switch(cmd){
@@ -278,6 +310,7 @@ async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J
     case 'inbox': { const a=o._[0]||die('usage: inbox AGENT'); const so={session:sessionOf(o),allSessions:o['all-sessions']===true}; let l=list(a,'inbox',so); if(o.all) l=l.concat(list(a,'claimed',so));
       return out(l, l.length? l.map(fmt).join('\n') : `${a}: inbox empty`); }
     case 'read': { const h=load(o._[0]||die('usage: read ID')); return out(h.msg.from==='matt'?{...h.msg,authority:authorityOf(h.msg)}:h.msg,`[${h.agent}/${h.box}]\n`+show(h.msg)); }
+    case 'co': return coCommand(o,out);
     case 'hello': { const sub=o._[0];
       if(sub==='status'){ const s=hello.helloStatus(), p=s.key==='Success'?hello.helloPublicKey():null; const r={supported:!!s.supported,key:s.key||null,fingerprint:p?.fingerprint||null,error:s.error||undefined};
         return out(r,s.error?`Windows Hello check failed: ${s.error}`:`Windows Hello ${r.supported?'supported':'NOT supported'}; carrier-pigeon key: ${r.key}${r.fingerprint?' (fingerprint '+r.fingerprint+')':''}`); }
@@ -288,7 +321,7 @@ async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J
     case 'claim': { const m=claim(o._[0]||die('usage: claim ID --as A'),o.as||die('--as required'),sessionOf(o)); return out(m,`claimed ${m.id} by ${m.claimed_by}`); }
     case 'done': { const m=done(o._[0]||die('usage: done ID --as A'),o.as||die('--as required')); return out(m,`done ${m.id}`); }
     case 'reply': { const m=reply(o._[0]||die('usage: reply ID --as A --body ...'),o); return out(m,`replied ${m.id} -> ${m.to} (thread ${m.thread})`); }
-    case 'thread': { const l=thread(o._[0]||die('usage: thread ID')); return out(l,l.map(m=>`── ${fmt(m)}  [${m._box}]\n${m.body}`).join('\n\n')); }
+    case 'thread': { const l=thread(o._[0]||die('usage: thread ID [--as A]'),o.as||null); return out(l,l.map(m=>`── ${fmt(m)}  [${m._box}]\n${m.body}`).join('\n\n')); }
     case 'status': { needInit(); const as=o._[0]?[agent(o._[0])]:AGENTS; const s=Object.fromEntries(as.map(a=>[a,Object.fromEntries(BOXES.map(b=>[b,count(a,b)]))]));
       return out(s,as.map(a=>`${a.padEnd(7)} inbox ${s[a].inbox}  claimed ${s[a].claimed}  done ${s[a].done}`).join('\n')); }
     case 'receipts': { const id=vname(o._[0]||die('usage: receipts ID'),'message id'); const f=path.join(ROOT,'receipts',id+'.jsonl');
@@ -314,7 +347,7 @@ async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J
     case 'version': case '--version': return out({version:ctx.VERSION},ctx.VERSION);
     case undefined: case 'help': case '--help': case '-h': return console.log(HELP);
     default: die(`unknown command "${cmd}"\n${HELP}`); } }
-export {ROOT,AGENTS,KINDS,E,init,needInit,send,list,load,claim,done,reply,thread,memRead,memAdd,memText,waitReply,ask,agentsStatus,count,show,fmt,parse,authorityOf,authorityNote,build,write,signAsMatt};
+export {ROOT,AGENTS,KINDS,E,init,needInit,send,list,load,claim,done,reply,thread,memRead,memAdd,memText,waitReply,ask,agentsStatus,count,show,fmt,parse,authorityOf,authorityNote,build,write,signAsMatt,ulid,sessionOf};
 // Runs as the CLI only when executed (compared through realpath, case-insensitively on Windows), never when imported.
 const same=(a,b)=>{ const r=p=>{ try{ return fs.realpathSync(p); }catch{ return path.resolve(p); } }; const x=r(a), y=r(b); return process.platform==='win32'?x.toLowerCase()===y.toLowerCase():x===y; };
 // Usage errors exit 2; any other failure (missing file, bad transcript) prints one line and exits 1; ask/wait without a reply exit 3. CARRIER_PIGEON_DEBUG=1 shows the stack.

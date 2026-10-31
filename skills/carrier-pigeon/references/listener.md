@@ -24,7 +24,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - Each mailbox thread is its own Claude session. Every later wake in that thread resumes it (`--resume <session>`), so the agent remembers the conversation and unrelated asks never share a context.
   - Wakes in one thread run one at a time; at most `claude.maxConcurrent` (2) run at once overall.
   - Session ids are kept in `host/claude-conversations.json`, so a listener restart keeps conversations.
-  - A run that ends without a result is retried, up to 3 tries. A failed resume starts a fresh session.
+  - A run that ends without a result is tried again, for at most 3 runs in all. A failed resume starts a fresh session.
 - **`claude.mode: "shared"`** keeps the 0.5 behaviour: one warm session for everything, recycled once its context passes `claude.recycleAtContextTokens` (default 120000).
 - **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast.
 
@@ -32,7 +32,8 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 - Approvals are `never`, and the sandbox is workspace-write with the mailbox as the workspace. `tests/live/codex-sandbox.mjs` ran that sandbox profile: a write to a folder in the home directory was blocked, while the OS temp folder stays writable by design.
 - **One Codex thread per conversation** (`codex.threads: "per-thread"`, the default).
   - Each mailbox thread runs in its own Codex thread on the app-server, with its own active turn, queue and memory-prefix state.
-  - A follow-up lands in the thread that holds the earlier turns. At most `codex.maxThreads` (100) are tracked. `"shared"` keeps one thread.
+  - A follow-up lands in the thread that holds the earlier turns. `"shared"` keeps one thread.
+  - `codex.maxThreads` (100) is an eviction target, not a hard cap: a new conversation is added first, then idle ones are evicted. Conversations with an active turn are never evicted, so the count can exceed 100 while that many turns are running.
 - **Its own MCP server.** The listener's Codex gets this mailbox's own carrier-pigeon MCP server (`--as codex --session listener`) through launch overrides, whatever the user's Codex config registers. A registration that points at another install would otherwise reach older code.
 - Lean by default (`codex.lean: true`): plugins and apps are off, and every MCP server the user's config still enables is turned off by name (`-c mcp_servers.<name>.enabled=false`). 0.3.1 launched every one of them, including servers that failed auth on each start.
 - Lean mode does not shrink a wake much. One measured lean wake on 2026-10-30 read 153k input tokens (121k cached). 0.3.1's full-profile wakes read 109k to 448k. Most of a Codex wake is the provider's own base prompt, repeated across the turn's model calls.
@@ -67,15 +68,16 @@ A file that fails is logged as `bad-message` with the reason and skipped. So a h
 
 - **Receipts.** `carrier-pigeon receipts <id>` shows `queued → notified:<adapter> → received → replied|declined`, or `no-wake (reason)`.
   - A delivery that fails because a session is starting or recycling is retried automatically, up to 20 times.
-  - Each failed delivery is retried exactly once, even when the adapter's ready signal and a rescan retry at the same moment. 0.4.0 could deliver it twice.
+  - A failed delivery is never retried twice at once, even when the adapter's ready signal and a rescan retry at the same moment. 0.4.0 could deliver it twice.
 - **Loop limits.**
-  - `reply` and `fyi` never auto-wake.
-  - A thread stops auto-waking after 8 messages, and the user gets an alert.
+  - `fyi` never auto-wakes. A `reply` auto-wakes only through `wake_on_reply`: the ask it answers set it, the asker is the recipient, and both are in the same thread. The hop and rate limits still apply.
+  - A thread stops auto-waking after 8 messages (`maxHops`), and the user gets an alert. A co-work project's thread (`co-…`) carries every phase notice, so its limit is 60 (`coMaxHops`; see [co.md](co.md)).
   - Message ids are deduped across rescans and restarts.
 - **Rate limit.** Each agent gets at most 6 auto-wakes per 10 minutes. An ask over the limit is deferred (receipt `no-wake` with reason `rate-limit`), not dropped.
   - Deferred asks are retried oldest first once the window frees (`rate-retry`).
   - The deferral survives a listener restart.
   - An ask that leaves the inbox in the meantime is dropped (`rate-retry-dropped`).
+  - A delivery retried after an adapter error (above) is not checked against the window again; its successful wake still counts toward the next ones.
 - **Stats.** Per-wake usage goes to `host/logs/usage.jsonl`.
   - Claude: stream-json `result.usage`, plus `context_tokens`.
   - Codex: `thread/tokenUsage/updated` deltas per turn. Steered asks are attributed to the turn they joined.

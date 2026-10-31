@@ -31,6 +31,11 @@ await t('hop limit: 9th message in a thread does not auto-wake and alerts Matt o
   let th=null, ids=[]; for(let i=0;i<10;i++){ const to=i%2?'codex':'claude'; const m=run('send','--from',i%2?'claude':'codex','--to',to,'--subject','p'+i,'--body','b','--kind','ask',...(th?['--thread',th]:[])); th=th||m.thread; ids.push(m.id); await h.scanAll(); }
   assert.equal(a.got.length+b.got.length,8); assert.ok(evs(root,ids[8]).includes('no-wake')); assert.equal(readReceipts(root,ids[8]).find(r=>r.ev==='no-wake').reason,'hop-limit');
   assert.equal(toast.notes.filter(x=>/hop limit/.test(x.title)).length,1); assert.ok(evs(root,ids[8]).includes('notified:toast')); await h.stop(); });
+await t('a co-work thread uses coMaxHops, and its alert names that limit, not maxHops', async()=>{ const {root,run}=bus(); const a=fake('claude'), toast=fake('toast',false);
+  const h=new Host({root,config:{watch:false,rescanMs:60000,noWakeKinds:[],maxHops:8,coMaxHops:2},adapters:{claude:a,toast}}); await h.start(); const th='co-01M69500000000000000000000';
+  const ids=[]; for(let i=0;i<4;i++){ ids.push(run('send','--from','codex','--to','claude','--subject','n'+i,'--body','b','--kind','ask','--thread',th).id); await h.scanAll(); }
+  assert.equal(a.got.length,2); assert.equal(readReceipts(root,ids[2]).find(r=>r.ev==='no-wake').reason,'hop-limit');
+  const note=toast.notes.find(x=>/hop limit/.test(x.title)); assert.match(JSON.stringify(note),/passed 2 hops/); assert.doesNotMatch(JSON.stringify(note),/passed 8 hops/); await h.stop(); });
 await t('rate limit: max 6 auto-wakes per agent per window', async()=>{ const {root,run}=bus(); const a=fake('claude'), toast=fake('toast',false); let now=1e6;
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a,toast},now:()=>now}); await h.start(); const ids=[];
   for(let i=0;i<7;i++){ ids.push(run('send','--from','grok','--to','claude','--subject','r'+i,'--body','b').id); await h.scanAll(); }
@@ -204,6 +209,11 @@ await t('conversation: wake prompts; a reply says continue (and how to ask again
   for(const re of [/the read tool \{id:"A"\}/,/memory_read \{project:"org-repo"\}/,/claim \{id:"A"\}/,/reply \{id:"A", body:"\.\.\."\}/,/thread \{thread:"T2"\}/,/only writes allowed are the mailbox tools/]) assert.match(mp,re);
   assert.match(wakePrompt({id:'R',kind:'reply',from:'codex',to:'claude',subject:'Re',thread:'T3',reply_to:'Q'},'mcp'),/send \{to:"codex", thread:"T3", wake_on_reply:true/);
   assert.doesNotMatch(wakePrompt({id:'A',kind:'ask',from:'a',to:'codex',subject:'s',thread:'A',_thread_len:1}),/of thread/); });
+await t('a co-work notice prompt: no thread pointer, no reply instruction, no asking in the thread; it says not to reply or read the thread', async()=>{
+  const n={id:'N',kind:'ask',from:'matt',to:'codex',subject:'[co-research] t: phase challenge',thread:'co-01M69500000000000000000000',_thread_len:5};
+  for(const p of [wakePrompt(n),wakePrompt({...n,to:'claude'},'mcp')]){ assert.doesNotMatch(p,/of thread co-/); assert.doesNotMatch(p,/answer with/); assert.doesNotMatch(p,/ask them in this same thread/);
+    assert.match(p,/co-work project notice/); assert.match(p,/Do not reply to this notice and do not read the project thread/); }
+  assert.match(wakePrompt(n),/co view co-01M69500000000000000000000 --as codex/); assert.match(wakePrompt({...n,to:'claude'},'mcp'),/co_ready/); });
 await t('presence: the host writes who can be woken (routes + adapter states) and removes it on stop; the CLI reads it', async()=>{ const {root,run}=bus(); const a=fake('claude'); a.presence=()=>({wakes:true,state:'ready',model:'m-test'});
   const h=new Host({root,config:{watch:false,rescanMs:60000,routes:{claude:['claude']}},adapters:{claude:a}}); await h.start(); const pf=path.join(root,'host/presence.json'); assert.ok(fs.existsSync(pf));
   const pr=JSON.parse(fs.readFileSync(pf,'utf8')); assert.equal(pr.pid,process.pid); assert.deepEqual(pr.routes.claude,['claude']); assert.equal(pr.adapters.claude.model,'m-test');

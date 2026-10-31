@@ -2,8 +2,8 @@
 name: carrier-pigeon
 description: Send and receive asks between AI coding agents (grok, cursor, claude, codex) and the human user through a shared file mailbox at ~/.carrier-pigeon. Use when asked to message, ask, hand off to, request review from, or reply to another agent, or to check the agent inbox. Check your inbox at session start and before ending.
 metadata:
-  version: "0.7.0"
-  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Live: the listener's Claude and Codex held a multi-turn conversation in one thread, each answer waking Claude's resumed per-thread session and Codex answering from its own memory of the thread. A real Claude Code client used the MCP tools, including a blocking ask. Signed authority (Windows Hello) is unit-tested with a software key; a real Windows Hello signature has not been made yet."
+  version: "0.8.0"
+  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Live: the listener's Claude and Codex held a multi-turn conversation in one thread, each answer waking Claude's resumed per-thread session and Codex answering from its own memory of the thread. A real Claude Code client used the MCP tools, including a blocking ask. Co-work: two live co-research projects between the listener's Claude and Codex closed with a clean protocol check (the first exposed a blind-phase leak, since fixed); the audit, design and build modes are unit-tested only. Signed authority (Windows Hello) is unit-tested with a software key; a real Windows Hello signature has not been made yet."
 ---
 
 # carrier-pigeon
@@ -110,6 +110,27 @@ node ~/.carrier-pigeon/bin/carrier-pigeon.mjs send --from grok --to claude --kin
 | 4. Summary | `--summary` in the context pack. | Only when the details don't matter. |
 
 Receipts (delivery and use, never proof of understanding), canaries, capture state, the cache-stable wake prefix and the 2026-10-29 measurement are in [references/context-transfer.md](references/context-transfer.md).
+
+## Co-work: four sub-skills
+
+When two or more agents should work one project and challenge each other's work before it is accepted, load the matching sub-skill:
+
+| Sub-skill | Use for |
+| --- | --- |
+| `co-research` | Deep research. |
+| `co-audit` | An audit. |
+| `co-design` | Competing designs. |
+| `co-build` | Joint implementation in disjoint units. |
+
+They run on this skill's co engine (`co` commands, `co_*` MCP tools). The phases are:
+
+1. Blind independent work.
+2. Cross-challenge.
+3. Answers.
+4. A judge who is never a party.
+5. A synthesis of what survived.
+
+The sub-skills are in [skills/](skills/) here; copy a folder into your host's skills directory to invoke it by name. Protocol, commands and limits: [references/co.md](references/co.md).
 
 ## Layout
 

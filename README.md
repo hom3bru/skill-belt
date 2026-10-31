@@ -13,7 +13,7 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 | [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
-| [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Send asks and replies between local coding agents (Claude Code, Codex, Cursor, Grok) through a shared file mailbox, with an optional listener that wakes the recipient. | A claimed, threaded reply with delivery receipts; listener sandbox enforcement is not qualified. |
+| [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Send asks and replies between local coding agents (Claude Code, Codex, Cursor, Grok) through a shared file mailbox, with an optional listener that wakes the recipient. Its four [sub-skills](skills/carrier-pigeon/skills/) (`co-research`, `co-audit`, `co-design`, `co-build`) run one project across several agents: blind independent work, cross-challenge, answers, a non-party judge, then a synthesis. | A claimed, threaded reply with delivery receipts; for co-work, a report of what survived, was overturned or is disputed. Listener sandbox enforcement is not qualified. |
 
 westack (then called estack) was renamed in 0.3.1, with no change in behaviour.
 
