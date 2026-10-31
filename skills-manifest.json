@@ -207,20 +207,20 @@
       "path": "skills/carrier-pigeon",
       "files": {
         "agents/openai.yaml": "cd594063546795fc3acf8c779118919b4abe8565511d432bbc7bd71e4c238431",
-        "bin/carrier-pigeon-mcp.mjs": "b0d074921b307625ee4ab003e466af0e564ac9a0ef895551403c20d5cc44884b",
-        "bin/carrier-pigeon-mcp.test.mjs": "59b3fcc00a87f2fb1db3fb6fa360378df5cb9172342205313c02f3eab91ff555",
+        "bin/carrier-pigeon-mcp.mjs": "f0a60df118300704958641b18ab570e40c1f8fa7bc86ffe208d69b5227ce0d69",
+        "bin/carrier-pigeon-mcp.test.mjs": "dcdc09670e99e88954a1d469f8828b8010195fd374131c8a2fa066e5733dc75e",
         "bin/carrier-pigeon.mjs": "e0d23e0094823f99cec17f07966119d423a93789b894e9ad9001a44075d35c71",
         "bin/carrier-pigeon.test.mjs": "76632f3fce768b4ef61e155f73ec3d97405493258d4581a9185ed478081d4ba9",
         "bin/cp-context.mjs": "819ca229646edf0b91370f48e372fb47d2cf5c1bbd3720b5845c5482c998ea4e",
         "bin/cp-context.test.mjs": "7b123dc163867f6417a0de9c4fc5c10ee496e5c0105b92b064d8d865024fd3d9",
         "host/carrier-pigeon-host.mjs": "56fad7f134c3da8a3f4b7651a7754e34ab661c86b594bc643772690da66b56ff",
-        "host/carrier-pigeon-host.test.mjs": "963d648e4ac751d527d3229fb9278ef9f3eb2713c8406b688187970d3684f720",
+        "host/carrier-pigeon-host.test.mjs": "ede337c05e8fb51cc98ccd1a2f22fd44b9f1214bae78e70bf2f46e1123bca74e",
         "host/config.json": "a0a01d54caae43fde067f4acc37a23902e6c1c3f2a62edd675d60fe425b1caf5",
         "host/start-host.ps1": "550d5ae715bbe146c4a9e53eaae1338949cebe4b35b4914dc485f9d2df6a934e",
         "host/stop-host.ps1": "2cdb7c715dc49d2496a370e9010bcdad8da18b8c5be8e441a1b313b90b31cc15",
         "references/context-transfer.md": "ac36343f30b81ed4a63bf149c412877d5a211432577de2dc628d7f0b481495b8",
         "references/listener.md": "5a6a1f6c19bc522a40446b2353ee7fac4eba32a7ec701f775d2d8a89d9baae4c",
-        "references/mcp.md": "a198f5c4ecaed825dca4d76aa5b06bb2cc974395045e394057a3dd98dc480e9b",
+        "references/mcp.md": "7e5f80c09ecbc4bb98fa0866b3a73eedeebdac57968f0b86d61935c8590d594d",
         "SKILL.md": "740819d775d9517c54f804a87590f31be794892d37a76453bbd97483436f7a08",
         "tests/live/claude-deny.mjs": "c24d2a35ecdad2e007326ad3f107f1c0628dd7d0f7fb328ddc7f5a17aa88c65d",
         "tests/live/codex-sandbox.mjs": "1638fa381d091e86de433d3cf0940dc090437ede49cf37241b753578927ddc07",
@@ -228,7 +228,7 @@
         "tests/live/mcp-claude.mjs": "d59d0909a7d411107767155be3b6bf435085a3fc21cf11b73887756ce9add96a",
         "tests/live/README.md": "b30d5ceef7f53a6bc496215f41a4fdac1affb427ccae61203503a971381e0e2f",
         "tests/live/toast.mjs": "2fe34d31d4dbe1111db27fffbe082f3fd28cdf2022e6e98cc4ff40230c0a4572",
-        "tests/run.py": "69a8618805a27057d5a167727ef309118c86f70ad54ae3694963156e10e41142"
+        "tests/run.py": "645680d84ce3b749999540fb1041070972758554ea916d0f7f594914f0b94716"
       }
     }
   ]

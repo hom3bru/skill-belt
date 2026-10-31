@@ -36,13 +36,16 @@ Use the installed copy, `~/.carrier-pigeon/bin/carrier-pigeon-mcp.mjs` (`node <s
   ```
   codex mcp add carrier-pigeon -- node ~/.carrier-pigeon/bin/carrier-pigeon-mcp.mjs --as codex
   ```
-  Or add this to `~/.codex/config.toml`, raising the tool timeout above 60 s:
+  Or add this to `~/.codex/config.toml`:
   ```
   [mcp_servers.carrier-pigeon]
   command = "node"
   args = ["<home>/.carrier-pigeon/bin/carrier-pigeon-mcp.mjs", "--as", "codex"]
   tool_timeout_sec = 120
+  default_tools_approval_mode = "approve"
   ```
+  - `tool_timeout_sec` lets `ask` wait longer than Codex's 60 s default.
+  - `default_tools_approval_mode = "approve"` is needed for any non-interactive Codex, including the listener's, which never prompts. Without it Codex refuses every MCP tool call ("requires approval"). These tools write only to the local mailbox. Seen with Codex 0.166 on 2026-10-30.
 - **Cursor:** add `"carrier-pigeon": {"command": "node", "args": ["<home>/.carrier-pigeon/bin/carrier-pigeon-mcp.mjs", "--as", "cursor"]}` under `mcpServers` in `~/.cursor/mcp.json`.
 
 On Windows, write the full path instead of `~`.

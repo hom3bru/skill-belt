@@ -19,8 +19,10 @@ SUMMARY = re.compile(r"^# (\d+) tests, (\d+) failed", re.M)
 def main():
     total = passed = failed = 0
     for cwd, script in SUITES:
-        result = subprocess.run(["node", script], cwd=cwd, capture_output=True, text=True, timeout=900)
-        out = result.stdout + result.stderr
+        result = subprocess.run(["node", script], cwd=cwd, capture_output=True, timeout=900)
+        # Node writes UTF-8. Decode it as such, and pass on only ASCII: a caller that reads this output in its locale (verify.py: cp1252
+        # on Windows) must never crash on one stray character in a test name.
+        out = (result.stdout + result.stderr).decode("utf-8", "replace").encode("ascii", "backslashreplace").decode("ascii")
         ok = len(re.findall(r"^ok \d+ ", out, re.M))
         bad = len(re.findall(r"^not ok \d+ ", out, re.M))
         summary = SUMMARY.search(out)

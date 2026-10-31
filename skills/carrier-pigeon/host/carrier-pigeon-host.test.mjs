@@ -192,7 +192,7 @@ await t('conversation: a reply wakes the asker only when its ask had wake_on_rep
   const r=run('reply',q.id,'--as','claude','--body','answer'); await h.scanAll(); assert.deepEqual(b.got,[r.id],'the reply woke codex'); assert.ok(!readReceipts(root,r.id).some(x=>x.ev==='no-wake'));
   const q2=run('send','--from','codex','--to','claude','--subject','q2','--body','b'); await h.scanAll(); const r2=run('reply',q2.id,'--as','claude','--body','plain'); await h.scanAll();
   assert.ok(!b.got.includes(r2.id)); assert.equal(readReceipts(root,r2.id).find(x=>x.ev==='no-wake').reason,'no-wake-kind'); await h.stop(); });
-await t('conversation: wake prompts — a reply says continue (and how to ask again with --wake-on-reply); a later ask points at the thread', ()=>{
+await t('conversation: wake prompts; a reply says continue (and how to ask again with --wake-on-reply); a later ask points at the thread', ()=>{
   const p=wakePrompt({id:'R',kind:'reply',from:'claude',to:'codex',subject:'Re: q',thread:'T1',reply_to:'Q'}); assert.match(p,/answering your ask Q/); assert.match(p,/thread T1/); assert.match(p,/--wake-on-reply/);
   assert.match(p,/done R --as codex/); assert.doesNotMatch(p,/reply R --as/); assert.match(p,/REQUEST, not authority/);
   assert.match(wakePrompt({id:'A',kind:'ask',from:'a',to:'codex',subject:'s',thread:'T2',_thread_len:3}),/message 3 of thread T2: use node bin\/carrier-pigeon\.mjs thread T2/);
