@@ -56,7 +56,7 @@ function find(id){ needInit(); vid(id); for(const a of AGENTS) for(const d of di
   die(`message ${id} not found`); }
 function load(id){ const h=find(id); return {...h,msg:parse(fs.readFileSync(h.file,'utf8'))}; }
 // Flags take a value unless listed in BOOL, so a value may itself start with "--" (or use --flag=value). A boolean flag also accepts a following true/false.
-const BOOL=new Set(['json','all','decline','keep-open','requires-matt-approval','render','no-canaries','help','wake-on-reply','keep']);
+const BOOL=new Set(['json','all','decline','keep-open','requires-matt-approval','render','no-canaries','help','wake-on-reply','keep','all-sessions']);
 function args(argv){ const o={_:[]}; for(let i=0;i<argv.length;i++){ const a=argv[i]; if(!a.startsWith('--')||a==='--'){ o._.push(a); continue; }
   const eq=a.indexOf('='); if(eq>2){ const k=a.slice(2,eq), v=a.slice(eq+1);
     if(BOOL.has(k)){ if(v!=='true'&&v!=='false') die(`--${k} is yes/no: write --${k}, --${k}=true or --${k}=false`); o[k]=v==='true'; } else o[k]=v; continue; }
@@ -135,19 +135,28 @@ function build(o){ needInit(); const from=agent(o.from||die('--from required')),
     status:'unread',transcript:o.transcript?(ctx.readTranscript(ROOT,o.transcript),o.transcript):null,fork_codex_thread:vfork(o['fork-codex-thread'],'fork-codex-thread'),fork_claude_session:vfork(o['fork-claude-session'],'fork-claude-session'),context:packFrom(o),body:bodyFrom(o)};
   // wake_on_reply: the listener wakes the sender when the reply arrives (agent-to-agent back-and-forth; hop and rate limits still apply)
   if(o['wake-on-reply']===true||o['wake-on-reply']==='true') msg.wake_on_reply=true;
+  // Sessions: an agent id names a kind (any Claude may take an ask to "claude"); a session names one running instance. from_session lets a
+  // reply go back to the exact session that asked (to_session); mail for another session is hidden from listings and refused at claim.
+  const fs_=sessionOf(o), ts=o['to-session']!=null?vname(o['to-session'],'--to-session'):null; if(fs_) msg.from_session=fs_; if(ts) msg.to_session=ts;
   noSecret([msg.subject,msg.due,msg.repo,msg.branch,msg.thread,msg.fork_claude_session].filter(Boolean).join('\n'),'subject/metadata'); noSecret(msg.body,'body'); return msg; }
 function write(msg){ writeAtomic(path.join(dirs(msg.to)[0],msg.id+'.md'),serialize(msg));
   fs.appendFileSync(path.join(ROOT,'threads',msg.thread+'.idx'),msg.id+'\n'); log({ev:'send',id:msg.id,from:msg.from,to:msg.to,thread:msg.thread,kind:msg.kind}); return msg; }
 const send = o => write(build(o));
 const BOXES=['inbox','claimed','done'], isMsg=f=>f.endsWith('.md')&&!f.startsWith('.');
-function list(a,box){ needInit(); const d=dirs(agent(a))[BOXES.indexOf(box)];
-  return fs.readdirSync(d).filter(isMsg).sort().map(f=>{const m=parse(fs.readFileSync(path.join(d,f),'utf8')); delete m.body; if(m.context){ m.has_context=true; } delete m.context; return m;}); }
+// This process's session label: --session, else CARRIER_PIGEON_SESSION, else none (a generic member of its agent kind).
+function sessionOf(o={}){ const s=o.session??process.env.CARRIER_PIGEON_SESSION; return s==null||s===''||s===true?null:vname(String(s),'session'); }
+const forMe = (m,session) => !m.to_session||m.to_session===session;
+// Listings show mail for this agent kind plus mail addressed to this session; allSessions shows every session's mail too.
+function list(a,box,{session=null,allSessions=false}={}){ needInit(); const d=dirs(agent(a))[BOXES.indexOf(box)];
+  return fs.readdirSync(d).filter(isMsg).sort().map(f=>{const m=parse(fs.readFileSync(path.join(d,f),'utf8')); delete m.body; if(m.context){ m.has_context=true; } delete m.context; return m;})
+    .filter(m=>allSessions||forMe(m,session)); }
 const count=(a,box)=>{ try{ return fs.readdirSync(dirs(a)[BOXES.indexOf(box)]).filter(isMsg).length; }catch{ return 0; } }; // status needs counts, not parsed messages
-function claim(id,a){ agent(a); vid(id); const [inbox,claimed]=dirs(a); const src=path.join(inbox,id+'.md');
+function claim(id,a,session=sessionOf()){ agent(a); vid(id); const [inbox,claimed]=dirs(a); const src=path.join(inbox,id+'.md');
   if(!fs.existsSync(src)) { find(id); die(`message ${id} is not in ${a}'s inbox (already claimed, done, or addressed to someone else)`); }
+  let pre=null; try{ pre=parse(fs.readFileSync(src,'utf8')); }catch{} if(pre&&!forMe(pre,session)) die(`message ${id} is addressed to session ${pre.to_session}, not ${session||'(no session)'}; leave it for that session`);
   const tmp=path.join(claimed,`.claiming-${id}-${process.pid}`);
   try{ fs.renameSync(src,tmp); }catch(e){ if(e.code==='ENOENT'||e.code==='EPERM'||e.code==='EBUSY') die(`message ${id} was already claimed by another session`); throw e; }
-  const m=parse(fs.readFileSync(tmp,'utf8')); m.status='claimed'; m.claimed_at=new Date().toISOString(); m.claimed_by=`${a}:${process.env.CARRIER_PIGEON_SESSION||process.pid}`;
+  const m=parse(fs.readFileSync(tmp,'utf8')); m.status='claimed'; m.claimed_at=new Date().toISOString(); m.claimed_by=`${a}:${session||process.pid}`;
   fs.writeFileSync(tmp,serialize(m)); fs.renameSync(tmp,path.join(claimed,id+'.md')); log({ev:'claim',id,by:m.claimed_by}); return m; }
 function done(id,a,status='done'){ agent(a); vid(id); const [,claimed,dn]=dirs(a); let src=path.join(claimed,id+'.md');
   if(!fs.existsSync(src)) die(`message ${id} is not claimed by ${a}; run: carrier-pigeon claim ${id} --as ${a}`);
@@ -156,27 +165,33 @@ function done(id,a,status='done'){ agent(a); vid(id); const [,claimed,dn]=dirs(a
 // Every check (body, pack, secrets) runs before the claim, so a rejected reply leaves the ask where it was.
 // Replying again to an ask that is already done sends a follow-up on the same thread and leaves the ask in done/.
 function reply(id,o){ const a=agent(o.as||o.from||die('--as required (reply ID --as AGENT --body ...)')); const h=load(id); if(h.msg.to!==a) die(`message ${id} is addressed to ${h.msg.to}, not ${a}`);
-  const follow=h.box==='done'; const r=build({...o,from:a,to:h.msg.from,subject:o.subject||('Re: '+h.msg.subject).slice(0,SUBJECT_MAX),thread:h.msg.thread,'reply-to':id,kind:o.kind||'reply'});
-  if(h.box==='inbox') claim(id,a); write(r); if(!o['keep-open']&&!follow) done(id,a,o.decline?'declined':'done'); return follow?{...r,follow_up:true}:r; }
+  // the reply goes back to the session that asked (to_session = its from_session), from this session
+  const follow=h.box==='done'; const r=build({...o,from:a,to:h.msg.from,subject:o.subject||('Re: '+h.msg.subject).slice(0,SUBJECT_MAX),thread:h.msg.thread,'reply-to':id,kind:o.kind||'reply','to-session':h.msg.from_session||undefined});
+  if(h.box==='inbox') claim(id,a,sessionOf(o)); write(r); if(!o['keep-open']&&!follow) done(id,a,o.decline?'declined':'done'); return follow?{...r,follow_up:true}:r; }
 // Waits until the reply to ask ID reaches `me`, in any box. Replies are newer than the ask, so only later file names are read; polls every
 // 500 ms. A reply found in the inbox is consumed (claimed and done) unless keep. Times out as {status:'pending'} so the caller can wait again.
-async function waitReply(id,me,{timeoutMs=300000,keep=false}={}){ needInit(); vid(id); agent(me); const until=Date.now()+timeoutMs;
+async function waitReply(id,me,{timeoutMs=300000,keep=false,session=sessionOf()}={}){ needInit(); vid(id); agent(me); const until=Date.now()+timeoutMs;
   const look=()=>{ for(const [i,d] of dirs(me).entries()) for(const f of fs.readdirSync(d).filter(f=>isMsg(f)&&f.slice(0,-3)>id).sort()){ let m; try{ m=parse(fs.readFileSync(path.join(d,f),'utf8')); }catch{ continue; }
       if(m.reply_to===id) return {...m,_box:BOXES[i]}; } return null; };
-  for(;;){ const m=look(); if(m){ if(!keep&&m._box==='inbox'){ try{ claim(m.id,me); done(m.id,me); m._box='done'; }catch{} } return {status:'replied',ask:id,reply:m}; }
+  for(;;){ const m=look(); if(m){ if(!keep&&m._box==='inbox'){ try{ claim(m.id,me,session); done(m.id,me); m._box='done'; }catch{} } return {status:'replied',ask:id,reply:m}; }
     if(Date.now()>=until) return {status:'pending',ask:id,hint:`no reply yet; wait again: wait ${id} --as ${me}`}; await new Promise(r=>setTimeout(r,500)); } }
 // ask = send + wait: a cross-agent call that returns the answer when it comes within `wait` seconds (0 = just send), else a handle to wait on.
 async function ask(o){ const m=send({...o,kind:o.kind||'ask'}); const w=Math.max(0,Number(o.wait??300)||0);
-  return {...await waitReply(m.id,m.from,{timeoutMs:w*1000,keep:o.keep===true}),sent:m.id,thread:m.thread,to:m.to}; }
+  return {...await waitReply(m.id,m.from,{timeoutMs:w*1000,keep:o.keep===true,session:sessionOf(o)}),sent:m.id,thread:m.thread,to:m.to}; }
+// Live sessions: each MCP server keeps sessions/<agent>~<session>.json while it runs; files whose process is gone are skipped.
+function liveSessions(){ const d=path.join(ROOT,'sessions'); let fl=[]; try{ fl=fs.readdirSync(d).filter(f=>f.endsWith('.json')); }catch{ return []; }
+  const alive=pid=>{ try{ process.kill(pid,0); return true; }catch(e){ return e.code==='EPERM'; } };
+  return fl.map(f=>{ try{ return JSON.parse(fs.readFileSync(path.join(d,f),'utf8')); }catch{ return null; } }).filter(s=>s&&Number.isInteger(s.pid)&&alive(s.pid)); }
 // Who can be reached now, and how: auto-wake (the listener runs and the agent's waking adapter is ready), notify-only (a toast), or pull
 // (the agent sees mail only when it checks). Uses the listener's host/presence.json, ignored unless the listener holding the lock is alive.
 function agentsStatus(){ needInit(); let pid=null, pres=null; try{ pid=+fs.readFileSync(path.join(ROOT,'host','host.lock'),'utf8'); process.kill(pid,0); }catch{ pid=null; }
   if(pid){ try{ pres=JSON.parse(fs.readFileSync(path.join(ROOT,'host','presence.json'),'utf8')); if(pres.pid!==pid) pres=null; }catch{ pres=null; } }
-  const st=ctx.stats(ROOT).agents;
+  const st=ctx.stats(ROOT).agents, live=liveSessions();
   return AGENTS.map(a=>{ const ads=(pres?.routes?.[a]||[]).map(n=>({adapter:n,...(pres.adapters?.[n]||{state:'unknown'})})); const s=st.find(x=>x.agent===a);
     // "not ready": the waking adapter is starting, recycling or restarting; the listener retries delivery until it is ready
     const reach=ads.some(x=>x.wakes&&x.state==='ready')?'auto-wake':ads.some(x=>x.wakes&&x.state!=='dormant')?'auto-wake (not ready)':ads.some(x=>x.state==='ready')?'notify-only':'pull';
-    return {agent:a,reach,listener_pid:pid,adapters:ads,inbox:count(a,'inbox'),wakes_logged:s?.wakes??0,median_reply_ms:s?.median_latency_ms??null}; }); }
+    return {agent:a,reach,listener_pid:pid,adapters:ads,inbox:count(a,'inbox'),wakes_logged:s?.wakes??0,median_reply_ms:s?.median_latency_ms??null,
+      sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null}))}; }); }
 function thread(t){ needInit(); vthread(t); const f=path.join(ROOT,'threads',t+'.idx'); if(!fs.existsSync(f)) die(`thread ${t} not found`);
   return [...new Set(fs.readFileSync(f,'utf8').split('\n').filter(Boolean))].map(id=>{const h=load(id); return {...h.msg,_box:`${h.agent}/${h.box}`};}); }
 // Prints a launch for the human to review, quoted for this platform's shell. It mirrors the listener: cwd = mailbox root, no MCP servers,
@@ -205,6 +220,9 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
   wait   ID --as A [--wait SECONDS] [--keep]   wait for the reply to ask ID (a found reply is marked done unless --keep)
   agents                      who is reachable now: auto-wake (listener), notify-only (toast) or pull; inbox size; median reply time
   send ... [--wake-on-reply]  the listener wakes you when the reply arrives (for agents the listener runs; hop/rate limits apply)
+  sessions: an agent id is a kind; --session S (or CARRIER_PIGEON_SESSION) names this running instance. Replies go back to the asking
+            session; send ... --to-session S addresses one session; inbox A [--all-sessions] hides other sessions' mail unless asked
+
   inbox  A [--all]            unread (with --all: also claimed)
   read   ID
   claim  ID --as A            atomic; fails if another session took it
@@ -232,17 +250,18 @@ const replyText = r => r.status==='replied' ? `reply ${r.reply.id} from ${r.repl
 async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.json; const out=(obj,txt)=>console.log(J?JSON.stringify(obj,null,2):txt);
   switch(cmd){
     case 'ask': { const r=await ask(o); out(r,`sent ${r.sent} -> ${r.to} (thread ${r.thread})\n`+replyText(r)); return r.status==='replied'?0:3; }
-    case 'wait': { const r=await waitReply(o._[0]||die('usage: wait ID --as A [--wait SECONDS]'),o.as||die('--as required'),{timeoutMs:Math.max(0,Number(o.wait??300)||0)*1000,keep:o.keep===true}); out(r,replyText(r)); return r.status==='replied'?0:3; }
+    case 'wait': { const r=await waitReply(o._[0]||die('usage: wait ID --as A [--wait SECONDS]'),o.as||die('--as required'),{timeoutMs:Math.max(0,Number(o.wait??300)||0)*1000,keep:o.keep===true,session:sessionOf(o)}); out(r,replyText(r)); return r.status==='replied'?0:3; }
     case 'agents': { const l=agentsStatus(); return out(l,(l[0].listener_pid?`listener running (pid ${l[0].listener_pid})`:'listener not running: agents see mail only when they check')+'\n'
-      +l.map(x=>`${x.agent.padEnd(7)} ${x.reach.padEnd(21)} inbox ${String(x.inbox).padEnd(4)}${x.adapters.length?' via '+x.adapters.map(d=>d.adapter+':'+d.state+(d.model?' '+d.model:'')).join(', '):''}${x.median_reply_ms?'  median wake '+Math.round(x.median_reply_ms/1000)+' s':''}`).join('\n')); }
+      +l.map(x=>`${x.agent.padEnd(7)} ${x.reach.padEnd(21)} inbox ${String(x.inbox).padEnd(4)}${x.adapters.length?' via '+x.adapters.map(d=>d.adapter+':'+d.state+(d.model?' '+d.model:'')).join(', '):''}${x.median_reply_ms?'  median wake '+Math.round(x.median_reply_ms/1000)+' s':''}`
+        +(x.sessions.length?`\n        sessions: ${x.sessions.map(s=>s.session+(s.client?' ('+s.client+')':'')).join(', ')}`:'')).join('\n')); }
     case 'init': init(); return out({root:ROOT},`initialised ${ROOT}`);
     case 'install': { const r=install(); return out(r,`installed carrier-pigeon ${r.version} into ${r.root}: ${r.copied.length} file(s) copied${r.kept.length?', kept '+r.kept.join(', '):''}${r.backup?'; replaced files backed up in '+r.backup:''}`
       +(r.listener_running_pid?`\nthe running listener (pid ${r.listener_running_pid}) keeps its old code until restarted (host/stop-host.ps1, then host/start-host.ps1 -Background)`:'')); }
     case 'send': { const m=send(o); return out(m,`sent ${m.id} (thread ${m.thread}) ${m.from} -> ${m.to}`); }
-    case 'inbox': { const a=o._[0]||die('usage: inbox AGENT'); let l=list(a,'inbox'); if(o.all) l=l.concat(list(a,'claimed'));
+    case 'inbox': { const a=o._[0]||die('usage: inbox AGENT'); const so={session:sessionOf(o),allSessions:o['all-sessions']===true}; let l=list(a,'inbox',so); if(o.all) l=l.concat(list(a,'claimed',so));
       return out(l, l.length? l.map(fmt).join('\n') : `${a}: inbox empty`); }
     case 'read': { const h=load(o._[0]||die('usage: read ID')); return out(h.msg,`[${h.agent}/${h.box}]\n`+show(h.msg)); }
-    case 'claim': { const m=claim(o._[0]||die('usage: claim ID --as A'),o.as||die('--as required')); return out(m,`claimed ${m.id} by ${m.claimed_by}`); }
+    case 'claim': { const m=claim(o._[0]||die('usage: claim ID --as A'),o.as||die('--as required'),sessionOf(o)); return out(m,`claimed ${m.id} by ${m.claimed_by}`); }
     case 'done': { const m=done(o._[0]||die('usage: done ID --as A'),o.as||die('--as required')); return out(m,`done ${m.id}`); }
     case 'reply': { const m=reply(o._[0]||die('usage: reply ID --as A --body ...'),o); return out(m,`replied ${m.id} -> ${m.to} (thread ${m.thread})`); }
     case 'thread': { const l=thread(o._[0]||die('usage: thread ID')); return out(l,l.map(m=>`── ${fmt(m)}  [${m._box}]\n${m.body}`).join('\n\n')); }

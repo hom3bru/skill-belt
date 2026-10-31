@@ -145,6 +145,15 @@ t('agents: pull without a listener; auto-wake / notify-only from a live listener
   const by=Object.fromEntries(run('agents').map(x=>[x.agent,x])); assert.equal(by.codex.reach,'auto-wake'); assert.equal(by.matt.reach,'notify-only'); assert.equal(by.claude.reach,'auto-wake (not ready)'); assert.equal(by.grok.reach,'pull');
   fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:1,routes:{codex:['codex']},adapters:{codex:{wakes:true,state:'ready'}}})); assert.equal(run('agents').find(x=>x.agent==='codex').reach,'pull','presence from another pid is stale');
   fs.rmSync(path.join(hd,'host.lock')); fs.rmSync(path.join(hd,'presence.json')); });
+// ---------- 0.6.0 ----------
+t('sessions: a reply goes back to the asking session; other sessions\' mail is hidden and cannot be claimed; wait in the session consumes it', ()=>{
+  const q=run('send','--from','claude','--session','claude-s1','--to','codex','--subject','sq','--body','b'); assert.equal(q.from_session,'claude-s1');
+  const r=run('reply',q.id,'--as','codex','--body','for s1 only'); assert.equal(r.to_session,'claude-s1');
+  const ids=(...a)=>run('inbox','claude',...a).map(x=>x.id); assert.ok(!ids().includes(r.id),'hidden from the generic claude'); assert.ok(!ids('--session','claude-s2').includes(r.id),'hidden from another session');
+  assert.ok(ids('--session','claude-s1').includes(r.id)); assert.ok(ids('--all-sessions').includes(r.id));
+  assert.match(fail('claim',r.id,'--as','claude','--session','claude-s2'),/addressed to session claude-s1/);
+  const w=JSON.parse(execFileSync('node',[CLI,'wait',q.id,'--as','claude','--session','claude-s1','--wait','5','--json'],{env,encoding:'utf8'})); assert.equal(w.reply.body,'for s1 only'); assert.equal(run('read',r.id).status,'done');
+  assert.match(fail('send','--from','claude','--to','codex','--subject','s','--body','b','--to-session','../x'),/bad --to-session/); });
 t('install: copies code into the root, keeps an existing config, backs up what it replaces, leaves mailbox data alone', ()=>{ const T=fs.mkdtempSync(path.join(os.tmpdir(),'cpinst-')); const e2={...process.env,CARRIER_PIGEON_HOME:T};
   const inst=(cli=CLI)=>JSON.parse(execFileSync('node',[cli,'install','--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']})); const SK=path.dirname(path.dirname(CLI));
   const r=inst(); for(const f of ['bin/carrier-pigeon.mjs','bin/cp-context.mjs','host/carrier-pigeon-host.mjs','host/start-host.ps1','host/config.json']){ assert.ok(r.copied.includes(f),f); assert.ok(fs.readFileSync(path.join(T,f)).equals(fs.readFileSync(path.join(SK,f))),f); }

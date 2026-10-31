@@ -46,4 +46,15 @@ await t('without --as every tool requires "as"; an unknown --as refuses to start
   const k = client([]); await k.req('initialize', {protocolVersion: '2025-06-18'}); const tl = (await k.req('tools/list')).result.tools;
   assert.ok(tl.find(x => x.name === 'inbox').inputSchema.required.includes('as')); assert.equal((await k.call('inbox', {as: 'grok'})).isError, undefined); k.close();
   const bad = spawn('node', [MCP, '--as', 'mallory'], {env}); const code = await new Promise(r => bad.on('exit', r)); assert.equal(code, 2); });
+await t('sessions: each server is a live session (agents lists it); its asks come back addressed to it; another session cannot see or claim them', async () => {
+  const s1 = client(['--as', 'claude', '--session', 'claude-ui1']), s2 = client(['--as', 'claude', '--session', 'claude-ui2']);
+  const i1 = (await s1.req('initialize', {protocolVersion: '2025-06-18', clientInfo: {name: 'claude-code', version: '9'}})).result; await s2.req('initialize', {protocolVersion: '2025-06-18', clientInfo: {name: 'cursor', version: '1'}});
+  assert.match(i1.instructions, /session "claude-ui1"/); const ag = (await s1.call('agents', {})).json.find(x => x.agent === 'claude');
+  const live = ag.sessions.map(x => x.session); assert.ok(live.includes('claude-ui1') && live.includes('claude-ui2'), live.join()); assert.ok(live.some(s => /^claude-[0-9a-z]+$/.test(s) && !s.startsWith('claude-ui')), 'the suite client got an auto label');
+  assert.ok(ag.sessions.some(x => x.client === 'claude-code'));
+  const a = await s1.call('ask', {to: 'codex', subject: 'sess', body: 'b', wait_seconds: 0}); assert.equal(run('read', a.json.sent).from_session, 'claude-ui1');
+  const rep = run('reply', a.json.sent, '--as', 'codex', '--body', 'only for ui1'); assert.equal(rep.to_session, 'claude-ui1');
+  assert.ok(!(await s2.call('inbox', {})).json.some(x => x.id === rep.id), 'not in the other session\'s inbox'); assert.equal((await s2.call('claim', {id: rep.id})).isError, true);
+  assert.equal((await s1.call('wait_reply', {id: a.json.sent, wait_seconds: 5})).json.reply.body, 'only for ui1');
+  s2.close(); await new Promise(r => s2.p.on('exit', r)); assert.ok(!(await s1.call('agents', {})).json.find(x => x.agent === 'claude').sessions.some(x => x.session === 'claude-ui2'), 'a closed session drops out'); s1.close(); });
 c.close(); fs.rmSync(HOME, {recursive: true, force: true}); console.log(`# ${n} tests, ${failed} failed (mcp)`); process.exit(failed ? 1 : 0);

@@ -62,7 +62,7 @@ await t('usage normalisation: claude adds cache reads/writes to input; codex del
   const s=cpx.stats(root).agents[0]; assert.equal(s.hit_rate,0.5); assert.equal(s.wakes,2); assert.equal(s.median_latency_ms,5); });
 await t('claude adapter logs result usage per wake; fork uses --resume ID --fork-session with prompt on stdin', async()=>{ const {root}=bus(); const kids=[];
   const spawnFn=(bin,args)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.stdin={writable:true,write:l=>c.lines.push(l),end(){}}; c.kill=()=>{}; kids.push(c); return c; };
-  const ad=claudeAdapter({spawnFn}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}}); await h.start();
+  const ad=claudeAdapter({spawnFn}); const h=new Host({root,config:{watch:false,rescanMs:60000,claude:{mode:'shared'}},adapters:{claude:ad}}); await h.start();
   await ad.deliver({id:'M1',from:'grok',to:'claude',kind:'ask',subject:'s'}); kids[0].stdout.emit('data',Buffer.from(J({type:'result',session_id:'S',usage:{input_tokens:3,cache_read_input_tokens:97,cache_creation_input_tokens:0,output_tokens:1}})+'\n'));
   assert.ok(await until(()=>fs.existsSync(path.join(root,'host/logs/usage.jsonl')))); const u=JSON.parse(fs.readFileSync(path.join(root,'host/logs/usage.jsonl'),'utf8').trim()); assert.deepEqual([u.agent,u.msg,u.input_total,u.cached],['claude','M1',100,97]);
   const SESS='0f8fad5b-d9cb-469f-a165-70867728950e'; // session ids are UUIDs; the host refuses anything else (0.4.0)

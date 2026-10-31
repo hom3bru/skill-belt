@@ -10,7 +10,19 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `toast.mjs [--show]` | PowerShell's parser finds only the expected commands in the toast script, and a hostile subject never appears in it. `--show` fires one real toast and checks it exits 0. | None (Windows only) |
 | `claude-deny.mjs [--legacy]` | A real headless Claude, launched with the listener's arguments, can't read `host/secrets`. It can't do it with Read, or by sending the file with the mailbox CLI. An ordinary file stays readable. `--legacy` reruns the Read part with 0.3.1's settings as a negative control. | One Haiku session, about $0.003 |
 | `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
+| `conversation.mjs [--mode wake\|ask]` | A real multi-turn conversation between the listener's Claude (Haiku) and Codex. Grok asks Claude to get two answers from Codex; the second question ("add 100 to your previous answer") omits the number, so Codex must remember the conversation. In `wake` mode (the default) each answer has to wake Claude's resumed per-thread session. | 3 Haiku runs, 2 Codex turns |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Results on 2026-10-31 (one Windows machine, 0.6.0)
+
+- **`conversation --mode wake`:** "A=391 B=491", correct, in 363 s, all six messages in one thread.
+  - Claude ran 3 times on one session; runs 2 and 3 resumed it, each woken by Codex's reply.
+  - Codex ran both turns in one Codex thread and answered "add 100 to your previous answer" from memory.
+  - Replies were addressed `listener` → `listener`; only the final reply to Grok did not wake anyone, as intended.
+  - Cost: Claude (Haiku) $0.014 over 3 runs; Codex 200k + 147k input tokens.
+- **`conversation --mode ask`** (on a pre-release build): also correct. Claude used the blocking `ask` tool and stayed in one run.
+  - That run showed the listener's Codex picking up a user-registered carrier-pigeon MCP server that pointed at an older install.
+  - The listener now always gives Codex its own mailbox's server.
 
 ## Results on 2026-10-30 (one Windows machine, 0.5.0)
 

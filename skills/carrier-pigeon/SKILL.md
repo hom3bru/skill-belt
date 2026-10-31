@@ -2,8 +2,8 @@
 name: carrier-pigeon
 description: Send and receive asks between AI coding agents (grok, cursor, claude, codex) and the human user through a shared file mailbox at ~/.carrier-pigeon. Use when asked to message, ask, hand off to, request review from, or reply to another agent, or to check the agent inbox. Check your inbox at session start and before ending.
 metadata:
-  version: "0.5.0"
-  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). A real Claude Code client used the MCP tools end to end, including a blocking ask. Real Claude and lean Codex were woken by the listener and replied. Conversation mode (wake_on_reply) is unit-tested only. MCP registration with Codex and Cursor is not yet run live."
+  version: "0.6.0"
+  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Live: the listener's Claude and Codex held a multi-turn conversation in one thread, each answer waking Claude's resumed per-thread session and Codex answering from its own memory of the thread. A real Claude Code client used the MCP tools, including a blocking ask. Your authority as \"matt\" is not yet signed."
 ---
 
 # carrier-pigeon
@@ -20,6 +20,11 @@ Install or upgrade: `node <this skill's folder>/bin/carrier-pigeon.mjs install`.
   - Use `send` only when you don't need an answer.
 - **Check `agents` first** if timing matters. It shows who is `auto-wake` (the listener wakes them in about a minute), `notify-only` or `pull` (they see mail only when they next check).
 - **For a back-and-forth between agents the listener runs**, set `wake_on_reply` (`--wake-on-reply`). The answer then wakes you in the same thread, and follow-ups go back with the thread id. The hop and rate limits still apply.
+- **Keep one task in one thread.** If you need another agent's help with an ask, ask them in that ask's thread. The listener runs each thread in its own Claude session and its own Codex thread, so everyone woken in it remembers the conversation so far.
+- **An agent id is a kind; a session is one running instance.**
+  - Each MCP server is a session (`--session`, or a generated label). The CLI's session comes from `--session` or `CARRIER_PIGEON_SESSION`.
+  - Replies go back to the session that asked. `--to-session` (MCP: `to_session`) addresses one session.
+  - Your inbox hides other sessions' mail, and you can't claim it. `agents` lists the live sessions.
 
 ## Safety rules (read first)
 
@@ -45,6 +50,7 @@ Install or upgrade: `node <this skill's folder>/bin/carrier-pigeon.mjs install`.
 init | install | version | help | agents
 ask --from me --to X --subject S (--body ..) [--wait SECONDS] [--keep] [--wake-on-reply] [send flags]   exit 3 = pending
 wait <ask-id> --as me [--wait SECONDS] [--keep]
+any command: [--session S]   send/ask: [--to-session S]   inbox: [--all-sessions]
 send --from me --to X --subject S (--body TEXT | --body-file F | stdin) [--wake-on-reply]
      [--kind ask|reply|handoff|fyi|review-request] [--priority low|normal|high|urgent] [--thread T] [--due ISO]
      [--repo R --branch B --sha X] [--requires-matt-approval]
@@ -66,7 +72,7 @@ prefix [project]      stats [--since ISO]
 Input rules:
 - A subject is one line of at most 300 characters.
 - Message ids are 26-character ULIDs. Thread and receipt names are letters, digits, `.`, `_` and `-`. Anything else is refused before a path is built.
-- Every flag except the yes/no ones (`--json --all --decline --keep-open --requires-matt-approval --render --no-canaries --wake-on-reply --keep`) takes a value, even one starting with `--`. You can also write `--flag=value`; a yes/no flag accepts `=true` or `=false`.
+- Every flag except the yes/no ones (`--json --all --decline --keep-open --requires-matt-approval --render --no-canaries --wake-on-reply --keep --all-sessions`) takes a value, even one starting with `--`. You can also write `--flag=value`; a yes/no flag accepts `=true` or `=false`.
 - `run` prints the same lean, read-restricted launch the listener uses: no MCP servers, and the listener's deny settings in `host/claude-settings.json`.
 - Usage errors exit 2 and other failures exit 1, each with a one-line message.
 

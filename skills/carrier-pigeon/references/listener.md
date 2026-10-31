@@ -20,12 +20,20 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - It merges the deny list into a 0.3 settings file that has no `permissions` block.
   - It leaves a `permissions` block you wrote alone.
   - The CLI applies the same list to its file flags, and the MCP `send` tool takes text only, never a file. So no mailbox route can carry one of those files either. Read refusal was seen in a real session (`tests/live/claude-deny.mjs`).
-- The session is recycled once its context passes `claude.recycleAtContextTokens` (default 120000; 0 turns it off).
-  - Context is measured from the last API call of a wake.
-  - Recycling waits until no wake is in flight. Wakes that arrive during the restart are retried.
+- **One session per conversation** (`claude.mode: "per-thread"`, the default).
+  - Each mailbox thread is its own Claude session. Every later wake in that thread resumes it (`--resume <session>`), so the agent remembers the conversation and unrelated asks never share a context.
+  - Wakes in one thread run one at a time; at most `claude.maxConcurrent` (2) run at once overall.
+  - Session ids are kept in `host/claude-conversations.json`, so a listener restart keeps conversations.
+  - A run that ends without a result is retried, up to 3 tries. A failed resume starts a fresh session.
+- **`claude.mode: "shared"`** keeps the 0.5 behaviour: one warm session for everything, recycled once its context passes `claude.recycleAtContextTokens` (default 120000).
+- **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast.
 
 **Codex.** A local app-server on `ws://127.0.0.1:4500`: `turn/start` when idle, `turn/steer` when busy.
 - Approvals are `never`, and the sandbox is workspace-write with the mailbox as the workspace. `tests/live/codex-sandbox.mjs` ran that sandbox profile: a write to a folder in the home directory was blocked, while the OS temp folder stays writable by design.
+- **One Codex thread per conversation** (`codex.threads: "per-thread"`, the default).
+  - Each mailbox thread runs in its own Codex thread on the app-server, with its own active turn, queue and memory-prefix state.
+  - A follow-up lands in the thread that holds the earlier turns. At most `codex.maxThreads` (100) are tracked. `"shared"` keeps one thread.
+- **Its own MCP server.** The listener's Codex gets this mailbox's own carrier-pigeon MCP server (`--as codex --session listener`) through launch overrides, whatever the user's Codex config registers. A registration that points at another install would otherwise reach older code.
 - Lean by default (`codex.lean: true`): plugins and apps are off, and every MCP server the user's config still enables is turned off by name (`-c mcp_servers.<name>.enabled=false`). 0.3.1 launched every one of them, including servers that failed auth on each start.
 - Lean mode does not shrink a wake much. One measured lean wake on 2026-10-30 read 153k input tokens (121k cached). 0.3.1's full-profile wakes read 109k to 448k. Most of a Codex wake is the provider's own base prompt, repeated across the turn's model calls.
 - If the websocket can't connect, or drops later, the host kills the app-server so the supervisor restarts both, with backoff. 0.3.1 instead stayed "not ready" until the host itself was restarted.

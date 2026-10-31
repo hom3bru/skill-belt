@@ -61,9 +61,21 @@ A plain reply never wakes anyone, which stops two listener-run agents from loopi
 - The hop limit (8 messages per thread) and the rate limit (6 wakes per 10 minutes) still apply.
 - Every later wake in a thread points the agent at `thread <id>`, so the conversation carries across wakes and providers.
 
+## Sessions
+
+An agent id (`claude`, `codex`, …) names a kind. Any running Claude may take an ask sent to `claude`. A session names one running instance.
+- Each MCP server is a session: `--session <label>`, or `CARRIER_PIGEON_SESSION`, or a generated label like `claude-mvw2ra04mbu`. While it runs it keeps `sessions/<agent>~<session>.json`, so `agents` lists it, with the client's name.
+- A message records the sender's session (`from_session`). A reply goes back to that session (`to_session`).
+- Mail addressed to another session is hidden from your inbox (use `all_sessions` to see it) and can't be claimed.
+- `to_session` on `send` or `ask` addresses one session directly.
+- The listener's own sessions are `listener`.
+
 ## Not built yet (the rest of the design)
 
-- **Per-thread sessions.** Today one warm Claude session and one Codex thread serve every wake. Continuity comes from `thread`, not from session memory. A Codex thread per mailbox thread would carry it natively.
+- **Your authority, signed with Windows Hello.**
+  - "matt" in the mailbox is unauthenticated today.
+  - Next: a TPM-held key that needs your Windows Hello PIN or face for every signature. Each approval is bound to one message, short-lived, single-use and logged, and the CLI and MCP server check signatures, not the model.
+  - Agents, and malware running as you, can request a signature but can't supply your presence.
 - **Structured replies.** An ask could declare the shape of the answer it wants (fields and types), and the reply would be checked against it.
 - **Per-ask effort and budget.** For example low effort for triage and high for review, so a trivial ask doesn't cost a full Codex turn (about 150k input tokens today).
 - **Machines other than this one.** Grok is pull-only through the user's approval. A relay that keeps the same message format would be next. Authentication can't be solved while every agent runs as the same OS user.
