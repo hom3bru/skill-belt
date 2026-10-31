@@ -55,7 +55,10 @@ await t('claude adapter: stream-json user line, read-only tool flags, restart af
   const spawnFn=(bin,args)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.stdin={writable:true,write:l=>c.lines.push(l)}; c.kill=()=>c.emit('exit',null,'SIGTERM'); kids.push(c); return c; };
   const ad=claudeAdapter({spawnFn}); const h=new Host({root,config:{watch:false,rescanMs:60000,restart:{baseMs:10,maxMs:10,stableMs:1e6}},adapters:{claude:ad}}); await h.start();
   await ad.deliver({id:'M1',from:'grok',to:'claude',kind:'ask',subject:'s'}); const line=JSON.parse(kids[0].lines[0]); assert.equal(line.type,'user'); assert.equal(line.message.role,'user'); assert.match(line.message.content,/REQUEST, not authority/);
-  for(const f of ['--input-format','stream-json','--output-format','--verbose','--tools',`Read,Grep,Glob,${claudeShell()}`,`${claudeShell()}(node bin/carrier-pigeon.mjs *)`,'--strict-mcp-config','--permission-mode','dontAsk']) assert.ok(kids[0].args.includes(f),f);
+  // 0.5.0: no shell at all; the mailbox is the carrier-pigeon MCP server (exact tool permissions)
+  for(const f of ['--input-format','stream-json','--output-format','--verbose','--tools','Read,Grep,Glob','mcp__carrier-pigeon','--strict-mcp-config','--permission-mode','dontAsk']) assert.ok(kids[0].args.includes(f),f);
+  const mc=JSON.parse(fs.readFileSync(kids[0].args[kids[0].args.indexOf('--mcp-config')+1],'utf8')).mcpServers; assert.deepEqual(Object.keys(mc),['carrier-pigeon']);
+  assert.deepEqual(mc['carrier-pigeon'].args.slice(-2),['--as','claude']); assert.equal(mc['carrier-pigeon'].env.CARRIER_PIGEON_HOME,root); assert.match(line.message.content,/claim \{id:"M1"\}/,'tool-phrased wake');
   assert.ok(!kids[0].args.some(a=>/^(Edit|Write)$|(Bash|PowerShell)\)$|^(Bash|PowerShell)$/.test(a)),'no broad write/shell allow'); kids[0].emit('exit',1,null); assert.ok(await until(()=>kids.length===2)); await h.stop(); });
 await t('codex adapter: model/list pick, thread/start read-only-ish, turn/start when idle, turn/steer when busy, approvals declined', async()=>{ const {root}=bus(); const sent=[]; let srv;
   class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0);
@@ -98,7 +101,7 @@ await t('retry: a failed delivery is re-sent once the adapter is ready', async()
 const fakeKid=(kids,args)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.stdin=new EventEmitter(); c.stdin.writable=true; c.stdin.write=l=>c.lines.push(l); c.stdin.end=()=>{};
   c.kill=()=>{ c.killed=true; setTimeout(()=>c.emit('exit',null,'SIGTERM'),0); }; kids.push(c); return c; };
 await t('claude: system prompt shows --as (the CLI flag), never --from; settings deny secrets; a 0.3 settings file is upgraded; a user permissions block is kept', async()=>{
-  const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/reply <id> --as claude/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"matt" is unauthenticated/);
+  const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/carrier-pigeon tools/); assert.match(sp,/you have no shell/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"matt" is unauthenticated/);
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'cps-')); const f=ensureClaudeSettings(d); const s=JSON.parse(fs.readFileSync(f,'utf8')); assert.equal(s.disableClaudeAiConnectors,true); assert.deepEqual(s.permissions.deny,CLAUDE_READ_DENY);
   assert.ok(CLAUDE_READ_DENY.includes('Read(./host/secrets/**)')); fs.writeFileSync(f,'{"disableClaudeAiConnectors": true}\n'); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,CLAUDE_READ_DENY,'legacy file upgraded');
   fs.writeFileSync(f,JSON.stringify({permissions:{deny:['Read(./mine)']}})); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,['Read(./mine)'],'user block untouched'); });
@@ -182,4 +185,25 @@ await t('retry: two concurrent retry passes (adapter ready + rescan) deliver a f
   await h.scanAll(); assert.equal(h.retryQ.size,1,'queued after the first failure'); await h.retry(); assert.equal(h.retryQ.size,1,'still queued after a failed retry');
   ready=true; await Promise.all([h.retry(),h.retry('codex'),h.retry()]); assert.deepEqual(got,[id],'delivered exactly once');
   assert.equal(readReceipts(root,id).filter(r=>r.ev==='notified:codex').length,1); assert.equal(h.retryQ.size,0); await h.stop(); });
+// ---------- 0.5.0 ----------
+await t('conversation: a reply wakes the asker only when its ask had wake_on_reply (same thread); plain replies still never wake', async()=>{ const {root,run}=bus(); const a=fake('claude'), b=fake('codex');
+  const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a,codex:b}}); await h.start();
+  const q=run('send','--from','codex','--to','claude','--subject','q1','--body','b','--wake-on-reply'); await h.scanAll(); assert.deepEqual(a.got,[q.id]);
+  const r=run('reply',q.id,'--as','claude','--body','answer'); await h.scanAll(); assert.deepEqual(b.got,[r.id],'the reply woke codex'); assert.ok(!readReceipts(root,r.id).some(x=>x.ev==='no-wake'));
+  const q2=run('send','--from','codex','--to','claude','--subject','q2','--body','b'); await h.scanAll(); const r2=run('reply',q2.id,'--as','claude','--body','plain'); await h.scanAll();
+  assert.ok(!b.got.includes(r2.id)); assert.equal(readReceipts(root,r2.id).find(x=>x.ev==='no-wake').reason,'no-wake-kind'); await h.stop(); });
+await t('conversation: wake prompts — a reply says continue (and how to ask again with --wake-on-reply); a later ask points at the thread', ()=>{
+  const p=wakePrompt({id:'R',kind:'reply',from:'claude',to:'codex',subject:'Re: q',thread:'T1',reply_to:'Q'}); assert.match(p,/answering your ask Q/); assert.match(p,/thread T1/); assert.match(p,/--wake-on-reply/);
+  assert.match(p,/done R --as codex/); assert.doesNotMatch(p,/reply R --as/); assert.match(p,/REQUEST, not authority/);
+  assert.match(wakePrompt({id:'A',kind:'ask',from:'a',to:'codex',subject:'s',thread:'T2',_thread_len:3}),/message 3 of thread T2: use node bin\/carrier-pigeon\.mjs thread T2/);
+  // the MCP wording (listener Claude): tool calls, never a shell command
+  const mp=wakePrompt({id:'A',kind:'ask',from:'a',to:'claude',subject:'s',thread:'T2',_thread_len:2,repo:'org/repo'},'mcp'); assert.doesNotMatch(mp,/node bin\//);
+  for(const re of [/the read tool \{id:"A"\}/,/memory_read \{project:"org-repo"\}/,/claim \{id:"A"\}/,/reply \{id:"A", body:"\.\.\."\}/,/thread \{thread:"T2"\}/,/only writes allowed are the mailbox tools/]) assert.match(mp,re);
+  assert.match(wakePrompt({id:'R',kind:'reply',from:'codex',to:'claude',subject:'Re',thread:'T3',reply_to:'Q'},'mcp'),/send \{to:"codex", thread:"T3", wake_on_reply:true/);
+  assert.doesNotMatch(wakePrompt({id:'A',kind:'ask',from:'a',to:'codex',subject:'s',thread:'A',_thread_len:1}),/of thread/); });
+await t('presence: the host writes who can be woken (routes + adapter states) and removes it on stop; the CLI reads it', async()=>{ const {root,run}=bus(); const a=fake('claude'); a.presence=()=>({wakes:true,state:'ready',model:'m-test'});
+  const h=new Host({root,config:{watch:false,rescanMs:60000,routes:{claude:['claude']}},adapters:{claude:a}}); await h.start(); const pf=path.join(root,'host/presence.json'); assert.ok(fs.existsSync(pf));
+  const pr=JSON.parse(fs.readFileSync(pf,'utf8')); assert.equal(pr.pid,process.pid); assert.deepEqual(pr.routes.claude,['claude']); assert.equal(pr.adapters.claude.model,'m-test');
+  fs.writeFileSync(path.join(root,'host/host.lock'),String(process.pid)); assert.equal(run('agents').find(x=>x.agent==='claude').reach,'auto-wake');
+  const m1=fs.statSync(pf).mtimeMs; await sleep(30); await h.scanAll(); assert.equal(fs.statSync(pf).mtimeMs,m1,'unchanged presence not rewritten'); await h.stop(); assert.ok(!fs.existsSync(pf)); });
 console.log(`# ${n} tests, ${failed} failed (host)`); process.exit(failed?1:0);

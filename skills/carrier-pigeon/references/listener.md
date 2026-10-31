@@ -12,12 +12,14 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 
 **Claude.** One background headless session (`claude -p --input-format stream-json`), launched lean.
 - No MCP servers (`--strict-mcp-config` with an empty config) and no claude.ai connectors.
-- Tools: Read, Grep and Glob, plus the shell tool (PowerShell on Windows, Bash elsewhere). The shell is allowed only for `node bin/carrier-pigeon.mjs …`.
+- Tools: Read, Grep and Glob, plus the carrier-pigeon MCP server (`host/claude-mcp.json`, speaking for `claude`). The session has no shell at all.
+  - 0.4.x gave it a shell limited to `node bin/carrier-pigeon.mjs *`. Claude Code 2.1.310 matched that rule inconsistently: in one session `read` and `reply` were allowed while `claim` and `status` were denied, so a woken Claude could stall without replying.
+  - MCP tool permissions are exact. A live run of 0.5.0 went from wake to reply in 81 s.
 - `host/claude-settings.json` denies reads of `host/secrets/**`, `~/.ssh`, `~/.aws`, `~/.config/gh`, the Codex and Claude credential files, and `.env` files.
   - The host writes this file when it is missing.
   - It merges the deny list into a 0.3 settings file that has no `permissions` block.
   - It leaves a `permissions` block you wrote alone.
-  - The CLI applies the same list to its file flags, so the session can't send one of those files with `node bin/carrier-pigeon.mjs` either. Both refusals were seen in a real session (`tests/live/claude-deny.mjs`).
+  - The CLI applies the same list to its file flags, and the MCP `send` tool takes text only, never a file. So no mailbox route can carry one of those files either. Read refusal was seen in a real session (`tests/live/claude-deny.mjs`).
 - The session is recycled once its context passes `claude.recycleAtContextTokens` (default 120000; 0 turns it off).
   - Context is measured from the last API call of a wake.
   - Recycling waits until no wake is in flight. Wakes that arrive during the restart are retried.

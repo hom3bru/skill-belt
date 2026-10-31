@@ -125,6 +125,26 @@ t('file flags refuse host secrets, credential stores and .env files, including t
   assert.match(f3('transcript','pack',tj,'--as','claude'),/refusing to read ~\/\.ssh/); assert.match(f3('transcript','verify','0'.repeat(64),'--text-file',sec),/host secrets/);
   const ok=put(path.join(H,'proj','notes.md'),'plain notes'); assert.equal(JSON.parse(execFileSync('node',[CLI,...send,'--body-file',ok,'--json'],{env:e3,encoding:'utf8'})).body,'plain notes');
   fs.unlinkSync(link); fs.rmSync(H,{recursive:true,force:true}); fs.rmSync(path.join(HOME,'host','secrets'),{recursive:true,force:true}); });
+// ---------- 0.5.0 ----------
+const runAsync=(...a)=>new Promise(res=>{ const p=spawn('node',[CLI,...a,'--json'],{env}); let o=''; p.stdout.on('data',d=>o+=d); p.on('exit',code=>res({code,out:o})); });
+const waitFor=async(f,ms=20000)=>{ const t0=Date.now(); while(Date.now()-t0<ms){ const v=f(); if(v) return v; await new Promise(r=>setTimeout(r,200)); } return null; };
+await ta('ask: returns the reply when it arrives within --wait; the consumed reply is marked done', async()=>{
+  const p=runAsync('ask','--from','claude','--to','codex','--subject','what port?','--body','Ask: which port? Return: a number.','--wait','60');
+  const askMsg=await waitFor(()=>run('inbox','codex').find(m=>m.subject==='what port?')); assert.ok(askMsg,'ask delivered'); run('reply',askMsg.id,'--as','codex','--body','4593');
+  const r=await p; assert.equal(r.code,0); const j=JSON.parse(r.out); assert.equal(j.status,'replied'); assert.equal(j.reply.body,'4593'); assert.equal(j.sent,askMsg.id);
+  assert.equal(run('read',j.reply.id).status,'done','reply consumed'); });
+await ta('ask --wait 0 sends and exits 3 with a handle; wait picks the reply up later; --wake-on-reply is recorded', async()=>{
+  const r=spawnSync('node',[CLI,'ask','--from','claude','--to','codex','--subject','later','--body','b','--wait','0','--wake-on-reply','--json'],{env,encoding:'utf8'}); assert.equal(r.status,3);
+  const j=JSON.parse(r.stdout); assert.equal(j.status,'pending'); assert.equal(run('read',j.sent).wake_on_reply,true); run('reply',j.sent,'--as','codex','--body','done later');
+  const w=spawnSync('node',[CLI,'wait',j.sent,'--as','claude','--wait','10','--keep','--json'],{env,encoding:'utf8'}); assert.equal(w.status,0); assert.equal(JSON.parse(w.stdout).reply.body,'done later');
+  assert.equal(run('read',JSON.parse(w.stdout).reply.id).status,'unread','--keep leaves it in the inbox'); });
+t('agents: pull without a listener; auto-wake / notify-only from a live listener\'s presence file; stale presence ignored', ()=>{
+  assert.ok(run('agents').every(x=>x.reach==='pull')); const hd=path.join(HOME,'host'); fs.mkdirSync(hd,{recursive:true});
+  fs.writeFileSync(path.join(hd,'host.lock'),String(process.pid)); // a live pid: this test process
+  fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:process.pid,routes:{codex:['codex','toast'],matt:['toast'],claude:['claude']},adapters:{codex:{wakes:true,state:'ready',model:'m1'},toast:{wakes:false,state:'ready'},claude:{wakes:true,state:'down'}}}));
+  const by=Object.fromEntries(run('agents').map(x=>[x.agent,x])); assert.equal(by.codex.reach,'auto-wake'); assert.equal(by.matt.reach,'notify-only'); assert.equal(by.claude.reach,'auto-wake (not ready)'); assert.equal(by.grok.reach,'pull');
+  fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:1,routes:{codex:['codex']},adapters:{codex:{wakes:true,state:'ready'}}})); assert.equal(run('agents').find(x=>x.agent==='codex').reach,'pull','presence from another pid is stale');
+  fs.rmSync(path.join(hd,'host.lock')); fs.rmSync(path.join(hd,'presence.json')); });
 t('install: copies code into the root, keeps an existing config, backs up what it replaces, leaves mailbox data alone', ()=>{ const T=fs.mkdtempSync(path.join(os.tmpdir(),'cpinst-')); const e2={...process.env,CARRIER_PIGEON_HOME:T};
   const inst=(cli=CLI)=>JSON.parse(execFileSync('node',[cli,'install','--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']})); const SK=path.dirname(path.dirname(CLI));
   const r=inst(); for(const f of ['bin/carrier-pigeon.mjs','bin/cp-context.mjs','host/carrier-pigeon-host.mjs','host/start-host.ps1','host/config.json']){ assert.ok(r.copied.includes(f),f); assert.ok(fs.readFileSync(path.join(T,f)).equals(fs.readFileSync(path.join(SK,f))),f); }

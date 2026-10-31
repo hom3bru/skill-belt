@@ -2,15 +2,24 @@
 name: carrier-pigeon
 description: Send and receive asks between AI coding agents (grok, cursor, claude, codex) and the human user through a shared file mailbox at ~/.carrier-pigeon. Use when asked to message, ask, hand off to, request review from, or reply to another agent, or to check the agent inbox. Check your inbox at session start and before ending.
 metadata:
-  version: "0.4.1"
-  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). Real Claude and lean Codex were woken and replied. A real Claude session could not read host/secrets with Read or with the CLI. Codex's workspace-write sandbox blocked a write to the home folder; the OS temp folder stays writable."
+  version: "0.5.0"
+  status: "Prototype, on one Windows machine. Unit tests plus opt-in live checks in tests/live/ (results in its README). A real Claude Code client used the MCP tools end to end, including a blocking ask. Real Claude and lean Codex were woken by the listener and replied. Conversation mode (wake_on_reply) is unit-tested only. MCP registration with Codex and Cursor is not yet run live."
 ---
 
 # carrier-pigeon
 
 A file mailbox in the user's home directory: `~/.carrier-pigeon/` (override with `CARRIER_PIGEON_HOME`). Agent ids: `grok`, `cursor`, `claude`, `codex`, and `matt`, the fixed id for the human user.
 CLI: `node ~/.carrier-pigeon/bin/carrier-pigeon.mjs <command>` (Node 18+, no dependencies). No arguments prints help; `--json` gives machine output. In PowerShell: `node $HOME\.carrier-pigeon\bin\carrier-pigeon.mjs ...`.
-Install or upgrade: `node <this skill's folder>/bin/carrier-pigeon.mjs install`. It copies the CLI and listener code into the mailbox, backs up each file it replaces, keeps `host/config.json`, and never touches messages, memory, receipts, logs or secrets. A running listener keeps its old code until restarted.
+Install or upgrade: `node <this skill's folder>/bin/carrier-pigeon.mjs install`. It copies the CLI, MCP server and listener code into the mailbox, backs up each file it replaces, keeps `host/config.json`, and never touches messages, memory, receipts, logs or secrets. A running listener keeps its old code until restarted.
+
+## Talking to another agent
+
+- **If you have the `carrier-pigeon` MCP tools, use them.** Arguments are typed and no shell is involved. Setup is in [references/mcp.md](references/mcp.md). Otherwise use the CLI below; the commands have the same names.
+- **To get an answer, `ask`.** It sends the ask and waits for the reply: `wait_seconds` in MCP (default 45), `--wait` in the CLI (default 300).
+  - If it comes back `pending`, call `wait_reply` (CLI: `wait <id> --as me`) until the status is `replied`.
+  - Use `send` only when you don't need an answer.
+- **Check `agents` first** if timing matters. It shows who is `auto-wake` (the listener wakes them in about a minute), `notify-only` or `pull` (they see mail only when they next check).
+- **For a back-and-forth between agents the listener runs**, set `wake_on_reply` (`--wake-on-reply`). The answer then wakes you in the same thread, and follow-ups go back with the thread id. The hop and rate limits still apply.
 
 ## Safety rules (read first)
 
@@ -33,8 +42,10 @@ Install or upgrade: `node <this skill's folder>/bin/carrier-pigeon.mjs install`.
 ## Commands
 
 ```
-init | install | version | help
-send --from me --to X --subject S (--body TEXT | --body-file F | stdin)
+init | install | version | help | agents
+ask --from me --to X --subject S (--body ..) [--wait SECONDS] [--keep] [--wake-on-reply] [send flags]   exit 3 = pending
+wait <ask-id> --as me [--wait SECONDS] [--keep]
+send --from me --to X --subject S (--body TEXT | --body-file F | stdin) [--wake-on-reply]
      [--kind ask|reply|handoff|fyi|review-request] [--priority low|normal|high|urgent] [--thread T] [--due ISO]
      [--repo R --branch B --sha X] [--requires-matt-approval]
      context pack (<= 8 KB): [--summary "..."] [--files a,b] [--refs ids] [--findings ids] [--context-file F]
@@ -55,7 +66,7 @@ prefix [project]      stats [--since ISO]
 Input rules:
 - A subject is one line of at most 300 characters.
 - Message ids are 26-character ULIDs. Thread and receipt names are letters, digits, `.`, `_` and `-`. Anything else is refused before a path is built.
-- Every flag except the yes/no ones (`--json --all --decline --keep-open --requires-matt-approval --render --no-canaries`) takes a value, even one starting with `--`. You can also write `--flag=value`; a yes/no flag accepts `=true` or `=false`.
+- Every flag except the yes/no ones (`--json --all --decline --keep-open --requires-matt-approval --render --no-canaries --wake-on-reply --keep`) takes a value, even one starting with `--`. You can also write `--flag=value`; a yes/no flag accepts `=true` or `=false`.
 - `run` prints the same lean, read-restricted launch the listener uses: no MCP servers, and the listener's deny settings in `host/claude-settings.json`.
 - Usage errors exit 2 and other failures exit 1, each with a one-line message.
 

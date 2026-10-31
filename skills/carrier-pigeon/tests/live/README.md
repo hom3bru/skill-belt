@@ -9,7 +9,17 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `codex-sandbox.mjs` | Codex's workspace-write sandbox (`codex sandbox -P :workspace`, with the mailbox as the workspace) lets a write inside the mailbox through and blocks one into a fresh folder in the home directory. It also reports whether the OS temp folder is writable. | None (no model) |
 | `toast.mjs [--show]` | PowerShell's parser finds only the expected commands in the toast script, and a hostile subject never appears in it. `--show` fires one real toast and checks it exits 0. | None (Windows only) |
 | `claude-deny.mjs [--legacy]` | A real headless Claude, launched with the listener's arguments, can't read `host/secrets`. It can't do it with Read, or by sending the file with the mailbox CLI. An ordinary file stays readable. `--legacy` reruns the Read part with 0.3.1's settings as a negative control. | One Haiku session, about $0.003 |
+| `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Results on 2026-10-30 (one Windows machine, 0.5.0)
+
+- **`mcp-claude`:** a real Claude Code client used inbox, read, reply and ask through the MCP server alone. `ask` returned the reply within the same call.
+- **`e2e --only claude`:**
+  - Under 0.4.x the listener's Claude was woken but stalled: Claude Code 2.1.310 denied `claim` under the shell allow rule while allowing `read` and `reply`.
+  - In 0.5.0 its mailbox is the MCP server and it has no shell: queued → notified → received → replied in 81 s.
+- **`e2e`** (both agents, 0.5.0 host): Codex replied correctly.
+- **`claude-deny`** on the 0.5.0 setup: Read of `host/secrets` was denied.
 
 ## Results on 2026-10-30 (one Windows machine, 0.4.x)
 

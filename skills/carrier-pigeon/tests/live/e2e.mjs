@@ -1,7 +1,7 @@
 // Live check (opt-in; costs real model calls): the whole listener on a throwaway mailbox, never the live one. It installs this skill's
 // code there, starts the real host with real Claude (haiku) and a lean Codex app-server on a spare port, sends each agent an ask that
 // needs a read-only command, and waits for their replies and usage rows.
-// Usage: node tests/live/e2e.mjs [--claude BIN] [--codex BIN] [--port 4511] [--only claude|codex]
+// Usage: node tests/live/e2e.mjs [--claude BIN] [--codex BIN] [--port 4511] [--only claude|codex] [--keep]
 // Bins default to ~/.carrier-pigeon/host/config.json, else "claude" / "codex" on PATH.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import {execFileSync} from 'node:child_process'; import {fileURLToPath} from 'node:url';
 const SK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..'); const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
@@ -25,11 +25,12 @@ for (const t1 = Date.now(); Date.now() - t1 < 150000 && new Set(rows().map(r => 
 const binCount = fs.readdirSync(path.join(root, 'bin')).length; const hostLog = fs.readFileSync(path.join(root, 'host/logs/host.jsonl'), 'utf8').trim().split('\n').map(JSON.parse);
 const report = {installed: inst.copied.length, elapsed_s: Math.round((Date.now() - t0) / 1000), bin_files: binCount,
   asks: asks.map(a => ({to: a.to, receipts: H.readReceipts(root, a.id).map(r => r.ev)})),
-  replies: replies.map(r => { const body = cli('read', r.id).body; return {from: r.from, body: body.slice(0, 160), correct: body.trim() === 'PONG ' + binCount}; }),
+  replies: replies.map(r => { const body = cli('read', r.id).body; return {from: r.from, body: body.slice(0, 160), correct: new RegExp(`^PONG\\s*${binCount}\\.?$`).test(body.trim())}; }),
   usage: rows().map(u => ({agent: u.agent, input_total: u.input_total, cached: u.cached, output: u.output, context_tokens: u.context_tokens, latency_ms: u.latency_ms, cost_usd: u.cost_usd})),
   codex_lean: hostLog.find(e => e.ev === 'codex-lean' || e.ev === 'codex-lean-partial')?.mcp_servers_disabled, codex_model: hostLog.find(e => e.ev === 'codex-ready')?.model,
   errors: hostLog.filter(e => /error|failed/.test(e.ev)).map(e => e.ev + ' ' + (e.err || e.params || '').slice(0, 120)),
   live_mailbox_untouched: liveMtime === null || fs.statSync(liveLog).mtimeMs === liveMtime};
 await host.stop(); await sleep(2000); console.log(JSON.stringify(report, null, 1));
-try { fs.rmSync(root, {recursive: true, force: true}); } catch { console.log('remove later: ' + root); }
+if (process.argv.includes('--keep')) console.log('kept for inspection: ' + root); // --keep: leave the mailbox and its host/logs
+else try { fs.rmSync(root, {recursive: true, force: true}); } catch { console.log('remove later: ' + root); }
 process.exit(report.replies.length === asks.length && report.live_mailbox_untouched ? 0 : 1);
