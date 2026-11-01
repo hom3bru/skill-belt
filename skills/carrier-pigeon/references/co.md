@@ -42,6 +42,7 @@ co add P --as A --type coverage --text "what I checked; what I did not"   (resea
 co add P --as A --type deviation --text "the change the brief needs, and why"   (never edits the brief)
 co new ... --criterion "node --test passes on the merged branch" --criterion "..."   (acceptance criteria C1, C2, ... in the brief)
 co add P --as LEAD --type rating --criterion C1 --result pass|fail|untested --text "evidence"   (closed phase; every criterion before ready)
+co reveal P --as LEAD     retry a sealed first round's failed reveal (the key is kept until every entry opens)
 co view P --as A          brief, phase, who it waits for, entries you may see, each entry's status
 co add P --as A --text ... (mode fields below) [--revises E3]   |   --type synthesis (lead, closed)
 co challenge P --as A --target E3 --kind K --text ... [--evidence ...]
@@ -126,21 +127,30 @@ host/secrets/co/<project>.key       the sealing key of a sealed project, deleted
 The first round is where independence matters. Once one member has seen another's answer, it anchors on it. Four mechanisms keep the first round independent until a single reveal step:
 
 1. **Sealed entries.** These are the default in research, audit and design; `--unsealed` (MCP `sealed: false`) opts out. Build is never sealed, because units must see each other's files.
-   - **Storing:** during the independent phase, a member's claims, findings, proposals, coverage and deviations are stored encrypted (AES-256-GCM) with a salted SHA-256 commitment. No plaintext of first-round work exists anywhere in the mailbox.
-   - **Viewing:** `co view` shows the author its own entries, shows other members nothing (not even how many), and shows the lead or a non-member only who committed what kind of entry and when. Nobody can relay content early, not even the lead.
+   - **Storing:** during the independent phase, a member's claims, findings, proposals, coverage and deviations are stored encrypted (AES-256-GCM) with a salted SHA-256 commitment. The encryption is bound to the project, author, kind and phase, so a relabelled record fails to open. No plaintext of first-round work exists anywhere in the mailbox.
+   - **Viewing:** nothing decrypts before the reveal, for anyone. `co add` hands the author its plaintext once, in that call's result. After that, `co view` shows labels only (id, kind, time, commitment), even to the author, so keep your own notes. Other members are shown nothing of yours. The lead or a non-member sees only who committed what kind of entry, and when.
+   - **Identity:** the CLI's `--as` is a claim, not an authentication, while an MCP server fixes its identity at launch. Because no view decrypts, naming another member with `--as` still reveals nothing.
+   - **Reports:** during the first round, a report withholds every member's work, whoever runs it.
 2. **One reveal.** When the last participant marks the first round ready, or the lead forces it on, the engine does this before anyone is told the next phase began:
-   - decrypts every sealed entry and checks it against its commitment;
+   - decrypts every sealed entry and checks it against its commitment and its label;
    - replaces each one, under the same id, with its plaintext and commitment;
-   - deletes the key.
+   - deletes the key, but only once every entry has opened.
 
-   This is the only time an entry file is rewritten. Every later `co check` re-verifies each revealed entry against its commitment and reports:
-   - `seal-mismatch` if a revealed entry was edited after the reveal;
-   - `reveal-failed` if a sealed record was altered before the reveal;
-   - `unrevealed` if an entry is still sealed after the first round.
+   **Locking:** a lock serialises first-round writes with the reveal, so an entry is either sealed before the reveal reads the store or refused after it starts.
+
+   **Resuming:** a reveal cut short resumes on the next `co ready` or `co advance`: a stalled marker older than a minute is taken over, and `co check` reports `advance-stalled` meanwhile.
+
+   **Failed entries:** if an entry fails to open, the key stays, and the lead (or `matt`) can retry with `co reveal P --as LEAD`.
+
+   This is the only time an entry file is rewritten. Every later `co check` re-verifies each revealed entry and reports:
+   - `seal-mismatch`: a revealed entry was edited after the reveal;
+   - `unsealed-first-round`: a revealed first-round entry has lost its seal;
+   - `reveal-failed`: a sealed record was altered before the reveal;
+   - `unrevealed`: an entry is still sealed after the first round.
 
    The report states that the round was sealed, and how many entries opened and checked out.
 3. **No side channel in the project.**
-   - Members cannot write into the project thread during the first round: `send` refuses, and phase notices refuse replies (the first live run had exactly that leak).
+   - Members cannot write into the project thread during the first round. Both `send` and `reply` refuse, phase notices refuse replies (the first live run had exactly that leak), and the command line cannot set the engine's internal bypass.
    - The `thread` view shows a member only its own messages there, and a reader who does not say who it is gets nothing.
    - The notices tell members never to open `host/secrets` or the `co/` folder.
 4. **Read denial where the platform allows it.**
@@ -150,4 +160,12 @@ The first round is where independence matters. Once one member has seen another'
 **The limit.** All agents on one machine run as the same OS user. A process that deliberately reads `host/secrets/co/<project>.key` could decrypt the store: a Codex shell can, and so can an interactive session. Sealing makes that a deliberate act against an explicit rule, never an accident. No sealed text sits in the mailbox for a stray `grep`, a `thread` read or a notice to expose.
 
 The author's own session transcript, outside the mailbox, also holds what it wrote. Isolation that holds against a determined member needs separate OS accounts per agent; carrier-pigeon does not set that up.
+
+**Known leftovers.** A live co-audit of this very mechanism (Claude and Codex, 2026-11-01) found nine defects, fixed in 0.9.1, plus these residuals:
+- **Content-free metadata:**
+  - Entry ids count up across all members, so a member can infer how many entries others filed between two of its own. The judge confirmed this as low, metadata only.
+  - A sealed record's size, timing and author are visible.
+- **Deliberate side channels:** the thread guard stops accidental leaks only. A member can still open another thread on purpose, or write a file, or use shared memory, to reach another member.
+
+`tests/live/co-real.mjs` reruns that audit with real members, a real lead and a real judge.
 - **Engine checks:** it enforces membership, phase order, and authorship for responses and revisions. It also enforces the judge's non-party rule, quotas, and disjoint build files. It cannot judge whether a citation says what its excerpt claims, or whether a verification receipt is real; that is the challengers' job.

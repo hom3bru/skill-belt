@@ -77,6 +77,10 @@ A file that fails is logged as `bad-message` with the reason and skipped. So a h
 - **Receipts.** `carrier-pigeon receipts <id>` shows `queued → notified:<adapter> → received → replied|declined`, or `no-wake (reason)`.
   - A delivery that fails because a session is starting or recycling is retried automatically, up to 20 times.
   - A failed delivery is never retried twice at once, even when the adapter's ready signal and a rescan retry at the same moment. 0.4.0 could deliver it twice.
+  - A Codex turn can end in error, for example from a provider refusal ("flagged for possible cybersecurity risk"). Then each unfinished ask it held gets a `turn-failed` receipt and an alert, whether it started the turn or was steered in.
+    - A co phase notice among them is delivered once more, since its work is safe to repeat.
+    - Any other ask is only reported, because the agent may have half done it.
+    - Before 0.9.1, such a notice was silently lost.
 - **Loop limits.**
   - `fyi` never auto-wakes. A `reply` auto-wakes only through `wake_on_reply`: the ask it answers set it, the asker is the recipient, and both are in the same thread. The hop and rate limits still apply.
   - A thread stops auto-waking after 8 messages (`maxHops`), and the user gets an alert. A co-work project's thread (`co-…`) carries every phase notice, so its limit is 60 (`coMaxHops`; see [co.md](co.md)).

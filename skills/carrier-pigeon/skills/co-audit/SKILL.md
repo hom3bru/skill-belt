@@ -2,7 +2,7 @@
 name: co-audit
 description: "Use when two or more agents should audit the same code, system or skill and challenge each other's findings: blind independent findings with severity, location and evidence, cross-challenge for false positives and missed classes, answers, a judge, then a report of what survived. A carrier-pigeon sub-skill (needs its mailbox). Not for one agent's diff review (westack-review), fixing what an audit found (co-build) or research (co-research)."
 metadata:
-  version: "0.9.0"
+  version: "0.9.1"
   parent: carrier-pigeon
 ---
 
@@ -34,7 +34,7 @@ co new --mode audit --title "auth service audit @ 3f2c1ab" --question "What secu
 
 **Independent: audit and add findings.**
 
-The round is sealed (unless the project was opened `--unsealed`). Your findings stay encrypted until the reveal at its end. You see only your own; nobody, the lead included, sees their content. Never open `host/secrets` or the `co/` folder, and do not message another member about the project before the reveal.
+The round is sealed (unless the project was opened `--unsealed`). Your findings stay encrypted until the reveal at its end. Nobody sees their content before then, you included: co add shows you your text once and co view only labels, so keep your own notes. Never open `host/secrets` or the `co/` folder, and do not message another member about the project before the reveal.
 
 With westack-review or westack-security installed, follow its rules for the kind of audit. Each finding needs these fields:
 

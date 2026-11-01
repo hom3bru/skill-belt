@@ -253,6 +253,24 @@ await t('per-thread Codex: each mailbox thread gets its own Codex thread; a foll
   assert.equal(sent.filter(m=>m.method==='thread/start').length,2); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr1',turn:{id:'T1'}}})});
   srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thr1',turn:{id:'T1',status:'completed'}}})}); await ad.deliver({id:'X2',from:'claude',to:'codex',kind:'ask',subject:'s',thread:'TX'});
   const last=starts().at(-1); assert.equal(last.threadId,'thr1'); assert.match(last.input[0].text,/memory unchanged/); assert.match(last.input[0].text,/--session listener/); assert.equal(ad.state.conversations,2); await h.stop(); });
+await t('a failed turn: its unfinished asks get turn-failed and an alert; a co phase notice is delivered once more, another ask never', async()=>{ const {root,run}=bus(); const b=fake('codex'), toast=fake('toast',false);
+  const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:b,toast}}); await h.start(); const th='co-01M69500000000000000000000';
+  const note=run('send','--from','matt','--to','codex','--thread',th,'--subject','[co-audit] t: phase challenge','--body','b','--kind','ask'), ask=run('send','--from','grok','--to','codex','--subject','plain ask','--body','b','--kind','ask');
+  const fin=run('send','--from','grok','--to','codex','--subject','finished','--body','b','--kind','ask'); for(const m of [note,ask,fin]) run('claim',m.id,'--as','codex'); run('done',fin.id,'--as','codex');
+  await h.turnFailed('codex',[note.id,ask.id,fin.id],'flagged for possible cybersecurity risk');
+  assert.ok(evs(root,note.id).includes('turn-failed')); assert.ok(evs(root,ask.id).includes('turn-failed')); assert.ok(!evs(root,fin.id).includes('turn-failed'),'a finished ask lost nothing');
+  assert.deepEqual(b.got,[note.id],'only the co notice is delivered again'); assert.ok(toast.notes.some(x=>/turn failed/.test(x.title)));
+  await h.turnFailed('codex',[note.id],'again'); assert.deepEqual(b.got,[note.id],'at most once'); await h.stop(); });
+await t('codex: a turn that completes failed hands the asks it held, the starter and any steered in, to turnFailed', async()=>{ const {root}=bus(); let srv; const failed=[];
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thrF'}}); if(m.method==='turn/start'||m.method==='turn/steer') r({}); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); h.turnFailed=async(n,ids,err)=>{ failed.push({n,ids,err}); };
+  await h.start(); assert.ok(await until(()=>ad.state.thread));
+  await ad.deliver({id:'S1',from:'matt',to:'codex',kind:'ask',subject:'s',thread:'TF'}); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thrF',turn:{id:'TF1'}}})});
+  await ad.deliver({id:'S2',from:'matt',to:'codex',kind:'ask',subject:'s',thread:'TF'}); // steered into the running turn
+  srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thrF',turn:{id:'TF1',status:'failed',error:{message:'flagged'}}}})});
+  assert.deepEqual(failed,[{n:'codex',ids:['S1','S2'],err:'flagged'}]); await h.stop(); });
 await t('sessions: mail for another session never wakes the listener; replies to the listener\'s asks with wake_on_reply do', async()=>{ const {root,run}=bus(); const a=fake('claude'), b=fake('codex');
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a,codex:b}}); await h.start();
   const other=run('send','--from','grok','--to','claude','--subject','for s1','--body','b','--to-session','claude-s1'); const mine=run('send','--from','grok','--to','claude','--subject','for listener','--body','b','--to-session','listener'); await h.scanAll();

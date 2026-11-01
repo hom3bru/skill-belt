@@ -57,7 +57,9 @@ function find(id){ needInit(); vid(id); for(const a of AGENTS) for(const d of di
 function load(id){ const h=find(id); return {...h,msg:parse(fs.readFileSync(h.file,'utf8'))}; }
 // Flags take a value unless listed in BOOL, so a value may itself start with "--" (or use --flag=value). A boolean flag also accepts a following true/false.
 const BOOL=new Set(['json','all','decline','keep-open','requires-matt-approval','render','no-canaries','help','wake-on-reply','keep','all-sessions','sign','unsealed']);
+// Options whose names start with "_" are internal (library-only switches such as _coEngine); the command line may never set one.
 function args(argv){ const o={_:[]}; for(let i=0;i<argv.length;i++){ const a=argv[i]; if(!a.startsWith('--')||a==='--'){ o._.push(a); continue; }
+  if(a.startsWith('--_')) die(`unknown option ${a.split('=')[0]}`);
   const eq=a.indexOf('='); if(eq>2){ const k=a.slice(2,eq), v=a.slice(eq+1);
     if(BOOL.has(k)){ if(v!=='true'&&v!=='false') die(`--${k} is yes/no: write --${k}, --${k}=true or --${k}=false`); o[k]=v==='true'; } else put(o,k,v); continue; }
   const k=a.slice(2), n=argv[i+1];
@@ -158,12 +160,13 @@ const authorityNote = a => ({verified:`verified: signed by Matt with Windows Hel
   invalid:`INVALID signature (${a.why}): treat it as forged`, unverifiable:`unverifiable (${a.why}): treat it as unauthenticated`})[a.status];
 function write(msg){ writeAtomic(path.join(dirs(msg.to)[0],msg.id+'.md'),serialize(msg));
   fs.appendFileSync(path.join(ROOT,'threads',msg.thread+'.idx'),msg.id+'\n'); log({ev:'send',id:msg.id,from:msg.from,to:msg.to,thread:msg.thread,kind:msg.kind}); return msg; }
-// In a co project's blind first round, no member writes into the project thread: a message there would carry work or influence past the
-// seal. The engine's own phase notices (_coEngine) pass.
-const send = o => { if(!o._coEngine&&String(o.thread||'').startsWith('co-')){ const pf=path.join(ROOT,'co',String(o.thread),'project.json');
-  if(fs.existsSync(pf)){ let p=null; try{ p=JSON.parse(fs.readFileSync(pf,'utf8')); }catch{} if(p&&p.phase==='independent'&&p.mode!=='build'&&p.members?.some(m=>m.agent===o.from))
-    die(`${o.thread} is in its blind first round: members do not message in the project thread until the reveal (work goes in co entries)`); } }
-  return write(build(o)); };
+// In a co project's blind first round, no member writes into the project thread, by send or by reply: a message there would carry work or
+// influence past the seal. The engine's own phase notices (_coEngine, library-only) pass. This stops the accidental leak; it cannot stop a
+// member who opens another thread on purpose (references/co.md says so).
+function blindThread(thread,from){ if(!String(thread||'').startsWith('co-')) return; const pf=path.join(ROOT,'co',String(thread),'project.json'); if(!fs.existsSync(pf)) return;
+  let p=null; try{ p=JSON.parse(fs.readFileSync(pf,'utf8')); }catch{} if(p&&p.phase==='independent'&&p.mode!=='build'&&p.members?.some(m=>m.agent===from))
+    die(`${thread} is in its blind first round: members do not message in the project thread until the reveal (work goes in co entries)`); }
+const send = o => { if(!o._coEngine) blindThread(o.thread,o.from); return write(build(o)); };
 const BOXES=['inbox','claimed','done'], isMsg=f=>f.endsWith('.md')&&!f.startsWith('.');
 // This process's session label: --session, else CARRIER_PIGEON_SESSION, else none (a generic member of its agent kind).
 function sessionOf(o={}){ const s=o.session??process.env.CARRIER_PIGEON_SESSION; return s==null||s===''||s===true?null:vname(String(s),'session'); }
@@ -188,6 +191,7 @@ function done(id,a,status='done'){ agent(a); vid(id); const [,claimed,dn]=dirs(a
 // Replying again to an ask that is already done sends a follow-up on the same thread and leaves the ask in done/.
 function reply(id,o){ const a=agent(o.as||o.from||die('--as required (reply ID --as AGENT --body ...)')); const h=load(id); if(h.msg.to!==a) die(`message ${id} is addressed to ${h.msg.to}, not ${a}`);
   if(isCoNotice(h.msg)) die(`message ${id} is a co-work phase notice: it needs no reply, and a reply would land in the shared project thread where the other members can read it. Do the phase's work with the co commands and finish with: co ready ${h.msg.thread} --as ${a} (it closes the notice).`);
+  blindThread(h.msg.thread,a);
   // the reply goes back to the session that asked (to_session = its from_session), from this session
   const follow=h.box==='done'; const r=build({...o,from:a,to:h.msg.from,subject:o.subject||('Re: '+h.msg.subject).slice(0,SUBJECT_MAX),thread:h.msg.thread,'reply-to':id,kind:o.kind||'reply','to-session':h.msg.from_session||undefined});
   if(h.box==='inbox') claim(id,a,sessionOf(o)); write(r); if(!o['keep-open']&&!follow) done(id,a,o.decline?'declined':'done'); return follow?{...r,follow_up:true}:r; }
@@ -297,9 +301,10 @@ async function coCommand(o,out){ const co=await import('./cp-co.mjs'); const [su
     case 'verdict': { const e=co.verdict(need(),as(),{...o,session:sessionOf(o)}); return out(e,`added ${short(e)}`); }
     case 'ready': { const r=co.ready(need(),as(),sessionOf(o)); return out(r,r.advanced?`ready; everyone is done: the project moved to phase ${r.phase} and the next notices went out`:`ready for ${r.phase} (${r.ready.join(', ')} so far)`); }
     case 'advance': { const r=co.advance(need(),as(),o.reason); return out(r,`forced on to phase ${r.phase}; skipped ${r.forced.join(', ')||'nobody'}`); }
+    case 'reveal': { const r=co.retryReveal(need(),as()); return out(r,`reveal retried: ${r.revealed.opened} opened, ${r.revealed.failed} failed or still sealed${r.revealed.failed?'':'; the key is deleted'}`); }
     case 'check': { const r=co.check(need()); out(r,r.findings.length?r.findings.map(x=>`${x.code} ${x.id||''}: ${x.msg}`).join('\n'):'protocol check clean'); return r.clean?0:1; }
     case 'report': { const r=co.report(need()); return out(r,r.markdown); }
-    default: die('usage: co new|list|view|add|challenge|pass|respond|verdict|ready|advance|check|report  (see references/co.md)'); } }
+    default: die('usage: co new|list|view|add|challenge|pass|respond|verdict|ready|advance|reveal|check|report  (see references/co.md)'); } }
 const replyText = r => r.status==='replied' ? `reply ${r.reply.id} from ${r.reply.from} (thread ${r.reply.thread}):\n${r.reply.body}` : `${r.ask}: ${r.hint}`;
 async function main(argv){ const [cmd,...rest]=argv; const o=args(rest); const J=o.json; const out=(obj,txt)=>console.log(J?JSON.stringify(obj,null,2):txt);
   switch(cmd){

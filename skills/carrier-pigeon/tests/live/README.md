@@ -13,7 +13,37 @@ Binaries come from `~/.carrier-pigeon/host/config.json` when it exists, otherwis
 | `conversation.mjs [--mode wake\|ask]` | A real multi-turn conversation between the listener's Claude (Haiku) and Codex. Grok asks Claude to get two answers from Codex; the second question ("add 100 to your previous answer") omits the number, so Codex must remember the conversation. In `wake` mode (the default) each answer has to wake Claude's resumed per-thread session. | 3 Haiku runs, 2 Codex turns |
 | `co-research.mjs [--claude-model haiku]` | A real co-research project between the listener's Claude and Codex. The question is answerable from two files in the throwaway mailbox: the host code, and a docs copy with one planted mismatch (5 wakes per 10 minutes where the code says 6). The script is lead and judge. It rules "unresolved" on any defended dispute and writes a placeholder synthesis.<br>**Pass:**<br>- the project closes with a clean protocol check;<br>- each member adds cited claims and coverage, then challenges or passes;<br>- no member writes into the project thread;<br>- since 0.9.0, every member entry on disk stays sealed until one reveal, which opens them all with no failures.<br>Whether the mismatch surfaced is reported, not gated. | About 3 Haiku runs and 3 Codex turns |
 | `co-modes.mjs --mode audit\|design\|build\|solo` | The other co modes, and a baseline. Every project mode gates on: closed, a clean protocol check, every real member doing its work, no member messages in the project thread.<br>`audit`: Claude and Codex audit a limiter with three planted defects; which ones the findings name is reported.<br>`design`: competing designs under three acceptance criteria, which the script rates untested.<br>`build`: real Codex builds a unit in its own git worktree, while the script plays Claude, cross-reviews, merges and rates criteria from the merged `node --test`.<br>`solo`: no project; Claude and Codex each answer the co-research question alone. | Per mode: about 3 Haiku runs and 1 to 3 Codex turns (`build`: Codex only) |
+| `co-real.mjs setup\|listen\|codex\|report` | Every role is a real model, and the material is real: no scripted member, lead or judge, and no planted defects.<br>`setup --mode audit`: Claude and Codex audit carrier-pigeon's own sealed-round code at the version under test, with Codex as lead.<br>`setup --mode build`: two real builders in their own worktrees, Codex as lead.<br>Codex runs through `listen` (listener-woken members) or `codex` (a sandboxed write-capable session). The harness never launches Claude itself: Claude builders and the non-member judge (id `grok`, no grok runtime here) are the operator's Claude subagents, under that session's permission system.<br>`report` gates on:<br>- closed with a clean check;<br>- the lead's synthesis;<br>- a judge verdict on every defended dispute;<br>- no member message in the thread;<br>- audit: sealed until one clean reveal;<br>- build: C1 rated pass, and the merged tests pass when the harness reruns them. | Audit: listener Claude (Sonnet) and Codex, plus one subagent judge. Build: two Claude subagent rounds and 3 to 4 Codex sessions |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Results on 2026-11-01 (one Windows machine, 0.9.1): every role real, real material
+
+- **`co-real` audit of the sealed first round (0.9.0 code, `54ddb89`):** passed the protocol gate.
+  - **Roles:** the members were the listener's Claude (Sonnet) and Codex; the lead was Codex; the judge was a separate Claude Sonnet under the `grok` id.
+  - **Seal and reveal:** the project was itself sealed (13 entries opened at the reveal, none failed, no plaintext before it), and the check was clean.
+  - **Findings (the lead's synthesis):** six defect classes survived, 2 high, 3 medium and 1 low.
+    - A member could decrypt a peer's sealed work by naming the peer with `--as`, because the view opened "own" entries.
+    - The CLI accepted `--_coEngine` and so bypassed the thread guard, and `reply` skipped the guard.
+    - A crash during the reveal could wedge the project or half-reveal it.
+    - An entry added during the reveal could stay sealed for good.
+    - A failed reveal could not be retried.
+    - A low metadata count leak.
+  - **Reproductions:** Codex reproduced most of them in memory-only harnesses.
+  - **Challenges:**
+    - Codex overturned two of Claude's findings: a lead deviation never reaches members, and record relabelling was not reachable with the tools.
+    - Claude argued Codex's thread-bypass finding down from high to medium.
+    - The judge dismissed Claude's challenge to the low leak, citing `cp-co.mjs` line by line.
+  - **All fixed in 0.9.1.** Each has a regression test named after its finding (`cp-co.test.mjs`, "audit E…").
+  - **`co-real` build, two real builders:** passed.
+    - **Builders:** Claude (a Sonnet subagent) built `formatList` with 10 tests, and Codex (`codex exec`, sandboxed) built `slugify` with 16. Each committed in its own worktree.
+    - **Cross-review:** each reran the other's tests before passing.
+      - Claude also checked 34 edge cases and 20,000 random strings against an independent reference.
+      - It confirmed that 9 deliberately broken `slugify` variants all fail Codex's tests.
+      - Neither found a defect, so no challenge was filed.
+    - **Lead (Codex):** merged `co/claude`, then `co/codex`, one at a time. It rated C1 pass (`node --test` exit 0, 26 passed) and C2 pass (each branch touched only its own two files), with the commands as evidence, and wrote the synthesis.
+    - **Harness rerun:** `node --test` on the merged branch, exit 0, 26 passed.
+    - Codex used 750k, 430k, 295k and 469k input tokens across its four sessions.
+  - **A second real finding:** OpenAI's filter ended Codex's listener turn mid-audit ("flagged for possible cybersecurity risk"), and the challenge notice steered into that turn was lost. 0.9.1 reports such asks and redelivers co notices once. Codex's challenge round then ran in a fresh sandboxed session, framed as the authorized review it was.
 
 ## Results on 2026-10-31 (one Windows machine, 0.9.0)
 

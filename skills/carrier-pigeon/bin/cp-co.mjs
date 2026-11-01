@@ -70,38 +70,58 @@ export const RESULTS = ['pass', 'fail', 'untested'];
 const keyFile = pid => path.join(cp.ROOT, 'host', 'secrets', 'co', pid + '.key');
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 const keyOf = pid => { const f = keyFile(pid); if (!fs.existsSync(f)) die(`the sealing key for ${pid} is gone (already revealed, or removed)`); return Buffer.from(fs.readFileSync(f, 'utf8').trim(), 'hex'); };
-// A sealed record shows who added what kind of entry, and when; its content is AES-256-GCM ciphertext, and its commitment is
-// sha256(salt + the entry's JSON), which the reveal checks and which stays in the revealed entry so anyone can re-check it later.
+// A sealed record shows who added what kind of entry, and when; its content is AES-256-GCM ciphertext. The authenticated data binds the
+// ciphertext to its project, author, kind and phase, so a relabelled record fails to open; the commitment sha256(salt + the entry's JSON)
+// stays in the revealed entry so anyone can re-check it later.
+const aadOf = (pid, by, kind, phase) => Buffer.from(JSON.stringify([pid, by, kind, phase]));
 function seal(p, e) { const salt = crypto.randomBytes(16).toString('hex'), payload = JSON.stringify(e), iv = crypto.randomBytes(12);
-  const c = crypto.createCipheriv('aes-256-gcm', keyOf(p.id), iv), ct = Buffer.concat([c.update(JSON.stringify({salt, payload}), 'utf8'), c.final()]);
+  const c = crypto.createCipheriv('aes-256-gcm', keyOf(p.id), iv); c.setAAD(aadOf(p.id, e.by, e.type, e.phase)); const ct = Buffer.concat([c.update(JSON.stringify({salt, payload}), 'utf8'), c.final()]);
   return {type: 'sealed', inner: e.type, by: e.by, phase: e.phase, ...(e.session ? {session: e.session} : {}), commitment: sha(salt + payload), sealed: Buffer.concat([iv, c.getAuthTag(), ct]).toString('base64')}; }
-function unseal(pid, rec) { const b = Buffer.from(rec.sealed, 'base64'), d = crypto.createDecipheriv('aes-256-gcm', keyOf(pid), b.subarray(0, 12)); d.setAuthTag(b.subarray(12, 28));
-  const {salt, payload} = JSON.parse(Buffer.concat([d.update(b.subarray(28)), d.final()]).toString('utf8'));
-  if (sha(salt + payload) !== rec.commitment) die('the sealed content does not match its commitment'); return {salt, entry: JSON.parse(payload)}; }
-// A member's own work in a sealed first round: stored sealed, returned to the author in plaintext.
+function unseal(pid, rec) { const b = Buffer.from(rec.sealed, 'base64'), d = crypto.createDecipheriv('aes-256-gcm', keyOf(pid), b.subarray(0, 12)); d.setAuthTag(b.subarray(12, 28)); d.setAAD(aadOf(pid, rec.by, rec.inner, rec.phase));
+  const {salt, payload} = JSON.parse(Buffer.concat([d.update(b.subarray(28)), d.final()]).toString('utf8')); const entry = JSON.parse(payload);
+  if (sha(salt + payload) !== rec.commitment) die('the sealed content does not match its commitment');
+  if (entry.by !== rec.by || entry.type !== rec.inner || entry.phase !== rec.phase) die('the sealed record\'s label does not match its content'); return {salt, entry}; }
+// One lock serialises first-round writes with the reveal, so an entry is either sealed before the reveal reads the store or refused after
+// it starts; never sealed with a key the reveal has already deleted. A directory created atomically; one older than 30 s is stale.
+const lockDir = pid => path.join(dirOf(pid), 'ready', 'round.lock'), marker = (pid, phase) => path.join(dirOf(pid), 'ready', `advanced~${phase}`);
+const pause = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+function withLock(pid, fn) { const d = lockDir(pid);
+  for (const t = Date.now(); ; pause(25)) { try { fs.mkdirSync(d); break; } catch (err) { if (err.code !== 'EEXIST') throw err; }
+    try { if (Date.now() - fs.statSync(d).mtimeMs > 30000) { fs.rmSync(d, {recursive: true, force: true}); continue; } } catch {}
+    if (Date.now() - t > 20000) die('the first round is busy (another write, or the reveal); run it again'); }
+  try { return fn(); } finally { fs.rmSync(d, {recursive: true, force: true}); } }
+// A member's own work in a sealed first round is stored sealed. The plaintext reaches only the author's own session, in this call's result;
+// no later read opens it (view never decrypts), so naming another member with --as reveals nothing before the reveal.
 function store(p, e) { if (!(p.sealed && p.phase === 'independent' && member(p, e.by))) return append(p.id, e);
-  const rec = append(p.id, seal(p, e)); return {id: rec.id, n: rec.n, at: rec.at, ...e, sealed: true}; }
-const ownOpen = (p, rec) => { const {entry} = unseal(p.id, rec); return {id: rec.id, n: rec.n, at: rec.at, ...entry, sealed: true}; };
-// The one reveal, at the end of the first round: each sealed record becomes its verified plaintext under the same id (the only time an
-// entry file is rewritten), or a reveal-failed record that keeps the ciphertext. Then the key is deleted.
-function reveal(p) { const d = path.join(dirOf(p.id), 'entries'); let opened = 0, failed = 0;
-  for (const rec of entries(p.id).filter(e => e.type === 'sealed')) { let out;
-    try { const u = unseal(p.id, rec); out = {id: rec.id, n: rec.n, at: rec.at, ...u.entry, seal: {commitment: rec.commitment, salt: u.salt}}; opened++; }
-    catch (err) { out = {...rec, type: 'reveal-failed', reason: String(err.message).slice(0, 200)}; failed++; }
-    const f = path.join(d, String(rec.n).padStart(4, '0') + '.json'), tmp = f + '.tmp-' + process.pid; fs.writeFileSync(tmp, JSON.stringify(out, null, 1)); fs.renameSync(tmp, f); }
-  fs.rmSync(keyFile(p.id), {force: true}); p.revealed = {at: now(), opened, failed}; }
+  return withLock(p.id, () => { const q = load(p.id); if (q.phase !== 'independent' || fs.existsSync(marker(p.id, 'independent'))) die('the first round has closed (the reveal began); this entry was not added');
+    const rec = append(p.id, seal(q, e)); return {id: rec.id, n: rec.n, at: rec.at, ...e, sealed: true}; }); }
+// The one reveal, at the end of the first round, under the round lock: each sealed record becomes its verified plaintext under the same id
+// (the only time an entry file is rewritten), or a reveal-failed record that keeps its ciphertext and label. It touches only records still
+// sealed (with retry, also failed ones), so a reveal cut short resumes where it stopped. The key is deleted only once every record has
+// opened; while any has failed it stays, so the lead can retry with co reveal. Counts come from the store, not from a tally.
+function reveal(p, retry = false) { const d = path.join(dirOf(p.id), 'entries');
+  for (const rec of entries(p.id).filter(e => e.type === 'sealed' || (retry && e.type === 'reveal-failed'))) { const {reason, ...src} = {...rec, type: 'sealed'}; let out;
+    try { const u = unseal(p.id, src); out = {id: rec.id, n: rec.n, at: rec.at, ...u.entry, seal: {commitment: src.commitment, salt: u.salt}}; }
+    catch (err) { out = {...src, type: 'reveal-failed', reason: String(err.message).slice(0, 200)}; }
+    const f = path.join(d, String(rec.n).padStart(4, '0') + '.json'), tmp = `${f}.tmp-${process.pid}-${crypto.randomBytes(4).toString('hex')}`; fs.writeFileSync(tmp, JSON.stringify(out, null, 1)); fs.renameSync(tmp, f); }
+  const after = entries(p.id), failed = after.filter(e => e.type === 'reveal-failed' || e.type === 'sealed').length;
+  if (!failed) fs.rmSync(keyFile(p.id), {force: true}); p.revealed = {at: now(), opened: after.filter(e => e.seal).length, failed}; }
+// co reveal: the lead (or matt) retries a reveal that left failed records, while the key is still there.
+export function retryReveal(pid, as) { const p = load(pid); if (as !== p.lead && as !== 'matt') die('only the lead (or matt) retries the reveal');
+  if (!p.sealed || !p.revealed) die('nothing to retry: the first round was not sealed, or has not been revealed yet'); withLock(pid, () => reveal(p, true)); save(p); return {project: pid, revealed: p.revealed}; }
 // Re-check a revealed entry against its commitment: its fields other than id, n, at and seal, in stored order, are the sealed JSON.
 const sealHolds = e => { const {id, n, at, seal: s, ...rest} = e; return sha(s.salt + JSON.stringify(rest)) === s.commitment; };
 
 // ---------- what each member may see ----------
 // Independent phase is blind for members (the lead included, when a member): they see the brief and their own entries only, so the first
 // round is not anchored on anyone else's. From the challenge phase on, everything. Build mode is open throughout (units must stay disjoint).
-// Sealed: a member sees its own entries opened and nothing of the others, not even how many there are; the lead or a non-member sees only
-// who has committed what kind of entry and when, never the content, so nobody can relay it before the reveal.
+// Sealed: the view never decrypts, for anyone. A member sees labels (id, kind, time, commitment) of its own entries and nothing of the
+// others'; the lead or a non-member sees the labels of all. `blind` is constant for members, so it says nothing about anyone else's work.
+const label = e => ({id: e.id, n: e.n, at: e.at, type: 'sealed', inner: e.inner || e.type, by: e.by, commitment: e.commitment || e.seal?.commitment || null});
 export function view(pid, as) { const p = load(pid); const all = entries(pid); const blind = p.phase === 'independent' && !MODES[p.mode].open, mine = blind && member(p, as);
-  const visible = mine ? all.filter(e => e.by === as).map(e => e.type === 'sealed' ? ownOpen(p, e) : e)
-    : blind && p.sealed ? all.map(e => e.type === 'sealed' ? {id: e.id, n: e.n, at: e.at, type: 'sealed', inner: e.inner, by: e.by, commitment: e.commitment} : e) : all;
-  return {project: p, phase: p.phase, blind: mine && visible.length < all.length, sealed: !!(blind && p.sealed), hidden: mine ? (p.sealed ? null : all.length - visible.length) : 0, entries: visible, state: p.phase === 'independent' ? null : state(p, all),
+  const masked = e => p.sealed && (e.type === 'sealed' || e.type === 'reveal-failed' || e.seal); // a reveal cut short leaves opened entries; still masked
+  const visible = mine ? all.filter(e => e.by === as).map(e => masked(e) ? label(e) : e) : blind && p.sealed ? all.map(e => masked(e) ? label(e) : e) : all;
+  return {project: p, phase: p.phase, blind: mine, sealed: !!(blind && p.sealed), hidden: mine ? (p.sealed ? null : all.length - visible.length) : 0, entries: visible, state: p.phase === 'independent' ? null : state(p, all),
     ready: readyList(p, p.phase), waiting_for: participants(p, p.phase).filter(a => !readyList(p, p.phase).includes(a))}; }
 
 // ---------- add work ----------
@@ -188,10 +208,15 @@ function disputesToJudge(p, all) { return all.filter(c => c.type === 'challenge'
 export function ready(pid, as, session = null) { const p = load(pid); vagent(as); if (!participants(p, p.phase).includes(as)) die(`${as} has nothing to do in phase ${p.phase} (waiting for ${participants(p, p.phase).join(', ')})`);
   const b = blockers(p, as); if (b.length) die(`not ready for ${p.phase}: ${b.join('; ')}`); fs.writeFileSync(readyFile(p, p.phase, as), JSON.stringify({agent: as, session, at: now()}));
   closeNotices(p, as, session); const r = {project: pid, phase: p.phase, ready: readyList(p, p.phase)}; return advanceIfDone(p, r); }
+// Two agents marking ready at once both see everyone ready; only the one that creates the marker moves the project on. A marker left by
+// a caller that died before the phase moved on (older than a minute, the project still in that phase) is taken over by the next ready or
+// advance, so an interrupted reveal resumes instead of wedging the project; co check reports such a stall meanwhile.
+const STALE_MS = 60000;
+function claimAdvance(p) { const m = marker(p.id, p.phase); try { fs.writeFileSync(m, now(), {flag: 'wx'}); return true; } catch (err) { if (err.code !== 'EEXIST') throw err; }
+  try { if (load(p.id).phase === p.phase && Date.now() - fs.statSync(m).mtimeMs > STALE_MS) { fs.writeFileSync(m, now()); return true; } } catch {} return false; }
 function advanceIfDone(p, r) { if (p.phase === 'closed' || readyList(p, p.phase).length < participants(p, p.phase).length) return {...r, advanced: false};
-  // Two agents marking ready at once both see everyone ready; only the one that creates this marker moves the project on.
-  try { fs.writeFileSync(path.join(dirOf(p.id), 'ready', `advanced~${p.phase}`), now(), {flag: 'wx'}); } catch (err) { if (err.code === 'EEXIST') return {...r, advanced: false}; throw err; }
-  if (p.phase === 'independent' && p.sealed && !p.revealed) reveal(p); // the first reveal: before anyone is told the next phase began
+  if (!claimAdvance(p)) return {...r, advanced: false};
+  if (p.phase === 'independent' && p.sealed) withLock(p.id, () => reveal(p)); // the first reveal: before anyone is told the next phase began
   let next = PHASES[PHASES.indexOf(p.phase) + 1]; if (next === 'adjudicate' && !disputesToJudge(p, entries(p.id)).length) next = 'closed'; // nothing a non-party judge can rule on
   p.phase = next; p.phases.push({phase: next, at: now()}); save(p); notify(p); return {...r, advanced: true, phase: next}; }
 // The lead may move a stalled project on (a member gone quiet); the move and its reason are recorded.
@@ -230,6 +255,9 @@ export function check(pid) { const p = load(pid), all = entries(pid), f = [], pr
   for (const e of all.filter(x => x.type === 'reveal-failed')) add('reveal-failed', e.id, `${e.by}'s sealed entry could not be opened: ${e.reason}`);
   if (idx > 0) for (const e of all.filter(x => x.type === 'sealed')) add('unrevealed', e.id, 'a sealed entry is still sealed after the first round');
   for (const e of all.filter(x => x.seal)) if (!sealHolds(e)) add('seal-mismatch', e.id, 'the revealed entry no longer matches the commitment it was sealed under');
+  // a first-round member entry of a sealed project with no seal was never sealed, or had its seal stripped to silence the check above
+  if (p.sealed && idx > 0) for (const e of all.filter(x => x.phase === 'independent' && member(p, x.by) && [prim, 'coverage', 'deviation'].includes(x.type) && !x.seal)) add('unsealed-first-round', e.id, 'a first-round entry of a sealed project carries no seal');
+  try { const m = marker(pid, p.phase); if (fs.existsSync(m) && Date.now() - fs.statSync(m).mtimeMs > STALE_MS) add('advance-stalled', null, `the move on from ${p.phase} began over a minute ago and did not finish; the next co ready or co advance resumes it`); } catch {}
   const skipped = (a, phase) => all.some(e => e.type === 'forced' && e.phase === phase && e.skipped?.includes(a));
   if (idx > 0 && MODES[p.mode].coverage) for (const m of p.members) if (!all.some(e => e.type === 'coverage' && e.by === m.agent) && !skipped(m.agent, 'independent')) add('no-coverage', m.agent, 'no statement of what was checked and what was not');
   if (p.brief_sha256 && briefHash(p) !== p.brief_sha256) add('brief-changed', null, 'project.json no longer matches the brief hashed when the project opened');
@@ -237,7 +265,10 @@ export function check(pid) { const p = load(pid), all = entries(pid), f = [], pr
   if (p.phase === 'closed') for (const id of unrated(p, all)) add('criterion-unrated', id, 'an acceptance criterion with no rating');
   for (const e of all.filter(x => x.type === 'forced')) add('forced', e.id, `phase ${e.phase} forced on (${e.reason}); skipped ${e.skipped.join(', ') || 'nobody'}`);
   return {project: pid, phase: p.phase, findings: f, clean: !f.filter(x => x.code !== 'forced').length}; }
-export function report(pid) { const p = load(pid), all = entries(pid), st = state(p, all), syn = all.filter(e => e.type === 'synthesis').pop();
+// During a blind first round the report withholds the members' work (entries, coverage, deviations, sources): anyone can run it, the lead
+// included, and a reveal cut short must not publish half the round. It shows the brief, the scorecard shell and the protocol check.
+export function report(pid) { const p0 = load(pid), all0 = entries(pid), blindNow = p0.phase === 'independent' && !MODES[p0.mode].open;
+  const p = p0, all = blindNow ? all0.filter(e => !member(p0, e.by)) : all0, st = state(p, all), syn = all.filter(e => e.type === 'synthesis').pop();
   const by = s => st.filter(x => x.status === s); const score = p.members.map(m => { const mine = st.filter(x => x.by === m.agent), chs = all.filter(c => c.type === 'challenge' && c.by === m.agent);
     const landed = st.flatMap(x => x.challenges).filter(c => c.by === m.agent && ['conceded', 'sustained', 'revised'].includes(c.outcome)).length;
     return {agent: m.agent, entries: mine.length, survived: mine.filter(x => ['standing', 'revised'].includes(x.status)).length, overturned: mine.filter(x => x.status === 'overturned').length, challenges: chs.length, landed}; });
@@ -247,11 +278,12 @@ export function report(pid) { const p = load(pid), all = entries(pid), st = stat
   const coverage = p.members.map(m => ({agent: m.agent, text: all.filter(e => e.type === 'coverage' && e.by === m.agent).pop()?.text || null}));
   const criteria = (p.criteria || []).map(c => { const r = all.filter(e => e.type === 'rating' && e.criterion === c.id).pop(); return {...c, result: r?.result || 'unrated', evidence: r?.text || null}; });
   const accepted = criteria.length ? criteria.every(c => c.result === 'pass') : null;
-  const deviations = all.filter(e => e.type === 'deviation'), passes = all.filter(e => e.type === 'pass'); const sessions = p.members.map(m => `${m.agent} [${[...new Set(all.filter(e => e.by === m.agent && e.session).map(e => e.session))].join(', ') || 'session not recorded'}]`);
+  const deviations = all.filter(e => e.type === 'deviation'), passes = all.filter(e => e.type === 'pass'); const sessions = p.members.map(m => `${m.agent} [${[...new Set(all0.filter(e => e.by === m.agent && e.session).map(e => e.session))].join(', ') || 'session not recorded'}]`); // labels only, no content
   const sources = p.mode === 'research' ? sourcesOf(all) : [];
   const md = [`# ${p.title}`, `${p.mode} project ${p.id}; phase ${p.phase}; members ${p.members.map(m => m.agent).join(', ')}; lead ${p.lead}; judge ${p.judge}`, '', `**Question:** ${p.question}`,
     ...(p.subject ? [`**Subject (pinned):** ${p.subject}`] : []), ...(p.scope ? [`**Scope:** ${p.scope}`] : []), `Brief sha256 ${p.brief_sha256 || '(none)'}.`,
-    `Independence: ${MODES[p.mode].open ? 'build mode is open throughout. ' : p.sealed ? (p.revealed ? `first-round entries were sealed (encrypted, with a commitment) until the reveal at ${p.revealed.at}: ${p.revealed.opened} opened and checked against their commitments${p.revealed.failed ? `, ${p.revealed.failed} failed` : ''}. The key sat in host/secrets, which the listener's Claude cannot read; another process of the same OS user could have. ` : 'first-round entries are sealed until the reveal. ')
+    ...(blindNow ? ['', '_First round in progress: the members\' work is withheld until it ends._'] : []),
+    `Independence: ${MODES[p.mode].open ? 'build mode is open throughout. ' : p.sealed ? (p.revealed ? `first-round entries were sealed (encrypted, with a commitment) until the reveal at ${p.revealed.at}: ${all0.filter(e => e.seal).length} opened and checked against their commitments${all0.some(e => e.type === 'reveal-failed' || (e.type === 'sealed' && !blindNow)) ? `, ${all0.filter(e => e.type === 'reveal-failed' || e.type === 'sealed').length} failed or still sealed` : ''}. The key sat in host/secrets, which the listener's Claude cannot read; another process of the same OS user could have. ` : 'first-round entries are sealed until the reveal. ')
       : 'the first phase is blind by protocol, not by access control (the files are readable). '}Sessions: ${sessions.join('; ')}.`, '',
     '## Synthesis', syn ? syn.text : '(not written yet)', '', `## Survived (${by('standing').length + by('revised').length})`, ...by('standing').map(line), ...by('revised').map(x => line(x) + (x.original.text === x.entry.text ? '\n  - revised: same text; its citations or fields changed' : `\n  - revised from: ${x.original.text}`)),
     '', `## Overturned (${by('overturned').length})`, ...by('overturned').map(line), '', `## Disputed or unresolved (${by('disputed').length})`, ...by('disputed').map(line), '',

@@ -130,6 +130,7 @@ await t('entries record the writer\'s session; the report names the sessions and
   assert.match(md, /blind by protocol, not by access control/); assert.match(md, /Sessions: claude \[claude-main\]; codex \[codex-thread-1\]/); });
 await t('the research report groups claims by source and marks a source several members cite as one source', () => { const p = research({sealed: false});
   claim(p, 'codex', 'a', {cites: ['https://www.Example.org/docs/#v2 | s3 | x']}); claim(p, 'claude', 'b', {cites: ['http://example.org/docs | s4 | y', 'other.md | l1 | z']});
+  assert.deepEqual(co.report(p.id).sources, [], 'withheld during the first round'); co.advance(p.id, 'matt', 'end the first round');
   const s = co.report(p.id).sources; assert.equal(s.length, 2); assert.deepEqual(s[0].by, ['codex', 'claude']); assert.deepEqual(s[0].entries, ['E1', 'E2']);
   assert.match(co.report(p.id).markdown, /one source, not independent corroboration[\s\S]*: E1, E2 \(cited by codex, claude\)/); });
 await t('a phase notice takes no reply: reply is refused and points at co ready (a reply would leak into the shared thread)', () => { const p = research();
@@ -148,8 +149,8 @@ await t('a citation keeps its excerpt verbatim: only the first two bars separate
   assert.deepEqual(e.cites[1], {source: 'C:\\x\\a.md', location: 'l2', excerpt: null}); assert.throws(() => claim(p, 'codex', 'y', {cites: ['onlysource | ']}), /source and location required/); });
 await t('sources cited by absolute and by relative path join, and a revision that only changed citations says so', () => { const p = research({sealed: false});
   const a = claim(p, 'codex', 'a', {cites: ['C:\\tmp\\run\\docs\\listener.md | line 75 | x']}); claim(p, 'claude', 'b', {cites: ['docs/listener.md | line 75 | x']});
-  const s = co.report(p.id).sources; assert.equal(s.length, 1); assert.deepEqual(s[0].by, ['codex', 'claude']); assert.deepEqual(s[0].entries, ['E1', 'E2']);
-  cover(p, 'codex'); cover(p, 'claude'); co.ready(p.id, 'codex'); co.ready(p.id, 'claude'); const c = co.challenge(p.id, 'claude', {target: a.id, kind: 'weak-evidence', text: 'excerpt garbled'});
+  cover(p, 'codex'); cover(p, 'claude'); co.ready(p.id, 'codex'); co.ready(p.id, 'claude');
+  const s = co.report(p.id).sources; assert.equal(s.length, 1); assert.deepEqual(s[0].by, ['codex', 'claude']); assert.deepEqual(s[0].entries, ['E1', 'E2']); const c = co.challenge(p.id, 'claude', {target: a.id, kind: 'weak-evidence', text: 'excerpt garbled'});
   co.pass(p.id, 'codex', {reason: 'fine'}); co.ready(p.id, 'claude'); co.ready(p.id, 'codex'); claim(p, 'codex', 'a', {cites: ['C:\\tmp\\run\\docs\\listener.md | line 75 | exact words'], revises: a.id});
   co.respond(p.id, 'codex', {target: c.id, outcome: 'revise', text: 'fixed the excerpt'}); assert.match(co.report(p.id).markdown, /revised: same text; its citations or fields changed/); });
 await t('acceptance criteria: fixed in the brief, rated by the lead after adjudication; untested or unrated is never accepted', () => {
@@ -176,13 +177,15 @@ await t('sealing is the default where the first round is blind (research, audit,
   const u = cli('co', 'new', '--mode', 'research', '--title', 'u', '--question', 'q', '--members', 'claude,codex', '--as', 'matt', '--unsealed', '--json'); assert.equal(u.status, 0, u.stderr); assert.equal(JSON.parse(u.stdout).sealed, undefined);
   const f = path.join(HOME, 'co', r.id, 'project.json'), j = JSON.parse(fs.readFileSync(f, 'utf8')); delete j.sealed; fs.writeFileSync(f, JSON.stringify(j));
   assert.ok(co.check(r.id).findings.some(x => x.code === 'brief-changed'), 'quietly unsealing a project changes its brief'); });
-await t('a sealed first round leaves no plaintext anywhere in the mailbox: the author sees its own work, other members nothing, the lead only commitments', () => {
+await t('a sealed first round leaves no plaintext anywhere in the mailbox, and no view opens it: authors and the lead see labels, other members nothing', () => {
   const p = research(); const mine = claim(p, 'codex', 'ZEBRA-CANARY-5521 sealed claim'); cover(p, 'codex');
   const walk = dir => fs.readdirSync(dir, {withFileTypes: true}).flatMap(x => x.isDirectory() ? walk(path.join(dir, x.name)) : [path.join(dir, x.name)]);
   assert.ok(!walk(HOME).some(f => fs.readFileSync(f, 'utf8').includes('ZEBRA-CANARY-5521')), 'no file in the mailbox holds the sealed text');
   assert.equal(mine.text, 'ZEBRA-CANARY-5521 sealed claim'); assert.equal(mine.sealed, true); const raw = co.entries(p.id).find(e => e.id === mine.id); assert.equal(raw.type, 'sealed'); assert.equal(raw.inner, 'claim');
-  const own = co.view(p.id, 'codex'); assert.equal(own.entries.find(e => e.id === mine.id).text, 'ZEBRA-CANARY-5521 sealed claim'); assert.equal(own.sealed, true);
-  const other = co.view(p.id, 'claude'); assert.equal(other.entries.length, 0); assert.equal(other.hidden, null, 'not even how many');
+  // the view never decrypts, so naming the author with --as (audit E1/E8: identity is a claim in the CLI) yields only labels
+  const own = co.view(p.id, 'codex'); const lbl = own.entries.find(e => e.id === mine.id); assert.equal(lbl.type, 'sealed'); assert.equal(lbl.inner, 'claim'); assert.ok(!('text' in lbl)); assert.equal(own.sealed, true);
+  assert.ok(!JSON.stringify(own).includes('ZEBRA-CANARY-5521'), 'not even for the author'); assert.ok(!cli('co', 'view', p.id, '--as', 'codex').stdout.includes('ZEBRA-CANARY-5521'));
+  const other = co.view(p.id, 'claude'); assert.equal(other.entries.length, 0); assert.equal(other.hidden, null, 'not even how many'); assert.equal(other.blind, true, 'blind is constant for members (audit E12)');
   const lead = co.view(p.id, 'matt'); assert.equal(lead.entries.length, 2); assert.ok(lead.entries.every(e => e.type === 'sealed' && !('text' in e) && !('sealed' in e) && /^[0-9a-f]{64}$/.test(e.commitment)));
   assert.throws(() => co.ready(p.id, 'claude'), /add at least one claim/); assert.equal(co.ready(p.id, 'codex').advanced, false, 'a sealed claim and coverage count for ready'); });
 await t('the reveal opens every sealed entry under the same id, checks its commitment and deletes the key; a later edit is caught', () => {
@@ -205,6 +208,39 @@ await t('no member writes into a blind project\'s thread until the reveal (the e
   assert.throws(() => cp.send({from: 'claude', to: 'matt', thread: p.id, subject: 's', body: 'b', _noStdin: true}), /blind first round/);
   assert.ok(cp.send({from: 'grok', to: 'matt', thread: p.id, subject: 's', body: 'b', _noStdin: true}).id, 'a non-member is not gated');
   toChallenge(p); assert.ok(cp.send({from: 'codex', to: 'claude', thread: p.id, subject: 's', body: 'after the reveal', _noStdin: true}).id); });
+// Regressions for the live co-audit of the sealed round (Claude and Codex, 2026-11-01): each test names the finding it pins.
+await t('audit E9/E3: the command line cannot set an internal option, and a member cannot reply into a blind project thread', () => { const p = research();
+  const r = cli('send', '--from', 'codex', '--to', 'claude', '--thread', p.id, '--subject', 's', '--body', 'b', '--_coEngine', 'true'); assert.notEqual(r.status, 0); assert.match(r.stderr, /unknown option --_coEngine/);
+  assert.match(cli('send', '--from', 'codex', '--to', 'claude', '--thread', p.id, '--subject', 's', '--body', 'b', '--_coEngine=true').stderr, /unknown option --_coEngine/);
+  const m = cp.send({from: 'grok', to: 'codex', thread: p.id, subject: 'question', body: 'b', _noStdin: true}); // a non-member may write; a member may not answer it here yet
+  assert.throws(() => cp.reply(m.id, {as: 'codex', body: 'my findings', _noStdin: true}), /blind first round/); toChallenge(p); assert.equal(cp.reply(m.id, {as: 'codex', body: 'after the reveal', _noStdin: true}).kind, 'reply'); });
+await t('audit E2/E10: a move cut short (stale marker, phase unchanged) is reported, and the next ready resumes it, reveal included', () => {
+  const p = research(); claim(p, 'codex', 'a'); claim(p, 'claude', 'b'); cover(p, 'codex'); cover(p, 'claude'); co.ready(p.id, 'codex');
+  const m = path.join(HOME, 'co', p.id, 'ready', 'advanced~independent'); fs.writeFileSync(m, 'a caller that died'); const old = new Date(Date.now() - 120000); fs.utimesSync(m, old, old); // as if it crashed
+  fs.writeFileSync(path.join(HOME, 'co', p.id, 'ready', 'independent~claude.json'), '{}'); assert.equal(co.load(p.id).phase, 'independent');
+  assert.ok(co.check(p.id).findings.some(f => f.code === 'advance-stalled')); assert.ok(co.report(p.id).markdown.includes('withheld until it ends'), 'the report shows no first-round work meanwhile');
+  assert.ok(!co.report(p.id).markdown.includes('E1 (codex'), 'no entry content in a first-round report');
+  const r = co.ready(p.id, 'claude'); assert.equal(r.advanced, true); assert.equal(co.load(p.id).phase, 'challenge'); assert.equal(co.entries(p.id).filter(e => e.type === 'sealed').length, 0); assert.ok(co.check(p.id).clean); });
+await t('audit E5: a failed reveal keeps the key, the lead can retry it, and a fresh marker is never taken over', () => {
+  const p = research(); const a = claim(p, 'codex', 'x'); claim(p, 'claude', 'y'); cover(p, 'codex'); cover(p, 'claude');
+  const f = path.join(HOME, 'co', p.id, 'entries', String(a.n).padStart(4, '0') + '.json'), good = fs.readFileSync(f, 'utf8'), rec = JSON.parse(good); const buf = Buffer.from(rec.sealed, 'base64'); buf[buf.length - 1] ^= 1;
+  fs.writeFileSync(f, JSON.stringify({...rec, sealed: buf.toString('base64')})); co.ready(p.id, 'codex'); co.ready(p.id, 'claude');
+  assert.ok(fs.existsSync(keyAt(p.id)), 'the key stays while a record has failed'); assert.ok(co.check(p.id).findings.some(x => x.code === 'reveal-failed'));
+  assert.throws(() => co.retryReveal(p.id, 'codex'), /only the lead/); const failed = JSON.parse(fs.readFileSync(f, 'utf8')); fs.writeFileSync(f, JSON.stringify({...failed, sealed: rec.sealed})); // the transient fault is gone
+  const r = co.retryReveal(p.id, 'matt'); assert.equal(r.revealed.failed, 0); assert.ok(!fs.existsSync(keyAt(p.id)), 'deleted once all opened'); assert.equal(co.entries(p.id).find(e => e.id === a.id).text, 'x'); assert.ok(co.check(p.id).clean); });
+await t('audit E4: a relabelled sealed record (author or kind) fails to open, and a revealed first-round entry stripped of its seal is caught', () => {
+  const p = research(); const a = claim(p, 'codex', 'x'); claim(p, 'claude', 'y'); cover(p, 'codex'); cover(p, 'claude');
+  co.ready(p.id, 'codex'); // then, before the reveal, the record is relabelled as claude's
+  const f = path.join(HOME, 'co', p.id, 'entries', String(a.n).padStart(4, '0') + '.json'), rec = JSON.parse(fs.readFileSync(f, 'utf8')); fs.writeFileSync(f, JSON.stringify({...rec, by: 'claude'}));
+  co.ready(p.id, 'claude'); assert.ok(co.check(p.id).findings.some(x => x.code === 'reveal-failed' && x.id === a.id));
+  const q = research(); const b = claim(q, 'codex', 'z'); claim(q, 'claude', 'w'); cover(q, 'codex'); cover(q, 'claude'); co.ready(q.id, 'codex'); co.ready(q.id, 'claude');
+  const g = path.join(HOME, 'co', q.id, 'entries', String(b.n).padStart(4, '0') + '.json'), {seal, ...bare} = JSON.parse(fs.readFileSync(g, 'utf8')); fs.writeFileSync(g, JSON.stringify(bare));
+  assert.ok(co.check(q.id).findings.some(x => x.code === 'unsealed-first-round' && x.id === b.id)); });
+await t('audit E11: once the reveal has begun, a late first-round entry is refused instead of being sealed under a key about to be deleted', () => {
+  const p = research(); claim(p, 'codex', 'x'); fs.writeFileSync(path.join(HOME, 'co', p.id, 'ready', 'advanced~independent'), 'reveal in progress');
+  assert.throws(() => claim(p, 'codex', 'late'), /first round has closed/); assert.equal(co.entries(p.id).length, 1, 'nothing was appended');
+  fs.mkdirSync(path.join(HOME, 'co', p.id, 'ready', 'round.lock')); const old = new Date(Date.now() - 60000); fs.utimesSync(path.join(HOME, 'co', p.id, 'ready', 'round.lock'), old, old);
+  fs.rmSync(path.join(HOME, 'co', p.id, 'ready', 'advanced~independent')); assert.equal(claim(p, 'claude', 'after a stale lock').sealed, true, 'a stale lock is taken over'); });
 await t('a bad project id is refused before any path is built', () => { for (const id of ['../agents', 'co-short', 'co-' + 'U'.repeat(26)]) assert.throws(() => co.load(id), /bad project id/); });
 
 await t('CLI: co new takes repeated --assign and co add repeated --cite; co check exits 1 on findings', () => {
@@ -234,7 +270,7 @@ await t('each mode has its sub-skill: same name as its folder, the parent\'s ver
     assert.equal(/^name: (.+)$/m.exec(front)[1], s); assert.equal(/^\s+version: "([^"]+)"/m.exec(front)[1], version, s + ' version'); assert.match(front, /^\s+parent: carrier-pigeon$/m);
     const desc = /^description: "(.+)"$/m.exec(front)[1]; assert.ok(desc.length <= 500, `${s} description ${desc.length} chars`); assert.match(desc, /carrier-pigeon sub-skill/); assert.match(desc, /Not for/); } });
 await t('the sub-skills and references/co.md name only real co commands, MCP tools, kinds, strengths and severities', () => {
-  const subs = new Set(['new', 'list', 'view', 'add', 'challenge', 'pass', 'respond', 'verdict', 'ready', 'advance', 'check', 'report']);
+  const subs = new Set(['new', 'list', 'view', 'add', 'challenge', 'pass', 'respond', 'verdict', 'ready', 'advance', 'reveal', 'check', 'report']);
   const mcp = new Set([...fs.readFileSync(path.join(BIN, 'carrier-pigeon-mcp.mjs'), 'utf8').matchAll(/name: '(co_\w+)'/g)].map(m => m[1]));
   const docs = [...subSkills.map(s => [s, read(s)]), ['co.md', fs.readFileSync(path.join(SKILL, 'references', 'co.md'), 'utf8')]];
   for (const [name, text] of docs) {

@@ -2,7 +2,7 @@
 name: co-research
 description: "Use when two or more agents should research one question together and attack each other's findings before any is accepted: blind independent research into cited claims at evidence-vocabulary strengths, cross-challenge, answers, a judge, then a synthesis of what survived. A carrier-pigeon sub-skill (needs its mailbox). Not for a solo lookup (westack-research or one search), auditing code (co-audit), design choices (co-design) or building (co-build)."
 metadata:
-  version: "0.9.0"
+  version: "0.9.1"
   parent: carrier-pigeon
 ---
 
@@ -48,7 +48,7 @@ co add P --as codex --text "PgBouncer 1.21 supports protocol-level prepared stat
   - A claim about what a page or changelog says is at most `present`.
 - **Citation:** `source | location | excerpt`. The location is a section, line, version or timestamp. The excerpt is the source's own words. Cite only what you read in this project.
 - **The first round is sealed** (unless the project was opened `--unsealed`).
-  - Your entries are stored encrypted until the reveal at the end of the round. You see only your own, and nobody else, the lead included, sees their content.
+  - Your entries are stored encrypted until the reveal at the end of the round. Nobody sees their content before then, the lead included and you too: co add shows you your text once, and co view shows only labels, so keep your own notes.
   - Never open `host/secrets` or the `co/` folder, and send no member a message about the project before the reveal.
   - Influence before the reveal is exactly what the round exists to prevent.
 - State your coverage (required before ready): `co add P --as you --type coverage --text "searched X and Y; did not reach Z"`.
