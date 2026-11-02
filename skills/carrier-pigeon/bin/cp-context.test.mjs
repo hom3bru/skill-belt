@@ -1,6 +1,7 @@
 // node bin/cp-context.test.mjs — v0.3 context layer: transcript packs, stable prefix, digests, usage. Temp roots only.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync} from 'node:child_process'; import {EventEmitter} from 'node:events';
 import * as cpx from './cp-context.mjs';
+import childProcess from 'node:child_process'; import {syncBuiltinESMExports} from 'node:module';
 import {wakeTurn,claudeAdapter,codexAdapter,claudeForkArgs,Host} from '../host/carrier-pigeon-host.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.join(here,'carrier-pigeon.mjs');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)); const until=async(f,ms=3000)=>{ const t=Date.now(); while(Date.now()-t<ms){ if(f()) return true; await sleep(20);} return false; };
@@ -125,4 +126,11 @@ await t('wakeTurn delta: a warm session gets only findings added since its prefi
   run('memory','instructions','general','--as','matt','--text','New rule.'); const w3=wakeTurn(m('3'),root,sent); assert.ok(w3.startsWith('[carrier-pigeon v0.4 stable prefix]')); assert.match(w3,/OLD-FINDING[\s\S]*NEW-FINDING/);
   assert.match(wakeTurn(m('4'),root,sent),/memory unchanged/); assert.match(wakeTurn(m('5'),root,new Map()),/OLD-FINDING/,'a fresh session gets everything'); });
 await t('gitState: a non-repo is reported as git:false, never thrown', ()=>{ const {root}=bus(); const d=path.join(root,'plain'); fs.mkdirSync(d); assert.deepEqual(cpx.gitState(d),{repo:d,git:false}); });
+await t('repository capture rejects remote paths before launching git',()=>{
+  const original=childProcess.execFileSync;let launched=0;
+  try{childProcess.execFileSync=()=>{launched++;throw new Error('unexpected subprocess');};syncBuiltinESMExports();
+    for(const repo of ['//fixture-server/share','\\\\fixture-server\\share','\\\\?\\C:\\fixture'])assert.throws(()=>cpx.gitState(repo),/refuses network and device paths/);
+    assert.equal(launched,0,'remote paths never reach git or the OS network redirector');
+  }finally{childProcess.execFileSync=original;syncBuiltinESMExports();}
+});
 console.log(`# ${n} tests, ${failed} failed (context)`); process.exit(failed?1:0);

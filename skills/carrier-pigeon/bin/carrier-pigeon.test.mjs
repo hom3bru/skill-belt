@@ -156,6 +156,40 @@ t('sessions: a reply goes back to the asking session; other sessions\' mail is h
   assert.match(fail('claim',r.id,'--as','claude','--session','claude-s2'),/addressed to session claude-s1/);
   const w=JSON.parse(execFileSync('node',[CLI,'wait',q.id,'--as','claude','--session','claude-s1','--wait','5','--json'],{env,encoding:'utf8'})); assert.equal(w.reply.body,'for s1 only'); assert.equal(run('read',r.id).status,'done');
   assert.match(fail('send','--from','claude','--to','codex','--subject','s','--body','b','--to-session','../x'),/bad --to-session/); });
+
+t('session ownership survives a claim: another session cannot reply or finish it', ()=>{
+  const q=run('send','--from','grok','--to','codex','--subject','owned work','--body','b');
+  run('claim',q.id,'--as','codex','--session','worker-one'); const before=run('inbox','grok').length;
+  assert.match(fail('reply',q.id,'--as','codex','--session','worker-two','--body','stolen'),/claimed by.*worker-one/);
+  assert.match(fail('done',q.id,'--as','codex','--session','worker-two'),/claimed by.*worker-one/);
+  assert.match(fail('done',q.id,'--as','codex'),/claimed by.*worker-one/);
+  assert.equal(run('inbox','grok').length,before,'failed ownership checks send nothing');
+  assert.equal(run('read',q.id).status,'claimed'); run('reply',q.id,'--as','codex','--session','worker-one','--body','owner answer');
+  assert.equal(run('read',q.id).status,'done'); });
+
+t('wait refuses another session\'s ask and does not consume its answer', ()=>{
+  const q=run('send','--from','codex','--session','waiting-one','--to','claude','--subject','private wait','--body','b');
+  const r=run('reply',q.id,'--as','claude','--body','owner answer');
+  assert.match(fail('wait',q.id,'--as','codex','--session','waiting-two','--wait','0'),/sent by session waiting-one/);
+  assert.match(fail('wait',q.id,'--as','grok','--wait','0'),/sent by codex/);
+  assert.equal(run('read',r.id).status,'unread'); });
+
+t('wait matches the original recipient and thread, not only reply_to', ()=>{
+  const q=run('send','--from','codex','--to','claude','--subject','correlate reply','--body','b');
+  run('send','--from','grok','--to','codex','--reply-to',q.id,'--kind','reply','--thread',q.thread,'--subject','wrong sender','--body','wrong');
+  run('send','--from','claude','--to','codex','--reply-to',q.id,'--kind','reply','--subject','wrong thread','--body','wrong');
+  const pending=spawnSync('node',[CLI,'wait',q.id,'--as','codex','--wait','0','--json'],{env,encoding:'utf8'});
+  assert.equal(pending.status,3); assert.equal(JSON.parse(pending.stdout).status,'pending');
+  const r=run('reply',q.id,'--as','claude','--body','correct');
+  assert.equal(run('wait',q.id,'--as','codex','--wait','0').reply.id,r.id); });
+
+t('a session-directed ask accepts an answer only from that recipient session', ()=>{
+  const q=run('send','--from','codex','--to','claude','--to-session','intended-reviewer','--subject','directed answer','--body','b');
+  run('send','--from','claude','--session','other-reviewer','--to','codex','--reply-to',q.id,'--kind','reply','--thread',q.thread,'--subject','other instance','--body','wrong');
+  const pending=spawnSync('node',[CLI,'wait',q.id,'--as','codex','--wait','0','--json'],{env,encoding:'utf8'});
+  assert.equal(pending.status,3); assert.equal(JSON.parse(pending.stdout).status,'pending');
+  const r=run('reply',q.id,'--as','claude','--session','intended-reviewer','--body','right instance');
+  assert.equal(run('wait',q.id,'--as','codex','--wait','0').reply.id,r.id); });
 t('install: copies code into the root, keeps an existing config, backs up what it replaces, leaves mailbox data alone', ()=>{ const T=fs.mkdtempSync(path.join(os.tmpdir(),'cpinst-')); const e2={...process.env,CARRIER_PIGEON_HOME:T};
   const inst=(cli=CLI)=>JSON.parse(execFileSync('node',[cli,'install','--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']})); const SK=path.dirname(path.dirname(CLI));
   const r=inst(); for(const f of ['bin/carrier-pigeon.mjs','bin/cp-context.mjs','host/carrier-pigeon-host.mjs','host/start-host.ps1','host/config.json']){ assert.ok(r.copied.includes(f),f); assert.ok(fs.readFileSync(path.join(T,f)).equals(fs.readFileSync(path.join(SK,f))),f); }
@@ -172,4 +206,58 @@ t('install: copies code into the root, keeps an existing config, backs up what i
   const r3=JSON.parse(execFileSync('node',[CLI,'install','--json'],{env:home,encoding:'utf8'})); assert.equal(r3.root,path.join(H2,'.carrier-pigeon')); assert.ok(fs.existsSync(path.join(H2,'.carrier-pigeon','bin','carrier-pigeon.mjs')));
   assert.ok(!fs.existsSync(path.join(SK,'agents','claude')),'nothing created in the skill folder'); fs.rmSync(H2,{recursive:true,force:true});
   fs.rmSync(T,{recursive:true,force:true}); });
+t('command help is read-only, succeeds before required arguments, and documents structured replies',()=>{
+  const before=run('status');const help=run('reply','--help');assert.match(help.help,/--result/);assert.match(help.help,/request-key/);assert.deepEqual(run('status'),before);
+});
+// doctor: each case gets its own root. A live listener is faked with this test process's pid in host/host.lock and a presence.json naming it.
+{ let roots=0; const LOADED=run('version').version;
+  const docRun=(root,...a)=>spawnSync('node',[CLI,'doctor',...a],{env:{...process.env,CARRIER_PIGEON_HOME:root,CARRIER_PIGEON_SESSION:''},encoding:'utf8'});
+  const docJson=(root,...a)=>{ const r=docRun(root,...a,'--json'); assert.equal(r.status,0,r.stderr); assert.equal(r.stderr,''); return JSON.parse(r.stdout); };
+  const snap=root=>{ if(!fs.existsSync(root)) return null; const l=[]; const visit=d=>{ for(const f of fs.readdirSync(d).sort()){ const p=path.join(d,f), s=fs.statSync(p);
+    l.push([path.relative(root,p),s.mtimeMs,s.isFile()?fs.readFileSync(p,'base64'):'dir']); if(s.isDirectory()) visit(p); } }; visit(root); return l; };
+  const mailbox=({version=LOADED,routes=null}={})=>{ const root=path.join(HOME,'doctor-'+(++roots));
+    execFileSync('node',[CLI,'init'],{env:{...process.env,CARRIER_PIGEON_HOME:root},stdio:'ignore'});
+    if(version!==null){ fs.mkdirSync(path.join(root,'bin')); fs.writeFileSync(path.join(root,'bin','cp-context.mjs'),typeof version==='function'?version():`export const VERSION = '${version}';\n`); }
+    if(routes){ fs.mkdirSync(path.join(root,'host'),{recursive:true}); fs.writeFileSync(path.join(root,'host','host.lock'),String(process.pid));
+      fs.writeFileSync(path.join(root,'host','presence.json'),JSON.stringify({pid:process.pid,routes:Object.fromEntries(Object.keys(routes).map(a=>[a,[a+'-adapter']])),
+        adapters:Object.fromEntries(Object.entries(routes).map(([a,state])=>[a+'-adapter',{state,wakes:true}]))})); }
+    return root; };
+  const check=(r,code)=>r.checks.find(c=>c.code===code);
+  const actionable=r=>{ assert.deepEqual(r.checks.map(c=>c.code),['mailbox','version','listener','agent:claude','agent:codex']);
+    for(const c of r.checks) c.status==='warning'?assert.ok(c.next_action?.trim(),c.code):assert.equal(c.next_action,null,c.code); };
+  t('doctor before init reports uninitialized, exits 0 in both formats and never creates the mailbox',()=>{ const root=path.join(HOME,'doctor-absent');
+    const human=docRun(root); assert.equal(human.status,0,human.stderr); assert.match(human.stdout,/^carrier-pigeon doctor: uninitialized/); assert.match(human.stdout,/next: Run carrier-pigeon init/);
+    const r=docJson(root); assert.equal(r.initialized,false); assert.equal(r.health,'uninitialized'); assert.deepEqual(r.agents,[]); assert.equal(r.installed_version,null); assert.equal(r.loaded_version,LOADED);
+    assert.ok(r.checks.every(c=>c.status==='warning')); actionable(r); assert.equal(fs.existsSync(root),false,'doctor must not create the mailbox'); });
+  t('doctor: an invalid explicit agent or session is a usage error, still without creating anything',()=>{ const root=path.join(HOME,'doctor-usage');
+    for(const a of [['--as','bob'],['--as=']]){ const r=docRun(root,...a); assert.equal(r.status,2,a.join(' ')); assert.match(r.stderr,/unknown agent/); assert.equal(r.stdout,''); }
+    const s=docRun(root,'--session','../escape'); assert.equal(s.status,2); assert.match(s.stderr,/bad session/); assert.equal(fs.existsSync(root),false); });
+  t('doctor: matching installed version, live listener and auto-wake claude/codex are ready; identity is echoed; files unchanged',()=>{
+    const root=mailbox({routes:{claude:'ready',codex:'ready'}}), before=snap(root);
+    const r=docJson(root,'--as','codex','--session','doc-fixture'); assert.equal(r.health,'ready'); assert.equal(r.initialized,true); assert.equal(r.installed_version,LOADED); assert.equal(r.needs_reconnect,false);
+    assert.equal(r.agent,'codex'); assert.equal(r.session,'doc-fixture'); assert.equal(r.agents.length,5); assert.equal(r.agents.find(a=>a.agent==='claude').listener_pid,process.pid); actionable(r);
+    const human=docRun(root); assert.equal(human.status,0); assert.match(human.stdout,/doctor: ready/); assert.doesNotMatch(human.stdout,/warning|next:/); assert.match(human.stdout,new RegExp(`loaded ${LOADED.replace(/\./g,'\\.')}, installed`));
+    assert.deepEqual(snap(root),before,'doctor changed mailbox files'); });
+  t('doctor: missing and malformed installed versions warn without a reconnect claim and exit 0',()=>{
+    for(const version of [null,()=>'export const VERSION = getVersion();\n',()=>'// export const VERSION = \'1.0.0\';\n']){
+      const root=mailbox({version,routes:{claude:'ready',codex:'ready'}}), before=snap(root), r=docJson(root);
+      assert.equal(r.installed_version,null); assert.equal(r.needs_reconnect,false); assert.equal(r.health,'attention'); assert.equal(check(r,'version').status,'warning'); actionable(r);
+      const human=docRun(root); assert.equal(human.status,0); assert.match(human.stdout,/installed unknown/); assert.deepEqual(snap(root),before); } });
+  t('doctor: a loaded version older than installed code needs a reconnect',()=>{ const root=mailbox({version:'999.0.0',routes:{claude:'ready',codex:'ready'}}), r=docJson(root);
+    assert.equal(r.installed_version,'999.0.0'); assert.equal(r.needs_reconnect,true); assert.equal(r.health,'attention'); assert.match(check(r,'version').next_action,/[Rr]econnect/);
+    assert.match(docRun(root).stdout,/installed 999\.0\.0: reconnect needed/); });
+  t('doctor: pull and not-ready agents and a missing listener give attention with next actions',()=>{
+    const root=mailbox({routes:{codex:'starting'}}), before=snap(root), r=docJson(root); assert.equal(r.health,'attention');
+    assert.equal(check(r,'listener').status,'ok'); assert.equal(check(r,'agent:claude').status,'warning'); assert.match(check(r,'agent:claude').message,/pull/);
+    assert.equal(check(r,'agent:codex').status,'warning'); assert.match(check(r,'agent:codex').message,/auto-wake \(not ready\)/); actionable(r);
+    const human=docRun(root); assert.equal(human.status,0); assert.match(human.stdout,/warning agent:claude/); assert.match(human.stdout,/next: .*inbox claude/);
+    const idle=mailbox(), q=docJson(idle); assert.equal(check(q,'listener').status,'warning'); assert.ok(q.agents.every(a=>a.reach==='pull'&&a.listener_pid===null)); actionable(q);
+    assert.deepEqual(snap(root),before); });
+  t('doctor appears in help and leaves existing commands intact',()=>{ assert.match(execFileSync('node',[CLI,'help'],{env,encoding:'utf8'}),/doctor \[--as A\] \[--session S\]/); assert.ok(run('status').claude); });
+}
+t('co controller metadata travels on stdin beyond the Windows argv limit and refuses recursive intake',()=>{
+ const question='A detailed local build acceptance criterion. '.repeat(900),argv=['new','--mode','build','--title','Large controller brief','--question',question,'--subject','fixture@baseline','--members','codex,claude','--as','codex','--lead','codex'];
+ const result=spawnSync(process.execPath,[CLI,'co','--request-stdin','--json'],{env,input:JSON.stringify({argv}),encoding:'utf8',windowsHide:true});assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).question,question.trim());
+ const nested=spawnSync(process.execPath,[CLI,'co','--request-stdin','--json'],{env,input:JSON.stringify({argv:['--request-stdin']}),encoding:'utf8',windowsHide:true});assert.equal(nested.status,2);assert.match(nested.stderr,/bounded string argv/);
+});
 fs.rmSync(HOME,{recursive:true,force:true}); console.log(`# ${n} tests, ${failed} failed (cli)`); process.exit(failed?1:0);

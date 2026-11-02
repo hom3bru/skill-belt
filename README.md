@@ -13,7 +13,7 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 | [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
-| [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Send asks and replies between local coding agents (Claude Code, Codex, Cursor, Grok) through a shared file mailbox, with an optional listener that wakes the recipient. Its four [sub-skills](skills/carrier-pigeon/skills/) (`co-research`, `co-audit`, `co-design`, `co-build`) run one project across several agents: blind independent work, cross-challenge, answers, a non-party judge, then a synthesis. | A claimed, threaded reply with delivery receipts; for co-work, a report of what survived, was overturned or is disputed. Listener sandbox enforcement is not qualified. |
+| [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
 
 westack (then called estack) was renamed in 0.3.1, with no change in behaviour.
 
@@ -49,6 +49,16 @@ Discovery and invocation depend on the host; see each skill's host notes. Explic
 ## Usage
 
 Give the agent a concrete goal and the relevant sources or project context.
+
+**Build together automatically**
+
+```text
+Use Carrier Pigeon to have Claude and Codex add CSV export to this project.
+Have them build their parts, cross-review, fix findings, run the integration
+checks and apply the result locally without me managing the handoffs.
+```
+
+The [automatic build workflow](skills/carrier-pigeon/references/automatic-build.md) runs in the background with a durable handle, separate worktrees, bounded repair rounds and publication conflict checks. It preserves the original Git index and unrelated edits. Pushes, deployment and new dependencies are outside the default scope.
 
 **Design from multiple sources**
 

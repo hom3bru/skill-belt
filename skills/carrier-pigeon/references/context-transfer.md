@@ -4,6 +4,8 @@ Read this when you hand context to another agent beyond a short context pack, or
 
 Providers never share KV caches. So carrier-pigeon moves the context itself, as faithfully as each provider allows, and lets each provider's own prompt cache do the rest.
 
+MCP exposes `transcript_pack`, `transcript_read` and `transcript_verify` alongside the CLI commands below. Packing accepts only ordinary local files and refuses protected paths. Repository capture refuses explicit network/device paths before invoking Git. `transcript_read` defaults to 32,000 returned characters and reports `truncated`, `returned_bytes` and `returned_sha256`; request a larger cap deliberately when exact details require it. A truncated read does not establish that the whole pack reached the reader.
+
 ## The four fidelity levels
 
 1. **Exact history (same provider).**

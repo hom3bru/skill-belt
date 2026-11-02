@@ -83,6 +83,22 @@ class PublicationTests(unittest.TestCase):
     def test_clean_published_snapshot_passes(self):
         self.assertGreater(verify.structure(), 0)
 
+    def test_worktree_git_pointer_is_metadata_but_other_private_files_are_rejected(self):
+        pointer = 'gitdir: C:' + '\\Users\\' + 'someone\\repo\\.git\\worktrees\\task\n'
+        (self.root / '.git').write_text(pointer, encoding='utf-8')
+        self.assertNotIn('.git', verify.source_files(self.root))
+        self.assertGreater(verify.structure(), 0)
+        (self.root / 'receipt.txt').write_text(pointer, encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Private identifier'):
+            verify.structure()
+
+    def test_nested_git_named_file_is_still_checked_as_authored_content(self):
+        folder = self.root / 'notes'
+        folder.mkdir()
+        (folder / '.git').write_text('C:' + '\\Users\\' + 'someone', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Private identifier'):
+            verify.structure()
+
     def test_private_identifier_is_rejected(self):
         # Construct an obviously synthetic identifier without putting one in
         # the public source tree that the publication scanner itself reads.

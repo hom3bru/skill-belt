@@ -1,7 +1,7 @@
 // carrier-pigeon context layer (v0.4): cache-stable prefix, transcript packs, digests, usage stats. Pure Node, no deps.
 // Shared by bin/carrier-pigeon.mjs (CLI) and host/carrier-pigeon-host.mjs (listener).
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import os from 'node:os';
-export const VERSION = '0.9.1';
+export const VERSION = '0.12.0';
 export const sha256 = s => crypto.createHash('sha256').update(s).digest('hex');
 // One secret list for the CLI, packs and renders. Detection only needs a PEM header; render redaction removes the whole block (or the rest, if unterminated).
 // Token patterns need a non-alphanumeric left edge, so words like "risk-assessment-..." or "task-based-..." are not mistaken for an sk- key.
@@ -50,7 +50,8 @@ export const TRANSCRIPT_MAX = 400*1024;
 import {execFileSync} from 'node:child_process';
 // ---------- repo state at capture time / file hashes at read time ----------
 const fileSha = f => { if(isRemotePath(f)) return null; try{ return fs.statSync(f).isFile()?sha256(fs.readFileSync(f)):null; }catch{ return null; } }; // null = missing/unreadable/remote/not a file
-export function gitState(repo, packText=''){ if(!repo) return null; const g=(...a)=>execFileSync('git',['-C',repo,...a],{encoding:'utf8',stdio:['ignore','pipe','ignore'],maxBuffer:256*1024*1024,timeout:60000});
+export function gitState(repo, packText=''){ if(!repo) return null; if(isRemotePath(repo)) throw new Error('repository capture refuses network and device paths');
+  const g=(...a)=>execFileSync('git',['-C',repo,...a],{encoding:'utf8',stdio:['ignore','pipe','ignore'],maxBuffer:256*1024*1024,timeout:60000});
   let top; try{ top=g('rev-parse','--show-toplevel').trim(); }catch{ return {repo:path.resolve(repo),git:false}; }
   let branch=null, head=null; try{ branch=g('rev-parse','--abbrev-ref','HEAD').trim(); head=g('rev-parse','HEAD').trim(); }catch{}
   let st; try{ st=g('status','--porcelain=v1','-z','--untracked-files=all'); }catch(e){ return {repo:top,git:true,branch,head,captured_at:new Date().toISOString(),dirty:[],untracked:[],status_error:String(e.code||e.message).slice(0,200),note:'git status failed; dirty/untracked files not captured'}; }
@@ -101,7 +102,10 @@ export function rawSlice(buf, {last=0}={}){ const recs=[]; let st=0; for(let i=0
   for(const r of sel){ const bytes=buf.subarray(r.s0,r.e); let o=null; try{ o=JSON.parse(bytes.toString('utf8')); }catch{}
     const h=sha256(bytes); if(isReasoning(o)) omitted.push({record:r.k,byte_start:r.s0,byte_end:r.e,sha256:h,reason:'reasoning/thinking excluded by policy'}); else kept.push({record:r.k,byte_start:r.s0,byte_end:r.e,sha256:h,bytes}); }
   const k2=Number(last)>0?kept.slice(-Number(last)):kept; return {kept:k2,omitted,records:recs.length,dropped_by_last:kept.length-k2.length}; }
-export function packTranscript(root, file, {format='auto', last=0, from='unknown', render=false, repo=null}={}){ const buf=fs.readFileSync(file); const raw=buf.toString('utf8');
+export function packTranscript(root, file, {format='auto', last=0, from='unknown', render=false, repo=null}={}){
+  const denied=deniedRead(file,root); if(denied) throw new Error(`refusing transcript pack: ${denied}`);
+  if(!fs.statSync(file).isFile()) throw new Error('transcript pack requires a regular local file');
+  const buf=fs.readFileSync(file); const raw=buf.toString('utf8');
   const fmt=format&&format!=='auto'?format:detectFormat(raw.split('\n').filter(Boolean)); if(!fmt) throw new Error('unrecognised transcript format (want Claude Code session .jsonl or Codex rollout .jsonl)');
   const d=path.join(root,'transcripts'); fs.mkdirSync(d,{recursive:true}); const put=(f,data)=>{ if(!fs.existsSync(f)){ const tmp=f+'.tmp-'+process.pid; fs.writeFileSync(tmp,data); fs.renameSync(tmp,f); } };
   if(!render){ const sl=rawSlice(buf,{last}); const body=Buffer.concat(sl.kept.map(x=>x.bytes)); if(hasSecret(body.toString('utf8'))) throw new Error('transcript slice contains a secret-looking string; byte-exact packs are never altered, so pick a slice without it (--last N) or use --render');

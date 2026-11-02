@@ -1,6 +1,7 @@
 // node carrier-pigeon-host.test.mjs — temp CARRIER_PIGEON_HOME, fake adapters; never launches claude/codex or touches the real bus.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync,spawn} from 'node:child_process'; import {EventEmitter} from 'node:events';
-import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload} from './carrier-pigeon-host.mjs';
+import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript} from './carrier-pigeon-host.mjs';
+import * as tasks from '../bin/cp-tasks.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.resolve(here,'../bin/carrier-pigeon.mjs');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)); const until=async(f,ms=3000)=>{ const t=Date.now(); while(Date.now()-t<ms){ if(f()) return true; await sleep(20);} return false; };
 function bus(){ const root=fs.mkdtempSync(path.join(os.tmpdir(),'abhost-')); const env={...process.env,CARRIER_PIGEON_HOME:root};
@@ -8,7 +9,7 @@ function bus(){ const root=fs.mkdtempSync(path.join(os.tmpdir(),'abhost-')); con
 const fake=(name,wakes=true)=>({name,wakes,got:[],notes:[],async deliver(m){ this.got.push(m.id); return true; },async notify(n){ this.notes.push(n); }});
 const evs=(root,id)=>readReceipts(root,id).map(r=>r.ev);
 // A failing test is reported as "not ok" and the suite carries on, so one failure can't hide the tests after it.
-let n=0, failed=0; const t=async(name,fn)=>{ n++; try{ await fn(); console.log('ok',n,name); }catch(e){ failed++; console.log('not ok',n,name); console.log('  '+String(e?.stack||e).split('\n').slice(0,6).join('\n  ')); } };
+let n=0, failed=0; const t=async(name,fn)=>{ if(process.env.CARRIER_PIGEON_TEST_FILTER&&!name.includes(process.env.CARRIER_PIGEON_TEST_FILTER)) return; n++; try{ await fn(); console.log('ok',n,name); }catch(e){ failed++; console.log('not ok',n,name); console.log('  '+String(e?.stack||e).split('\n').slice(0,6).join('\n  ')); } };
 const noMcp=async()=>[]; // codex lean mode without running the real codex binary
 
 await t('fs.watch delivers a new ask quickly; .tmp files ignored', async()=>{ const {root,run}=bus(); const a=fake('claude'); const h=new Host({root,config:{rescanMs:60000,adapters:[]},adapters:{claude:a}}); await h.start();
@@ -57,23 +58,26 @@ await t('supervisor restarts a crashing child with backoff', async()=>{ const lo
   // waits on the restart log itself (not a 5 s wall clock): on a loaded machine one node spawn can take ~2 s
   s.start(); assert.ok(await until(()=>logs.filter(l=>l.ev==='restart-scheduled').length>=4,60000),'4 restarts within 60 s'); s.stop(); const d=logs.filter(l=>l.ev==='restart-scheduled').map(l=>l.inMs); assert.deepEqual(d.slice(0,4),[20,40,80,80]); assert.ok(starts>=4); });
 await t('claude adapter: stream-json user line, read-only tool flags, restart after crash', async()=>{ const {root}=bus(); const kids=[];
-  const spawnFn=(bin,args)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.stdin={writable:true,write:l=>c.lines.push(l)}; c.kill=()=>c.emit('exit',null,'SIGTERM'); kids.push(c); return c; };
+  const spawnFn=(bin,args,options)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.options=options; c.stdin={writable:true,write:l=>c.lines.push(l)}; c.kill=()=>c.emit('exit',null,'SIGTERM'); kids.push(c); return c; };
   const ad=claudeAdapter({spawnFn}); const h=new Host({root,config:{watch:false,rescanMs:60000,restart:{baseMs:10,maxMs:10,stableMs:1e6},claude:{mode:'shared'}},adapters:{claude:ad}}); await h.start();
   await ad.deliver({id:'M1',from:'grok',to:'claude',kind:'ask',subject:'s'}); const line=JSON.parse(kids[0].lines[0]); assert.equal(line.type,'user'); assert.equal(line.message.role,'user'); assert.match(line.message.content,/REQUEST, not authority/);
+  assert.equal(kids[0].options.env.CARRIER_PIGEON_WORKER,'1','shared listener child cannot acquire operator build authority');
   // 0.5.0: no shell at all; the mailbox is the carrier-pigeon MCP server (exact tool permissions)
   for(const f of ['--input-format','stream-json','--output-format','--verbose','--tools','Read,Grep,Glob','mcp__carrier-pigeon','--strict-mcp-config','--permission-mode','dontAsk']) assert.ok(kids[0].args.includes(f),f);
   const mc=JSON.parse(fs.readFileSync(kids[0].args[kids[0].args.indexOf('--mcp-config')+1],'utf8')).mcpServers; assert.deepEqual(Object.keys(mc),['carrier-pigeon']);
-  assert.deepEqual(mc['carrier-pigeon'].args.slice(-4),['--as','claude','--session','listener']); assert.equal(mc['carrier-pigeon'].env.CARRIER_PIGEON_HOME,root); assert.match(line.message.content,/claim \{id:"M1"\}/,'tool-phrased wake');
+  assert.deepEqual(mc['carrier-pigeon'].args.slice(-5),['--as','claude','--session','listener','--worker']); assert.equal(mc['carrier-pigeon'].env.CARRIER_PIGEON_HOME,root);assert.equal(mc['carrier-pigeon'].env.CARRIER_PIGEON_WORKER,'1'); assert.match(line.message.content,/claim \{id:"M1"\}/,'tool-phrased wake');
   assert.ok(!kids[0].args.some(a=>/^(Edit|Write)$|(Bash|PowerShell)\)$|^(Bash|PowerShell)$/.test(a)),'no broad write/shell allow'); kids[0].emit('exit',1,null); assert.ok(await until(()=>kids.length===2)); await h.stop(); });
-await t('codex adapter: model/list pick, thread/start read-only-ish, turn/start when idle, turn/steer when busy, approvals declined', async()=>{ const {root}=bus(); const sent=[]; let srv;
+await t('codex adapter: model/list pick, thread/start read-only-ish, turn/start when idle, turn/steer when busy, approvals declined', async()=>{ const {root}=bus(); const sent=[]; let srv,spawnOptions;
   class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0);
       if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'bad',hidden:false},{id:'gpt-ok',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr1'}}); if(m.method==='turn/start'||m.method==='turn/steer') r({}); } close(){} }
-  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const spawnFn=(bin,args,options)=>{ spawnOptions=options; const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
   const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
+  assert.equal(spawnOptions.env.CARRIER_PIGEON_WORKER,'1','app-server child cannot acquire operator build authority'); assert.equal(spawnOptions.env.CARRIER_PIGEON_SESSION,'listener');
   const ts=sent.find(m=>m.method==='thread/start').params; assert.equal(ts.model,'gpt-ok'); assert.equal(ts.approvalPolicy,'never');
   const msg={id:'M',from:'grok',to:'codex',kind:'ask',subject:'s'}; await ad.deliver(msg); const st=sent.find(m=>m.method==='turn/start').params;
   assert.deepEqual(st.sandboxPolicy,{type:'workspaceWrite',writableRoots:[root],networkAccess:false}); assert.equal(st.approvalPolicy,'never');
-  srv.onmessage({data:JSON.stringify({method:'turn/started',params:{turn:{id:'turn9'}}})}); await ad.deliver(msg); const steer=sent.find(m=>m.method==='turn/steer').params; assert.equal(steer.expectedTurnId,'turn9');
+  assert.match(st.input[0].text,/read tool \{id:"M"\}/); assert.match(st.input[0].text,/connected carrier-pigeon MCP tools/); assert.doesNotMatch(st.input[0].text,/node bin\/carrier-pigeon\.mjs/);
+  srv.onmessage({data:JSON.stringify({method:'turn/started',params:{turn:{id:'turn9'}}})}); await ad.deliver({...msg,id:'M2'}); const steer=sent.find(m=>m.method==='turn/steer').params; assert.equal(steer.expectedTurnId,'turn9');
   srv.onmessage({data:JSON.stringify({id:77,method:'item/commandExecution/requestApproval',params:{}})}); assert.deepEqual(sent.at(-1),{id:77,result:{decision:'decline'}}); await h.stop(); });
 await t('grok webhook: dormant w/o secret; 8KB cap, key header, retry on 5xx, dedup', async()=>{ const {root}=bus(); const calls=[]; let fails=1;
   const fetchFn=async(u,o)=>{ calls.push(o); if(fails-->0) return {ok:false,status:503}; return {ok:true,status:200}; }; const logs=[]; const log=e=>logs.push(e);
@@ -98,12 +102,12 @@ await t('wake prompt points at context pack and project memory, mailbox CLI only
   assert.match(p,/Reading is allowed/); assert.match(p,/only writes allowed are the mailbox commands/); assert.doesNotMatch(p,/mailbox commands only/);
   assert.match(claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1],/Read files freely with Read, Grep and Glob/); });
 
-await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw new Error('not ready'); got.push(m.id); return true; }};
+await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw deliveryError('not ready',{preDispatch:true}); got.push(m.id); return true; }};
   const h=new Host({root,config:{rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','matt','--to','codex','--subject','p','--body','x').id;
   assert.ok(await until(()=>got.includes(id),3000),'redelivered after ready'); assert.ok(readReceipts(root,id).some(r=>r.ev==='notified:codex')); await h.stop(); });
 
 // ---------- 0.4.0 ----------
-const fakeKid=(kids,args)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.stdin=new EventEmitter(); c.stdin.writable=true; c.stdin.write=l=>c.lines.push(l); c.stdin.end=()=>{};
+const fakeKid=(kids,args,options)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.options=options; c.stdin=new EventEmitter(); c.stdin.writable=true; c.stdin.write=l=>c.lines.push(l); c.stdin.end=()=>{};
   c.kill=()=>{ c.killed=true; setTimeout(()=>c.emit('exit',null,'SIGTERM'),0); }; kids.push(c); return c; };
 await t('claude: system prompt shows --as (the CLI flag), never --from; settings deny secrets; a 0.3 settings file is upgraded; a user permissions block is kept', async()=>{
   const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/carrier-pigeon tools/); assert.match(sp,/you have no shell/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"matt" is unauthenticated/);
@@ -125,10 +129,11 @@ await t('claude: recycles the warm session once its context passes the limit (wh
   const u=fs.readFileSync(path.join(root,'host/logs/usage.jsonl'),'utf8').trim().split('\n').map(JSON.parse); assert.deepEqual(u.map(x=>x.context_tokens),[955,1555]);
   assert.ok(fs.readFileSync(path.join(root,'host/logs/host.jsonl'),'utf8').includes('"ev":"claude-recycle"')); await h.stop(); });
 await t('claude: a fork id that looks like an option is refused; a fork spawn error is logged, not thrown', async()=>{ const {root}=bus(); const kids=[];
-  const ad=claudeAdapter({spawnFn:(b,a)=>fakeKid(kids,a)}); const h=new Host({root,config:{watch:false,rescanMs:60000,claude:{mode:'shared'}},adapters:{claude:ad}}); await h.start();
+  const ad=claudeAdapter({spawnFn:(b,a,o)=>fakeKid(kids,a,o)}); const h=new Host({root,config:{watch:false,rescanMs:60000,claude:{mode:'shared'}},adapters:{claude:ad}}); await h.start();
   for(const bad of ['--dangerously-skip-permissions','relative.jsonl','\\\\server\\share\\s.jsonl']) await assert.rejects(ad.deliver({id:'F0',from:'grok',to:'claude',kind:'ask',subject:'s',fork_claude_session:bad}),/refusing fork_claude_session/,bad);
   assert.equal(kids.length,1,'no fork process spawned for a refused id');
   await ad.deliver({id:'F1',from:'grok',to:'claude',kind:'ask',subject:'s',fork_claude_session:'0f8fad5b-d9cb-469f-a165-70867728950e'}); kids.at(-1).emit('error',new Error('spawn ENOENT')); kids.at(-1).stdin.emit('error',new Error('EPIPE'));
+  assert.equal(kids.at(-1).options.env.CARRIER_PIGEON_WORKER,'1','forked listener child cannot acquire operator build authority');
   assert.ok(fs.readFileSync(path.join(root,'host/logs/host.jsonl'),'utf8').includes('claude-fork-error')); await h.stop(); });
 await t('codex: lean launch argv disables plugins, apps and each named MCP server; lean:false is the full profile (argv only; the real binary is checked by hand)', async()=>{
   assert.deepEqual(codexLeanArgs(['headroom','a.b']),['--disable','plugins','--disable','apps','-c','mcp_servers.headroom.enabled=false','-c','mcp_servers."a.b".enabled=false']);
@@ -140,7 +145,9 @@ await t('codex: lean launch argv disables plugins, apps and each named MCP serve
   const b=await mk(false); assert.equal(b[1],'--listen');
   // the listener's Codex always gets this mailbox's own MCP server as the listener session (a user registration may point elsewhere)
   const own=codexOwnMcpArgs('C:\\mb\\root'); assert.ok(own.includes(`mcp_servers.carrier-pigeon.args=${JSON.stringify(['C:\\mb\\root\\bin\\carrier-pigeon-mcp.mjs'.replace(/\\/g,path.sep),'--as','codex','--session','listener'])}`)||own.some(x=>x.includes('"--session","listener"')));
-  assert.ok(own.some(x=>x.startsWith('mcp_servers.carrier-pigeon.env={CARRIER_PIGEON_HOME='))); });
+  assert.ok(own.some(x=>x.startsWith('mcp_servers.carrier-pigeon.env={CARRIER_PIGEON_HOME=')));
+  assert.ok(own.includes('mcp_servers.carrier-pigeon.enabled=true'),'the own server overrides a disabled user registration');
+  assert.ok(own.includes('mcp_servers.carrier-pigeon.default_tools_approval_mode="approve"'),'headless mailbox tools need no interactive approval'); });
 await t('codex: a failed connect kills the app-server so the supervisor restarts it; "no models" is a clear error, not a TypeError', async()=>{ const {root}=bus(); const kids=[];
   const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{ c.killed=true; setTimeout(()=>c.emit('exit',1,null),0); }; kids.push(c); return c; };
   class WS{ constructor(){ setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0); if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[]}); } close(){} }
@@ -191,8 +198,55 @@ await t('toast adapter (win32): constant -EncodedCommand script, message text pa
   const c=calls[0]; assert.equal(c.bin,'powershell.exe'); assert.equal(Buffer.from(c.args.at(-1),'base64').toString('utf16le'),toastScript()); assert.match(c.opt.env.CP_TOAST_TEXT,/Start-Process calc/);
   const lin=[]; const ad2=toastAdapter({spawnFn:(b,a)=>{ lin.push(a); const e=new EventEmitter(); setTimeout(()=>e.emit('exit',0),0); return e; },platform:'linux'}); ad2.start({cfg:{toast:{enabled:true}}});
   await ad2.deliver({id:'T2',from:'grok',to:'claude',kind:'ask',subject:'-u critical'}); await sleep(10); assert.equal(lin[0][0],'--'); });
+await t('visible Codex hand-off: only a plain hand-off to Codex qualifies, on Windows or with a configured terminal', async()=>{
+  const cfg={codexWindow:{enabled:true,kinds:['handoff']},routes:{codex:['codexWindow','codex','toast']}}, h={id:'H1',from:'claude',to:'codex',kind:'handoff',thread:'H1',subject:'s'};
+  assert.equal(visibleHandoff(h,cfg,'win32'),true);
+  assert.equal(visibleHandoff(h,{...cfg,routes:{codex:['codex','toast']}},'win32'),false,'window not routed: the worker keeps hand-offs');
+  assert.equal(visibleHandoff(h,{...cfg,adapters:['claude','codex','toast']},'win32'),false,'window adapter not enabled'); assert.equal(visibleHandoff(h,{...cfg,adapters:['codexWindow','codex']},'win32'),true); assert.equal(visibleHandoff({...h,kind:'ask'},cfg,'win32'),false); assert.equal(visibleHandoff({...h,to:'claude'},cfg,'win32'),false);
+  assert.equal(visibleHandoff({...h,to_session:'codex-abc'},cfg,'win32'),false,'mail for a running session stays with it'); assert.equal(visibleHandoff({...h,fork_codex_thread:'t'},cfg,'win32'),false);
+  assert.equal(visibleHandoff(h,{...cfg,codexWindow:{...cfg.codexWindow,enabled:false}},'win32'),false); assert.equal(visibleHandoff(h,cfg,'linux'),false,'no terminal off Windows');
+  assert.equal(visibleHandoff(h,{...cfg,codexWindow:{...cfg.codexWindow,terminal:['x-terminal-emulator','-e']}},'linux'),true);
+  assert.throws(()=>codexWindowPrompt({...h,id:'H1;calc'},'C:/mb'),/not a plain id/); assert.throws(()=>codexWindowPrompt({...h,thread:'a"b'},'C:/mb'),/not a plain id/); });
+await t('codexWindow adapter: opens one interactive Codex window per hand-off with a fixed, quote-free prompt', async()=>{ const calls=[];
+  const spawnFn=(bin,args,opt)=>{ const c=new EventEmitter(); c.unref=()=>{}; calls.push({bin,args,opt}); setTimeout(()=>c.emit('spawn'),0); return c; };
+  const ad=codexWindowAdapter({spawnFn,platform:'win32'}); const logs=[]; process.env.CARRIER_PIGEON_WORKER='1'; process.env.CARRIER_PIGEON_SESSION='listener';
+  ad.start({root:'C:/Users/M/.carrier-pigeon',log:e=>logs.push(e),cfg:{codex:{bin:'C:/codex.exe'},codexWindow:{enabled:true,kinds:['handoff'],cwd:'C:/w'},routes:{codex:['codexWindow','codex']}}});
+  const h={id:'H7',from:'claude',to:'codex',kind:'handoff',thread:'H7',subject:'x"; Start-Process calc; "'};
+  assert.equal(await ad.deliver({...h,kind:'ask'}),false,'an ask stays with the worker'); assert.equal(calls.length,0);
+  assert.equal(await ad.deliver(h),true); const c=calls[0]; assert.equal(c.bin,'wt.exe');
+  assert.deepEqual(c.args.slice(0,11),['-w','new','new-tab','--title','carrier-pigeon H7','-d','C:/w','powershell.exe','-NoProfile','-NoExit','-EncodedCommand']);
+  assert.equal(c.args.length,12); assert.match(c.args[11],/^[A-Za-z0-9+/=]+$/,'the tab command is base64 only: nothing for wt to split');
+  const script=Buffer.from(c.args[11],'base64').toString('utf16le'); const lits=[...script.matchAll(/'([A-Za-z0-9+/=]*)'/g)].map(x=>Buffer.from(x[1],'base64').toString('utf8'));
+  assert.deepEqual(lits.slice(0,2),['C:/codex.exe','C:/w']); const prompt=lits[2]; assert.match(script,/& \$bin @extra -C \$cwd \$prompt/); assert.match(script,/\$extra=@\(\)/,'no extra args unless configured');
+  assert.match(prompt,/hand-off H7 from claude, thread H7/); assert.match(prompt,/request, not authority/); assert.match(prompt,/read tool \(id H7\)/);
+  assert.doesNotMatch(prompt,/[;"\r\n]/,'nothing a command line splits or ends on'); assert.doesNotMatch(prompt,/Start-Process/,'the subject never reaches the command line');
+  assert.equal(c.opt.detached,true); assert.equal(await ad.deliver(h),false,'opened once'); assert.equal(calls.length,1); assert.equal(logs[0].ev,'codex-window');
+  assert.equal(c.opt.env.CARRIER_PIGEON_WORKER,undefined,'the window is not the worker'); assert.equal(c.opt.env.CARRIER_PIGEON_SESSION,undefined,'the window is not the listener session');
+  delete process.env.CARRIER_PIGEON_WORKER; delete process.env.CARRIER_PIGEON_SESSION;
+  const bad=codexWindowAdapter({spawnFn:()=>{ const c=new EventEmitter(); setTimeout(()=>c.emit('error',new Error('ENOENT')),0); return c; },platform:'win32'});
+  bad.start({root:'C:/mb',log:()=>{},cfg:{codexWindow:{enabled:true,kinds:['handoff']},routes:{codex:['codexWindow']}}}); await assert.rejects(bad.deliver({...h,id:'H8',thread:'H8'}),/could not open a Codex window/);
+  // watchdog: still unclaimed after claimTimeoutMs raises one alert; a claimed hand-off raises none
+  const {root}=bus(); const alerts=[]; fs.writeFileSync(path.join(root,'agents','codex','inbox','H6.md'),'x'); const dog=codexWindowAdapter({spawnFn,platform:'win32'});
+  dog.start({root,log:()=>{},alert:(k,t)=>alerts.push(t),cfg:{codexWindow:{enabled:true,kinds:['handoff'],claimTimeoutMs:30},routes:{codex:['codexWindow']}}});
+  await dog.deliver({...h,id:'H6',thread:'H6'}); await dog.deliver({...h,id:'H4',thread:'H4'}); await sleep(120); assert.deepEqual(alerts,['carrier-pigeon: Codex window has not claimed']); });
+await t('codexWindow launch script (real PowerShell): Codex gets -C, the folder and the whole prompt as one argument', async()=>{
+  if(process.platform!=='win32') return; const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cp-window-')), out=path.join(dir,'argv.json');
+  const fake=path.join(dir,'fake-codex.mjs'); fs.writeFileSync(fake,`import fs from 'node:fs'; fs.writeFileSync(${JSON.stringify(out)},JSON.stringify(process.argv.slice(2)));`);
+  const bin=path.join(dir,'fake codex.cmd'); fs.writeFileSync(bin,`@"${process.execPath}" "${fake}" %*\r\n`); // a space in the path, as in Program Files
+  const prompt=codexWindowPrompt({id:'H5',from:'claude',to:'codex',kind:'handoff',thread:'H5'},'C:/Users/M/.carrier-pigeon');
+  execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(codexWindowScript(bin,dir,prompt),'utf16le').toString('base64')],{stdio:'ignore'});
+  assert.deepEqual(JSON.parse(fs.readFileSync(out,'utf8')),['-C',dir,prompt]);
+  execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(codexWindowScript(bin,dir,prompt,['--no-daemon']),'utf16le').toString('base64')],{stdio:'ignore'});
+  assert.deepEqual(JSON.parse(fs.readFileSync(out,'utf8')),['--no-daemon','-C',dir,prompt],'codexWindow.args go before -C'); fs.rmSync(dir,{recursive:true,force:true}); });
+await t('codex adapter: leaves a visible hand-off to the window and starts no turn', async()=>{ const {root}=bus(); const sent=[];
+  class WS{ constructor(){ setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'gpt-ok',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr1'}}); if(m.method==='turn/start') r({}); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000,codexWindow:{enabled:true,kinds:['handoff']}},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
+  const won=await ad.deliver({id:'H9',from:'claude',to:'codex',kind:'handoff',thread:'H9',subject:'s'}); assert.equal(won,false); assert.ok(!sent.some(m=>m.method==='turn/start'),'no worker turn for a hand-off');
+  await ad.deliver({id:'A9',from:'claude',to:'codex',kind:'ask',thread:'A9',subject:'s'}); assert.ok(sent.some(m=>m.method==='turn/start'),'an ask still reaches the worker'); await h.stop(); });
 await t('retry: two concurrent retry passes (adapter ready + rescan) deliver a failed ask once; a failed retry stays queued', async()=>{ const {root,run}=bus(); let ready=false; const got=[];
-  const a={name:'codex',wakes:true,deliver:async m=>{ if(!ready) throw new Error('not ready'); await sleep(50); got.push(m.id); return true; }};
+  const a={name:'codex',wakes:true,deliver:async m=>{ if(!ready) throw deliveryError('not ready',{preDispatch:true}); await sleep(50); got.push(m.id); return true; }};
   const h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','grok','--to','codex','--subject','r','--body','b').id;
   await h.scanAll(); assert.equal(h.retryQ.size,1,'queued after the first failure'); await h.retry(); assert.equal(h.retryQ.size,1,'still queued after a failed retry');
   ready=true; await Promise.all([h.retry(),h.retry('codex'),h.retry()]); assert.deepEqual(got,[id],'delivered exactly once');
@@ -227,15 +281,15 @@ await t('presence: the host writes who can be woken (routes + adapter states) an
 const lines=k=>k.lines.join(''); const emit=(k,o)=>k.stdout.emit('data',Buffer.from(JSON.stringify(o)+'\n'));
 const S1='11111111-1111-4111-8111-111111111111', S2='22222222-2222-4222-8222-222222222222';
 await t('per-thread Claude: each conversation is its own session, a follow-up resumes it, another thread runs apart, sessions survive a restart', async()=>{ const {root}=bus(); const kids=[];
-  const ad=claudeAdapter({spawnFn:(b,a)=>fakeKid(kids,a)}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}}); await h.start(); assert.equal(kids.length,0,'no warm session');
+  const ad=claudeAdapter({spawnFn:(b,a,o)=>fakeKid(kids,a,o)}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}}); await h.start(); assert.equal(kids.length,0,'no warm session');
   await ad.deliver({id:'A1',from:'grok',to:'claude',kind:'ask',subject:'s',thread:'TA'}); assert.equal(kids.length,1); assert.ok(!kids[0].args.includes('--resume')); assert.ok(!kids[0].args.includes('--input-format'));
   assert.match(lines(kids[0]),/stable prefix/); emit(kids[0],{type:'system',subtype:'init',session_id:S1,model:'m'}); emit(kids[0],{type:'result',session_id:S1,usage:{input_tokens:1}});
   await ad.deliver({id:'B1',from:'grok',to:'claude',kind:'ask',subject:'s',thread:'TB'}); assert.equal(kids.length,2,'another thread runs in parallel'); assert.ok(!kids[1].args.includes('--resume'));
   await ad.deliver({id:'A2',from:'codex',to:'claude',kind:'reply',subject:'s',thread:'TA',reply_to:'A1'}); assert.equal(kids.length,2,'same thread waits for its running session'); kids[0].emit('exit',0);
   assert.ok(await until(()=>kids.length===3)); const r=kids[2].args; assert.deepEqual(r.slice(r.indexOf('--resume'),r.indexOf('--resume')+2),['--resume',S1]); assert.match(lines(kids[2]),/memory unchanged/,'prefix not resent into the resumed session');
   assert.match(lines(kids[2]),/answering your ask A1/); emit(kids[2],{type:'result',session_id:S1,usage:{input_tokens:1}}); kids[2].emit('exit',0); kids[1].emit('exit',0); await sleep(20); await h.stop();
-  const ad2=claudeAdapter({spawnFn:(b,a)=>fakeKid(kids,a)}); const h2=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad2}}); await h2.start(); assert.equal(ad2.conversations.get('TA').sid,S1,'resumable after a restart');
-  await ad2.deliver({id:'A3',from:'grok',to:'claude',kind:'ask',subject:'s',thread:'TA'}); assert.ok(kids.at(-1).args.includes(S1)); kids.at(-1).emit('exit',0); await sleep(20); await h2.stop(); });
+  const ad2=claudeAdapter({spawnFn:(b,a,o)=>fakeKid(kids,a,o)}); const h2=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad2}}); await h2.start(); assert.equal(ad2.conversations.get('TA').sid,S1,'resumable after a restart');
+  await ad2.deliver({id:'A3',from:'grok',to:'claude',kind:'ask',subject:'s',thread:'TA'}); assert.ok(kids.at(-1).args.includes(S1)); for(const child of kids)assert.equal(child.options.env.CARRIER_PIGEON_WORKER,'1','every per-thread listener child retains worker authority'); kids.at(-1).emit('exit',0); await sleep(20); await h2.stop(); });
 await t('per-thread Claude: a run that ends without a result is retried, a failed resume starts a fresh session, and after 3 tries the wake is dropped', async()=>{ const {root}=bus(); const kids=[];
   const ad=claudeAdapter({spawnFn:(b,a)=>fakeKid(kids,a)}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}}); await h.start();
   await ad.deliver({id:'C1',from:'grok',to:'claude',kind:'ask',subject:'s',thread:'TC'}); emit(kids[0],{type:'result',session_id:S2,usage:{}}); kids[0].emit('exit',0); await sleep(20);
@@ -252,7 +306,7 @@ await t('per-thread Codex: each mailbox thread gets its own Codex thread; a foll
   const starts=()=>sent.filter(m=>m.method==='turn/start').map(m=>m.params); assert.deepEqual(starts().map(p=>p.threadId),['thr1','thr2'],'second conversation got its own thread');
   assert.equal(sent.filter(m=>m.method==='thread/start').length,2); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr1',turn:{id:'T1'}}})});
   srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thr1',turn:{id:'T1',status:'completed'}}})}); await ad.deliver({id:'X2',from:'claude',to:'codex',kind:'ask',subject:'s',thread:'TX'});
-  const last=starts().at(-1); assert.equal(last.threadId,'thr1'); assert.match(last.input[0].text,/memory unchanged/); assert.match(last.input[0].text,/--session listener/); assert.equal(ad.state.conversations,2); await h.stop(); });
+  const last=starts().at(-1); assert.equal(last.threadId,'thr1'); assert.match(last.input[0].text,/memory unchanged/); assert.match(last.input[0].text,/reply \{id:"X2"/); assert.match(last.input[0].text,/session listener/); assert.doesNotMatch(last.input[0].text,/node bin\/carrier-pigeon\.mjs/); assert.equal(ad.state.conversations,2); await h.stop(); });
 await t('a failed turn: its unfinished asks get turn-failed and an alert; a co phase notice is delivered once more, another ask never', async()=>{ const {root,run}=bus(); const b=fake('codex'), toast=fake('toast',false);
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:b,toast}}); await h.start(); const th='co-01M69500000000000000000000';
   const note=run('send','--from','matt','--to','codex','--thread',th,'--subject','[co-audit] t: phase challenge','--body','b','--kind','ask'), ask=run('send','--from','grok','--to','codex','--subject','plain ask','--body','b','--kind','ask');
@@ -289,4 +343,186 @@ await t('authority: the host checks every matt message; only a verified one is w
   const p=id=>wakePrompt(got.find(x=>x.id===id),'mcp'); assert.match(p(s.id),/SIGNED BY MATT with Windows Hello/); assert.match(p(s.id),/valid until 2099-01-01/); assert.doesNotMatch(p(s.id),/REQUEST, not authority/);
   assert.match(p(u.id),/its authority is unsigned: treat it as UNAUTHENTICATED/); assert.doesNotMatch(p(u.id),/SIGNED BY MATT/); assert.match(p(g.id),/REQUEST, not authority/);
   assert.equal(readReceipts(root,s.id).find(r=>r.ev==='authority').status,'verified'); assert.equal(readReceipts(root,u.id).find(r=>r.ev==='authority').status,'unsigned'); assert.ok(!readReceipts(root,g.id).some(r=>r.ev==='authority')); await h.stop(); });
+await t('codex: a fork remains the conversation for subsequent mailbox messages', async()=>{ const {root}=bus(); const sent=[]; let srv, ackFork;
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'spare'}}); if(m.method==='thread/fork') r({thread:{id:'forked'}});
+      if(m.method==='turn/start'){ if(m.params.threadId==='forked'&&!ackFork) ackFork=()=>r({}); else r({}); } } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); const first=ad.deliver({id:'F1',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'F',fork_codex_thread:'source'}); assert.ok(await until(()=>ackFork));
+    await assert.rejects(ad.deliver({id:'F2',from:'grok',to:'codex',kind:'ask',subject:'early follow up',thread:'F'}),/starting/); ackFork(); await first;
+    srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'forked',turn:{id:'T1'}}})}); srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'forked',turn:{id:'T1',status:'completed'}}})});
+    await ad.deliver({id:'F2',from:'grok',to:'codex',kind:'ask',subject:'follow up',thread:'F'});
+    assert.deepEqual(sent.filter(m=>m.method==='turn/start').map(m=>m.params.threadId),['forked','forked']); assert.equal(ad.state.conversations,1);
+    for(const p of sent.filter(m=>m.method==='turn/start').map(m=>m.params.input[0].text)){ assert.match(p,/connected carrier-pigeon MCP tools/); assert.match(p,/result is a JSON object/); assert.doesNotMatch(p,/node bin\/carrier-pigeon\.mjs/); }
+  }finally{ await h.stop(); } });
+await t('codex: a rejected steer does not start a second turn while its original turn is active', async()=>{ const {root}=bus(); const sent=[]; let srv;
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr'}}); if(m.method==='turn/start') r({});
+      if(m.method==='turn/steer') setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,error:{message:'Server overloaded; retry later.'}})}),0); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); await ad.deliver({id:'S1',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'S'});
+    srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr',turn:{id:'active'}}})});
+    await assert.rejects(ad.deliver({id:'S2',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'S'}),/overloaded/);
+    assert.equal(sent.filter(m=>m.method==='turn/start').length,1);
+    srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thr',turn:{id:'active',status:'completed'}}})});
+    await ad.deliver({id:'S2',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'S'}); assert.equal(sent.filter(m=>m.method==='turn/start').length,2);
+  }finally{ await h.stop(); } });
+await t('codex: interrupted turns and disconnects report every outstanding ask once', async()=>{ const {root}=bus(); let srv; const failed=[];
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr'}}); if(m.method==='turn/start'||m.method==='turn/steer') r({}); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); h.turnFailed=h.recoveryNeeded=async(n,ids,err)=>{ failed.push({ids,err}); }; await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); await ad.deliver({id:'I1',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'I'});
+    srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr',turn:{id:'interrupted'}}})}); await ad.deliver({id:'I2',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'I'});
+    srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thr',turn:{id:'interrupted',status:'interrupted'}}})}); assert.deepEqual(failed,[{ids:['I1','I2'],err:'interrupted'}]);
+    await ad.deliver({id:'D1',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'I'}); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr',turn:{id:'disconnected'}}})});
+    await ad.deliver({id:'D2',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'I'}); srv.onclose(); srv.onclose();
+    assert.deepEqual(failed,[{ids:['I1','I2'],err:'interrupted'},{ids:['D1','D2'],err:'codex socket closed'}]);
+  }finally{ await h.stop(); } });
+await t('codex: an accepted steer is tracked before its ACK so a simultaneous failure cannot lose it', async()=>{ const {root}=bus(); let srv; const failed=[];
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr'}}); if(m.method==='turn/start') r({});
+      if(m.method==='turn/steer'){ this.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thr',turn:{id:'race',status:'failed',error:{message:'failure before ACK'}}}})}); r({}); } } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); h.turnFailed=async(n,ids)=>{ failed.push(ids); }; await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); await ad.deliver({id:'R1',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'R'});
+    srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr',turn:{id:'race'}}})}); await ad.deliver({id:'R2',from:'grok',to:'codex',kind:'ask',subject:'s',thread:'R'});
+    assert.deepEqual(failed,[['R1','R2']]);
+  }finally{ await h.stop(); } });
+await t('codex: concurrent wakes in a new conversation share one thread creation', async()=>{ const {root}=bus(); const sent=[]; let srv, nThread=0, nTurn=0;
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),10);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr'+(++nThread)}});
+      if(m.method==='turn/start'){ this.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:m.params.threadId,turn:{id:'turn'+(++nTurn)}}})}); r({}); } if(m.method==='turn/steer') r({}); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); await ad.deliver({id:'C0',from:'grok',to:'codex',kind:'ask',subject:'consume spare',thread:'old'});
+    const m={from:'grok',to:'codex',kind:'ask',subject:'s',thread:'new'}; await Promise.all([ad.deliver({...m,id:'C1'}),ad.deliver({...m,id:'C2'})]);
+    const deliveries=sent.filter(m=>m.method==='turn/start'||m.method==='turn/steer').slice(1); assert.equal(nThread,2,'one spare plus one new conversation');
+    assert.deepEqual(deliveries.map(m=>m.params.threadId),['thr2','thr2']); assert.deepEqual(deliveries.map(m=>m.method),['turn/start','turn/steer']);
+  }finally{ await h.stop(); } });
+await t('codex: an accepted turn awaiting its started event cannot receive another turn/start', async()=>{ const {root}=bus(); const sent=[]; let srv;
+  class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'g',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr'}}); if(m.method==='turn/start'||m.method==='turn/steer') r({}); } close(){} }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); await h.start();
+  try{ assert.ok(await until(()=>ad.state.thread)); const m={from:'grok',to:'codex',kind:'ask',subject:'s',thread:'P'}; await ad.deliver({...m,id:'P1'});
+    await assert.rejects(ad.deliver({...m,id:'P2'}),/starting/); assert.equal(sent.filter(m=>m.method==='turn/start').length,1);
+    srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thr',turn:{id:'active'}}})}); await ad.deliver({...m,id:'P2'}); assert.equal(sent.filter(m=>m.method==='turn/steer').length,1);
+  }finally{ await h.stop(); } });
+await t('codex: lean MCP discovery failure never launches an unrestricted server; other adapters still deliver', async()=>{ const {root,run}=bus(); const spawned=[];
+  const spawnFn=(bin,args)=>{ spawned.push(args); const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  class WS{ constructor(){ setTimeout(()=>this.onerror(),0); } send(){} close(){} }
+  const ad=codexAdapter({spawnFn,WS,mcpList:async()=>{ throw new Error('MCP inventory unavailable'); }}), claude=fake('claude');
+  const h=new Host({root,config:{watch:false,rescanMs:60000,codex:{connectTries:1},restart:{baseMs:60000,maxMs:60000,stableMs:1e6}},adapters:{codex:ad,claude}}); await h.start();
+  try{ await ad.launched; assert.equal(spawned.length,0,'unknown configured MCP servers must never inherit an enabled headless launch'); assert.equal(ad.presence().state,'down');
+    const ask=run('send','--from','grok','--to','claude','--subject','other adapter','--body','b'); await h.scanAll(); assert.deepEqual(claude.got,[ask.id]);
+    const log=fs.readFileSync(path.join(root,'host/logs/host.jsonl'),'utf8'); assert.match(log,/codex-lean-unavailable[^\n]*MCP inventory unavailable/);
+  }finally{ await h.stop(); } });
+// In-memory native server with real per-message client IDs; no process, network or model is used.
+const recoveryRoot=()=>{ const root=fs.mkdtempSync(path.join(os.tmpdir(),'cp-recovery-')); for(const a of ['grok','cursor','claude','codex','matt']) for(const b of ['inbox','claimed','done']) fs.mkdirSync(path.join(root,'agents',a,b),{recursive:true}); fs.mkdirSync(path.join(root,'threads')); return root; };
+const taskId=n=>'01M6B'+String(n).padStart(21,'0');
+const askMsg=(n,thread='recovery')=>({id:taskId(n),from:'grok',to:'codex',kind:'ask',subject:'recovery test',body:'private source body',thread,created:new Date().toISOString()});
+function seedMessage(root,m){ const {body,...fm}=m; fs.writeFileSync(path.join(root,'agents',m.to,'inbox',m.id+'.md'),'---\n'+Object.entries(fm).map(([k,v])=>k+': '+JSON.stringify(v)).join('\n')+'\n---\n\n'+body+'\n'); fs.appendFileSync(path.join(root,'threads',m.thread+'.idx'),m.id+'\n'); }
+async function nativeRig(root,{db={next:0,turn:0,threads:new Map()},dropAck=false,accept=true,maxThreads=100,emitStarted=true}={}){ const sent=[]; let srv;
+  class WS{ constructor(){ srv=this; queueMicrotask(()=>this.onopen()); } notify(method,params){ this.onmessage({data:JSON.stringify({method,params})}); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>queueMicrotask(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}));
+      if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'test-model',isDefault:true,defaultReasoningEffort:'medium'}]});
+      if(m.method==='thread/start'||m.method==='thread/fork'){ const id='native-'+(++db.next); db.threads.set(id,{id,status:{type:'idle'},turns:[]}); r({thread:db.threads.get(id)}); }
+      if(m.method==='thread/read'||m.method==='thread/resume'){ if(db.unavailable&&m.method==='thread/read') queueMicrotask(()=>this.onmessage({data:JSON.stringify({id:m.id,error:{message:'history unavailable'}})}));
+        else r({thread:db.threads.get(m.params.threadId)||{id:m.params.threadId,status:{type:'idle'},turns:[]}}); }
+      if(m.method==='turn/start'||m.method==='turn/steer'){ if(accept){ const th=db.threads.get(m.params.threadId); let turn=m.method==='turn/steer'?th.turns.find(t=>t.id===m.params.expectedTurnId):null;
+          if(!turn){ turn={id:'native-turn-'+(++db.turn),status:'inProgress',items:[]}; th.turns.push(turn); } th.status={type:'active'}; turn.items.push({id:'item-'+turn.items.length,type:'userMessage',clientId:m.params.clientUserMessageId});
+          if(m.method==='turn/start'&&emitStarted) this.notify('turn/started',{threadId:th.id,turn:{id:turn.id}}); if(!dropAck) r(m.method==='turn/start'?{turn:{id:turn.id}}:{turnId:turn.id});
+        } else if(!dropAck) queueMicrotask(()=>this.onmessage({data:JSON.stringify({id:m.id,error:{message:'not accepted'}})})); }
+      if(m.method==='turn/interrupt') r({}); } close(){ queueMicrotask(()=>this.onclose?.()); } }
+  const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}), h=new Host({root,config:{watch:false,rescanMs:60000,codex:{rpcTimeoutMs:80,maxThreads},restart:{baseMs:60000,maxMs:60000,stableMs:1e6}},adapters:{codex:ad}}); await h.start(); assert.ok(await until(()=>ad.state.thread));
+  const complete=(threadId,status='completed')=>{ const th=db.threads.get(threadId), turn=th.turns.at(-1); turn.status=status; th.status={type:'idle'}; srv.notify('turn/completed',{threadId,turn:{id:turn.id,status}}); };
+  return {h,ad,db,sent,server:()=>srv,complete}; }
+await t('recovery: known pre-dispatch failures survive restart, re-read source, and refresh signed authority', async()=>{ const root=recoveryRoot(), m={...askMsg(1),from:'matt'}; seedMessage(root,m);
+  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{throw deliveryError('not ready',{preDispatch:true});}}},verifyMatt:()=>({status:'verified',expires:'2099-01-01'})}); await h.start();
+  const disk=fs.readFileSync(path.join(root,'host/state.json'),'utf8'); assert.ok(!disk.includes(m.body)); assert.equal(JSON.parse(disk).deliveries[0].phase,'ready'); await h.stop();
+  const got=[]; h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async x=>{got.push(x); return true;}}},verifyMatt:()=>({status:'expired'})});
+  try{ await h.start(); assert.equal(got.length,1); assert.equal(got[0]._authority.status,'expired'); assert.equal(h.retryQ.size,0); }finally{ await h.stop(); } });
+await t('recovery: dispatching at a crash stays visibly uncertain and is never blindly repeated', async()=>{ const root=recoveryRoot(), m=askMsg(2); seedMessage(root,m); let calls=0;
+  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{calls++; throw new Error('transport dropped after write');}}}}); await h.start(); await h.stop();
+  h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{calls++;return true;}}}});
+  try{ await h.start(); assert.equal(calls,1); assert.equal(tasks.control(root,m.id).state,'recovery_needed'); assert.ok(evs(root,m.id).includes('recovery-needed')); }finally{ await h.stop(); } });
+await t('recovery: cancellation and expiry prevent persisted ready retries', async()=>{ for(const mode of ['cancel','expired']){ const root=recoveryRoot(),m=askMsg(mode==='cancel'?3:4); seedMessage(root,m); let calls=0;
+    let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{throw deliveryError('not ready',{preDispatch:true});}}}}); await h.start(); await h.stop();
+    tasks.updateControl(root,m.id,mode==='cancel'?{state:'cancel_requested',cancel_requested:true}:{expires_at:'2000-01-01T00:00:00.000Z'});
+    h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{calls++;return true;}}}}); try{ await h.start(); assert.equal(calls,0); }finally{ await h.stop(); } } });
+await t('recovery: lost turn/start ACK is confirmed by clientId without another user turn', async()=>{ const root=recoveryRoot(),r=await nativeRig(root,{dropAck:true});
+  try{ const m=askMsg(5); await r.ad.deliver(m); await r.ad.deliver(m); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,1); assert.ok(r.sent.some(x=>x.method==='thread/read'&&x.params.includeTurns));
+    const disk=fs.readFileSync(path.join(root,'host/codex-conversations.json'),'utf8'); assert.ok(!disk.includes(m.body)); assert.ok(!disk.includes('Context pack')); assert.ok(disk.includes('carrier-pigeon-'+m.id));
+  }finally{ await r.h.stop(); } });
+await t('recovery: unknown native acceptance refuses retries, including after process restart', async()=>{ const root=recoveryRoot(); let r=await nativeRig(root,{dropAck:true,accept:false}), db=r.db; const m=askMsg(6);
+  await assert.rejects(r.ad.deliver(m),/uncertain/); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,1); await r.h.stop();
+  r=await nativeRig(root,{db}); try{ await assert.rejects(r.ad.deliver(m),/uncertain/); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,0); }finally{ await r.h.stop(); } });
+await t('recovery: native conversations resume after restart and after idle eviction', async()=>{ const root=recoveryRoot(); let r=await nativeRig(root,{maxThreads:1}), db=r.db;
+  await r.ad.deliver(askMsg(7,'alpha')); const native=r.sent.find(x=>x.method==='turn/start').params.threadId; r.complete(native); await r.ad.deliver(askMsg(8,'beta')); const second=r.sent.filter(x=>x.method==='turn/start').at(-1).params.threadId; r.complete(second);
+  await r.ad.deliver(askMsg(9,'alpha')); assert.equal(r.sent.filter(x=>x.method==='turn/start').at(-1).params.threadId,native); assert.ok(r.sent.some(x=>x.method==='thread/resume'&&x.params.threadId===native)); r.complete(native); await r.h.stop();
+  r=await nativeRig(root,{db}); try{ await r.ad.deliver(askMsg(10,'alpha')); assert.equal(r.sent.find(x=>x.method==='turn/start').params.threadId,native); assert.ok(r.sent.some(x=>x.method==='thread/resume'&&x.params.threadId===native)); }finally{ await r.h.stop(); } });
+await t('recovery: cancellation is confirmed only by interruption and never stops an unrelated shared ask', async()=>{ const root=recoveryRoot(),r=await nativeRig(root); const a=askMsg(11),b=askMsg(12);
+  try{ await r.ad.deliver(a); await r.ad.deliver(b); tasks.updateControl(root,a.id,{state:'cancel_requested',cancel_requested:true}); assert.equal((await r.ad.cancel(a.id)).requested,false); assert.equal(r.sent.filter(x=>x.method==='turn/interrupt').length,0);
+    tasks.updateControl(root,b.id,{state:'cancel_requested',cancel_requested:true}); assert.equal((await r.ad.cancel(a.id)).requested,true); assert.equal(tasks.control(root,a.id).state,'cancel_requested');
+    const native=r.sent.find(x=>x.method==='turn/start').params.threadId; r.complete(native,'interrupted'); assert.equal(tasks.control(root,a.id).state,'cancelled'); assert.equal(tasks.control(root,b.id).state,'cancelled');
+  }finally{ await r.h.stop(); } });
+await t('recovery: effort differences wait for a new turn and completed work without a reply stays explicit', async()=>{ const root=recoveryRoot(),r=await nativeRig(root); const a={...askMsg(13),effort:'high'},b={...askMsg(14),effort:'low'};
+  try{ await r.ad.deliver(a); await assert.rejects(r.ad.deliver(b),/different effort/); const native=r.sent.find(x=>x.method==='turn/start').params.threadId; r.complete(native); assert.equal(tasks.control(root,a.id).state,'missing_reply');
+    await r.ad.deliver(b); assert.deepEqual(r.sent.filter(x=>x.method==='turn/start').map(x=>x.params.effort),['high','low']); assert.equal(r.sent.filter(x=>x.method==='turn/steer').length,0);
+  }finally{ await r.h.stop(); } });
+await t('recovery: accepted native input without ACK or started event is tracked; lost steer ACK cannot duplicate it', async()=>{ const root=recoveryRoot(),r=await nativeRig(root,{dropAck:true,emitStarted:false});
+  try{ await r.ad.deliver(askMsg(15)); await r.ad.deliver(askMsg(16)); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,1); assert.equal(r.sent.filter(x=>x.method==='turn/steer').length,1);
+    assert.equal(r.db.threads.get(r.sent.find(x=>x.method==='turn/start').params.threadId).turns[0].items.length,2);
+  }finally{ await r.h.stop(); } });
+await t('recovery: native events preserve manual progress and cannot acknowledge a reclaimed generation', async()=>{ const root=recoveryRoot(),r=await nativeRig(root),m=askMsg(17); tasks.updateControl(root,m.id,{claim_token:'a'.repeat(32),claim_fenced:false,progress:'manual progress'});
+  try{ await r.ad.deliver(m); const native=r.sent.find(x=>x.method==='turn/start').params.threadId,turn=r.db.threads.get(native).turns[0].id;
+    r.server().notify('item/completed',{threadId:native,turnId:turn,item:{type:'commandExecution'}}); assert.equal(tasks.control(root,m.id).progress,'manual progress');
+    tasks.updateControl(root,m.id,{state:'claimed',claim_token:'b'.repeat(32),claim_fenced:true,progress:'new worker progress',heartbeat_at:'2000-01-01T00:00:00.000Z'});
+    r.complete(native); const c=tasks.control(root,m.id); assert.equal(c.state,'claimed'); assert.equal(c.progress,'new worker progress'); assert.equal(c.heartbeat_at,'2000-01-01T00:00:00.000Z'); assert.ok(evs(root,m.id).includes('stale-worker-event'));
+  }finally{ await r.h.stop(); } });
+await t('recovery: an active deadline is pending cancellation until native interruption confirms execution stopped', async()=>{ const root=recoveryRoot(),r=await nativeRig(root),m=askMsg(18);
+  try{ await r.ad.deliver(m); tasks.updateControl(root,m.id,{expires_at:'2000-01-01T00:00:00.000Z'}); const pending=tasks.control(root,m.id); assert.equal(pending.state,'cancel_requested'); assert.equal(pending.terminal,false);
+    assert.equal((await r.ad.cancel(m.id)).requested,true); assert.equal(tasks.control(root,m.id).terminal,false); const native=r.sent.find(x=>x.method==='turn/start').params.threadId; r.complete(native,'interrupted');
+    assert.equal(tasks.control(root,m.id).state,'expired'); assert.equal(tasks.control(root,m.id).execution_stopped,true);
+  }finally{ await r.h.stop(); } });
+await t('recovery: a confirmed failed co notice gets one persisted retry with a distinct client ID', async()=>{ const root=recoveryRoot(); let r=await nativeRig(root),db=r.db; const m={...askMsg(19,'co-recovery'),subject:'[co-audit] recovery: phase challenge'}; seedMessage(root,m);
+  await r.ad.deliver(m); const native=r.sent.find(x=>x.method==='turn/start').params.threadId; r.complete(native,'failed'); assert.ok(await until(()=>r.sent.filter(x=>x.method==='turn/start').length===2));
+  const ids=r.sent.filter(x=>x.method==='turn/start').map(x=>x.params.clientUserMessageId); assert.notEqual(ids[0],ids[1]); r.complete(native,'failed'); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,2); await r.h.stop();
+  r=await nativeRig(root,{db}); try{ assert.equal(await r.ad.retryPhase(m),false); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,0); }finally{ await r.h.stop(); } });
+await t('recovery: a crash during dispatch is durable before the response and is not replayed on restart', async()=>{ const root=recoveryRoot(),m=askMsg(20); seedMessage(root,m); let calls=0;
+  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:()=>{calls++;return new Promise(()=>{});}}}}); void h.start();
+  assert.ok(await until(()=>fs.existsSync(path.join(root,'host/state.json')))); assert.equal(JSON.parse(fs.readFileSync(path.join(root,'host/state.json'),'utf8')).deliveries[0].phase,'dispatching'); await h.stop();
+  h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{calls++;return true;}}}}); try{ await h.start(); assert.equal(calls,1); assert.equal(tasks.control(root,m.id).state,'recovery_needed'); }finally{ await h.stop(); } });
+await t('recovery: corrupt durable host state stops startup without replacing the evidence', async()=>{ const root=recoveryRoot(),file=path.join(root,'host/state.json'); fs.mkdirSync(path.dirname(file),{recursive:true}); fs.writeFileSync(file,'corrupt state');
+  const h=new Host({root,adapters:{codex:fake('codex')}}); await assert.rejects(h.start(),/invalid host recovery state/); assert.equal(fs.readFileSync(file,'utf8'),'corrupt state'); h.release?.(); });
+await t('recovery: actual native activity renews a live lease without reviving an expired claim', async()=>{ const root=recoveryRoot(),r=await nativeRig(root),m=askMsg(21),claim='c'.repeat(32);
+  tasks.updateControl(root,m.id,{claim_token:claim,claim_fenced:false,progress:'worker supplied progress'});
+  try{ await r.ad.deliver(m); const before=new Date(Date.now()+1000).toISOString(); tasks.updateControl(root,m.id,{lease_seconds:60,lease_expires_at:before}); const native=r.sent.find(x=>x.method==='turn/start').params.threadId,turn=r.db.threads.get(native).turns[0].id;
+    r.server().notify('item/completed',{threadId:native,turnId:turn,item:{type:'commandExecution'}}); let c=tasks.control(root,m.id); assert.ok(Date.parse(c.lease_expires_at)>Date.parse(before)); assert.equal(c.progress,'worker supplied progress');
+    tasks.updateControl(root,m.id,{lease_expires_at:'2000-01-01T00:00:00.000Z'}); const heartbeat=c.heartbeat_at; r.h.progress([m.id],'late provider activity',{[m.id]:claim}); c=tasks.control(root,m.id);
+    assert.equal(c.lease_expires_at,'2000-01-01T00:00:00.000Z'); assert.equal(c.heartbeat_at,heartbeat); assert.equal(c.lease_expired,true);
+  }finally{ await r.h.stop(); } });
+await t('recovery: upgrading a 0.9.2 accepted ask without a native journal never resubmits it', async()=>{ const root=recoveryRoot(),m=askMsg(22); seedMessage(root,m); fs.mkdirSync(path.join(root,'host'),{recursive:true}); fs.mkdirSync(path.join(root,'receipts'));
+  fs.writeFileSync(path.join(root,'host/state.json'),JSON.stringify({seen:[m.id],pending:{[m.id]:'queued'},wakes:{},deferred:[]}));
+  fs.writeFileSync(path.join(root,'receipts',m.id+'.jsonl'),JSON.stringify({ts:new Date().toISOString(),ev:'notified:codex'})+'\n');
+  const r=await nativeRig(root); try{ await r.h.retry(); assert.equal(r.sent.filter(x=>x.method==='turn/start').length,0); assert.equal(tasks.control(root,m.id).state,'recovery_needed');
+    assert.equal((await r.ad.reconcile({id:m.id,knownAccepted:true})).status,'uncertain'); assert.ok(evs(root,m.id).includes('recovery-needed'));
+  }finally{ await r.h.stop(); } });
+await t('recovery: cancellation refuses observable remote input or incomplete native ownership history', async()=>{ const root=recoveryRoot(),r=await nativeRig(root),m=askMsg(23);
+  try{ await r.ad.deliver(m); tasks.updateControl(root,m.id,{state:'cancel_requested',cancel_requested:true}); const native=r.sent.find(x=>x.method==='turn/start').params.threadId,turn=r.db.threads.get(native).turns[0],owned=turn.items[0];
+    turn.items.push({type:'userMessage',id:'external',clientId:'remote-tui-input'}); let result=await r.ad.cancel(m.id); assert.equal(result.requested,false); assert.match(result.reason,/not owned/);
+    delete turn.items.at(-1).clientId; result=await r.ad.cancel(m.id); assert.equal(result.requested,false); assert.match(result.reason,/not owned/);
+    turn.items=[]; result=await r.ad.cancel(m.id); assert.equal(result.requested,false); turn.items=[owned]; r.db.unavailable=true; result=await r.ad.cancel(m.id); assert.equal(result.requested,false); assert.match(result.reason,/unavailable/);
+    assert.equal(r.sent.filter(x=>x.method==='turn/interrupt').length,0); assert.equal(tasks.control(root,m.id).state,'cancel_requested');
+  }finally{ await r.h.stop(); } });
+await t('recovery: concurrent scans and ready callbacks cannot recover an initial delivery still awaiting its ACK', async()=>{ const root=recoveryRoot(),m=askMsg(24); seedMessage(root,m); let calls=0,reconciles=0,context,release;
+  const ack=new Promise(resolve=>{release=resolve;}),a={name:'codex',wakes:true,start(c){context=c;},async deliver(){calls++;await ack;return true;},async reconcile(){reconciles++;return {status:'uncertain'};}};
+  const h=new Host({root,config:{watch:false,rescanMs:500,routes:{codex:['codex']}},adapters:{codex:a}}),startup=h.start();
+  try{ assert.ok(await until(()=>calls===1)); await Promise.all([h.scanAll(),h.retry(),context.ready()]); assert.equal(reconciles,0,'live local dispatch is not a crashed dispatch'); assert.equal(calls,1);
+    assert.ok(!evs(root,m.id).includes('recovery-needed')); assert.equal(h.retryQ.get('codex:'+m.id).phase,'dispatching'); release(); await startup;
+    assert.equal(evs(root,m.id).filter(x=>x==='notified:codex').length,1); assert.equal(h.retryQ.size,0);
+  }finally{ release(); await startup; await h.stop(); } });
 console.log(`# ${n} tests, ${failed} failed (host)`); process.exit(failed?1:0);

@@ -58,6 +58,10 @@ await t('ready refuses until the phase\'s work is done; the last member to finis
 await t('marking ready closes your notices for the phase, and the next phase sends new ones', () => { const p = research(); claim(p, 'codex'); claim(p, 'claude'); cover(p, 'codex'); cover(p, 'claude');
   co.ready(p.id, 'codex'); assert.equal(notices('codex').filter(m => m.thread === p.id).length, 0, 'codex\'s independent notice is done');
   co.ready(p.id, 'claude'); const next = notices('codex').filter(m => m.thread === p.id); assert.equal(next.length, 1); assert.match(next[0].subject, /phase challenge/); });
+await t('marking ready closes a notice claimed by the same named session', () => { const p = research();
+  const notice = notices('codex').find(m => m.thread === p.id); cp.claim(notice.id, 'codex', 'review-session');
+  claim(p, 'codex'); cover(p, 'codex'); co.ready(p.id, 'codex', 'review-session');
+  assert.equal(cp.load(notice.id).box, 'done', 'co ready passes its session through completion ownership checks'); });
 await t('a second advance of the same phase is refused, so racing members never double the notices', () => { const p = research(); claim(p, 'codex'); claim(p, 'claude'); cover(p, 'codex'); cover(p, 'claude');
   fs.writeFileSync(path.join(HOME, 'co', p.id, 'ready', 'advanced~independent'), 'another member got here first'); co.ready(p.id, 'codex');
   assert.equal(co.ready(p.id, 'claude').advanced, false); assert.equal(co.load(p.id).phase, 'independent'); });

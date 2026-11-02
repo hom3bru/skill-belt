@@ -26,4 +26,21 @@ await t('--sign is refused for any sender but matt, before Windows Hello is touc
 await t('read never reports verified for a signature from a software key (it checks this machine\'s Windows Hello key)', () => { const m = signed();
   const r = JSON.parse(execFileSync('node', [path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), 'carrier-pigeon.mjs'), 'read', m.id, '--json'], {env: process.env, encoding: 'utf8'}));
   assert.notEqual(r.authority.status, 'verified'); assert.ok(['unverifiable', 'invalid'].includes(r.authority.status), r.authority.status); });
+await t('version 2 signatures bind task controls, structured results, sender session and handoff references', () => {
+  const m=cp.build({from:'matt',to:'codex',subject:'signed task',body:'review only',_noStdin:true});
+  Object.assign(m,{sig_version:2,from_session:'human-terminal',request_key:'signed-review',timeout_seconds:60,effort:'low',expires_at:'2030-01-01T00:00:00Z',reply_schema:'{"type":"object"}',transcript:'a'.repeat(64),sig_alg:hello.SIG_ALG,sig_key:matt.pub.fingerprint,sig_expires:new Date(Date.now()+60000).toISOString()});
+  m.sig=matt.sign(hello.authorityPayload(m)).toString('base64'); cp.write(m); const stored=cp.load(m.id).msg;
+  assert.equal(hello.verifyAuthority(stored,matt.pub).status,'verified');
+  for(const [key,value] of [['from_session','other-session'],['request_key','other-review'],['timeout_seconds','120'],['effort','high'],['expires_at','2031-01-01T00:00:00Z'],['reply_schema','{"type":"string"}'],['transcript','b'.repeat(64)],['outcome','completed'],['result','{"accepted":true}'],['evidence','["invented"]']])
+    assert.equal(hello.verifyAuthority({...stored,[key]:value},matt.pub).status,'invalid',key);
+});
+await t('legacy signatures remain valid without new controls and cannot authenticate appended task controls', () => {
+  const m=cp.build({from:'matt',to:'codex',subject:'legacy task',body:'review only',_noStdin:true});
+  Object.assign(m,{sig_alg:hello.SIG_ALG,sig_key:matt.pub.fingerprint,sig_expires:new Date(Date.now()+60000).toISOString()});
+  m.sig=matt.sign(hello.authorityPayload(m)).toString('base64');
+  assert.equal(hello.verifyAuthority(m,matt.pub).status,'verified');
+  for(const [key,value] of [['effort','high'],['transcript','a'.repeat(64)],['fork_codex_thread','codex-thread-example'],['fork_claude_session','0f8fad5b-d9cb-469f-a165-70867728950e'],['from_session','other-session'],['wake_on_reply',true]])
+    assert.equal(hello.verifyAuthority({...m,[key]:value},matt.pub).status,'invalid',key);
+  assert.equal(hello.verifyAuthority({...m,sig_version:9},matt.pub).status,'invalid');
+});
 fs.rmSync(HOME, {recursive: true, force: true}); console.log(`# ${n} tests, ${failed} failed (hello)`); process.exit(failed ? 1 : 0);

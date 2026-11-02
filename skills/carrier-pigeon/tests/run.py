@@ -1,25 +1,32 @@
-"""Run the Node suites (CLI, host, context, MCP, hello, co) and print combined counts as JSON. Standard library only.
+"""Run the Node suites (CLI, tasks, host, context, MCP, hello, co, diagnostics) and print combined counts as JSON. Standard library only.
 
 Each suite reports every test as "ok N" or "not ok N" and ends with "# N tests, F failed (name)".
 A suite that exits without a matching summary line stopped part-way, so it counts as a failure
 even if every test it printed passed: tests it never reached must not pass silently.
 """
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"),
-          (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"), (ROOT / "bin", "cp-co.test.mjs"))
+SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "bin", "cp-tasks.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"),
+          (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"), (ROOT / "bin", "cp-co.test.mjs"),
+          (ROOT / "bin", "cp-diagnostics.test.mjs"), (ROOT / "bin", "cp-build-repo.test.mjs"),
+          (ROOT / "bin", "cp-build-runtime.test.mjs"), (ROOT / "bin", "cp-build.test.mjs"),
+          (ROOT / "bin", "cp-build-recovery.test.mjs"))
 SUMMARY = re.compile(r"^# (\d+) tests, (\d+) failed", re.M)
 
 
 def main():
     total = passed = failed = 0
+    # Focused developer runs may select host fixtures; the required suite must always execute all of them.
+    suite_env = dict(os.environ)
+    suite_env.pop("CARRIER_PIGEON_TEST_FILTER", None)
     for cwd, script in SUITES:
-        result = subprocess.run(["node", script], cwd=cwd, capture_output=True, timeout=900)
+        result = subprocess.run(["node", script], cwd=cwd, capture_output=True, timeout=900, env=suite_env)
         # Node writes UTF-8. Decode it as such, and pass on only ASCII: a caller that reads this output in its locale (verify.py: cp1252
         # on Windows) must never crash on one stray character in a test name.
         out = (result.stdout + result.stderr).decode("utf-8", "replace").encode("ascii", "backslashreplace").decode("ascii")

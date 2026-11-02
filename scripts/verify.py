@@ -62,6 +62,10 @@ def source_files(root):
                 raise ValueError("Linked publication path: " + str(path.relative_to(root)))
         for name in sorted(names):
             path = Path(directory) / name
+            # Git worktrees use a root .git pointer file rather than a directory. It is
+            # local repository metadata; nested authored files with this name stay checked.
+            if Path(directory) == Path(root) and name == ".git":
+                continue
             if path.suffix not in {".pyc", ".pyo"}:
                 result[path.relative_to(root).as_posix()] = path
     return result

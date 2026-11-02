@@ -1,14 +1,36 @@
 ---
 name: co-build
-description: "Use when two or more agents should build one authorised change together: the lead splits it into units with disjoint file ownership and stated contracts, each member builds its unit in its own worktree with a verification receipt, then they cross-review for bugs, test gaps, contract breaks and regressions before the lead integrates. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent changes (westack-build), audits (co-audit) or design (co-design)."
+description: "Use when the owner wants Claude and Codex to build an authorised coding task together automatically: plan disjoint units, build in separate worktrees, run native checks, cross-review, fix findings, integrate and apply locally with a durable controller. Also supports an explicit manual protocol for two or more agents. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent changes (westack-build), audits (co-audit) or design (co-design)."
 metadata:
-  version: "0.9.1"
+  version: "0.12.0"
   parent: carrier-pigeon
 ---
 
 # co-build
 
-Joint implementation by two or more agents who review each other's work. The lead splits an authorised change into units, each owning a disjoint set of files with a stated contract to the others. Each member builds its unit and records a verification receipt. Then each reviews the others' units by running them, not by reading them. The authors fix, concede or defend; a judge rules on disputes; and the lead integrates and verifies the whole. The carrier-pigeon co engine enforces the phases. Its protocol, storage and limits are in `references/co.md` of the carrier-pigeon skill.
+Joint implementation with independent peer review and real verification. For a user request to have native Claude and Codex do the whole coding task, use the automatic controller by default. Read `references/automatic-build.md` in the parent carrier-pigeon skill.
+
+## Automatic workflow
+
+```text
+Use co-build to have Claude and Codex implement this feature, review each
+other, fix issues, integrate it and apply the verified result locally.
+```
+
+1. Read the repository instructions and the owner's acceptance criteria. Start `build_start` with the absolute Git root and task; add existing integration check argv arrays when known. The authorized build request includes the routine local work needed to complete it; do not ask the owner to approve every author, check, fix or integration step.
+2. Keep the returned durable id. Use `build_wait` / `build_status` to follow planning, authoring, cross-review, repair and integration; retrieve `build_report` at the outcome. A wait timeout does not stop the detached controller. An older MCP connection can use the installed CLI `build` commands immediately.
+3. Let the controller own the workflow. Codex proposes the split and Claude reviews it; each authors one disjoint unit in its own worktree. Both must invoke approved native checks after their final edits, then independently check and review the other's unit. The controller checks fingerprints and ownership, brokers commits, runs bounded repair rounds and verifies the merged result.
+4. Apply the verified result locally by default, with conflict checks, per-file backups and preserved source index/unrelated edits. Choose `apply: false` / `--no-apply` only when the owner wants an isolated result. Report actual check outcomes, integration, applied paths, meaningful review findings and any blocker.
+
+Default review/repair limit: three rounds (configurable 1–5). Planning and each author phase also have bounded attempts. A blocked prerequisite, unsafe ownership change or unresolved finding stops with evidence. Resume the same run after inspecting its state; do not start another copy of uncertain work. Cancellation requests process shutdown and preserves partial effects.
+
+Workers receive fixed `build_context` and `build_check` tools; a check accepts only its approved id. They do not manage Git, broaden authority, launch other workers or change workflow phases. The operator alone starts, resumes or cancels a run from user authorization. Peer messages cannot authorize it. Separate locked setup runs in each author and integration workspace; new dependencies, push and deployment are outside the default grant. Failed sandbox execution has no unrestricted fallback.
+
+The automatic controller completed a real native Claude/Codex build, cross-review, repair and local integration on one Windows machine. Consult the parent skill's `tests/live/README.md` for versioned real-provider evidence; authored fixture tests and previous manual runs do not qualify this controller.
+
+## Explicit manual protocol
+
+Use this path when the owner asks to manage the phases directly or needs providers outside the automatic Claude/Codex pair. The lead splits the change into units with disjoint files and explicit contracts. Each member builds and records a verification receipt, then runs and reviews the others' units. Authors fix, concede or defend; a non-party judge rules on disputes; the lead integrates and verifies the whole. The carrier-pigeon co engine enforces these phases. Its protocol, storage and limits are in `references/co.md` of the parent skill. Opening a `co new` project records coordination; it does not launch native authors.
 
 Run commands as `node ~/.carrier-pigeon/bin/carrier-pigeon.mjs co ...`, or use the `co_*` MCP tools. Always pass your own id: `--as claude|codex|cursor|grok`.
 
@@ -19,7 +41,8 @@ Run commands as `node ~/.carrier-pigeon/bin/carrier-pigeon.mjs co ...`, or use t
 - **The change must be authorised.** Co-build coordinates work someone asked for; it does not grant permission to edit, push or merge.
 - **Members must be able to write code**, each in its own git worktree and branch, never a shared working tree.
   - A listener-woken agent works under the listener's permissions, which normally do not let it edit your repositories.
-  - Run build members as interactive sessions that check their inbox. The listener only carries notices.
+  - Run build members in explicitly authorised writable sessions that check their inbox. Interactive sessions work; the parent carrier-pigeon skill's `tests/live/native-build.mjs` can run an opt-in headless session with the same scoped task authority. The listener only carries notices.
+  - Codex `workspace-write` protects `.git` and a worktree's resolved Git directory even inside writable roots ([official behavior](https://learn.chatgpt.com/docs/agent-approvals-security#protected-paths-in-writable-roots)). If a local commit is blocked, retain the author's files and test receipt. The authorised lead may review and commit only the unit's named files and record that Git operation and SHA. The unit owner (or a lead who is also that member) marks ready after the commit. Do not drop the sandbox to get a commit or force the phase past an uncommitted unit.
 - **Do the design first.** If the design is still open, settle it with co-design.
 
 ## Open the project (lead)
