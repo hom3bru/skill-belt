@@ -116,7 +116,9 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - A `pushed:session` receipt stops a restarted server announcing a message twice.
   - Claude Code shows the post as a message from another session, not from the user.
   - A post with the peer token arrives as a stranger's: a session that skips permission prompts holds it unless `crossSessionInbound` is `accept`.
-- **Live-tested 2026-11-01** (Claude Code 2.1.309): a pointer posted by the real server reached a busy session between tool calls. reason-network documents that an idle session starts a turn; that is untested here.
+- **Live-tested 2026-11-01** (Claude Code 2.1.309):
+  - **Busy session:** a pointer posted by the real server reached the session between tool calls.
+  - **Idle session:** Codex in the app sent an ask to an idle Claude desktop session. The session's 0.15.0 server posted the pointer (`pushed:session` via `env`), and one second later the session started a new turn from it, recorded in its transcript as a user entry of origin `peer`.
 - **Tests:** `tests/run.py` and the MCP test remove these variables, so tests run inside a Claude Code session never post into it.
 
 **Codex window (visible hand-offs).** When the Codex app route is off, not routed or unavailable, a `handoff` to Codex opens a new interactive Codex session in its own Windows Terminal window, not in the listener's worker.

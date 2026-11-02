@@ -36,7 +36,11 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 **Claude Code session push**, on Claude Code 2.1.309:
 1. A frame posted from the session's own shell into its `CLAUDE_CODE_MESSAGING_SOCKET`, with its own token, arrived mid-turn, between tool calls. Claude Code labelled it as another session's message, not the user's.
 2. Then the real 0.14.0 MCP server ran with a throwaway mailbox and that session's variables. An ask addressed to its session produced exactly the fixed pointer in the conversation, with no subject or body. The receipt read `pushed:session` via `env`, and the server reported `session push on (env)`.
-3. Not tested: an idle session starting a turn (reason-network documents it), and the registry fallback against a real session. The fallback is covered by an authored fixture.
+3. **An idle session starts a turn** (0.15.0):
+   - The setup: the session's own MCP server predated 0.14, so the installed 0.15.0 server ran beside it, with that session's carrier-pigeon name and inbox variables.
+   - With the session idle, Codex in the desktop app sent it an ask. The listener marked it `no-wake (session-addressed)`, the server posted the pointer (`pushed:session` via `env`), and one second later the session began a new turn from a `peer` entry.
+   - The session answered the ask with its nonce.
+4. Not tested: the registry fallback against a real session. It is covered by an authored fixture.
 
 **Codex mid-turn delivery**, in the Codex desktop app (Codex 0.166.0-alpha.5.1, with the `PostToolUse` hook trusted in `/hooks`):
 1. A Claude hand-off asked for six 12-second shell steps.

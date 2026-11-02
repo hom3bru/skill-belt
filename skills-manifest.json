@@ -241,7 +241,7 @@
         "references/codex-audit.md": "331b8677776c248924c381088a2367ed97fd79696ad9c8220b0cd2199a75d89c",
         "references/codex.md": "67c2096a1020ce673ae5b6a4870f31be088f7f2b86462ee3e1c415ccd729993a",
         "references/context-transfer.md": "ef6d51365d4719809fd7050ea8c38ad708745bd7b122c042445e7e79247c1902",
-        "references/listener.md": "f64c0af8ca511845413b8500f3ed0412a0f09bf040d49ad3ad64ec73caaeb5b1",
+        "references/listener.md": "31217029b8e81210f2a5c39da4c6506d21ec04f0188f3255fd189e69506bd9ce",
         "references/mcp.md": "97cecc5e30676205105e62e8301f7580ed37dae21d11ac179fa9b3f9259e4b82",
         "references/reliable-tasks.md": "939e18f2fe6832eb4bd68601571afdd15a93853467b1d8c18e5ded881a253946",
         "SKILL.md": "62d3dd09f2cc4811f9faa8966a09746fde1a37cefc79408bb923cf83b6f404e7",
@@ -266,7 +266,7 @@
         "tests/live/e2e.mjs": "183823dd738834e097723d5adb4ecfafc4fec8e9ceffb0ff2322d07c1523d1d9",
         "tests/live/mcp-claude.mjs": "d59d0909a7d411107767155be3b6bf435085a3fc21cf11b73887756ce9add96a",
         "tests/live/native-build.mjs": "4469a4773f98017f61d9b33cb44f8ee8ef453ec0da1a5444fbcc5dbcedd418a6",
-        "tests/live/README.md": "50721a0376d72d6019b2e4c7c1a685529a2d9879b205d3223b118e09a0f86670",
+        "tests/live/README.md": "584b1b0fabdfb2c91910cccbf1360238f11be5d18df457543390d1b5d9cedb4c",
         "tests/live/toast.mjs": "2fe34d31d4dbe1111db27fffbe082f3fd28cdf2022e6e98cc4ff40230c0a4572",
         "tests/run.py": "fa58368ca3e93c8a04c5c3f1a6fec0f77f3cef70686c15fdd110a147858758ec"
       }
