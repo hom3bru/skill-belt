@@ -9,7 +9,8 @@ async function fixture(fn){const root=fs.mkdtempSync(path.join(os.tmpdir(),'cp-r
  const cli=(...args)=>JSON.parse(execFileSync(process.execPath,[CLI,...args,'--json'],{env:{...process.env,CARRIER_PIGEON_HOME:root},encoding:'utf8'}));cli('init');
  const ask=(...args)=>cli('send','--from','codex','--to','claude','--to-session',address,'--subject','PRIVATE SUBJECT','--body','PRIVATE BODY',...args);
  const client={create:async p=>{calls.push({kind:'create',...p});return 'session_'+randomUUID().replaceAll('-','');},send:async p=>{calls.push({kind:'send',...p});},get:async id=>({response_shape:{id,environment_id:environmentId,environment_kind:'bridge'}})};
- const bridge=(extra={})=>{const b=new ClaudeRemoteBridge({root,environmentId,cwd:root,client,scanMs:60000,...extra});bridges.push(b);return b;};
+ const processIdentity=pid=>({pid,birth:'fixture-birth-'+pid,createdAtMs:Date.now()-86400000});
+ const bridge=(extra={})=>{const b=new ClaudeRemoteBridge({root,environmentId,cwd:root,client,scanMs:60000,processIdentity,...extra});bridges.push(b);return b;};
  try{await fn({root,environmentId,address,calls,cli,ask,client,bridge});}finally{for(const b of bridges)await b.stop();fs.rmSync(root,{recursive:true,force:true});}}
 await test('no native submission before mail; exact addressed mail submits one fixed pointer',()=>fixture(async({ask,calls,bridge})=>{
  const b=bridge();await b.start();assert.equal(calls.length,0);const m=ask();await b.scan();await b.scan();assert.equal(calls.length,1);assert.equal(calls[0].kind,'create');assert.ok(calls[0].text.includes(m.id));assert.ok(!calls[0].text.includes('PRIVATE'));}));
@@ -43,6 +44,59 @@ await test('duplicate watchers cannot take or remove another watcher ownership',
 await test('agents discovers a stable Desktop address while its dispatcher is alive',()=>fixture(async({root,address,bridge,cli})=>{
  const b=bridge();await b.start();const session=cli('agents').find(a=>a.agent==='claude').sessions.find(s=>s.session===address);assert.equal(session.wake_via,'desktop:remote-control');
  assert.ok(!JSON.stringify(session).includes(b.token));await b.stop();assert.ok(!fs.existsSync(path.join(root,'sessions','claude~'+address+'.json')));
+}));
+await test('durable owner stores birth only and matching live identity denies takeover',()=>fixture(async({bridge})=>{
+ const a=bridge();await a.start();const owner=JSON.parse(fs.readFileSync(a.ownerFile,'utf8'));
+ assert.deepEqual(Object.keys(owner).sort(),['birth','pid','token']);assert.equal(owner.birth,'fixture-birth-'+process.pid);
+ const b=bridge();await assert.rejects(b.start(),{code:'DESKTOP_REMOTE_OWNER_ACTIVE'});
+ assert.equal(fs.readFileSync(a.ownerFile,'utf8').includes('command'),false);
+}));
+await test('reused PID with a different OS birth can take over a fingerprinted owner',()=>fixture(async({bridge})=>{
+ const previousPid=1234567,b=bridge({processIdentity:pid=>({pid,birth:pid===previousPid?'replacement-birth':'own-birth',createdAtMs:Date.now()-10000})});
+ tasks.atomic(b.ownerFile,{pid:previousPid,token:'old-token',birth:'original-birth'});
+ await b.start();const owner=JSON.parse(fs.readFileSync(b.ownerFile,'utf8'));
+ assert.equal(owner.pid,process.pid);assert.equal(owner.birth,'own-birth');assert.equal(owner.token,b.token);
+}));
+await test('an explicitly dead PID can be replaced but unknown identity fails closed',async()=>{
+ for(const value of ['dead',null,'throws'])await fixture(async({bridge})=>{
+  const previousPid=1234567,b=bridge({processIdentity:pid=>{
+   if(pid===process.pid)return {pid,birth:'own-birth',createdAtMs:Date.now()-10000};
+   if(value==='throws')throw Error('private process probe details');
+   return value==='dead'?{pid,dead:true}:value;
+  }});
+  tasks.atomic(b.ownerFile,{pid:previousPid,token:'old-token',birth:'old-birth'});
+  if(value==='dead')await b.start();
+  else{await assert.rejects(b.start(),{code:'DESKTOP_REMOTE_OWNER_UNKNOWN'});assert.equal(JSON.parse(fs.readFileSync(b.ownerFile,'utf8')).token,'old-token');}
+ });
+});
+await test('live legacy owner requires newer OS birth; dead permits takeover and unknown blocks',async()=>{
+ for(const delta of [1,0,-1,null,'dead'])await fixture(async({bridge})=>{
+  const previousPid=1234567,mtime=Date.now()-60000;
+  const b=bridge({processIdentity:pid=>pid===process.pid?{pid,birth:'own-birth',createdAtMs:mtime-10000}:delta===null?null:{pid,birth:'current-birth',createdAtMs:mtime+delta}});
+  tasks.atomic(b.ownerFile,{pid:previousPid,token:'legacy-token'});fs.utimesSync(b.ownerFile,mtime/1000,mtime/1000);
+  // Use the filesystem's actual timestamp precision for the strict comparison.
+  const storedMtime=fs.statSync(b.ownerFile).mtimeMs;
+  b.processIdentity=pid=>pid===process.pid?{pid,birth:'own-birth',createdAtMs:mtime-10000}:delta==='dead'?{pid,dead:true}:delta===null?null:{pid,birth:'current-birth',createdAtMs:storedMtime+delta};
+  if(delta===1||delta==='dead')await b.start();
+  else{await assert.rejects(b.start(),{code:delta===null?'DESKTOP_REMOTE_OWNER_UNKNOWN':'DESKTOP_REMOTE_OWNER_ACTIVE'});assert.equal(JSON.parse(fs.readFileSync(b.ownerFile,'utf8')).token,'legacy-token');}
+ });
+});
+await test('nonpositive or malformed owner PIDs never reach the identity provider',async()=>{
+ for(const pid of [0,-1,1.5,'123',null])await fixture(async({bridge})=>{
+  let calls=0;const b=bridge({processIdentity:()=>{calls++;throw Error();}});tasks.atomic(b.ownerFile,{pid,token:'old-token'});
+  await assert.rejects(b.start(),{code:'DESKTOP_REMOTE_OWNER_UNKNOWN'});assert.equal(calls,0);
+ });
+});
+await test('unknown own birth never publishes ownership or starts scanning',()=>fixture(async({bridge})=>{
+ const b=bridge({processIdentity:()=>null});await assert.rejects(b.start(),{code:'DESKTOP_REMOTE_OWNER_UNKNOWN'});
+ assert.equal(fs.existsSync(b.ownerFile),false);assert.equal(b.stopped,true);
+}));
+await test('stopping the old token preserves successor owner and presence',()=>fixture(async({bridge})=>{
+ const a=bridge();await a.start();
+ tasks.atomic(a.ownerFile,{pid:process.pid,token:'successor-token',birth:'successor-birth'});
+ tasks.atomic(a.presenceFile,{owner:'successor-token'});await a.stop();
+ assert.equal(JSON.parse(fs.readFileSync(a.ownerFile,'utf8')).token,'successor-token');
+ assert.equal(JSON.parse(fs.readFileSync(a.presenceFile,'utf8')).owner,'successor-token');
 }));
 await test('bounded rate defers a burst and submits it after the window clears',()=>fixture(async({ask,bridge,calls})=>{
  let clock=Date.now();const b=bridge({now:()=>clock});await b.start();for(let n=0;n<4;n++)ask();await b.scan();assert.equal(calls.length,3);

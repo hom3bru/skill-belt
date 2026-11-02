@@ -2,11 +2,41 @@
 // nor opens the GUI: an already enabled Desktop environment owns native startup.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os';
 import {randomUUID} from 'node:crypto'; import {fileURLToPath} from 'node:url';
+import {spawnSync} from 'node:child_process';
 import {parse} from './carrier-pigeon.mjs'; import * as tasks from './cp-tasks.mjs'; import * as ctx from './cp-context.mjs';
 import {remoteAddress,remotePointer,createRemoteClient} from './cp-claude-remote-client.mjs';
 
 const read=file=>{try{return JSON.parse(fs.readFileSync(file,'utf8'));}catch(e){if(e.code==='ENOENT')return null;throw e;}};
-const alive=pid=>{try{if(!Number.isSafeInteger(pid)||pid<=0)return false;process.kill(pid,0);return true;}catch(e){return e.code==='EPERM';}};
+const positivePid=pid=>Number.isSafeInteger(pid)&&pid>0;
+// Only birth identity is queried. Never collect process arguments or command lines.
+// null means unknown; only an explicit ESRCH establishes that a PID is dead.
+function processIdentity(pid){
+  if(!positivePid(pid))return null;
+  try{process.kill(pid,0);}catch(e){if(e.code==='ESRCH')return {pid,dead:true};return null;}
+  try{
+    if(process.platform==='win32'){
+      const command=`$p = Get-CimInstance Win32_Process -Filter 'ProcessId = ${pid}'; if ($p) { [PSCustomObject]@{pid=$p.ProcessId;created=$p.CreationDate.ToUniversalTime().ToString('o')} | ConvertTo-Json -Compress }`;
+      const r=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(command,'utf16le').toString('base64')],{windowsHide:true,encoding:'utf8',timeout:10000,maxBuffer:4096});
+      if(r.status!==0)return null;const value=JSON.parse(r.stdout);
+      if(value.pid!==pid||typeof value.created!=='string')return null;
+      return {pid,birth:'win32:'+value.created,createdAtMs:Date.parse(value.created)};
+    }
+    if(process.platform==='linux'){
+      const stat=fs.readFileSync(`/proc/${pid}/stat`,'utf8'),ticks=stat.slice(stat.lastIndexOf(')')+2).trim().split(/\s+/)[19];
+      const boot=fs.readFileSync('/proc/sys/kernel/random/boot_id','utf8').trim();
+      const bootSeconds=Number(/^btime (\d+)$/m.exec(fs.readFileSync('/proc/stat','utf8'))?.[1]);
+      const hzResult=spawnSync('getconf',['CLK_TCK'],{encoding:'utf8',timeout:5000,maxBuffer:4096,windowsHide:true}),hz=Number(hzResult.stdout?.trim());
+      if(!/^\d+$/.test(ticks)||!boot||hzResult.status!==0||!(hz>0)||!Number.isFinite(bootSeconds))return null;
+      return {pid,birth:`linux:${boot}:${ticks}`,createdAtMs:bootSeconds*1000+Number(ticks)*1000/hz};
+    }
+    if(process.platform==='darwin'){
+      const r=spawnSync('ps',['-p',String(pid),'-o','lstart='],{encoding:'utf8',timeout:5000,maxBuffer:4096,windowsHide:true,env:{...process.env,LC_ALL:'C',TZ:'UTC'}});
+      if(r.status!==0)return null;const created=r.stdout.trim();
+      return {pid,birth:'darwin:'+created,createdAtMs:Date.parse(created+' UTC')};
+    }
+  }catch{}return null;
+}
+const knownIdentity=(identity,pid)=>identity?.pid===pid&&positivePid(pid)&&identity.dead!==true&&typeof identity.birth==='string'&&identity.birth.length>0&&identity.birth.length<=256&&!/[\x00-\x1f]/.test(identity.birth)&&Number.isFinite(identity.createdAtMs)&&identity.createdAtMs>0;
 const event=(root,id,ev,extra={})=>{const dir=path.join(root,'receipts');fs.mkdirSync(dir,{recursive:true});fs.appendFileSync(path.join(dir,id+'.jsonl'),JSON.stringify({ts:new Date().toISOString(),ev,...extra})+'\n');};
 const error=code=>Object.assign(new Error(code),{code});
 function localDirectory(dir){if(typeof dir!=='string'||!path.isAbsolute(dir)||ctx.isRemotePath(dir)||/[\x00-\x1f]/.test(dir)||!fs.statSync(dir).isDirectory())throw error('DESKTOP_INVALID_DIRECTORY');return dir;}
@@ -25,10 +55,10 @@ export function credentialProvider({home=os.homedir(),accountId,orgId}={}){
   }catch(e){throw error(/^DESKTOP_[A-Z_]+$/.test(e.code||'')?e.code:'DESKTOP_AUTH_UNAVAILABLE');}};
 }
 export class ClaudeRemoteBridge{
-  constructor({root,environmentId,cwd,client,scanMs=1000,now=Date.now,log=()=>{}}){
+  constructor({root,environmentId,cwd,client,scanMs=1000,now=Date.now,log=()=>{},processIdentity:identityProvider=processIdentity}){
     if(!ctx.isMailbox(root)||ctx.isRemotePath(root))throw error('DESKTOP_LOCAL_MAILBOX_REQUIRED');
     this.root=root;this.environmentId=environmentId;this.address=remoteAddress(environmentId);this.cwd=localDirectory(cwd);
-    this.client=client;this.scanMs=scanMs;this.now=now;this.log=log;this.stopped=true;this.busy=false;this.token=randomUUID();
+    this.client=client;this.scanMs=scanMs;this.now=now;this.log=log;this.processIdentity=identityProvider;this.stopped=true;this.busy=false;this.token=randomUUID();
     this.ownerFile=path.join(root,'host','claude-remote-owners',this.address+'.json');
     this.presenceFile=path.join(root,'sessions','claude~'+this.address+'.json');
   }
@@ -97,7 +127,26 @@ export class ClaudeRemoteBridge{
     }
   }finally{this.busy=false;}}
   publishPresence(){const started=this.started;tasks.atomic(this.presenceFile,{agent:'claude',session:this.address,pid:process.pid,client:'carrier-pigeon Desktop Remote Control '+ctx.VERSION,started,last_seen:new Date().toISOString(),desktop_remote:true,environment_id:this.environmentId,owner:this.token});}
-  async start(){tasks.withLock(this.root,'claude-remote-owner:'+this.address,()=>{const old=read(this.ownerFile);if(alive(old?.pid))throw error('DESKTOP_REMOTE_OWNER_ACTIVE');tasks.atomic(this.ownerFile,{pid:process.pid,token:this.token});});
+  async start(){tasks.withLock(this.root,'claude-remote-owner:'+this.address,()=>{
+    const probe=pid=>{try{return this.processIdentity(pid);}catch{return null;}},old=read(this.ownerFile);
+    if(old){
+      if(!positivePid(old.pid))throw error('DESKTOP_REMOTE_OWNER_UNKNOWN');
+      const current=probe(old.pid);
+      if(!(current?.pid===old.pid&&current.dead===true)){
+        if(!knownIdentity(current,old.pid))throw error('DESKTOP_REMOTE_OWNER_UNKNOWN');
+        if(Object.hasOwn(old,'birth')){
+          if(typeof old.birth!=='string'||!old.birth||old.birth.length>256||/[\x00-\x1f]/.test(old.birth))throw error('DESKTOP_REMOTE_OWNER_UNKNOWN');
+          if(current.birth===old.birth)throw error('DESKTOP_REMOTE_OWNER_ACTIVE');
+        }else{
+          // A legacy PID alone cannot distinguish its original owner from reuse.
+          // Only a strictly later OS birth than this record proves stale ownership.
+          if(!(current.createdAtMs>fs.statSync(this.ownerFile).mtimeMs))throw error('DESKTOP_REMOTE_OWNER_ACTIVE');
+        }
+      }
+    }
+    const own=probe(process.pid);if(!knownIdentity(own,process.pid))throw error('DESKTOP_REMOTE_OWNER_UNKNOWN');
+    tasks.atomic(this.ownerFile,{pid:process.pid,token:this.token,birth:own.birth});
+  });
     this.started=new Date().toISOString();this.publishPresence();this.presenceTimer=setInterval(()=>{try{this.publishPresence();}catch{this.log({ev:'desktop-remote-presence-failed'});}},15000);
     this.stopped=false;this.timer=setInterval(()=>this.scan().catch(()=>this.log({ev:'desktop-remote-scan-failed'})),this.scanMs);await this.scan();}
   async stop(){this.stopped=true;clearInterval(this.timer);clearInterval(this.presenceTimer);tasks.withLock(this.root,'claude-remote-owner:'+this.address,()=>{const old=read(this.ownerFile);if(old?.pid===process.pid&&old.token===this.token){fs.rmSync(this.ownerFile,{force:true});const presence=read(this.presenceFile);if(presence?.owner===this.token)fs.rmSync(this.presenceFile,{force:true});}});}

@@ -39,16 +39,55 @@ await test('invalid identities and unsafe pointer inputs fail before dispatch', 
   for (const key of Object.keys(m)) for (const bad of ['x;evil', 'x\ny', 'x$(evil)', '../x', null]) assert.throws(() => remotePointer({...m, [key]: bad}, paths));
   assert.throws(() => remotePointer(m, {...paths, cli: 'relative'}));
 });
-await test('create uses exact v2 user event contract and authenticated fixed origin', async () => {
+await test('create defaults to native Auto control before the pointer at the authenticated fixed origin', async () => {
   let calls = 0;
   const c = client(async (url, options) => {
     calls++; assert.equal(url, 'https://api.anthropic.com/v1/code/sessions');
     assert.equal(options.method, 'POST'); assert.equal(options.redirect, 'error'); assert.ok(options.signal instanceof AbortSignal);
     assert.ok(options.headers.Authorization === 'Bearer ' + token); assert.equal(options.headers['x-organization-uuid'], orgId);
-    assert.deepEqual(JSON.parse(options.body), {title, environment_id: environmentId, config: {sources: [], outcomes: [], cwd}, events: [{payload: {uuid: eventId, type: 'user', session_id: '', parent_tool_use_id: null, message: {role: 'user', content: text}}}]});
+    assert.deepEqual(JSON.parse(options.body), {title, environment_id: environmentId, config: {sources: [], outcomes: [], cwd}, events: [
+      {payload: {type: 'control_request', request_id: 'set-mode-' + eventId, request: {subtype: 'set_permission_mode', mode: 'auto'}}},
+      {payload: {uuid: eventId, type: 'user', session_id: '', parent_tool_use_id: null, message: {role: 'user', content: text}}}
+    ]});
+    assert.ok(!/from_settings|from-mode|bypass|platform/.test(options.body));
     return response(201, {session: {id: sessionId}});
   });
   assert.deepEqual(await c.create({environmentId, cwd, text, eventId, title}), {session: {id: sessionId}}); assert.equal(calls, 1);
+});
+await test('setPermissionMode emits exactly one native Auto control with stable request ID', async () => {
+  let calls = 0;
+  const c = client(async (url, options) => {
+    calls++; assert.equal(url, `https://api.anthropic.com/v1/code/sessions/${sessionId}/events`);
+    assert.equal(options.method, 'POST'); assert.equal(options.redirect, 'error');
+    assert.deepEqual(JSON.parse(options.body), {session_id: sessionId, events: [{payload: {type: 'control_request', request_id: 'set-mode-' + eventId, request: {subtype: 'set_permission_mode', mode: 'auto'}}}]});
+    assert.ok(!/from_settings|from-mode|bypass|platform|"uuid"/.test(options.body));
+    return response(200, {results: [{sequence_num: 3}]});
+  });
+  const result = await c.setPermissionMode({sessionId, mode: 'auto', eventId});
+  assert.deepEqual(result, {results: [{sequence_num: 3}]}); assert.equal(calls, 1);
+});
+await test('setPermissionMode rejects arbitrary modes, invalid sessions and non-UUID events before authentication', () => {
+  let calls = 0; const c = createRemoteClient({orgId, getAccessToken: () => { calls++; }, fetchFn: () => { calls++; }});
+  for (const mode of [undefined, null, 'default', 'manual', 'bypassPermissions', 'acceptEdits', 'AUTO', {}, 'auto\n']) assert.throws(() => c.setPermissionMode({sessionId, mode, eventId}), {code: 'REMOTE_INVALID_INPUT', preDispatch: true});
+  for (const id of ['cse_', 'cse_x/events', 'session_x?query', null]) assert.throws(() => c.setPermissionMode({sessionId: id, mode: 'auto', eventId}));
+  for (const id of ['', 'not-uuid', eventId + '\n', null]) assert.throws(() => c.setPermissionMode({sessionId, mode: 'auto', eventId: id}));
+  assert.equal(calls, 0);
+});
+await test('mode acknowledgements share send schema and preserve ambiguous sanitized failures without retry', async () => {
+  const invoke = c => c.setPermissionMode({sessionId, mode: 'auto', eventId});
+  for (const data of [{}, {results: []}, {results: [{sequence_num: 1, duplicate: true}]}]) assert.deepEqual(await invoke(client(async () => response(200, data))), data);
+  for (const data of [null, [], {error: {message: 'PRIVATE BODY'}}, {session_id: 'cse_Other'}]) await assert.rejects(invoke(client(async () => response(200, data))), {code: 'REMOTE_INVALID_RESPONSE', preDispatch: false});
+  for (const status of [400, 408, 429, 500]) {
+    let calls = 0, reads = 0;
+    const c = client(async () => { calls++; return {status, json: () => { reads++; throw Error('PRIVATE BODY'); }}; });
+    await assert.rejects(invoke(c), e => e.code === `REMOTE_HTTP_${status}` && e.preDispatch === (status < 500 && status !== 408) && e.message === e.code && !e.cause);
+    assert.equal(calls, 1); assert.equal(reads, 0);
+  }
+  let calls = 0;
+  await assert.rejects(invoke(client(async () => { calls++; throw Error('PRIVATE NETWORK ' + token); })), e => e.code === 'REMOTE_NETWORK' && e.preDispatch === false && e.message === e.code && !e.cause);
+  assert.equal(calls, 1);
+  const c = createRemoteClient({orgId, getAccessToken: () => { throw Error('PRIVATE TOKEN'); }, fetchFn: () => { throw Error('must not fetch'); }});
+  await assert.rejects(invoke(c), {code: 'REMOTE_AUTH_UNAVAILABLE', preDispatch: true});
 });
 await test('send and readonly get use exact session paths and payloads', async () => {
   let calls = 0;

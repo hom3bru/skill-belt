@@ -69,19 +69,28 @@ export function createRemoteClient({getAccessToken, orgId, fetchFn = fetch, base
     if (!uuid(eventId) || !textValue(text, 65536)) invalid();
     return {payload: {uuid: eventId, type: 'user', session_id: sessionId, parent_tool_use_id: null, message: {role: 'user', content: text}}};
   };
+  const permissionEvent = (mode, eventId) => {
+    if (mode !== 'auto' || !uuid(eventId)) invalid();
+    // Native wBr control data wrapped by F8n: no user-frame UUID or settings assertion.
+    return {payload: {type: 'control_request', request_id: 'set-mode-' + eventId, request: {subtype: 'set_permission_mode', mode: 'auto'}}};
+  };
+  const submission = sessionId => data => !Object.hasOwn(data, 'error') && (!Object.hasOwn(data, 'session_id') || data.session_id === sessionId);
   return {
     create({environmentId, cwd, text, eventId, title} = {}) {
       remoteAddress(environmentId);
       if (!textValue(cwd, 4096) || !path.isAbsolute(cwd) || /^(\\\\|\/\/)/.test(cwd) || /[\x00-\x1f\x7f]/.test(cwd) || !textValue(title, 200) || /[\x00-\x1f\x7f]/.test(title)) invalid();
-      const body = {title, environment_id: environmentId, config: {sources: [], outcomes: [], cwd}, events: [event('', text, eventId)]};
+      const body = {title, environment_id: environmentId, config: {sources: [], outcomes: [], cwd}, events: [permissionEvent('auto', eventId), event('', text, eventId)]};
       return request('POST', '/v1/code/sessions', body, data => object(data.session) && session(data.session.id));
     },
     send({sessionId, text, eventId} = {}) {
       if (!session(sessionId)) invalid();
       // Native CLI 2.1.310 sl() treats 200/201 as submission; results[0]'s
       // sequence_num/duplicate are optional metadata, not proof of execution.
-      return request('POST', `/v1/code/sessions/${sessionId}/events`, {session_id: sessionId, events: [event(sessionId, text, eventId)]}, data =>
-        !Object.hasOwn(data, 'error') && (!Object.hasOwn(data, 'session_id') || data.session_id === sessionId));
+      return request('POST', `/v1/code/sessions/${sessionId}/events`, {session_id: sessionId, events: [event(sessionId, text, eventId)]}, submission(sessionId));
+    },
+    setPermissionMode({sessionId, mode, eventId} = {}) {
+      if (!session(sessionId)) invalid();
+      return request('POST', `/v1/code/sessions/${sessionId}/events`, {session_id: sessionId, events: [permissionEvent(mode, eventId)]}, submission(sessionId));
     },
     get(sessionId) {
       if (!session(sessionId)) invalid();
