@@ -15,6 +15,18 @@ context = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(context)
 
 
+def short_alias(path):
+    """Query an existing fixture alias; never change filesystem settings."""
+    if sys.platform != "win32":
+        return path
+    import ctypes
+    buffer = ctypes.create_unicode_buffer(32768)
+    length = ctypes.windll.kernel32.GetShortPathNameW(str(path), buffer, len(buffer))
+    if not length or length >= len(buffer):
+        raise OSError("Temporary fixture alias unavailable")
+    return Path(buffer.value)
+
+
 class ContextTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -125,6 +137,16 @@ class ContextTests(unittest.TestCase):
         with patch.object(context, "ROOT", installed):
             with self.assertRaisesRegex(context.ContextError, "outside"):
                 context.load_context(str(local), {})
+
+    def test_short_alias_toolkit_root_rejects_internal_context_before_read(self):
+        installed = self.path.parent / "alias-toolkit"
+        installed.mkdir()
+        private = installed / "context.json"
+        private.write_text(json.dumps(self.value))
+        with patch.object(context, "ROOT", short_alias(installed)):
+            with patch.object(Path, "open", side_effect=AssertionError("Forbidden context must not be opened")):
+                with self.assertRaisesRegex(context.ContextError, "outside"):
+                    context.load_context(str(private.resolve()), {})
 
     def test_cli_only_emits_status_and_section_names(self):
         self.value["profile"]["display_name"] = "SENSITIVE candidate"

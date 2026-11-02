@@ -50,7 +50,7 @@ def payload(root=ROOT):
 
 def build(output, root=ROOT):
     files = payload(root)
-    output = Path(output).absolute()
+    output = Path(output).resolve()
     if output.is_relative_to(Path(root).resolve()):
         raise ValueError("Keep generated archives outside the toolkit")
     # Exclusive creation prevents overwriting an earlier result.

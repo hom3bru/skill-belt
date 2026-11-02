@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 import unittest
 from zipfile import ZipFile
@@ -12,6 +13,18 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("jobscura_package", ROOT / "scripts/package.py")
 package = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(package)
+
+
+def short_alias(path):
+    """Query an existing fixture alias; never change filesystem settings."""
+    if sys.platform != "win32":
+        return path
+    import ctypes
+    buffer = ctypes.create_unicode_buffer(32768)
+    length = ctypes.windll.kernel32.GetShortPathNameW(str(path), buffer, len(buffer))
+    if not length or length >= len(buffer):
+        raise OSError("Temporary fixture alias unavailable")
+    return Path(buffer.value)
 
 
 class PackageTests(unittest.TestCase):
@@ -65,6 +78,14 @@ class PackageTests(unittest.TestCase):
         manifest.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError, "Private"):
             package.payload(self.root)
+
+    def test_short_alias_output_stays_outside_toolkit(self):
+        with self.assertRaisesRegex(ValueError, "outside"):
+            package.build(short_alias(self.root) / "blocked.zip", self.root)
+        self.assertFalse((self.root / "blocked.zip").exists())
+        output = short_alias(self.base) / "allowed.zip"
+        result = package.build(output, self.root)
+        self.assertEqual(result["sha256"], hashlib.sha256(output.read_bytes()).hexdigest())
 
     def test_package_never_overwrites_and_rejects_output_inside_toolkit(self):
         output = self.base / "result.zip"

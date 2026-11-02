@@ -75,7 +75,8 @@ def load_context(context_path=None, environ=None):
             if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
                 raise ContextError("Linked context paths are not supported")
         resolved = path.resolve(strict=True)
-        forbidden = [ROOT] + [p for p in ROOT.parents if (p / ".git").exists()]
+        root = ROOT.resolve()
+        forbidden = [root] + [p for p in root.parents if (p / ".git").exists()]
         if any(resolved.is_relative_to(p) for p in forbidden):
             raise ContextError("Keep actual context outside the installed toolkit and its repository")
         if not resolved.is_file() or resolved.stat().st_size > MAX_BYTES:

@@ -287,11 +287,11 @@
         "context/user-context.example.json": "a13fd7fff18de4a3e502fe58c7ec9e46f32ac3707470c6cfafaa14307fabe015",
         "context/user-context.schema.json": "b22c1f11f6b547087e740771f71c723045936a4db3ad9551f6d551d210022636",
         "NOTICE.md": "32aae1cfac40a422fa9702d4289271337688308dd17f023105949ebc52e3c416",
-        "package-files.json": "b071694e11a9684b9fee8b6c71bc73fb944557ab998d77fe5037a105d3ef51f4",
+        "package-files.json": "49bd5582051b8858b73b86ac6abac0a8822b99f7b044398676f530c9a399f7bb",
         "plugin.json": "53e2cd937533e05b8aa3ea31e3c33805c432b11c210cbd72834ed66c88d44cac",
         "README.md": "d420813b14d1acded6c052ce0f6be18e18a99343b89cea27af5f3f5f5afff3f0",
-        "scripts/package.py": "7bf0790c54e52a32e47402df8340e7b2d63039c224e7028a5c9a47e71d49434c",
-        "scripts/user_context.py": "61cd6b6db3e7f20a9a717c9f61e321580dba3d9f48712b9a2f6c69a20cdc9639",
+        "scripts/package.py": "230478e0c7d346a9b9c0590daa358c3c902b2c25b984b5c003cf1276c120da0b",
+        "scripts/user_context.py": "f957bf73aa00ffdfbcb7121b8d891af5c2a53264d59097c8da23663c136cb277",
         "SKILL.md": "d9d992a39cde4dc02812e33718e793d56c8a60514c32259037a77de7db5abb29",
         "skills/application-history/references/reconciliation-and-interest.md": "b92d25ff9381646dde555193e13b69b656dfa36eceaf157561f6434a7606f6cf",
         "skills/application-history/SKILL.md": "0fda8ac4162d3a7d23445100ed37e0bc79ff2f63870491e58c3bc6768ad06855",
@@ -312,8 +312,8 @@
         "skills/interview-preparation/references/feedback-and-practice.md": "2de38170315e07f8cd0928ae63e3ff5571a17efca9916de3b7e2b4266dc68a8e",
         "skills/interview-preparation/references/question-families.md": "0e5e9bf52ed1b627bea9cbfad78159d9340b52ea8592201663da2e96e58929de",
         "skills/interview-preparation/SKILL.md": "504afb275e66a849771b484405ff6c14c275a66bd55ca2184c30285a7a8ef7b7",
-        "tests/test_package.py": "eae54bb6bad6f230a75f3a4d9797f211d465087448b9a19ea0cb08e36aadceb3",
-        "tests/test_user_context.py": "a11481fe860c565c5ff9260f7d608e3061ef161855186d4f19eea38efbb83804"
+        "tests/test_package.py": "468bf48af73d2ee9a4be7a398c584c936f193e221d8315ea6730e4d3e8a9b663",
+        "tests/test_user_context.py": "5ee276bdbc9a439f1f76c2520c2e9dbf12a37214384c9742b095de4ea81b903d"
       }
     }
   ]
