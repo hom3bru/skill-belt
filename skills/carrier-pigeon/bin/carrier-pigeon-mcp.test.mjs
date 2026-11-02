@@ -252,6 +252,8 @@ await t('shared push reservation prevents concurrent duplicate posts and retains
     const partial=path.join(root,'host','session-push',publishing.message.id+'.json');fs.writeFileSync(partial,'');
     assert.equal(await pushOnce(publishing),'pending','exclusive create can precede JSON publication');
     fs.utimesSync(partial,new Date(0),new Date(0));assert.equal(await pushOnce(publishing),'uncertain','abandoned partial publication is not replayed');
+    fs.writeFileSync(partial,JSON.stringify({state:'delivered',session:'s'}));
+    assert.equal(await pushOnce(publishing),'delivered','completion after receipt check is established by the delivery record');
     assert.equal(sessionInbox(root,'../escape'),null);
   } finally {release();fs.rmSync(root,{recursive:true,force:true});}
 });

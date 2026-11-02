@@ -39,7 +39,8 @@ export async function pushOnce({root, session, inbox, message, send = post}) {
   const file = path.join(dir, message.id + '.json');
   try { fs.writeFileSync(file, JSON.stringify({session, state: 'dispatching', pid: process.pid, at: Date.now()}), {flag: 'wx'}); }
   catch (e) { if (e.code === 'EEXIST') { if (pushedBefore(root, message.id)) return 'delivered';
-    try { const owner = JSON.parse(fs.readFileSync(file, 'utf8')); process.kill(owner.pid, 0);
+    try { const owner = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (owner.state === 'delivered' && owner.session === session) return 'delivered'; process.kill(owner.pid, 0);
       if (owner.state === 'dispatching' && Date.now() - owner.at < 15000) return 'pending'; } catch {
       // Exclusive creation precedes metadata publication; the owner may also release a failed attempt.
       try { if (Date.now() - fs.statSync(file).mtimeMs < 15000) return 'pending'; } catch (err) { if (err.code === 'ENOENT') return 'pending'; } }

@@ -208,7 +208,7 @@
       "files": {
         "agents/openai.yaml": "cd594063546795fc3acf8c779118919b4abe8565511d432bbc7bd71e4c238431",
         "bin/carrier-pigeon-mcp.mjs": "9cd37afd39e3cfbc94a76cbe79845a0f63da9662a27442bbf50f6934c2bd2e80",
-        "bin/carrier-pigeon-mcp.test.mjs": "62391d70034507f971e001e3d85ccbcf580180f43db1b6c46af8bcc7dffe6f4e",
+        "bin/carrier-pigeon-mcp.test.mjs": "1c2e50687958568691d9e96a2a32262eca7d5e896204c513bf38457935f2db3f",
         "bin/carrier-pigeon.mjs": "2c6549a357448eaf604c4528224c2b4c6988b468d0976656562fa08005bd0724",
         "bin/carrier-pigeon.test.mjs": "45f29c02632b4d218be348e7fce239818d09c7ebd4a545878246a98cd0695205",
         "bin/cp-build-recovery.test.mjs": "8450240b7c890e0bb43740d45bf174435419f36474110a5162fba53776bf0e1c",
@@ -228,7 +228,7 @@
         "bin/cp-hello.mjs": "a6fc8de7ea28110a3570d083d6027cc2dca6a1825fb126800d0f3c3c7ad0d95c",
         "bin/cp-hello.test.mjs": "90df13f7312392a03b0b6051da43c8c10c6507983f43518fa33b2d7b00510fd7",
         "bin/cp-hook.mjs": "e6a9afdabac0a175dcfba625cf25076700f4b634edcc0b8794de26017498b205",
-        "bin/cp-push.mjs": "9f7142ce04b5a289d9b1b5c975f23bd164b0e5added2c063d5f919a18e987ccd",
+        "bin/cp-push.mjs": "117e2d6f819c9f010e25d6fce77c82aac5750203f8a79f3ff24d5ac75d1d2d27",
         "bin/cp-tasks.mjs": "45e8221a387256aedb768e7d8801b1e747d929cef6dd11af6b5eb4481b178ba7",
         "bin/cp-tasks.test.mjs": "fee3d3e77513ef90b789832898b996c8ab09cd4ba6af86af0a35cf4430395426",
         "host/carrier-pigeon-host.mjs": "1bb293ba64fdaeadfea899da0cb4c6c6baa045cb0ef579c812716eab11c20d83",
