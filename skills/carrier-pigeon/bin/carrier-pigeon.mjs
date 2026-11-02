@@ -342,7 +342,7 @@ function agentsStatus(){ needInit(); let pid=null, pres=null; try{ pid=+fs.readF
     // "not ready": the waking adapter is starting, recycling or restarting; the listener retries delivery until it is ready
     const reach=ads.some(x=>x.wakes&&x.state==='ready')?'auto-wake':ads.some(x=>x.wakes&&x.state!=='dormant')?'auto-wake (not ready)':ads.some(x=>x.state==='ready')?'notify-only':'pull';
     return {agent:a,reach,listener_pid:pid,adapters:ads,inbox:count(a,'inbox'),wakes_logged:s?.wakes??0,median_reply_ms:s?.median_latency_ms??null,
-      sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null,...(a==='claude'?{wake_via:x.session_push?'session-mcp:'+x.session_push:sessionInbox(ROOT,x.session)&&ads.some(d=>d.adapter==='claude'&&d.state==='ready')?'listener:registry':null}: {})}))}; }); }
+      sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null,...(a==='claude'?{wake_via:x.desktop_remote===true?'desktop:remote-control':x.session_push?'session-mcp:'+x.session_push:sessionInbox(ROOT,x.session)&&ads.some(d=>d.adapter==='claude'&&d.state==='ready')?'listener:registry':null}: {})}))}; }); }
 // Read-only health shared by the CLI and the MCP doctor tool (bin/cp-diagnostics.mjs). Before init it reports an uninitialised mailbox
 // instead of failing, and never creates one: agentsStatus runs only on an initialised mailbox.
 function doctor({agent:a=null,session=null}={}){ if(a!=null) agent(a); if(session!=null) vname(String(session),'session');
@@ -378,6 +378,7 @@ const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, cla
   codex-hooks install|remove|status   Codex hooks that hand a follow-up to a running Codex app turn (keeps other hooks; trust them in /hooks)
   version
   doctor [--as A] [--session S]   read-only health: mailbox, loaded vs installed version, listener, claude/codex reach; warnings exit 0
+  desktop-bridge --environment env_ID --cwd DIR --org UUID --account UUID   experimental native Desktop Remote Control companion
   send   --from A --to B --subject S [--kind ask|reply|handoff|fyi|review-request] [--priority low|normal|high|urgent]
          [--thread T] [--due ISO] [--repo R --branch B --sha X] [--requires-matt-approval] (--body TEXT | --body-file F | stdin)
          context pack (optional, <=8 KB): [--summary "..."] [--files a,b] [--refs id1,id2] [--findings ID,..] [--context-file F]
@@ -457,6 +458,7 @@ async function main(argv){ const [cmd,...rest]=argv;
   const o=args(rest,cmd==='reply'?new Set([...REPEAT,'evidence']):REPEAT); const J=o.json; const out=(obj,txt)=>console.log(J?JSON.stringify(obj,null,2):txt);
   if(o.help) return out({help:HELP},HELP);
   switch(cmd){
+    case 'desktop-bridge': {const b=await import('./cp-claude-remote.mjs');return b.main(['--root',o.root||ROOT,...['environment','cwd','org','account'].flatMap(k=>['--'+k,o[k]||die('--'+k+' required')])]);}
     case 'build': {const b=await import('./cp-build.mjs'),[sub,id]=o._;let r;
       const options={operatorRoot:ROOT,id};
       if(sub==='start'){const parse=x=>{try{return JSON.parse(x);}catch{die('--check and --setup must contain JSON argv arrays');}};

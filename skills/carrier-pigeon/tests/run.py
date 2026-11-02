@@ -16,7 +16,10 @@ SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "bin", "cp-tasks.te
           (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"), (ROOT / "bin", "cp-co.test.mjs"),
           (ROOT / "bin", "cp-diagnostics.test.mjs"), (ROOT / "bin", "cp-build-repo.test.mjs"),
           (ROOT / "bin", "cp-build-runtime.test.mjs"), (ROOT / "bin", "cp-build.test.mjs"),
-          (ROOT / "bin", "cp-build-recovery.test.mjs"))
+          (ROOT / "bin", "cp-build-recovery.test.mjs"),
+          (ROOT / "bin", "cp-claude-remote-client.test.mjs"),
+          (ROOT / "bin", "cp-claude-remote.test.mjs"),
+          (ROOT / "bin", "cp-claude-remote-identity.test.mjs"))
 SUMMARY = re.compile(r"^# (\d+) tests, (\d+) failed", re.M)
 
 

@@ -29,6 +29,8 @@ Only the operator may start, resume or cancel a build from the user's authorizat
 
 ## Talking to another agent
 
+For the experimental native Claude Desktop route, read [Claude Desktop delivery](references/claude-desktop.md). Its companion targets an already enabled Desktop Remote Control environment and advertises a stable address through `agents`. Native cold startup has been observed; end-to-end acknowledgement with the updated MCP routing remains unqualified. Do not substitute an already opened chat or a headless worker as proof.
+
 - **If you have the `carrier-pigeon` MCP tools, use them.** Arguments are typed and no shell is involved. Setup is in [references/mcp.md](references/mcp.md). Otherwise use the CLI below. For Codex routing, recovery and handoffs, read [references/codex.md](references/codex.md).
 - **Use the installed CLI immediately if this connection lacks a newer tool.** An already-running MCP process keeps its loaded code. `doctor` (MCP tool, or CLI `doctor [--as me] [--json]`) reports loaded versus installed versions (the mailbox's `bin/cp-context.mjs`), plus `health` (`ready`, `attention` or `uninitialized`) and `checks` (mailbox, version, listener, claude and codex reach), each warning with a `next_action`. It is read-only: it never initialises, repairs or restarts anything, works before `init`, and exits 0 even with warnings. If `doctor` is absent or reports an older version, use the current CLI for the whole reliable-task lifecycle, including claim/reply/done; do not mix old mutating tools with new controls. The user's task need not wait for settings changes or an app restart.
 - **To get an answer, `ask`.** It sends the ask and waits for the reply: `wait_seconds` in MCP (default 45), `--wait` in the CLI (default 300).

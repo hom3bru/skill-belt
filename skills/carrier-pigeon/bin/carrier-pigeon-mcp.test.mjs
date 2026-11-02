@@ -1,4 +1,5 @@
 import {EventEmitter} from 'node:events';
+import {randomUUID} from 'node:crypto';
 // node carrier-pigeon-mcp.test.mjs — the MCP server over real stdio, on a temp CARRIER_PIGEON_HOME; never touches the real bus.
 import {spawn, execFileSync} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
 import net from 'node:net'; import {claudeInbox, pushOnce, sessionInbox, post} from './cp-push.mjs';
@@ -269,5 +270,41 @@ await t('MCP presence publishes native Claude identity and safe wake capability,
     assert.equal(info.claude_session_id,sid);assert.equal(info.session_push,null);assert.ok(!('token' in info));
     const status=await k.call('agents',{});assert.equal(status.json.find(x=>x.agent==='claude').sessions.find(x=>x.session==='native-presence').wake_via,null);
   } finally {k.close();}
+});
+await t('Desktop parent-bound MCP handles stable addressed mail without shell commands or other-session access',async()=>{
+  const config=fs.mkdtempSync(path.join(os.tmpdir(),'cpmcp-desktop-')),native=randomUUID(),environmentId='env_OwnedFixture123',alias='claude-desktop-'+environmentId;
+  const registry=path.join(config,'sessions');fs.mkdirSync(registry);const file=path.join(registry,process.pid+'.json');
+  const record={pid:process.pid,sessionId:native,hostSessionId:'local_'+randomUUID(),entrypoint:'claude-desktop',bridgeSessionId:'session_OwnedRemote123'};fs.writeFileSync(file,JSON.stringify(record));
+  const m=run('send','--from','codex','--to','claude','--to-session',alias,'--subject','owned Desktop','--body','fixture','--thread','desktop-owned-fixture');
+  const mappings=path.join(HOME,'host','claude-remote-threads',environmentId);fs.mkdirSync(mappings,{recursive:true});
+  fs.writeFileSync(path.join(mappings,m.thread+'.json'),JSON.stringify({environmentId,thread:m.thread,remoteSessionId:'cse_OwnedRemote123',createdBy:m.id}));
+  const desktopEnv={...env,CLAUDE_CONFIG_DIR:config,CLAUDE_CODE_SESSION_ID:native};let k=client(['--as','claude','--session','ephemeral-desktop'],desktopEnv);
+  try{
+    await k.req('initialize',{protocolVersion:'2025-06-18',clientInfo:{name:'fixture'}});
+    assert.ok((await k.call('inbox',{})).json.some(x=>x.id===m.id));
+    assert.equal((await k.call('read',{id:m.id})).json.to_session,alias);
+    assert.equal((await k.call('claim',{id:m.id})).json.claimed_session,alias);
+    assert.ok(!(await k.call('heartbeat',{id:m.id,progress:'native-bound fixture'})).isError);
+    const outgoing=(await k.call('send',{to:'codex',thread:m.thread,subject:'follow-up',body:'fixture'})).json;assert.equal(outgoing.from_session,alias);
+    assert.ok((await k.call('outbox',{})).json.some(x=>x.id===outgoing.id));
+    k.close();await new Promise(r=>k.p.once('exit',r));k=client(['--as','claude','--session','restarted-desktop'],desktopEnv);
+    await k.req('initialize',{protocolVersion:'2025-06-18',clientInfo:{name:'fixture'}});
+    assert.ok((await k.call('outbox',{})).json.some(x=>x.id===outgoing.id),'outbox recovers persisted native ownership after restart');
+    run('reply',outgoing.id,'--as','codex','--body','fixture response');
+    assert.equal((await k.call('wait_reply',{id:outgoing.id,wait_seconds:0})).json.status,'replied');
+    const peerAsk=(await k.call('send',{to:'claude',to_session:'another-claude-client',thread:m.thread,subject:'peer Claude',body:'fixture'})).json;
+    assert.equal(peerAsk.from_session,alias);assert.ok(!(await k.call('task_status',{id:peerAsk.id})).isError);
+    run('reply',peerAsk.id,'--as','claude','--session','another-claude-client','--body','peer answer');
+    assert.equal((await k.call('wait_reply',{id:peerAsk.id,wait_seconds:0})).json.status,'replied');
+    const cancelAsk=(await k.call('send',{to:'claude',to_session:'another-claude-client',thread:m.thread,subject:'cancel peer',body:'fixture'})).json;
+    assert.equal((await k.call('cancel',{id:cancelAsk.id,reason:'fixture stopped'})).json.state,'cancelled');
+    const reply=(await k.call('reply',{id:m.id,body:'fixture native acknowledgement'})).json;assert.equal(reply.from_session,alias);
+    const other=run('send','--from','codex','--to','claude','--to-session',alias,'--subject','different owner','--body','fixture','--thread','different-desktop');
+    fs.writeFileSync(path.join(mappings,other.thread+'.json'),JSON.stringify({environmentId,thread:other.thread,remoteSessionId:'cse_AnotherRemote123',createdBy:other.id}));
+    assert.ok(!(await k.call('inbox',{})).json.some(x=>x.id===other.id));assert.ok((await k.call('claim',{id:other.id})).isError);
+    fs.writeFileSync(file,JSON.stringify({...record,bridgeSessionId:'session_ContextChanged123'}));
+    const next=run('send','--from','codex','--to','claude','--to-session',alias,'--subject','old context','--body','fixture','--thread',m.thread);
+    assert.ok((await k.call('claim',{id:next.id})).isError,'native identity is rechecked after the first successful claim');
+  }finally{k.close();await new Promise(r=>k.p.once('exit',r));fs.rmSync(config,{recursive:true,force:true});}
 });
 c.close(); fs.rmSync(HOME, {recursive: true, force: true}); console.log(`# ${n} tests, ${failed} failed (mcp)`); process.exit(failed ? 1 : 0);

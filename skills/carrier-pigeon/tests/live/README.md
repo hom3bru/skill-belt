@@ -31,6 +31,8 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 
 ## 0.16.0 qualification
 
+The experimental [native Desktop companion](../../references/claude-desktop.md) has a separate qualification boundary. A real MCP mailbox send caused an already enabled Desktop Remote Control server to admit work and start its bundled engine as a child of the Desktop application, without manually opening a recipient. The native transcript reached a mailbox-read tool call. That first trial used an older MCP connection, waited at a Manual-mode permission prompt and expired without a mailbox claim/reply. Native cold startup is verified; the updated native-bound MCP route has offline stdio coverage and still needs its fresh live acknowledgement trial. This is not interchangeable with headless or already-open-chat delivery.
+
 The listener registry fallback and shared push reservation are covered by authored local named-pipe/stdio fixtures. Real Claude registry delivery was **not run**: no isolated idle Claude session was established, and the operator's active sessions must not receive probes. No real model calls or terminal follow-up trial were launched without Matt's spending approval. Earlier live results below qualify their labeled versions only. Installation, listener restart, hook trust, plugin settings and pushes remain operator actions.
 
 ## Delivery into running sessions on 2026-11-01 (one Windows machine, 0.14.0)
