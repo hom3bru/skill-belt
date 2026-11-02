@@ -230,7 +230,7 @@
         "bin/cp-tasks.mjs": "45e8221a387256aedb768e7d8801b1e747d929cef6dd11af6b5eb4481b178ba7",
         "bin/cp-tasks.test.mjs": "fee3d3e77513ef90b789832898b996c8ab09cd4ba6af86af0a35cf4430395426",
         "host/carrier-pigeon-host.mjs": "98d0e36c30eddec9f9888a150207cd5b61f7cd618a0e626a941f8077e80466aa",
-        "host/carrier-pigeon-host.test.mjs": "be2f4e7f75517551c2f0ce8f0922f15989f3e1008f8b279ef6a067f3f3b32b4d",
+        "host/carrier-pigeon-host.test.mjs": "a0c6e700c58bd49184427bbc31ee379415e9f6e11273b7d18724429f57520bab",
         "host/config.json": "2f78ec182af35d90bd186a30eb4c1c48cbab5303445871794a79fb15eaef0252",
         "host/start-host.ps1": "550d5ae715bbe146c4a9e53eaae1338949cebe4b35b4914dc485f9d2df6a934e",
         "host/stop-host.ps1": "2cdb7c715dc49d2496a370e9010bcdad8da18b8c5be8e441a1b313b90b31cc15",

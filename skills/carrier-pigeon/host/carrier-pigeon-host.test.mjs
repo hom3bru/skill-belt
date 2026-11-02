@@ -210,7 +210,7 @@ await t('visible Codex hand-off: only a plain hand-off to Codex qualifies, on Wi
 await t('codexWindow adapter: opens one interactive Codex window per hand-off with a fixed, quote-free prompt', async()=>{ const calls=[];
   const spawnFn=(bin,args,opt)=>{ const c=new EventEmitter(); c.unref=()=>{}; calls.push({bin,args,opt}); setTimeout(()=>c.emit('spawn'),0); return c; };
   const ad=codexWindowAdapter({spawnFn,platform:'win32'}); const logs=[]; process.env.CARRIER_PIGEON_WORKER='1'; process.env.CARRIER_PIGEON_SESSION='listener';
-  ad.start({root:'C:/Users/M/.carrier-pigeon',log:e=>logs.push(e),cfg:{codex:{bin:'C:/codex.exe'},codexWindow:{enabled:true,kinds:['handoff'],cwd:'C:/w'},routes:{codex:['codexWindow','codex']}}});
+  ad.start({root:'C:/mailbox',log:e=>logs.push(e),cfg:{codex:{bin:'C:/codex.exe'},codexWindow:{enabled:true,kinds:['handoff'],cwd:'C:/w'},routes:{codex:['codexWindow','codex']}}});
   const h={id:'H7',from:'claude',to:'codex',kind:'handoff',thread:'H7',subject:'x"; Start-Process calc; "'};
   assert.equal(await ad.deliver({...h,kind:'ask'}),false,'an ask stays with the worker'); assert.equal(calls.length,0);
   assert.equal(await ad.deliver(h),true); const c=calls[0]; assert.equal(c.bin,'wt.exe');
@@ -233,7 +233,7 @@ await t('codexWindow launch script (real PowerShell): Codex gets -C, the folder 
   if(process.platform!=='win32') return; const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cp-window-')), out=path.join(dir,'argv.json');
   const fake=path.join(dir,'fake-codex.mjs'); fs.writeFileSync(fake,`import fs from 'node:fs'; fs.writeFileSync(${JSON.stringify(out)},JSON.stringify(process.argv.slice(2)));`);
   const bin=path.join(dir,'fake codex.cmd'); fs.writeFileSync(bin,`@"${process.execPath}" "${fake}" %*\r\n`); // a space in the path, as in Program Files
-  const prompt=codexWindowPrompt({id:'H5',from:'claude',to:'codex',kind:'handoff',thread:'H5'},'C:/Users/M/.carrier-pigeon');
+  const prompt=codexWindowPrompt({id:'H5',from:'claude',to:'codex',kind:'handoff',thread:'H5'},'C:/mailbox');
   execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(codexWindowScript(bin,dir,prompt),'utf16le').toString('base64')],{stdio:'ignore'});
   assert.deepEqual(JSON.parse(fs.readFileSync(out,'utf8')),['-C',dir,prompt]);
   execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(codexWindowScript(bin,dir,prompt,['--no-daemon']),'utf16le').toString('base64')],{stdio:'ignore'});
