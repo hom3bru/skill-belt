@@ -1,6 +1,6 @@
 # Routing: which recipient profile(s) apply
 
-Run this before §2 of SKILL.md. Output a **ROUTING** block before any donor work. Project-specific identity signals live in each profile's **Routing signals** section. Read them together in the routing index: `python -B "<skill-directory>/scripts/aa.py" routing-index` prints every installed profile's section, generated from the profiles so it cannot drift. Then read only the profiles you select, in full. Without Python, search `profiles/` for `## Routing signals` and read just those sections.
+Before donor work, emit **ROUTING**. Identity signals live in each profile's **Routing signals**. Read their generated index (`python -B "<skill-directory>/scripts/aa.py" routing-index`), then only selected profiles in full. Without Python, inspect those sections in `profiles/`.
 
 ## 1. Signals (collect all, then decide)
 
@@ -13,6 +13,7 @@ Run this before §2 of SKILL.md. Output a **ROUTING** block before any donor wor
 | Host-config paths: `~/.claude`, `~/.codex`, `~/.agents`, `config.toml`, hooks, CLAUDE.md | path | `coding-workflow`, high, unless the target is an identified named recipient package inside them |
 | Donor type: agent skill, prompt pack, MCP server, Claude/Codex plugin, dev CLI | donor files (`SKILL.md`, `.mcp.json`, `plugin.json`) | `coding-workflow`, medium; `self` only as a **candidate** (never selected without explicit intent) |
 | Donor domain matching a profile's stated scope | donor README/paths | that profile, medium (low for adjacency) |
+| Mechanism fits a recipient need/improvement | inspected mechanism and recipient seam | that profile, independently of donor domain |
 | Donor is closed-source product / SaaS / binary-only | no public core LICENSE+tree; marketing+docs only | all plausible profiles; set `donor_mode: closed-source-osint` ([closed-source](closed-source.md)) |
 | Donor is website / web app / docs portal | URL host; HTML app; needs HAR/DevTools | same + [web-forensics](web-forensics.md) |
 | None of the above | — | `generic` (or OPPORTUNITY, no fit score); a request to build a new product from several sources → suggest frankenmine; recovering how one opaque product works → suggest reverse-engineer-anything |
@@ -22,7 +23,7 @@ Confidence: **high** = user named it or the cwd/target path is inside that recip
 ## 2. Decide
 
 1. Explicit user naming wins and is never dropped. Autodetected profiles are **added** only at medium+ unless the user asked for breadth. A named recipient package overrides generic host-path and outer launch-repository hints for that target; add another profile only for a separately requested recipient or receiving seam. A donor mentioning a recipient's name does not make it a recipient.
-   An explicitly supplied recipient root/rules wins over the outer cwd. A fixture-only request does not authorize importing a live project's identity or claiming its wiring; use generic until that identity is established. Donor domain is a search/routing hint, not proof of recipient identity or a reason to reject a transferable part.
+   Explicit recipient roots/rules win over outer cwd. Fixture-only work uses generic until project identity is established; it cannot establish live wiring. Domain is only a routing clue. Discoveries may update routing within scope after recipient inspection; retain named recipients and SELF restrictions. Apparent unrelatedness supplies no deduction; unknown connections stay open. Do not expand a named assessment into every project.
 2. **Never select `self` without explicit intent** (SKILL.md §0.9). A donor that is a skill makes `self` a candidate only: mention it as "possible SELF lesson, not evaluated" and stop there.
 3. Ask the user **only** when a wrong route has real consequence: (a) the plan would touch a governed, frozen or locked-perimeter path named in a profile; (b) `self` is plausible but not explicit; (c) the top two candidates have *opposite* hard rules for the same artifact and the user must pick. Otherwise proceed with all plausible profiles and mark low-confidence ones `(low)` in every heading.
 4. Low-confidence profiles get the shared ledger plus a short fit note; they are not given ADOPT/ADAPT without an inspected receiving seam. Claims of actual wiring or execution still need the corresponding evidence (SKILL.md §0.7, §8).
@@ -49,5 +50,5 @@ Typical conflicts to surface, not resolve silently: an anti-detect crawler → a
 
 ## 4. Output
 
-State the routing set and evidence first, e.g.:
+Example:
 `ROUTING: project-a (high: cwd is its repo; user said "for project A") · lab-b (medium: donor is an experiment harness) · coding-workflow (low: donor is a CLI) · self: not selected (no explicit intent)`

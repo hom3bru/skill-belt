@@ -1,3 +1,17 @@
+# adopt-adapt 3.0.0-grok-draft.r18 - scoped publication 2026-11-02 PT
+
+Captured local legal citations can reference read donor/recipient source evidence with checked bytes and revision. HTTP(S) citations remain supported. Captured references do not clear legal flags or transfer gates. Regression controls cover invalid provenance, mutated evidence, rendering integrity and blocked transfers.
+
+Native host verification is reported by exact host surface and condition in the collection's scoped verification note. Claude Code implicit activation loaded the exact installed r18 body; explicit loaded identity remained unproven. Codex CLI and Cursor availability prevented completed activation verification. A helper or package pass does not establish host enforcement. The skill retains DRAFT status and incomplete formal host qualification.
+
+## r17 - open mechanism discovery (2026-11-02)
+
+Anything could contain useful parts or patterns. A wildly unrelated source could contain the most valuable mechanism. Domain, language, stated purpose and apparent relevance guide exploration and recipient sorting; apparent unrelatedness alone supplies no negative score. Concrete incompatible assumptions, evidence limits, transfer costs and net burden still govern adoption.
+
+Improvements to existing capabilities count. Five mandatory salvage lenses remain the minimum, and additional discovered patterns retain evidence and reporting controls. Acceptance and falsification criteria, recipient overlap and a net burden account keep discovery measured. The protected section 0 contract is unchanged.
+
+The scoped engineering release does not establish discovery superiority: baseline and candidate tied at 6/6 cases and 53/54 points in the independently graded comparison. These development observations are not a general effectiveness claim.
+
 # adopt-adapt 3.0.0-grok-draft.r16 - released 2026-10-29 PT
 
 Released after the round-3 pre-registered blind before/after comparison on Claude Code (2026-10-29): not worse than the previous version (r15.1) at n=8 pairs (2 wins, 1 loss, 5 ties; no new hard fail; sign-test p=1.0, so no superiority is claimed). Codex was not run. The only changes from the evaluated candidate are this version label and the SKILL.md status line, which no longer says the candidate awaits evaluation. License remains **Proprietary (Matt Kolkin)**; this edition grants no new reuse rights.
@@ -44,9 +58,9 @@ Entries for r15 and earlier, back to the 2.x line, record private projects, mach
 
 ## Public edition
 
-This edition is generated from the r16 release by the collection's public build.
+This edition is generated from the r18 release by the collection's public build.
 
 - **Omitted by rule:** every profile file except `generic`, `coding-workflow`, `self`, `frankenmine` and `westack`, the profile-owned rules and alias files, the machine-root hints, the historical archive and `tests/test_private_profiles.py`. The shipped files are byte-identical to the release apart from the overlays below.
-- **Overlays:** this changelog; `evals/trigger-evals.json`, whose routing cases are rewritten against the public profiles with the same intent and expected routing logic; and the one-line `description` in `SKILL.md`, which names a user-specified recipient instead of listing private projects.
+- **Overlays:** this changelog; `evals/trigger-evals.json`, whose routing cases are rewritten against the public profiles with the same intent and expected routing logic. The canonical `SKILL.md` description is already recipient-neutral and needs no override.
 - **Regenerated:** `release.json`, by the skill's own `python -B scripts/package.py manifest .`, so it hashes exactly the published files.
 - **Limits:** tests and package validation establish only their stated local scopes; no trigger accuracy, verdict quality, native host activation or general effectiveness claim follows.

@@ -1,0 +1,32 @@
+# adopt-adapt r18: scoped verification
+
+Published edition: `3.0.0-grok-draft.r18`, from canonical commit `4d3322dd52e6ff2057ac53e22b0267ac6f0a736e`. The tested canonical package remains unchanged; public changes are the declared privacy overlays, omissions and regenerated manifest. The skill retains DRAFT status and incomplete formal multi-host qualification.
+
+## Citation defect and engineering checks
+
+The old validator required an HTTP(S) URL even for an inspected local LICENSE. R18 also accepts captured source-evidence IDs from the current donor/recipient pair. Existing checks bind captures to bytes and revision; unread, wrong-owner, unknown, duplicate and mutated evidence fail. Both provided provenance forms must validate. Paths alone are insufficient. Citation representation does not grant permission or clear legal flags.
+
+The canonical suite ran 353 tests: 352 passed and one Windows symlink test was skipped because symlink creation was unavailable. All 13 focused citation tests passed. The independent reviewer recorded 62/62 controlled observations, 13 new tests and 7 existing legal tests passing, including unchanged hard-line, patent, terms and waiver boundaries. Fifteen publication-recovery checks and frontmatter validation passed. Instruction budgets remain within their unchanged caps. These controls establish helper behavior, not legal conclusions or general model benefit.
+
+The collection's required `python -B scripts/verify.py` checks this public edition's byte manifests, links, privacy patterns, rejection controls and four skill suites. It reports the documented Windows symlink exception visibly; that skip does not count as passed. Raw private development and host-session logs are omitted from the public collection.
+
+The local Windows collection run completed the preceding checks but timed out in the unchanged Carrier Pigeon suite after 900.3 seconds. The public adopt-adapt suite ran 339 tests: 338 passed and the documented symlink test was skipped. This is **not a whole-collection pass**. The timed-out suite was last observed in `cp-build-runtime.test.mjs`; a subsequent exact-identity check found that test process had already stopped, so no process was killed. The failed summary and partial logs remain retained. The public change is a draft pending complete collection verification. The next full check is `python -B scripts/verify.py --timeout 1800` on a quieter host; a repeated stall needs a separately scoped Carrier Pigeon investigation, since its snapshot is unchanged here.
+
+## Native host results (2026-11-02)
+
+An independent evaluator froze an authored Python donor, TypeScript recipient, local LICENSE, prompts and criteria before running native sessions. Positive prompts provided fixture paths and evaluation intent, without pasted skill instructions or a skill-file path. Source-only scope prohibited code execution, edits, network use and installation. Exact prompts, native traces, before/after hashes, failures and grading remain in the canonical research archive.
+
+| Surface / condition | Observed result | Limit |
+| --- | --- | --- |
+| Claude Code 2.1.310, implicit | Native `Skill(adopt-adapt)` call and attached installed r18 body; exact body binding and unchanged installed hashes. Source-only scope, grounding and local-license checks passed. | One authored case; no broad trigger-accuracy or verdict-quality claim. |
+| Claude Code 2.1.310, explicit `/adopt-adapt` | Completed grounded evaluation within read scope. Discovery was visible. | Loaded identity was not proven by the trace. An unsupported claim that independent re-expression created no material license obligation failed the legal-grounding criterion. This condition does not count as verified r18 activation. |
+| Claude Code 2.1.310, negative | Answered `42`, with no tool call or skill attachment. | One arithmetic control. |
+| Codex CLI 0.142.5 | Account rejected the default, configured and one live-enumerated model before a usable response; final explicit/negative attempts failed and the interrupted implicit attempt remained incomplete. | Native activation unverified. A model-list response did not establish inference access. No authentication or saved configuration was changed. |
+| Cursor 3.27.12 | Standalone agent CLI unavailable. Existing GUI showed a usage cap, and unreliable project-picker input prevented a scoped test. | Native activation unverified; no installation or account-setting change was attempted. |
+| Codex Desktop GUI | No fresh GUI activation test. | CLI evidence does not qualify this surface. |
+
+Initial parallel Claude runs were interrupted during installed SessionStart-plugin MSYS fork failures. Three fresh sequential runs used the documented invocation-only `disableAllHooks` setting, retaining ordinary native skill discovery and existing authentication. These results qualify only that exact scoped invocation. No stored host setting changed. Interrupted and failed attempts were retained, not counted as passes. No donor or recipient program was executed.
+
+The native implicit attachment matched the installed SKILL.md body (comparison removed YAML frontmatter and surrounding blank lines and normalized line endings; the native attachment did not include frontmatter); the full file SHA-256 recorded before and after was `262ff78f18bc35299c721a757a8a9c7ca41a94a8d1e9dff703779b47ddba8b40`.
+
+The [research thesis](adopt-adapt-thesis.md) remains separate from effectiveness evidence: the r17 baseline/candidate comparison tied at 6/6 cases and 53/54 points, so discovery superiority was not established.

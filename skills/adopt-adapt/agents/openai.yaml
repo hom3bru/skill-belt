@@ -1,4 +1,4 @@
 interface:
   display_name: "Adopt / Adapt"
-  short_description: "Mine sources and plan evidence-backed transfers"
-  default_prompt: "Use $adopt-adapt to evaluate these sources for useful mechanisms in my projects."
+  short_description: "Find useful patterns across any source; weigh transfer cost"
+  default_prompt: "Use $adopt-adapt to find useful parts and patterns in these sources, beyond their original purpose or language, and assess recipient benefit and transfer burden."

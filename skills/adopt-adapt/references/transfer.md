@@ -1,6 +1,6 @@
 # SALVAGE: transfer a mechanism, not its accidental surroundings
 
-Read when a repository, paper, workflow or blocked whole tool contains a potentially useful part. The route is:
+For any potentially useful part, use:
 
 **mechanism → dependency closure → semantic contract → target seam → portable tests**
 
@@ -8,17 +8,17 @@ Every source gets the five-lens hunt of SKILL.md §5; whole-tool rejection, lang
 
 ## The protected five-axis hunt
 
-For every source, compare Algorithms, Error handling, Data structures, Security/compliance and Performance against the selected target. Cite the source file/function and target evidence for each concrete yes/no. Algorithms include deduplication, ranking/scoring, scheduling, caching, retry and rate limiting; performance includes streaming, batching, memoisation and concurrency. “I did not see anything” without checking is not a supported no. Unavailable evidence leaves the affected axis BLOCKED/UNPROCESSED.
+For every source, compare Algorithms, Error handling, Data structures, Security/compliance and Performance against the selected target. These are starting lenses; follow useful interaction, evaluation, organizational or other patterns wherever the evidence leads. Cite inspected source lines/sections and target evidence for each concrete yes/no. Algorithms include deduplication, ranking/scoring, scheduling, caching, retry and rate limiting; performance includes streaming, batching, memoisation and concurrency. “I did not see anything” without checking is not a supported no. Unavailable evidence leaves the affected area BLOCKED/UNPROCESSED.
 
 Every concrete yes becomes a salvage finding whatever the whole-tool fit; records separate whole-tool disposition from mechanism findings and completion. Breadth must reflect source size and likely hiding places, not an arbitrary fixed file count or only the advertised purpose.
 
 ## 1. Identify a concrete mechanism
 
-Search from both ends. Start with known target needs and named donor symbols, algorithms, test techniques, data structures, interfaces or state transitions. Then briefly inspect what the donor does unusually well that might reveal an overlooked target need. Follow an entry point through implementation and its consumer instead of relying on the advertised purpose. A domain mismatch is a reason to look for a smaller transferable part, not a reason to skip the hunt.
+Search from both ends: known target needs and donor strengths. Follow the actual implementation and its consumer, or the load-bearing steps of a non-code practice. Neither apparent relevance nor unrelatedness establishes usefulness. Domain, purpose and language labels supply no automatic deduction; inspect the mechanism and its assumptions. A newly discovered connection can update provisional recipient routing within the user's scope.
 
 For a promising part, describe the problem solved, invariant preserved and assumption that could break the analogy before doing a deep port analysis. This is an early discovery cue, not a second semantic-contract form: a short phrase or sentence is enough for a small idea. For example, save-game recovery can suggest consistent-state recovery after interrupted writes, while assumptions about a single local writer may prevent direct reuse in a concurrent service. Names can differ while behavior matches; similar names can hide incompatible semantics.
 
-Ask what the target does today, what would change, and why the difference matters. Confirm an overlooked need in recipient code or a stated requirement; do not turn a donor strength or a conditional policy into a feature mandate. A part with no demonstrated receiving need is not a qualified transfer finding, but an evidence-backed clue may be retained as `promising` with its unknown seam, assumptions and next discriminating question. Source discovery need not finish its dependency closure before retaining that clue; ADOPT/ADAPT still needs the complete applicable transfer contract.
+Ask what the target does today, what would change, and why the difference matters. Confirm an overlooked need in recipient evidence or a stated requirement, including improving or simplifying an existing capability; wired does not mean unimprovable. Do not turn a donor strength or a conditional policy into a feature mandate. A part with no demonstrated receiving need is not a qualified transfer finding, but an evidence-backed clue may be retained as `promising` with its unknown seam, assumptions and next discriminating question. Source discovery need not finish its dependency closure before retaining that clue; ADOPT/ADAPT still needs the complete applicable transfer contract.
 
 Use this donor-first look proportionally, especially for an unfamiliar source or an apparent whole-tool mismatch. Do not repeat analysis already covered by the five axes, require a fixed number of discoveries, or save every interesting detail. No useful part remains an acceptable outcome.
 
@@ -43,6 +43,8 @@ Trace direct helpers and relevant transitive dependencies until the proposed uni
 
 Classify each dependency as retained existing target facility, rewritten locally, isolated behind an approved seam, deliberately excluded with a contract change, or unresolved. Do not omit inconvenient dependencies to make a port look small. A wrapper is justified only when it concentrates real semantic, security or compatibility work. Compare the cost of a local equivalent before importing a large runtime.
 
+In `alternatives`, account for **current behavior → expected/observed improvement → smallest transfer → burden added/removed → smallest local alternative**. Consider dependencies, state/configuration, operations, maintenance, security and cognitive overhead; credit removed code and complexity. Measure material costs where feasible; label estimates/unknowns. Donor size or language alone is not bloat; actual dependency closure and semantic work can be. A quick call needs only a sentence; add no numeric bloat score or reporting system.
+
 A paid/service/prohibited dependency blocks that integration; preserve the original DISCARD. Continue only if an independently useful zero-cost unit can be specified without the blocked behavior. If a particular closure becomes larger than its benefit or cannot be inspected, stop that extraction with the reason; continue the other required axes/parts unless blocked. Inaccessible areas remain BLOCKED/UNPROCESSED rather than a completed negative result.
 
 ## 3. Define the semantic contract
@@ -65,16 +67,16 @@ For implementation plans, include the smallest reversible slice, before/after fl
 
 ## 5. Propose portable tests with two distinct oracles
 
-**Donor parity** asks whether a port matches the donor on a specified input domain. Capture representative donor input/output/state/error behavior only in an authorized environment. Preserve exact versions and normalization rules. Differential tests can detect port drift but reproduce donor bugs.
+**Donor parity:** compare the port with donor input/output/state/error behavior on a specified domain, captured only in an authorized environment with exact versions and normalization. Differential tests detect drift but can reproduce donor bugs.
 
-**Independent correctness** asks whether the result satisfies the user's actual requirement. Use a specification, independently reviewed labels, domain invariants or approved blind human gold. Keep human-gold answers outside the editor's readable development context where required. A port matching donor outputs is not proof of funding-extraction truth, security, numerical correctness or general usefulness.
+**Independent correctness:** test the user's requirement against a specification, independently reviewed labels, invariants or approved blind human gold. Keep gold outside the editor's context where required. Donor parity alone proves neither correctness nor usefulness.
 
-Useful cases include normal, boundary, malformed, missing/ambiguous, conflicting, reordered, repeated and interruption/restart inputs, chosen for the contract. Add metamorphic/property checks where the relation is valid: idempotence, permutation invariance, conservation, monotonicity or round-trip behavior. Do not assert a relation the donor/target contract does not promise.
+Choose normal, boundary, malformed, missing, conflicting, reordered, repeated and interruption/restart cases. Use metamorphic/property checks only for relations the contract promises, such as idempotence, conservation or round trips.
 
-Test a pure semantic core separately from adapters and end-to-end integration. Compare recipient-before versus recipient-after to protect existing behavior, then separately prove the intended entry point reaches the new mechanism; unchanged regressions alone may never exercise it. Check failures, not only success-shaped schemas. Use a deliberate broken implementation/fixture to check that the verifier detects the failure it claims to detect. Record what did not run and why.
+Test the semantic core, adapters and real entrypoint separately. Compare recipient-before/after for regressions and prove the entrypoint reaches the mechanism; unchanged tests may never exercise it. Check errors as well as success and use a deliberately broken control to prove the verifier discriminates. Record unrun checks and reasons.
 
-For a measurable benefit, declare the receiving baseline, representative workload, acceptance/falsification criteria and resource budget before seeing results. Compare quality, latency, resource use and operational complexity only where relevant. A faster microbenchmark does not establish faster user-visible work.
+Declare the receiving baseline, representative workload, acceptance/falsification criteria and resource budget before measuring results. Compare relevant quality, latency, resource use and operational complexity; microbenchmarks alone do not establish user-visible gain.
 
 ## Stop conditions and useful output
 
-A finding is ready when its value, closure, contract, receiving seam and smallest test are clear enough to decide, and required per-source mining coverage is accounted for. Report axis/area coverage and skipped/unread boundaries; do not claim full coverage from a promising first hit. If a material piece remains unknown, use ADAPT-with-prerequisite with the exact missing evidence and next probe. No useful transfer is a valid result. Put this mechanism record inside the existing dossier, not beside a new mandatory reporting system.
+Readiness needs value, closure, contract, receiving seam, smallest test and accounted-for mining coverage. Report unread boundaries; a first hit does not complete coverage. For a conditional transfer, name the missing evidence and next probe as its prerequisite. Finding nothing worth transferring is valid. Use the existing dossier, not a new reporting system.

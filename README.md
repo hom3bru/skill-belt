@@ -10,7 +10,7 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 
 | Skill | Purpose | Output |
 | --- | --- | --- |
-| [adopt-adapt](skills/adopt-adapt/SKILL.md) | Evaluate outside work for an existing project. | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
+| [adopt-adapt](skills/adopt-adapt/SKILL.md) | Find useful parts and patterns in any source for an existing recipient ([thesis and research](docs/adopt-adapt-thesis.md)). | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
 | [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
