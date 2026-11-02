@@ -17,6 +17,7 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 | `collaboration.mjs [--minutes 20] [--verify-fixes]` | Claude leads a real review of the installed task lifecycle, delegates an independent review to Codex, challenges its strongest conclusion in a second round, then returns a schema-validated synthesis with both peer ask/reply IDs. Gates on real messages, source hashes, two resumed Claude wakes and one native Codex conversation. `--verify-fixes` checks the two operator-reproduced crash-recovery fixes. No planted defects or scripted peer answers. Temporary mailbox and receipts are retained. | Three Claude runs and two Codex turns, using configured models |
 | `codex-recovery.mjs [--keep]` | Two real Codex turns in a throwaway mailbox, with a full listener/app-server restart between them. Both replies must satisfy an object schema; arithmetic must be correct; the native conversation id must stay the same; the live mailbox must stay untouched. Uses the existing Codex login/default model, low effort and a six-minute deadline per request. | Two Codex turns |
 | `codex-sandbox.mjs` | Codex's workspace-write sandbox (`codex sandbox -P :workspace`, with the mailbox as the workspace) lets a write inside the mailbox through and blocks one into a fresh folder in the home directory. It also reports whether the OS temp folder is writable. | None (no model) |
+| `codex-app.mjs [--minutes 4]` | The `codexApp` mechanics against the real Codex and the real desktop app, with no mailbox.<br>1. A named thread with no turn is started with the user's own Codex config, and its rollout must exist.<br>2. One prompt is queued and the thread is opened with `codex://threads/<id>`; the app must run it.<br>3. A second prompt is queued with no link; the app must run that too.<br>Each prompt asks for a fresh nonce word, and the run reads the reply from the thread's rollout. | Two tiny Codex turns in the app (Windows only) |
 | `toast.mjs [--show]` | PowerShell's parser finds only the expected commands in the toast script, and a hostile subject never appears in it. `--show` fires one real toast and checks it exits 0. | None (Windows only) |
 | `claude-deny.mjs [--legacy]` | A real headless Claude, launched with the listener's arguments, can't read `host/secrets`. It can't do it with Read, or by sending the file with the mailbox CLI. An ordinary file stays readable. `--legacy` reruns the Read part with 0.3.1's settings as a negative control. | One Haiku session, about $0.003 |
 | `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
@@ -25,6 +26,33 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 | `co-modes.mjs --mode audit\|design\|build\|solo` | The other co modes, and a baseline. Every project mode gates on: closed, a clean protocol check, every real member doing its work, no member messages in the project thread.<br>`audit`: Claude and Codex audit a limiter with three planted defects; which ones the findings name is reported.<br>`design`: competing designs under three acceptance criteria, which the script rates untested.<br>`build`: real Codex builds a unit in its own git worktree, while the script plays Claude, cross-reviews, merges and rates criteria from the merged `node --test`.<br>`solo`: no project; Claude and Codex each answer the co-research question alone. | Per mode: about 3 Haiku runs and 1 to 3 Codex turns (`build`: Codex only) |
 | `co-real.mjs setup\|listen\|codex\|report` | Every role is a real model, and the material is real: no scripted member, lead or judge, and no planted defects.<br>`setup --mode audit`: Claude and Codex audit carrier-pigeon's own sealed-round code at the version under test, with Codex as lead.<br>`setup --mode build`: two real builders in their own worktrees, Codex as lead.<br>Codex runs through `listen` (listener-woken members) or `codex` (a sandboxed write-capable session). The harness never launches Claude itself: Claude builders and the non-member judge (id `grok`, no grok runtime here) are the operator's Claude subagents, under that session's permission system.<br>`report` gates on:<br>- closed with a clean check;<br>- the lead's synthesis;<br>- a judge verdict on every defended dispute;<br>- no member message in the thread;<br>- audit: sealed until one clean reveal;<br>- build: C1 rated pass, and the merged tests pass when the harness reruns them. | Audit: listener Claude (Sonnet) and Codex, plus one subagent judge. Build: two Claude subagent rounds and 3 to 4 Codex sessions |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
+
+## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
+
+**What 0.12.0 did.** Matt shared nine Codex threads that "never progressed past a single message", and their local rollouts and mailbox receipts were read.
+- Hand-offs opened a terminal session. Every follow-up named that session and was marked `no-wake` (`session-addressed`).
+- One grading hand-off read two follow-ups only because it happened to check its inbox mid-task.
+- Six automated test threads did get a second turn, because their follow-ups named `codex` rather than a session.
+- Four 10/29 pings sat in `recovery_needed`, and the listener added a receipt for each on every 15 s rescan: about 3,400 apiece.
+
+**Native mechanisms probed** (Codex 0.166.0-alpha.5.1, app 26.1027):
+- `codex queue` writes to Codex's shared queue. Nothing runs a queued message until an app-server loads the thread.
+- When the app opened a thread with `codex://threads/<id>`, it ran the waiting message. It also ran a message queued while the thread was on screen, and one queued while another thread was on screen.
+- A thread started over the app-server protocol with no turn is not saved; `codex queue` then reports "no rollout found". `thread/name/set` saves it, and the app then fills it from the queue.
+- A thread keeps the settings of the process that created it. Here those were Matt's own: approval `never`, full access.
+
+**`codex-app.mjs`:** pass. The first reply came 14 s after the link was opened; the second, queued with no link, came 6 s after queueing.
+
+**Through the installed 0.13.0 listener and the live mailbox:**
+1. A Claude hand-off opened a named app thread, and its first turn started 6 s after queueing. Codex claimed it and replied with the nonce, and the listener recorded its session.
+2. A follow-up addressed to that session was queued into the same thread and started 2 s later.
+3. Codex answered it with both nonces, recalling the first from the conversation rather than re-reading the mailbox.
+4. Both turns ran with Matt's own settings.
+
+**Limits:**
+- This is one machine and one app version.
+- A terminal window's session still can't be woken.
+- Asks still go to the listener's worker unless `codexApp.kinds` includes `ask`.
 
 ## Automatic co-build on 2026-11-01 (one Windows machine, 0.12.0 development)
 

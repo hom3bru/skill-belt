@@ -3,10 +3,10 @@
   "maxHops": 8,
   "rate": { "max": 6, "windowMs": 600000 },
   "noWakeKinds": ["reply", "fyi"],
-  "adapters": ["claude", "codexWindow", "codex", "toast", "grokWebhook", "cursorCloud"],
+  "adapters": ["claude", "codexApp", "codexWindow", "codex", "toast", "grokWebhook", "cursorCloud"],
   "routes": {
     "claude": ["claude", "toast"],
-    "codex": ["codexWindow", "codex", "toast"],
+    "codex": ["codexApp", "codexWindow", "codex", "toast"],
     "cursor": ["cursorCloud", "toast"],
     "grok": ["grokWebhook", "toast"],
     "matt": ["toast"]

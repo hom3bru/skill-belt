@@ -2,7 +2,7 @@
 name: carrier-pigeon
 description: Send asks, replies and context handoffs between separate coding agent clients (Grok, Cursor, Claude Code, Codex) through a local mailbox. On a direct user request, automatically have native Claude and Codex build, cross-review, repair, integrate and apply a local coding task. Use for cross-client messages, reviews, handoffs and inbox checks. For subtasks within the current Codex chat, prefer its native subagents when available and authorized.
 metadata:
-  version: "0.12.0"
+  version: "0.13.0"
   status: "Local prototype. Authored crash, protocol and recovery tests differ from live provider qualification; see tests/live/README.md for versioned evidence and limits."
 ---
 

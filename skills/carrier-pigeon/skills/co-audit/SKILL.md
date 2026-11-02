@@ -2,7 +2,7 @@
 name: co-audit
 description: "Use when two or more agents should audit the same code, system or skill and challenge each other's findings: blind independent findings with severity, location and evidence, cross-challenge for false positives and missed classes, answers, a judge, then a report of what survived. A carrier-pigeon sub-skill (needs its mailbox). Not for one agent's diff review (westack-review), fixing what an audit found (co-build) or research (co-research)."
 metadata:
-  version: "0.12.0"
+  version: "0.13.0"
   parent: carrier-pigeon
 ---
 

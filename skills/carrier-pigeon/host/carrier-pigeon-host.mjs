@@ -9,7 +9,7 @@ export const AGENTS = ['grok','cursor','claude','codex','matt'];
 export const DEFAULTS = {
   watch: true, rescanMs: 15000, debounceMs: 75, maxHops: 8, coMaxHops: 60, rate: {max: 6, windowMs: 600000},
   noWakeKinds: ['reply','fyi'],
-  routes: {claude:['claude','toast'], codex:['codexWindow','codex','toast'], cursor:['cursorCloud','toast'], grok:['grokWebhook','toast'], matt:['toast']},
+  routes: {claude:['claude','toast'], codex:['codexApp','codexWindow','codex','toast'], cursor:['cursorCloud','toast'], grok:['grokWebhook','toast'], matt:['toast']},
   restart: {baseMs: 1000, maxMs: 60000, stableMs: 60000},
   // mode: per-thread (a resumed session per conversation) | shared (one warm session; recycleAtContextTokens restarts it, 0 = never)
   claude: {bin: 'claude', extraArgs: [], mode: 'per-thread', maxConcurrent: 2, maxConversations: 200, recycleAtContextTokens: 120000},
@@ -17,6 +17,9 @@ export const DEFAULTS = {
   codex: {bin: 'codex', port: 4500, model: null, sandbox: 'busOnly', lean: true, connectTries: 40, rpcTimeoutMs: 60000, threads: 'per-thread', maxThreads: 100},
   // codexWindow: these kinds to Codex open a new interactive Codex window Matt can watch (his own settings and approvals) instead of the
   // mailbox-only worker. bin defaults to codex.bin; terminal (argv prefix) is needed off Windows; cwd defaults to the home folder.
+  // codexApp: these kinds open a new thread in the Codex desktop app (Matt's settings and approvals), and later messages in that conversation
+  // are queued into it. It takes a hand-off before codexWindow does. opener (argv prefix for a codex:// link) is needed off Windows.
+  codexApp: {enabled: true, kinds: ['handoff'], cwd: null, bin: null, opener: null, pickupMs: 90000, pollMs: 2000, startTimeoutMs: 60000, claimTimeoutMs: 600000},
   codexWindow: {enabled: true, kinds: ['handoff'], cwd: null, bin: null, args: [], terminal: null, claimTimeoutMs: 600000},
   toast: {enabled: true},
 };
@@ -144,7 +147,7 @@ export class Host {
   saveState(){ const seen=[...this.seen].slice(-5000), deliveries=[...this.retryQ.values()].map(({id,to,n,tries,phase,at,coRetry,knownAccepted,wakeAt})=>({id,to,n,tries,phase,at,coRetry,knownAccepted,wakeAt})); const s=JSON.stringify({seen,pending:Object.fromEntries(this.pending),wakes:this.wakes,deferred:[...this.deferred.values()],deliveries,coRetried:[...this.redelivered]});
     if(s===this.lastState) return; tasks.atomic(this.p.state,JSON.parse(s)); this.lastState=s; }
   async start(){ this.release=acquireLock(this.p.lock); this.loadState(); this.log({ev:'host-start',pid:process.pid});
-    for(const [n,a] of Object.entries(this.adapters)){ try{ await a.start?.({root:this.root,cfg:this.cfg,log:e=>this.log({adapter:n,...e}),receipt:(id,ev,x)=>receipt(this.root,id,ev,{adapter:n,...x}),ready:()=>this.retry(n),turnFailed:(ids,err,claims)=>this.turnFailed(n,ids,err,claims),recoveryNeeded:(ids,err)=>this.recoveryNeeded(n,ids,err),turnFinished:(ids,status,error,claims)=>this.turnFinished(n,ids,status,error,claims),progress:(ids,text,claims)=>this.progress(ids,text,claims),control:id=>this.control(id)}); }catch(e){ this.log({ev:'adapter-start-failed',adapter:n,err:redact(e.message)}); } }
+    for(const [n,a] of Object.entries(this.adapters)){ try{ await a.start?.({root:this.root,cfg:this.cfg,log:e=>this.log({adapter:n,...e}),receipt:(id,ev,x)=>receipt(this.root,id,ev,{adapter:n,...x}),ready:()=>this.retry(n),turnFailed:(ids,err,claims)=>this.turnFailed(n,ids,err,claims),recoveryNeeded:(ids,err)=>this.recoveryNeeded(n,ids,err),turnFinished:(ids,status,error,claims)=>this.turnFinished(n,ids,status,error,claims),progress:(ids,text,claims)=>this.progress(ids,text,claims),control:id=>this.control(id),alert:(k,title,text)=>this.alert(k,title,text)}); }catch(e){ this.log({ev:'adapter-start-failed',adapter:n,err:redact(e.message)}); } }
     this.recoverAccepted();
     for(const a of AGENTS) for(const box of ['inbox','claimed','done']){ const d=path.join(this.root,'agents',a,box); fs.mkdirSync(d,{recursive:true}); if(!this.cfg.watch) continue;
       try{ const w=fs.watch(d,(t,f)=>{ if(!f||String(f).startsWith('.')||!String(f).endsWith('.md')) return; this.kick(a); }); w.on('error',e=>this.log({ev:'watch-error',dir:d,err:e.message})); this.watchers.push(w); }
@@ -172,14 +175,16 @@ export class Host {
       m._thread_len=this.hops(m.thread); if(m.from==='matt') m._authority=this.verifyMatt(m); return m; } return null; }
   blocked(m,{rate=false}={}){ const c=this.control(m.id), deadline=c?.expires_at||m.expires_at;
     if(c?.cancel_requested) return 'cancel-requested'; if(c?.terminal||['recovery_needed','missing_reply'].includes(c?.state)) return c.state;
-    if(deadline&&Date.parse(deadline)<=this.now()) return 'expired'; if(m.to_session&&m.to_session!==LISTENER) return 'session-addressed';
+    if(deadline&&Date.parse(deadline)<=this.now()) return 'expired'; if(m.to_session&&m.to_session!==LISTENER&&!this.sessionOwned(m)) return 'session-addressed';
     if(this.cfg.noWakeKinds.includes(m.kind)&&!this.wantsReplyWake(m)) return 'no-wake-kind'; if(this.hops(m.thread)>this.hopLimit(m.thread)) return 'hop-limit';
     if(rate&&!this.windowFree(m.to)) return 'rate-limit'; return null; }
   async checkControls(){ for(const id of this.pending.keys()){ const c=this.control(id); if(!c?.cancel_requested&&c?.state!=='expired') continue;
       for(const a of Object.values(this.adapters)) if(a.cancel){ try{ const r=await a.cancel(id); if(r?.requested) receipt(this.root,id,'interrupt-requested',{adapter:a.name}); }catch(e){ this.log({ev:'cancel-error',id,err:redact(e.message)}); } } } }
-  recoveryNeeded(n,ids,reason){ for(const id of [...new Set(ids)]){ let to; for(const a of AGENTS) if(['inbox','claimed'].some(b=>fs.existsSync(path.join(this.root,'agents',a,b,id+'.md')))){ to=a; break; } if(!to) continue;
-      const key=n+':'+id, r=this.retryQ.get(key)||{n,id,to,tries:0,at:this.now()}; r.phase='recovery-needed'; this.retryQ.set(key,r); this.taskState(id,{state:'recovery_needed',reason:redact(String(reason)).slice(0,300)});
-      receipt(this.root,id,'recovery-needed',{adapter:n,reason:redact(String(reason)).slice(0,300)}); this.alert('recovery:'+id,'carrier-pigeon: recovery needed',`${n} may have accepted ${id}; inspect its receipts and partial artifacts before retrying.`); } this.saveState(); }
+  // Recorded once per state change: a recovery entry is re-checked on every rescan, and 0.12.0 wrote a receipt each time (3,198 for one ask).
+  recoveryNeeded(n,ids,reason){ const why=redact(String(reason)).slice(0,300); for(const id of [...new Set(ids)]){ let to; for(const a of AGENTS) if(['inbox','claimed'].some(b=>fs.existsSync(path.join(this.root,'agents',a,b,id+'.md')))){ to=a; break; } if(!to) continue;
+      const key=n+':'+id, r=this.retryQ.get(key)||{n,id,to,tries:0,at:this.now()}; r.phase='recovery-needed'; this.retryQ.set(key,r); const c=this.control(id);
+      if(!(c?.state==='recovery_needed'&&c.reason===why)){ this.taskState(id,{state:'recovery_needed',reason:why}); receipt(this.root,id,'recovery-needed',{adapter:n,reason:why}); }
+      this.alert('recovery:'+id,'carrier-pigeon: recovery needed',`${n} may have accepted ${id}; inspect its receipts and partial artifacts before retrying.`); } this.saveState(); }
   turnFinished(n,ids,status,error,claims={}){ for(const id of [...new Set(ids)]){ const c=this.control(id); if(c?.claim_fenced&&c.claim_token!==claims[id]){ receipt(this.root,id,'stale-worker-event',{nativeStatus:status,reason:'claim generation changed'}); continue; } if(c?.terminal){ this.taskState(id,{execution_stopped:true},claims[id]); continue; }
       if(status==='interrupted'&&(c?.cancel_requested||c?.state==='expired')){ this.taskState(id,{state:c.deadline_expired||c.state==='expired'?'expired':'cancelled',execution_stopped:true,potential_partial:true,reason:'Worker interruption confirmed; inspect any partial artifacts.'},claims[id]); receipt(this.root,id,'interrupted',{adapter:n}); }
       else if(status==='completed'){ const done=AGENTS.some(a=>fs.existsSync(path.join(this.root,'agents',a,'done',id+'.md'))); if(done) continue;
@@ -193,8 +198,10 @@ export class Host {
     try{ const tmp=this.p.presence+'.tmp-'+process.pid; fs.writeFileSync(tmp,JSON.stringify({...JSON.parse(s),updated:new Date().toISOString()},null,1)); fs.renameSync(tmp,this.p.presence); this.lastPresence=s; }catch(e){ this.log({ev:'presence-error',err:e.message}); } }
   // verifyMatt: Windows Hello check (one public-key lookup per host run); tests inject {verifyMatt}.
   verifyMatt(m){ return (this.opts?.verifyMatt||((x)=>hello.verifyAuthority(x,x.sig?hello.helloPublicKey():null)))(m); }
+  // Mail for another session wakes only through a routed adapter that can reach that session (codexApp, for Codex sessions in its threads).
+  sessionOwned(m){ return (this.cfg.routes[m.to]||[]).some(n=>{ const a=this.adapters[n]; return !!(a&&!a.dormant&&a.ownsSession?.(m)); }); }
   // A reply wakes its recipient only when the ask it answers (in the replier's boxes) was sent by that recipient with wake_on_reply.
-  wantsReplyWake(m){ if(m.kind!=='reply'||!cpx.ID_RE.test(String(m.reply_to))||(m.to_session&&m.to_session!==LISTENER)) return false;
+  wantsReplyWake(m){ if(m.kind!=='reply'||!cpx.ID_RE.test(String(m.reply_to))||(m.to_session&&m.to_session!==LISTENER&&!this.sessionOwned(m))) return false;
     for(const box of ['done','claimed','inbox']){ const f=path.join(this.root,'agents',m.from,box,m.reply_to+'.md'); if(!fs.existsSync(f)) continue;
       let o=null; try{ o=parse(fs.readFileSync(f,'utf8')); }catch{} return !!(o&&o.wake_on_reply===true&&o.from===m.to&&o.thread===m.thread); } return false; }
   windowFree(to){ const w=(this.wakes[to]||[]).filter(t=>this.now()-t<this.cfg.rate.windowMs); this.wakes[to]=w; return w.length<this.cfg.rate.max; }
@@ -254,7 +261,8 @@ export class Host {
     let wake=true, why=null; m._thread_len=this.hops(m.thread);
     // Matt's authority, checked here (not by the model) against this machine's Windows Hello key; the wake prompt words it accordingly
     if(m.from==='matt'){ m._authority=this.verifyMatt(m); receipt(this.root,m.id,'authority',{status:m._authority.status}); }
-    // mail for another running session (an interactive client) is that session's to pick up; the listener only toasts it
+    for(const [n,a] of Object.entries(this.adapters)){ try{ a.observe?.(m); }catch(e){ this.log({ev:'observe-error',adapter:n,id:m.id,err:redact(e.message)}); } } // e.g. codexApp learns the sessions in its threads
+    // mail for another running session (an interactive client) is that session's to pick up, unless an adapter reaches it; the listener only toasts it
     const controlWhy=this.blocked(m);
     if(controlWhy){ wake=false; why=controlWhy; if(why==='hop-limit') this.alert('hop:'+m.thread,'carrier-pigeon: hop limit',`Thread ${m.thread} passed ${this.hopLimit(m.thread)} hops; auto-wake stopped. Latest ${m.id} ${m.from}->${m.to}.`); }
     else if(this.cfg.noWakeKinds.includes(m.kind)&&!this.wantsReplyWake(m)){ wake=false; why='no-wake-kind'; }
@@ -468,7 +476,7 @@ export function codexAdapter({spawnFn=spawn, WS=globalThis.WebSocket, mcpList=co
       if(group.some(x=>{ const c=ctx.control?.(x.id); return x.phase==='completed'||!c?.cancel_requested&&!c?.terminal&&c?.state!=='expired'; })) return {requested:false,reason:'task or turn state changed while checking cancellation'};
       // The API has no conditional interrupt: an external steer can still race this read. Unknown observable inputs always stop cancellation.
       await rpc('turn/interrupt',{threadId:i.threadId,turnId:i.turnId}); interrupting.add(i.turnId); return {requested:true}; },
-    async deliver(m){ if(visibleHandoff(m,ctx.cfg)) return false; // a visible Codex window takes this one (codexWindowAdapter)
+    async deliver(m){ if(visibleHandoff(m,ctx.cfg)||appHandoff(m,ctx.cfg)||appThreadFor(ctx.root,m,ctx.cfg)) return false; // the Codex app or a visible window takes this one
       if(!ws||!thread) throw deliveryError('codex app-server not ready',{preDispatch:true});
       const old=intents.get(m.id), current=ctx.control?.(m.id); if(old&&current?.claim_fenced&&old.claimToken!==current.claim_token) throw deliveryError('A new claim fenced this native delivery; inspect the earlier attempt before starting another.',{uncertain:true});
       if(old&&['accepted','completed'].includes(old.phase)&&!old.retryPrepared) return true;
@@ -515,9 +523,12 @@ export function toastAdapter({spawnFn=spawn, platform=process.platform}={}){ let
 // apply visibleHandoff to the message and config alone, so a retry can never hand the same message to both. Mail for a running session,
 // a fork of an existing thread and co-work notices stay with the worker.
 // The window must actually be routed (and enabled, when an adapters list is set); otherwise hand-offs stay with the worker rather than nobody.
-export const visibleHandoff=(m,cfg,platform=process.platform)=>{ const w=cfg?.codexWindow; return !!(w?.enabled && m?.to==='codex'
-  && (cfg.routes?.codex||[]).includes('codexWindow') && (!cfg.adapters||cfg.adapters.includes('codexWindow'))
-  && (w.kinds||[]).includes(m.kind) && !m.to_session && !m.fork_codex_thread && !coNotice(m) && (platform==='win32'||w.terminal)); };
+const routedTo=(cfg,n)=>(cfg?.routes?.codex||[]).includes(n)&&(!cfg.adapters||cfg.adapters.includes(n));
+const plainHandoff=(m,c)=>!!(c?.enabled&&m?.to==='codex'&&(c.kinds||[]).includes(m.kind)&&!m.to_session&&!m.fork_codex_thread&&!coNotice(m));
+// The Codex app (codexAppAdapter) takes a plain hand-off before the window does.
+export const appHandoff=(m,cfg,platform=process.platform)=>plainHandoff(m,cfg?.codexApp)&&routedTo(cfg,'codexApp')&&(platform==='win32'||!!cfg.codexApp.opener);
+export const visibleHandoff=(m,cfg,platform=process.platform)=>{ const w=cfg?.codexWindow; return plainHandoff(m,w) && routedTo(cfg,'codexWindow')
+  && (platform==='win32'||!!w.terminal) && !appHandoff(m,cfg,platform); };
 // The window is the user's own session: it never inherits the listener's worker identity.
 export const codexWindowEnv=(env=process.env)=>{ const e={...env}; delete e.CARRIER_PIGEON_WORKER; delete e.CARRIER_PIGEON_SESSION; return e; };
 // The prompt rides on a command line (Windows Terminal splits its commandline at ';'), so it is a fixed template over checked ids: never the
@@ -543,7 +554,7 @@ export function codexWindowLaunch(bin,cwd,prompt,title,terminal,args=[]){ if(ter
     Buffer.from(codexWindowScript(bin,cwd,prompt,args),'utf16le').toString('base64')]; }
 export function codexWindowAdapter({spawnFn=spawn, platform=process.platform}={}){ let ctx; const opened=new Set();
   return { name:'codexWindow', wakes:true, start(c){ ctx=c; }, presence:()=>({wakes:true,state:ctx?.cfg?.codexWindow?.enabled?'ready':'disabled'}),
-    async deliver(m){ if(!visibleHandoff(m,ctx.cfg,platform)||opened.has(m.id)) return false;
+    async deliver(m){ if(!visibleHandoff(m,ctx.cfg,platform)||appThreadFor(ctx.root,m,ctx.cfg)||opened.has(m.id)) return false;
       const w=ctx.cfg.codexWindow, cwd=w.cwd||os.homedir(), bin=w.bin||ctx.cfg.codex?.bin||'codex', prompt=codexWindowPrompt(m,ctx.root);
       const argv=codexWindowLaunch(bin,cwd,prompt,`carrier-pigeon ${m.id}`,w.terminal,[].concat(w.args||[]).map(String));
       const ch=spawnFn(argv[0],argv.slice(1),{detached:true,stdio:'ignore',env:codexWindowEnv()});
@@ -554,6 +565,72 @@ export function codexWindowAdapter({spawnFn=spawn, platform=process.platform}={}
       const inbox=path.join(ctx.root,'agents','codex','inbox',m.id+'.md');
       setTimeout(()=>{ if(fs.existsSync(inbox)) ctx.alert?.('window-claim:'+m.id,'carrier-pigeon: Codex window has not claimed',
         `A Codex window opened for ${m.id} but has not claimed it; check the window (a trust or sign-in prompt, or Codex exited).`); },w.claimTimeoutMs??600000).unref?.();
+      return true; } }; }
+
+// The Codex desktop app (ChatGPT.exe on Windows) as the visible home of a hand-off and the rest of its conversation. A window session can't be
+// woken, so 0.12.0 conversations stopped after one message: every follow-up named the window's session and got no-wake. Here a new hand-off
+// gets an app thread: a short-lived app-server with Matt's own Codex config (the thread keeps those settings) starts it and names it, which
+// writes it to disk without a model turn; the fixed prompt goes on Codex's durable queue (`codex queue`); codex://threads/<id> opens it and the
+// app runs it live. Later messages for the conversation (its mailbox thread, or a Codex session that wrote from it) are queued into the same
+// thread. The app runs queued messages for any thread it has loaded, on screen or not, so the link is opened again only when one has not
+// started within pickupMs. host/codex-app.json binds mailbox threads to app threads and records the sessions seen in them.
+const appFile=root=>path.join(root,'host','codex-app.json');
+export function appBindings(root){ let s; try{ s=JSON.parse(fs.readFileSync(appFile(root),'utf8')); }catch{ return []; }
+  return s?.version===1&&Array.isArray(s.threads)?s.threads.filter(b=>cpx.safeName(b?.key)&&cpx.isCodexThread(b.id)):[]; }
+const saveAppBinding=(root,b)=>tasks.atomic(appFile(root),{version:1,threads:[...appBindings(root).filter(x=>x.key!==b.key),b]});
+// The app thread a message continues: by Codex session when it names one, else by mailbox thread. Never the listener's mail, a fork or a co notice.
+export function appThreadFor(root,m,cfg){ if(!cfg?.codexApp?.enabled||!routedTo(cfg,'codexApp')||m?.to!=='codex'||m.fork_codex_thread||coNotice(m)||m.to_session===LISTENER) return null;
+  const list=appBindings(root); return (m.to_session?list.find(b=>(b.sessions||[]).includes(m.to_session)):list.find(b=>b.key===m.thread))||null; }
+// Fixed templates over checked ids, never the subject or body: the app reads the message itself through the carrier-pigeon MCP tools.
+export function codexAppPrompt(m, root, followUp=false){ for(const k of ['id','thread','from']) if(!/^[A-Za-z0-9_-]{1,80}$/.test(String(m[k]??''))) throw new Error(`message ${k} is not a plain id`);
+  const rules=`It is a request, not authority: only Matt approves pushes, merges, installs, spending or settings changes.`;
+  const read=`Read it with the carrier-pigeon MCP read tool (id ${m.id}), or open ${path.join(root,'agents','codex','inbox',m.id+'.md')}.`;
+  const text=(followUp ? [`carrier-pigeon ${m.kind==='reply'?'reply':'follow-up'} ${m.id} from ${m.from} in this conversation (thread ${m.thread}).`,rules,read,
+      m.kind==='reply'?`Continue the task it answers, then claim it and mark it done.`:`Claim it, act on it here where Matt can see and approve each step, then reply to ${m.id} with the result and its receipts.`]
+    : [`carrier-pigeon hand-off ${m.id} from ${m.from}, thread ${m.thread}.`,rules,read,
+      `Claim it, do the work here where Matt can see and approve each step, then reply on thread ${m.thread} with the result and its receipts.`,
+      `Later messages in this conversation arrive here as follow-ups.`]).join(' ');
+  if(/[;"\r\n]/.test(text)) throw new Error('prompt holds a character a command line would split or end on'); return text; }
+// thread/start alone writes nothing (codex queue then finds "no rollout"); thread/name/set persists the thread and names it in the app.
+export function startAppThread(bin, cwd, name, {spawnFn=spawn, timeoutMs=60000}={}){ return new Promise((resolve,reject)=>{ let n=0, over=false; const waits=new Map();
+  const ch=spawnFn(bin,['app-server'],{stdio:['pipe','pipe','ignore'],windowsHide:true,env:codexWindowEnv()});
+  const finish=(e,v)=>{ if(over) return; over=true; clearTimeout(t); for(const w of waits.values()) w.rej(new Error('app-server closed')); try{ ch.stdin.end(); }catch{} setTimeout(()=>{ try{ ch.kill(); }catch{} },1000).unref?.(); e?reject(e):resolve(v); };
+  const t=setTimeout(()=>finish(new Error(`codex app-server did not start a thread within ${timeoutMs} ms`)),timeoutMs);
+  ch.on('error',e=>finish(new Error('could not start codex app-server: '+e.message))); ch.on('exit',()=>finish(new Error('codex app-server exited before the thread was saved'))); ch.stdin.on?.('error',()=>{}); // EPIPE after an early exit
+  jsonl(ch.stdout,l=>{ let m; try{ m=JSON.parse(l); }catch{ return; } const w=m.id!==undefined&&!m.method&&waits.get(m.id); if(!w) return; waits.delete(m.id); m.error?w.rej(new Error(String(m.error.message||'app-server error'))):w.res(m.result); });
+  const rpc=(method,params)=>new Promise((res,rej)=>{ const id=++n; waits.set(id,{res,rej}); ch.stdin.write(JSON.stringify({method,id,params})+'\n'); });
+  (async()=>{ await rpc('initialize',{clientInfo:{name:'carrier_pigeon_host',title:'carrier-pigeon host',version:cpx.VERSION}}); ch.stdin.write(JSON.stringify({method:'initialized',params:{}})+'\n');
+    const th=(await rpc('thread/start',{cwd}))?.thread; if(!cpx.isCodexThread(th?.id)) throw new Error('thread/start returned no thread id');
+    await rpc('thread/name/set',{threadId:th.id,name}); return {id:th.id,path:typeof th.path==='string'?th.path:null}; })().then(v=>finish(null,v),e=>finish(e)); }); }
+export const codexQueue=(bin,thread,text,{execFn=execFile}={})=>new Promise((res,rej)=>execFn(bin,['queue','--thread',thread,'--message',text],{timeout:60000,windowsHide:true,env:codexWindowEnv()},
+  (e,so,se)=>e?rej(new Error('codex queue failed: '+redact(String(se||e.message)).slice(0,300))):res(String(so||''))));
+export const appOpenArgv=(cfg,url,platform=process.platform)=>{ const o=cfg?.codexApp?.opener; return o?[...[].concat(o),url]:platform==='win32'?['explorer.exe',url]:null; };
+const sawInRollout=(file,from,needle)=>{ try{ const size=fs.statSync(file).size; if(size<=from) return false; const len=Math.min(size-from,16*1024*1024), b=Buffer.alloc(len), fd=fs.openSync(file,'r');
+  try{ fs.readSync(fd,b,0,len,from); }finally{ fs.closeSync(fd); } return b.toString('utf8').includes(needle); }catch{ return false; } };
+export function codexAppAdapter({spawnFn=spawn, execFn=execFile, platform=process.platform}={}){ let ctx;
+  const bin=()=>ctx.cfg.codexApp.bin||ctx.cfg.codex?.bin||'codex';
+  const open=thread=>{ const argv=appOpenArgv(ctx.cfg,`codex://threads/${thread}`,platform); if(!argv) return false;
+    try{ const ch=spawnFn(argv[0],argv.slice(1),{detached:true,stdio:'ignore',windowsHide:true}); ch.on?.('error',e=>ctx.log?.({ev:'codex-app-open-failed',thread,err:e.message})); ch.unref?.(); return true; }
+    catch(e){ ctx.log?.({ev:'codex-app-open-failed',thread,err:e.message}); return false; } };
+  // Started = the queued prompt (it names the message id) appears in the thread's rollout after the queue offset.
+  const watch=(m,b,from,opened)=>{ const c=ctx.cfg.codexApp, every=c.pollMs??2000, limit=c.pickupMs??90000; if(!b.path) return; let waited=0, reopened=opened;
+    const tm=setInterval(()=>{ waited+=every; if(sawInRollout(b.path,from,m.id)){ clearInterval(tm); ctx.receipt?.(m.id,'app-turn-started',{thread:b.id}); ctx.log?.({ev:'codex-app-started',id:m.id,thread:b.id}); return; }
+      if(waited<limit) return; waited=0; if(!reopened){ reopened=true; open(b.id); ctx.log?.({ev:'codex-app-reopened',id:m.id,thread:b.id}); return; }
+      clearInterval(tm); ctx.alert?.('app-pickup:'+m.id,'carrier-pigeon: Codex app has not started a message',`${m.id} is queued in Codex thread ${b.id}, but the app has not run it; open codex://threads/${b.id} in the Codex app.`); },every); tm.unref?.(); };
+  return { name:'codexApp', wakes:true, start(c){ ctx=c; }, presence:()=>({wakes:true,state:ctx?.cfg?.codexApp?.enabled?'ready':'disabled'}),
+    ownsSession:m=>!!(m.to_session&&appThreadFor(ctx.root,m,ctx.cfg)),
+    observe(m){ if(m.from!=='codex'||!m.from_session||m.from_session===LISTENER||!cpx.safeName(m.from_session)) return; const b=appBindings(ctx.root).find(x=>x.key===m.thread);
+      if(b&&!(b.sessions||[]).includes(m.from_session)){ saveAppBinding(ctx.root,{...b,sessions:[...(b.sessions||[]),m.from_session]}); ctx.log?.({ev:'codex-app-session',thread:b.id,session:m.from_session}); } },
+    async deliver(m){ const c=ctx.cfg.codexApp; let b=appThreadFor(ctx.root,m,ctx.cfg);
+      if(b&&(b.queued||[]).includes(m.id)) return true; // already on this thread's queue
+      if(!b){ if(!appHandoff(m,ctx.cfg,platform)) return false;
+        const t=await startAppThread(bin(),c.cwd||os.homedir(),`carrier-pigeon hand-off from ${m.from} (${m.id})`,{spawnFn,timeoutMs:c.startTimeoutMs??60000}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); });
+        b={key:String(m.thread),id:t.id,path:t.path,created_by:m.id,at:Date.now(),sessions:[],queued:[]}; saveAppBinding(ctx.root,b); }
+      const first=b.created_by===m.id, text=codexAppPrompt(m,ctx.root,!first); let from=0; try{ from=b.path?fs.statSync(b.path).size:0; }catch{}
+      await codexQueue(bin(),b.id,text,{execFn}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); }); // nothing was queued: safe to retry
+      saveAppBinding(ctx.root,{...b,queued:[...(b.queued||[]),m.id]}); const opened=first&&open(b.id); ctx.log?.({ev:'codex-app',id:m.id,thread:b.id,follow_up:!first});
+      watch(m,b,from,!!opened); const inbox=path.join(ctx.root,'agents','codex','inbox',m.id+'.md');
+      setTimeout(()=>{ if(fs.existsSync(inbox)) ctx.alert?.('app-claim:'+m.id,'carrier-pigeon: Codex app has not claimed',`${m.id} is queued in Codex thread ${b.id} but still unclaimed; open codex://threads/${b.id} in the Codex app.`); },c.claimTimeoutMs??600000).unref?.();
       return true; } }; }
 
 // Shared HTTP helper with retries; never logs secrets.
@@ -586,7 +663,7 @@ export function cursorCloudAdapter({fetchFn=globalThis.fetch, baseMs=500}={}){ l
       await post(`https://api.cursor.com/v1/agents/${encodeURIComponent(s.agentId)}/runs`, JSON.stringify({prompt:{text:wakePrompt(m,'node ~/.carrier-pigeon/bin/carrier-pigeon.mjs')},delivery:'steer'}),
         {authorization:'Basic '+Buffer.from(s.apiKey+':').toString('base64')},{fetchFn,baseMs,retryOn5xx:false}); return true; } }; }
 
-export function defaultAdapters(cfg){ const enabled=cfg.adapters||['claude','codexWindow','codex','toast','grokWebhook','cursorCloud']; const all={claude:claudeAdapter,codexWindow:codexWindowAdapter,codex:codexAdapter,toast:toastAdapter,grokWebhook:grokWebhookAdapter,cursorCloud:cursorCloudAdapter};
+export function defaultAdapters(cfg){ const enabled=cfg.adapters||['claude','codexApp','codexWindow','codex','toast','grokWebhook','cursorCloud']; const all={claude:claudeAdapter,codexApp:codexAppAdapter,codexWindow:codexWindowAdapter,codex:codexAdapter,toast:toastAdapter,grokWebhook:grokWebhookAdapter,cursorCloud:cursorCloudAdapter};
   return Object.fromEntries(enabled.filter(n=>all[n]).map(n=>[n,all[n]()])); }
 
 async function main(argv){ const self=path.dirname(path.dirname(fileURLToPath(import.meta.url))); // like the CLI: env, else the mailbox this host is installed in

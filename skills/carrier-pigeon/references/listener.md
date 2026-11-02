@@ -34,7 +34,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - Session ids are kept in `host/claude-conversations.json`, so a listener restart keeps conversations.
   - A run that ends without a result is tried again, for at most 3 runs in all. A failed resume starts a fresh session.
 - **`claude.mode: "shared"`** keeps the 0.5 behaviour: one warm session for everything, recycled once its context passes `claude.recycleAtContextTokens` (default 120000).
-- **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast.
+- **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast. The one exception, since 0.13.0, is a Codex session in a Codex app thread the listener opened (below).
 
 **Codex.** A local app-server on `ws://127.0.0.1:4500`: `turn/start` when idle, `turn/steer` when busy.
 - Approvals are `never`, and the sandbox is workspace-write with the mailbox as the workspace. `tests/live/codex-sandbox.mjs` ran that sandbox profile: a write to a folder in the home directory was blocked, while the OS temp folder stays writable by design.
@@ -56,7 +56,39 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 - Point `codex.bin` in `host/config.json` at the Codex desktop app's own `codex.exe`; the npm copy may be too old for the models a ChatGPT login offers. Leave `codex.model` null to use its default.
 - The user can watch with `codex --remote ws://127.0.0.1:4500`.
 
-**Codex window (visible hand-offs).** A `handoff` to Codex opens a new interactive Codex session in its own Windows Terminal window, not in the listener's worker.
+**Codex app (visible hand-offs and their follow-ups, 0.13.0).** On Windows, a `handoff` to Codex opens a new thread in the Codex desktop app (the program is `ChatGPT.exe`), and the rest of that conversation goes into the same thread.
+- **Why:** the Codex window below starts a terminal session, and nothing can wake a terminal session. Every follow-up named the window's session and got `no-wake` (`session-addressed`), so each conversation stopped after its first message. It was reached only when the window happened to check its inbox mid-task.
+- **How a hand-off starts:**
+  1. A short-lived `codex app-server` with Matt's own Codex config starts the thread (`thread/start`) and names it `carrier-pigeon hand-off from <sender> (<id>)`. Naming writes the thread to disk without a model turn; a thread with no name and no turn isn't saved, and `codex queue` then fails with "no rollout found". The thread keeps the creating process's settings, so it runs with Matt's own approvals and sandbox, never the worker's mailbox-only profile.
+  2. The fixed prompt goes on Codex's own durable queue: `codex queue --thread <id> --message <prompt>`.
+  3. `explorer.exe codex://threads/<id>` opens the thread, and the app runs the queued prompt live.
+- **Follow-ups** are queued into the same thread with `codex queue`. A message is a follow-up when it is to `codex` and either:
+  - names a Codex session that has written from that thread; or
+  - names no session but belongs to the same mailbox thread.
+
+  The app runs queued messages for any thread it has loaded, even when that thread isn't on screen, so a follow-up doesn't take focus. Only when one hasn't started within `codexApp.pickupMs` (default 90 s) is the link opened again, once; after another wait the host raises an alert.
+- **Waking:** a session-addressed message reaches the app only when `codexApp` owns that session.
+  - `fyi` still never wakes.
+  - A `reply` wakes the app session when it answers an ask that session sent with `wake_on_reply`.
+  - Mail for a session the listener did not open (a terminal window, another client) is still `session-addressed`.
+- **Records:** `host/codex-app.json` binds each mailbox thread to its app thread, the sessions seen there and the message ids already queued, so a retry never queues a message twice.
+  - Receipts: `notified:codexApp` means the message is queued, and `app-turn-started` means the queued prompt appeared in the thread.
+  - Unclaimed after `codexApp.claimTimeoutMs` (10 min): one alert.
+- **The prompt** is a fixed template over plain ids, like the window's. The subject and body never reach a command line.
+- **Config** (`codexApp` in `host/config.json`): `enabled`, `kinds` (default `["handoff"]`), `cwd` (default: the home folder), `bin` (default: `codex.bin`), `opener` (an argv prefix for the `codex://` link; needed off Windows), `pickupMs`, `pollMs`, `startTimeoutMs`, `claimTimeoutMs`. Add `codexApp` before `codexWindow` in `adapters` and in `routes.codex`; install keeps an existing config, so an older one needs this edit.
+- **Live-tested on 2026-11-01** (Codex 0.166.0-alpha.5.1, app 26.1027):
+  - The app ran queued messages for a thread it had just opened, for one already on screen, and for one off screen.
+  - A named thread with no turns was filled from the queue.
+  - A thread started without a name was not saved.
+  - Probes: `tests/live/codex-app.mjs`.
+  - Through the installed listener and the live mailbox:
+    1. A Claude hand-off opened an app thread, and its first turn started 6 s after queueing.
+    2. A follow-up addressed to the Codex session that replied ran as a second turn in the same thread, 2 s after queueing.
+    3. Codex answered it with the earlier turn's nonce from memory.
+    4. Both turns ran with Matt's own settings.
+- **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings). A window's session can still not be woken.
+
+**Codex window (visible hand-offs).** When the Codex app route is off, not routed or unavailable, a `handoff` to Codex opens a new interactive Codex session in its own Windows Terminal window, not in the listener's worker.
 - **How it launches:** the tab runs `powershell.exe -NoProfile -NoExit -EncodedCommand <constant script>`.
   - The script carries the Codex path, the folder and the prompt as base64 literals, and runs `& $bin -C $cwd $prompt`, so Codex gets each as exactly one argument.
   - Why: Windows Terminal re-joins its command line without quotes. The first version passed the prompt directly, Codex received it as many words, and it exited with code 2 on "unexpected argument".
@@ -86,7 +118,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - a durable link from a message to the window's own session, so follow-ups in the thread reach it (send them with `to_session` meanwhile);
   - a per-message working folder;
   - attaching with `codex --remote` instead. That needs a controlled test of who receives approvals.
-- **An interactive session can't be woken.** It must check its inbox while it works. `wait_reply` only waits for replies to its own asks.
+- **An interactive session can't be woken.** It must check its inbox while it works. `wait_reply` only waits for replies to its own asks. A Codex app thread opened by the listener is the exception (above).
 
 **The user.** A desktop toast for every message (Windows; `notify-send` elsewhere). A toast addressed to Cursor opens a Cursor prompt deeplink that only prefills and never sends.
 - The toast's PowerShell script is a constant; the title, text and XML reach it only through environment variables.
