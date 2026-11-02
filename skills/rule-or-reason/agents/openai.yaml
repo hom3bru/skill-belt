@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rule Or Reason"
+  short_description: "Find and test algorithmic alternatives to LLM steps"
+  default_prompt: "Use $rule-or-reason to find where this workflow can use deterministic algorithms and evaluate the alternatives."

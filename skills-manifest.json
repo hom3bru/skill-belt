@@ -315,6 +315,28 @@
         "tests/test_package.py": "468bf48af73d2ee9a4be7a398c584c936f193e221d8315ea6730e4d3e8a9b663",
         "tests/test_user_context.py": "5ee276bdbc9a439f1f76c2520c2e9dbf12a37214384c9742b095de4ea81b903d"
       }
+    },
+    {
+      "name": "rule-or-reason",
+      "version": "0.1.1",
+      "path": "skills/rule-or-reason",
+      "files": {
+        "agents/openai.yaml": "298ae8d9f1be55734d3a9568d6a885a9042c95e3429780fa1e55bbf2d127eef5",
+        "assets/example-baseline.json": "91fddef1be960e85d59a89d9d7b5103ae1e0fb28a6278d4a0bc685c1dc918990",
+        "assets/example-candidate.json": "222f41707f2d651eec2c5988c9f86dd3f11f709be7f4eb0abc2f39aaeda21b01",
+        "assets/example-cases.json": "625e02ad5a86f29c7ca95fabdfe42f03b0e2f085a02b8c92c51ab1a6b4c19e54",
+        "CHANGELOG.md": "cd8193128ac222d7971872c639bdb5dc15118c37901b50934415d2cbf7d301c0",
+        "references/construction.md": "b78e7b428b9d6a83c8cfcc37eda0de88c2285f59cf0827d0f9bc07c4782ba0c8",
+        "references/design-spec.md": "b23869b1bf055ced02cc58667c854a2e38d47747ec14c21b851ed8c5a2668450",
+        "references/evaluation.md": "2d9bb9f0bfcc1e6cedf6fd808e84fa6f7063e82e2194a54e8b9f07ad8adc66ec",
+        "references/languages.md": "3cab7f43c0e74b5a8b47d00a0c38a4807c5620cab87a4db9421be712d172229f",
+        "references/mechanisms.md": "05d5a7a2443cc8b4ef6d43c600e9752bc8bd59763aa9ea839a03e0fa0dfac703",
+        "references/research.md": "8234c5a44171788392febfa973b4676a2c4f91f15edbac07b549d9834c66b863",
+        "references/skill-usage.md": "0247fac38aa6e41626b5c289fbf0519ce811b368d8f5d46a2966af1296020344",
+        "scripts/compare.py": "9edbf72431691f7fffce47874645cc4b5d47ebb179624c48c65754383b2e53da",
+        "SKILL.md": "90d4dbe4ebf332a240794e5971966eb514b5b5ed2c25c464da43a2e9bf0c60ae",
+        "tests/test_compare.py": "5abc70a7297c51d96cf59e63660598faac6a4b57033b2171cebd7101330623fd"
+      }
     }
   ]
 }

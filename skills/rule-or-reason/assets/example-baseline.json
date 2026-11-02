@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "arm_id": "synthetic-baseline",
+  "case_set_sha256": "625e02ad5a86f29c7ca95fabdfe42f03b0e2f085a02b8c92c51ab1a6b4c19e54",
+  "provenance": "authored example records; no candidate execution",
+  "records": [
+    {
+      "case_id": "ja",
+      "status": "answered",
+      "output": "Tokyo"
+    },
+    {
+      "case_id": "ar",
+      "status": "answered",
+      "output": "تم"
+    },
+    {
+      "case_id": "fr",
+      "status": "answered",
+      "output": "levée confirmée"
+    },
+    {
+      "case_id": "absent",
+      "status": "answered",
+      "output": "invented"
+    }
+  ]
+}
