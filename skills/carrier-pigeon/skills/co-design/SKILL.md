@@ -2,7 +2,7 @@
 name: co-design
 description: "Use when two or more agents should each propose a design and then attack each other's: an architecture, interface, data model, plan or visual direction. Blind independent proposals with rationale, tradeoffs and risks; challenges by failure mode, constraint, alternative and cost; revisions; a judge; then a decision record. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent design-doc review (westack-review), UI critique (westack-design) or building (co-build)."
 metadata:
-  version: "0.13.0"
+  version: "0.14.0"
   parent: carrier-pigeon
 ---
 

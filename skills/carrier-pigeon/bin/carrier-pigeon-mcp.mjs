@@ -4,7 +4,7 @@
 // per line. Nothing but protocol messages is written to stdout, and no tool reads stdin (it is the channel). `ask` and `wait_reply` return
 // within wait_seconds, as a reply or a handle to wait on again, so a client's tool timeout (Codex defaults to 60 s) never cuts one off.
 import readline from 'node:readline'; import fs from 'node:fs'; import path from 'node:path'; import * as cp from './carrier-pigeon.mjs'; import * as ctx from './cp-context.mjs'; import * as co from './cp-co.mjs';
-import * as build from './cp-build.mjs';
+import * as build from './cp-build.mjs'; import {claudeInbox, startPush} from './cp-push.mjs';
 const WORKER=process.argv.includes('--worker')||process.env.CARRIER_PIGEON_WORKER==='1';
 const ai = process.argv.indexOf('--as'); const ME = (ai > 0 ? process.argv[ai + 1] : process.env.CARRIER_PIGEON_AS) || null;
 if (ME && !cp.AGENTS.includes(ME)) { process.stderr.write(`carrier-pigeon-mcp: unknown agent "${ME}"; valid: ${cp.AGENTS.join(', ')}\n`); process.exit(2); }
@@ -17,6 +17,9 @@ const touchSession = (client) => { if (!sessFile) return; try { const now = new 
   if (!sessInfo || (client === undefined && Date.now() - sessTouched < 30000)) return; sessTouched = Date.now(); fs.mkdirSync(path.dirname(sessFile), {recursive: true}); fs.writeFileSync(sessFile, JSON.stringify({...sessInfo, last_seen: now})); } catch {} };
 const dropSession = () => { try { if (sessFile) fs.rmSync(sessFile, {force: true}); } catch {} };
 process.on('exit', dropSession); for (const sig of ['SIGINT', 'SIGTERM', 'SIGBREAK']) process.on(sig, () => process.exit(0));
+// An interactive Claude Code session hears about mail addressed to it (cp-push.mjs); the listener's headless worker never does this.
+if (ME === 'claude' && !WORKER) { const inbox = claudeInbox(); startPush({root: cp.ROOT, me: ME, session: SESSION, inbox, list: cp.list});
+  process.stderr.write(`carrier-pigeon-mcp: session push ${inbox ? 'on (' + inbox.via + ')' : 'off (no Claude Code session inbox)'}\n`); }
 const PROTOCOLS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 const S = (props, req = []) => ({type: 'object', properties: ME ? props : {...props, as: {type: 'string', enum: cp.AGENTS, description: 'your agent id'}}, required: ME ? req : [...req, 'as'], additionalProperties: false});
 const str = d => ({type: 'string', description: d}), bool = d => ({type: 'boolean', description: d}), num = d => ({type: 'number', description: d}), list = d => ({type: 'array', items: {type: 'string'}, description: d});

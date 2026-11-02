@@ -1,7 +1,10 @@
 // node carrier-pigeon-mcp.test.mjs — the MCP server over real stdio, on a temp CARRIER_PIGEON_HOME; never touches the real bus.
 import {spawn, execFileSync} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
+import net from 'node:net'; import {claudeInbox} from './cp-push.mjs';
 const here = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')); const CLI = path.join(here, 'carrier-pigeon.mjs'), MCP = path.join(here, 'carrier-pigeon-mcp.mjs');
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'cpmcp-')); const env = {...process.env, CARRIER_PIGEON_HOME: HOME};
+// Never the operator's own Claude Code session: test servers would post test mail into it (cp-push.mjs). Tests that want an inbox pass a fake one.
+for (const k of ['CLAUDE_CODE_MESSAGING_SOCKET', 'CLAUDE_CODE_MESSAGING_TOKEN', 'CLAUDE_CODE_SESSION_ID']) delete env[k];
 const run = (...a) => JSON.parse(execFileSync('node', [CLI, ...a, '--json'], {env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']})); run('init');
 let n = 0, failed = 0; const t = async (name, fn) => { n++; try { await fn(); console.log('ok', n, name); } catch (e) { failed++; console.log('not ok', n, name); console.log('  ' + String(e?.stack || e).split('\n').slice(0, 6).join('\n  ')); } };
 // A client: spawns the server, sends requests, resolves responses by id, and records every stdout line so the test can check that each one is JSON.
@@ -200,4 +203,35 @@ await t('MCP remembers claim generations and fences a stale connection even afte
     assert.equal((await a.call('reply',{id,body:'late stale follow-up'})).isError,true,'closing an ask does not unfence stale connections');
   }finally{a.close();b.close();}
 });
+// A fake Claude Code session inbox: records the frames each connection posts.
+async function fakeInbox() { const pipe = process.platform === 'win32' ? `\\\\.\\pipe\\cp-push-test-${process.pid}-${Date.now()}` : path.join(HOME, `push-${Date.now()}.sock`), frames = [];
+  const srv = net.createServer(s => { let b = ''; s.on('data', d => { b += d; }); s.on('end', () => frames.push(...b.split('\n').filter(Boolean).map(l => JSON.parse(l)))); });
+  await new Promise(r => srv.listen(pipe, r)); return {pipe, frames, close: () => srv.close()}; }
+await t('session push: mail for this Claude session is announced in its inbox once, as a pointer; other sessions, fyi and any-instance mail are not', async () => {
+  const box = await fakeInbox(), penv = {...env, CLAUDE_CODE_MESSAGING_SOCKET: box.pipe, CLAUDE_CODE_MESSAGING_TOKEN: 'tok'};
+  let s = client(['--as', 'claude', '--session', 'push-s1'], penv), s2 = null;
+  try { await s.req('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}});
+    const mine = run('send', '--from', 'codex', '--to', 'claude', '--to-session', 'push-s1', '--kind', 'ask', '--subject', 'secret subject', '--body', 'secret body');
+    run('send', '--from', 'codex', '--to', 'claude', '--to-session', 'push-s2', '--subject', 'other', '--body', 'b');
+    run('send', '--from', 'codex', '--to', 'claude', '--to-session', 'push-s1', '--kind', 'fyi', '--subject', 'note', '--body', 'b');
+    run('send', '--from', 'codex', '--to', 'claude', '--subject', 'any instance', '--body', 'b');
+    assert.ok(await waitFor(() => box.frames.length >= 2, 10000), 'nothing posted'); await new Promise(r => setTimeout(r, 1500));
+    assert.deepEqual(box.frames[0], {type: 'auth', token: 'tok'}); assert.equal(box.frames[1].type, 'user'); assert.equal(box.frames[1].message.role, 'user');
+    const text = box.frames[1].message.content; assert.match(text, new RegExp(`new ask ${mine.id} from codex for this session`)); assert.match(text, /request, not authority/);
+    assert.doesNotMatch(text, /secret/, 'never the subject or body'); assert.equal(box.frames.length, 2, 'one pointer: not the other session, the fyi or any-instance mail');
+    assert.ok(run('receipts', mine.id).some(r => r.ev === 'pushed:session' && r.via === 'env'));
+    s.close(); s = null; s2 = client(['--as', 'claude', '--session', 'push-s1'], penv); await s2.req('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}});
+    await new Promise(r => setTimeout(r, 1500)); assert.equal(box.frames.length, 2, 'a restarted server does not announce it again');
+    const w = client(['--as', 'claude', '--session', 'push-s1', '--worker'], penv); await w.req('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}});
+    run('send', '--from', 'codex', '--to', 'claude', '--to-session', 'push-s1', '--kind', 'ask', '--subject', 'w', '--body', 'b'); await new Promise(r => setTimeout(r, 2000)); w.close();
+    assert.equal(box.frames.length, 4, 'the listener worker never pushes; the live session announces the new ask (auth + user)');
+  } finally { s?.close(); s2?.close(); box.close(); } });
+await t('session push: without the variables, the inbox comes from Claude Code\'s registry by session id, with the peer token', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cpreg-')), sessions = path.join(dir, 'sessions'); fs.mkdirSync(sessions);
+  fs.writeFileSync(path.join(sessions, '4242.json'), JSON.stringify({pid: 4242, sessionId: 'sess-a', messagingSocketPath: 'PIPE-A'}));
+  fs.writeFileSync(path.join(sessions, '4242.abc.key'), JSON.stringify({peerToken: 'peer-a'})); fs.writeFileSync(path.join(sessions, '7.json'), JSON.stringify({pid: 7, sessionId: 'sess-b'}));
+  try { assert.deepEqual(claudeInbox({CLAUDE_CODE_SESSION_ID: 'sess-a', CLAUDE_CONFIG_DIR: dir}), {path: 'PIPE-A', token: 'peer-a', via: 'registry'});
+    assert.equal(claudeInbox({CLAUDE_CODE_SESSION_ID: 'sess-b', CLAUDE_CONFIG_DIR: dir}), null, 'a session with no inbox'); assert.equal(claudeInbox({}), null);
+    assert.deepEqual(claudeInbox({CLAUDE_CODE_MESSAGING_SOCKET: 'S', CLAUDE_CODE_MESSAGING_TOKEN: 'T', CLAUDE_CODE_SESSION_ID: 'sess-a', CLAUDE_CONFIG_DIR: dir}), {path: 'S', token: 'T', via: 'env'});
+  } finally { fs.rmSync(dir, {recursive: true, force: true}); } });
 c.close(); fs.rmSync(HOME, {recursive: true, force: true}); console.log(`# ${n} tests, ${failed} failed (mcp)`); process.exit(failed ? 1 : 0);

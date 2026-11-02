@@ -27,6 +27,19 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 | `co-real.mjs setup\|listen\|codex\|report` | Every role is a real model, and the material is real: no scripted member, lead or judge, and no planted defects.<br>`setup --mode audit`: Claude and Codex audit carrier-pigeon's own sealed-round code at the version under test, with Codex as lead.<br>`setup --mode build`: two real builders in their own worktrees, Codex as lead.<br>Codex runs through `listen` (listener-woken members) or `codex` (a sandboxed write-capable session). The harness never launches Claude itself: Claude builders and the non-member judge (id `grok`, no grok runtime here) are the operator's Claude subagents, under that session's permission system.<br>`report` gates on:<br>- closed with a clean check;<br>- the lead's synthesis;<br>- a judge verdict on every defended dispute;<br>- no member message in the thread;<br>- audit: sealed until one clean reveal;<br>- build: C1 rated pass, and the merged tests pass when the harness reruns them. | Audit: listener Claude (Sonnet) and Codex, plus one subagent judge. Build: two Claude subagent rounds and 3 to 4 Codex sessions |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
 
+## Delivery into running sessions on 2026-11-01 (one Windows machine, 0.14.0)
+
+**Donor.** Read at reason-network `bcf045c` (MIT OR Apache-2.0); see `references/listener.md`.
+
+**Claude Code session push**, on Claude Code 2.1.309:
+1. A frame posted from the session's own shell into its `CLAUDE_CODE_MESSAGING_SOCKET`, with its own token, arrived mid-turn, between tool calls. Claude Code labelled it as another session's message, not the user's.
+2. Then the real 0.14.0 MCP server ran with a throwaway mailbox and that session's variables. An ask addressed to its session produced exactly the fixed pointer in the conversation, with no subject or body. The receipt read `pushed:session` via `env`, and the server reported `session push on (env)`.
+3. Not tested: an idle session starting a turn (reason-network documents it), and the registry fallback against a real session. The fallback is covered by an authored fixture.
+
+**Codex mid-turn delivery:** authored tests only, so far.
+- The hook was run as a real child process with Codex-shaped stdin, and the mark file decides who delivers.
+- Codex skips hooks until Matt trusts them in `/hooks`, so a live run in the Codex app is owed. It is recorded here once done.
+
 ## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
 
 **What 0.12.0 did.** Matt shared nine Codex threads that "never progressed past a single message", and their local rollouts and mailbox receipts were read.

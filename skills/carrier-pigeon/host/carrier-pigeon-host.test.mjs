@@ -1,6 +1,7 @@
 // node carrier-pigeon-host.test.mjs — temp CARRIER_PIGEON_HOME, fake adapters; never launches claude/codex or touches the real bus.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync,spawn} from 'node:child_process'; import {EventEmitter} from 'node:events';
-import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread} from './carrier-pigeon-host.mjs';
+import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread,turnRunning} from './carrier-pigeon-host.mjs';
+import {output as hookOutput} from '../bin/cp-hook.mjs';
 import * as tasks from '../bin/cp-tasks.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.resolve(here,'../bin/carrier-pigeon.mjs');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms)); const until=async(f,ms=3000)=>{ const t=Date.now(); while(Date.now()-t<ms){ if(f()) return true; await sleep(20);} return false; };
@@ -304,6 +305,32 @@ await t('codexApp in the host: the app session\'s follow-ups and replies wake in
     const ans=run('reply',q.id,'--as','claude','--body','a'); await h.scanAll(); assert.equal(ans.to_session,'codex-app1');
     assert.ok(evs(root,ans.id).includes('notified:codexApp'),'a reply to the app session\'s own ask wakes it'); assert.match(r.calls.queue[2].args[4],new RegExp('reply '+ans.id+' from claude in this conversation'));
   }finally{ await h.stop(); } });
+const turnEvent=type=>JSON.stringify({timestamp:'t',type:'event_msg',payload:{type,turn_id:'1'}})+'\n';
+await t('turnRunning: the rollout\'s last turn event decides; quoted text, other records and a long last line do not', ()=>{ const {root}=bus(), f=path.join(root,'r.jsonl');
+  assert.equal(turnRunning(f),false,'no rollout'); fs.writeFileSync(f,'{"type":"session_meta","payload":{}}\n'); assert.equal(turnRunning(f),false,'no turn yet');
+  fs.appendFileSync(f,turnEvent('task_started')); assert.equal(turnRunning(f),true);
+  fs.appendFileSync(f,JSON.stringify({type:'response_item',payload:{text:'"type":"event_msg" task_complete'}})+'\n'+JSON.stringify({type:'event_msg',payload:{type:'token_count'}})+'\n');
+  fs.appendFileSync(f,JSON.stringify({type:'response_item',payload:{output:'x'.repeat(600*1024)}})+'\n'); assert.equal(turnRunning(f,256*1024),true,'found behind a line longer than a chunk');
+  fs.appendFileSync(f,turnEvent('turn_aborted')); assert.equal(turnRunning(f),false,'interrupted'); fs.appendFileSync(f,turnEvent('turn_started')); assert.equal(turnRunning(f),true);
+  fs.appendFileSync(f,turnEvent('task_complete')); assert.equal(turnRunning(f),false); });
+await t('codexApp + cp-hook: a follow-up during a running turn waits for the Codex hook, which hands it over once; a turn that ends first gets it queued', async()=>{
+  const {root}=bus(), r=appRig(root), rec=[]; const ad=codexAppAdapter({spawnFn:r.spawnFn,execFn:r.execFn,platform:'win32'}); ad.start({root,cfg:appCfg,log:()=>{},receipt:(id,ev,x)=>rec.push({id,ev,...x}),alert:()=>{}});
+  const HOOK=path.resolve(here,'../bin/cp-hook.mjs'); const hook=(event,input)=>execFileSync('node',[HOOK,'codex',event],{env:{...process.env,CARRIER_PIGEON_HOME:root},input:JSON.stringify(input),encoding:'utf8'}).trim();
+  await ad.deliver({id:'H5',from:'claude',to:'codex',kind:'handoff',thread:'H5',subject:'s'}); assert.equal(r.calls.queue.length,1);
+  fs.appendFileSync(r.rollout,turnEvent('task_started')); fs.writeFileSync(path.join(root,'agents','codex','inbox','F5.md'),'x');
+  assert.equal(await ad.deliver({id:'F5',from:'claude',to:'codex',kind:'ask',thread:'H5',subject:'f'}),true); assert.equal(r.calls.queue.length,1,'not queued while the turn runs');
+  assert.deepEqual(appBindings(root)[0].pending.map(p=>p.id),['F5']); assert.equal(await ad.deliver({id:'F5',from:'claude',to:'codex',kind:'ask',thread:'H5',subject:'f'}),true,'a repeat is already waiting');
+  assert.equal(hook('post-tool-use',{session_id:'some-other-thread',hook_event_name:'PostToolUse'}),'','another Codex session gets nothing');
+  const out=JSON.parse(hook('post-tool-use',{session_id:r.threadId,hook_event_name:'PostToolUse',turn_id:'1'}));
+  assert.equal(out.hookSpecificOutput.hookEventName,'PostToolUse'); assert.match(out.hookSpecificOutput.additionalContext,/follow-up F5 from claude in this conversation/);
+  assert.equal(hook('post-tool-use',{session_id:r.threadId}),'','handed over once'); assert.equal(hook('stop',{session_id:r.threadId,stop_hook_active:false}),'');
+  assert.ok(await until(()=>rec.some(x=>x.ev==='app-hooked'&&x.id==='F5'),2000),'the host saw the hook take it'); assert.deepEqual(appBindings(root)[0].pending,[]); assert.ok(appBindings(root)[0].queued.includes('F5'));
+  assert.equal(r.calls.queue.length,1,'never queued as well');
+  fs.writeFileSync(path.join(root,'agents','codex','inbox','G5.md'),'x'); await ad.deliver({id:'G5',from:'claude',to:'codex',kind:'ask',thread:'H5',subject:'g'}); assert.equal(r.calls.queue.length,1);
+  fs.appendFileSync(r.rollout,turnEvent('task_complete')); assert.ok(await until(()=>r.calls.queue.length===2,2000),'the turn ended with no hook taking it: queued');
+  assert.match(r.calls.queue[1].args[4],/follow-up G5 from claude/); assert.equal(hook('stop',{session_id:r.threadId}),'','nothing pending after it was queued');
+  assert.deepEqual(JSON.parse(hookOutput('stop','hi')),{decision:'block',reason:'hi'}); assert.equal(hookOutput('stop','café'),'{"decision":"block","reason":"caf\\u00e9"}','ASCII only, for Windows shells');
+  assert.equal(hookOutput('session-start','x'),null); });
 await t('startAppThread (real child process): stdio JSON-RPC, a named thread, and an app-server that exits early is an error', async()=>{ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cp-appsrv-')), srv=path.join(dir,'fake-app-server.mjs');
   fs.writeFileSync(srv,`import readline from 'node:readline'; const mode=process.argv[2]; const rl=readline.createInterface({input:process.stdin});
 rl.on('line',l=>{ const m=JSON.parse(l); if(m.id===undefined) return; if(mode==='exit'&&m.method==='thread/start') process.exit(3);

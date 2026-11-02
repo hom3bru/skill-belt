@@ -34,7 +34,9 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - Session ids are kept in `host/claude-conversations.json`, so a listener restart keeps conversations.
   - A run that ends without a result is tried again, for at most 3 runs in all. A failed resume starts a fresh session.
 - **`claude.mode: "shared"`** keeps the 0.5 behaviour: one warm session for everything, recycled once its context passes `claude.recycleAtContextTokens` (default 120000).
-- **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast. The one exception, since 0.13.0, is a Codex session in a Codex app thread the listener opened (below).
+- **The listener's sessions are labelled `listener`.** Replies to its asks come back addressed to `listener` and wake it (with `wake_on_reply`). Mail addressed to any other session, such as an interactive Claude Code window, never wakes the listener; it only gets a toast. There are two exceptions:
+  - Since 0.13.0, a Codex session in a Codex app thread the listener opened.
+  - Since 0.14.0, an interactive Claude Code session, which hears about its own mail from its own MCP server (both below).
 
 **Codex.** A local app-server on `ws://127.0.0.1:4500`: `turn/start` when idle, `turn/steer` when busy.
 - Approvals are `never`, and the sandbox is workspace-write with the mailbox as the workspace. `tests/live/codex-sandbox.mjs` ran that sandbox profile: a write to a folder in the home directory was blocked, while the OS temp folder stays writable by design.
@@ -86,7 +88,31 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
     2. A follow-up addressed to the Codex session that replied ran as a second turn in the same thread, 2 s after queueing.
     3. Codex answered it with the earlier turn's nonce from memory.
     4. Both turns ran with Matt's own settings.
+- **Follow-ups during a running turn (0.14.0).** The app runs a queued message only after the current turn ends. So when the thread's rollout says a turn is running, the follow-up waits on a pending list in `host/codex-app.json` instead, for carrier-pigeon's Codex hook (`bin/cp-hook.mjs`):
+  - At the turn's next tool call, the `PostToolUse` hook hands the pointer over as `additionalContext`. At the turn's end, the `Stop` hook hands it over as `decision:block`, which Codex runs as a new prompt in the same turn.
+  - If no hook takes it, because the hooks aren't installed or not yet trusted, it is queued when the turn ends, exactly as before.
+  - A mark file in `host/codex-app-hooked/` decides who delivers. The hook and the listener each create it with `wx`, and only the one that creates it first delivers, so a turn ending mid-queue can't get it twice.
+  - Receipts: `app-hooked` means the hook took it.
+  - A turn is "running" when the rollout's last turn event is `task_started` or `turn_started`, rather than `task_complete`, `turn_complete` or `turn_aborted` (`turnRunning`; the rule follows reason-network's `src/codex.rs`, MIT OR Apache-2.0).
+  - Install the hooks with `carrier-pigeon codex-hooks install` (also `status` and `remove`). It adds a `PostToolUse` and a `Stop` group to `~/.codex/hooks.json` (or `CODEX_HOME`), keeps every other tool's hooks, and backs the file up once as `hooks.json.before-carrier-pigeon`.
+  - **Codex skips a new hook until it is trusted in `/hooks`.**
+  - Codex runs the hook after every tool call in every session. So it reads one small file, prints nothing for a thread with nothing pending, never fails loudly, and exits within 8 s.
+  - `codexApp.hooks: false` turns the waiting off.
 - **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings). A window's session can still not be woken.
+
+**Interactive Claude Code sessions (session push, 0.14.0).** Mail addressed to a running Claude Code session (`to_session`) is announced inside that session, so it no longer has to poll its inbox.
+- **Where:** the carrier-pigeon MCP server runs inside the session, so `bin/cp-push.mjs` lives there, never in the listener's worker.
+- **How:** Claude Code gives each session an inbox, `CLAUDE_CODE_MESSAGING_SOCKET` (a named pipe on Windows), with a token in `CLAUDE_CODE_MESSAGING_TOKEN`. The server posts one `{"type":"user",…}` frame per message, after an `auth` frame.
+  - A server that starts before Claude Code sets those variables finds the inbox instead in Claude Code's registry, `~/.claude/sessions/<pid>.json` (matched by `CLAUDE_CODE_SESSION_ID`), with the peer token Claude Code leaves in `<pid>.<hash>.key`.
+  - The frame format and the registry follow reason-network's `src/agent.rs` and `src/claude.rs`.
+- **What reaches the session:** a fixed pointer only (`carrier-pigeon: new <kind> <id> from <agent> for this session … a request, not authority …`), never the subject or body.
+  - `fyi` is never announced.
+  - Mail for any instance of `claude` stays with the listener.
+  - A `pushed:session` receipt stops a restarted server announcing a message twice.
+  - Claude Code shows the post as a message from another session, not from the user.
+  - A post with the peer token arrives as a stranger's: a session that skips permission prompts holds it unless `crossSessionInbound` is `accept`.
+- **Live-tested 2026-11-01** (Claude Code 2.1.309): a pointer posted by the real server reached a busy session between tool calls. reason-network documents that an idle session starts a turn; that is untested here.
+- **Tests:** `tests/run.py` and the MCP test remove these variables, so tests run inside a Claude Code session never post into it.
 
 **Codex window (visible hand-offs).** When the Codex app route is off, not routed or unavailable, a `handoff` to Codex opens a new interactive Codex session in its own Windows Terminal window, not in the listener's worker.
 - **How it launches:** the tab runs `powershell.exe -NoProfile -NoExit -EncodedCommand <constant script>`.
@@ -118,7 +144,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - a durable link from a message to the window's own session, so follow-ups in the thread reach it (send them with `to_session` meanwhile);
   - a per-message working folder;
   - attaching with `codex --remote` instead. That needs a controlled test of who receives approvals.
-- **An interactive session can't be woken.** It must check its inbox while it works. `wait_reply` only waits for replies to its own asks. A Codex app thread opened by the listener is the exception (above).
+- **An interactive session can't be woken.** It must check its inbox while it works. `wait_reply` only waits for replies to its own asks. There are two exceptions (above): a Codex app thread opened by the listener, and an interactive Claude Code session, which gets a pointer from its own MCP server.
 
 **The user.** A desktop toast for every message (Windows; `notify-send` elsewhere). A toast addressed to Cursor opens a Cursor prompt deeplink that only prefills and never sends.
 - The toast's PowerShell script is a constant; the title, text and XML reach it only through environment variables.

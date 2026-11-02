@@ -46,6 +46,23 @@ function install(){ const src=SELF; if(path.resolve(src).toLowerCase()===path.re
   if(fs.existsSync(path.join(src,'host','config.json'))) cp('host/config.json',true); init(); log({ev:'install',version:ctx.VERSION,from:src,copied});
   let running=null; try{ running=+fs.readFileSync(path.join(ROOT,'host','host.lock'),'utf8'); process.kill(running,0); }catch{ running=null; }
   return {root:ROOT,version:ctx.VERSION,from:src,copied,kept,backup:backed.length?path.join(ROOT,'backups',stamp):null,listener_running_pid:running}; }
+// Codex hooks for follow-ups to a running Codex app turn (bin/cp-hook.mjs; references/listener.md). The groups go into CODEX_HOME/hooks.json
+// (default ~/.codex) beside whatever else is there; only carrier-pigeon's own groups are ever replaced or removed, and the first change keeps a
+// backup. Codex skips a new hook until it is trusted in /hooks.
+function codexHooks(action){ const dir=process.env.CODEX_HOME||path.join(os.homedir(),'.codex'), f=path.join(dir,'hooks.json'), script=path.join(ROOT,'bin','cp-hook.mjs');
+  let cfg={}; if(fs.existsSync(f)){ try{ cfg=JSON.parse(fs.readFileSync(f,'utf8')); }catch{ die(`${f} is not valid JSON; fix it before changing hooks`); } }
+  const hooks=cfg.hooks&&typeof cfg.hooks==='object'&&!Array.isArray(cfg.hooks)?cfg.hooks:{};
+  const ours=g=>(g?.hooks||[]).some(h=>[h?.command,h?.commandWindows].some(c=>String(c||'').includes('cp-hook.mjs')));
+  const present=Object.keys(hooks).filter(e=>Array.isArray(hooks[e])&&hooks[e].some(ours));
+  if(action==='status') return {file:f,installed:['PostToolUse','Stop'].every(e=>present.includes(e)),events:present,script};
+  if(!['install','remove'].includes(action)) die('usage: codex-hooks install | remove | status');
+  for(const e of present){ hooks[e]=hooks[e].filter(g=>!ours(g)); if(!hooks[e].length) delete hooks[e]; }
+  if(action==='install'){ const h=ev=>({type:'command',command:`node '${script.replace(/'/g,`'\\''`)}' codex ${ev}`,commandWindows:`node "${script}" codex ${ev}`,timeout:10});
+    (hooks.PostToolUse||=[]).push({hooks:[h('post-tool-use')]}); (hooks.Stop||=[]).push({hooks:[h('stop')]}); }
+  const bak=f+'.before-carrier-pigeon'; if(fs.existsSync(f)&&!fs.existsSync(bak)) fs.copyFileSync(f,bak);
+  fs.mkdirSync(dir,{recursive:true}); writeAtomic(f,JSON.stringify({...cfg,hooks},null,2)+'\n');
+  return {file:f,action,events:action==='install'?['PostToolUse','Stop']:[],backup:fs.existsSync(bak)?bak:null,script,
+    note:action==='install'?'Codex skips new hooks until they are trusted: open /hooks in Codex and trust carrier-pigeon\'s PostToolUse and Stop hooks.':null}; }
 const yv = v => v===null||v===undefined ? 'null' : typeof v==='boolean' ? String(v) : JSON.stringify(String(v));
 function serialize(m){ const {body,...fm}=m; return '---\n'+Object.entries(fm).map(([k,v])=>`${k}: ${yv(v)}`).join('\n')+'\n---\n\n'+(body||'').trim()+'\n'; }
 function parse(txt){ const m=/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(txt.replace(/\r\n/g,'\n')); if(!m) die('malformed message (no frontmatter)');
@@ -356,6 +373,7 @@ function show(m){ const {body,context,sig,...fm}=m; return Object.entries(fm).fi
 const HELP=`carrier-pigeon ${ctx.VERSION} — file mailbox for grok, cursor, claude, codex, matt  (root: ${ROOT}; override CARRIER_PIGEON_HOME)
   init
   install                     run from the skill folder: copy CLI + listener code into the root (backs up replaced files; keeps host/config.json)
+  codex-hooks install|remove|status   Codex hooks that hand a follow-up to a running Codex app turn (keeps other hooks; trust them in /hooks)
   version
   doctor [--as A] [--session S]   read-only health: mailbox, loaded vs installed version, listener, claude/codex reach; warnings exit 0
   send   --from A --to B --subject S [--kind ask|reply|handoff|fyi|review-request] [--priority low|normal|high|urgent]
@@ -455,6 +473,8 @@ async function main(argv){ const [cmd,...rest]=argv;
         +(x.sessions.length?`\n        sessions: ${x.sessions.map(s=>s.session+(s.client?' ('+s.client+')':'')).join(', ')}`:'')).join('\n')); }
     case 'doctor': { const r=doctor({agent:o.as??null,session:sessionOf(o)}); return out(r,doctorText(r)); }
     case 'init': init(); return out({root:ROOT},`initialised ${ROOT}`);
+    case 'codex-hooks': { const r=codexHooks(o._[0]); return out(r,r.action?`${r.action==='install'?'installed':'removed'} carrier-pigeon's Codex hooks in ${r.file}${r.backup?' (backup '+r.backup+')':''}${r.note?'\n'+r.note:''}`
+      :`carrier-pigeon Codex hooks: ${r.installed?'installed':'not installed'} in ${r.file}${r.events.length?' ('+r.events.join(', ')+')':''}`); }
     case 'install': { const r=install(); return out(r,`installed carrier-pigeon ${r.version} into ${r.root}: ${r.copied.length} file(s) copied${r.kept.length?', kept '+r.kept.join(', '):''}${r.backup?'; replaced files backed up in '+r.backup:''}`
       +(r.listener_running_pid?`\nthe running listener (pid ${r.listener_running_pid}) keeps its old code until restarted (host/stop-host.ps1, then host/start-host.ps1 -Background)`:'')); }
     case 'send': { const m=send(o); return out(m,`sent ${m.id} (thread ${m.thread}) ${m.from} -> ${m.to}`); }

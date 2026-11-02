@@ -2,7 +2,7 @@
 name: co-build
 description: "Use when the owner wants Claude and Codex to build an authorised coding task together automatically: plan disjoint units, build in separate worktrees, run native checks, cross-review, fix findings, integrate and apply locally with a durable controller. Also supports an explicit manual protocol for two or more agents. A carrier-pigeon sub-skill (needs its mailbox). Not for one-agent changes (westack-build), audits (co-audit) or design (co-design)."
 metadata:
-  version: "0.13.0"
+  version: "0.14.0"
   parent: carrier-pigeon
 ---
 

@@ -19,7 +19,8 @@ export const DEFAULTS = {
   // mailbox-only worker. bin defaults to codex.bin; terminal (argv prefix) is needed off Windows; cwd defaults to the home folder.
   // codexApp: these kinds open a new thread in the Codex desktop app (Matt's settings and approvals), and later messages in that conversation
   // are queued into it. It takes a hand-off before codexWindow does. opener (argv prefix for a codex:// link) is needed off Windows.
-  codexApp: {enabled: true, kinds: ['handoff'], cwd: null, bin: null, opener: null, pickupMs: 90000, pollMs: 2000, startTimeoutMs: 60000, claimTimeoutMs: 600000},
+  // hooks: a follow-up for a running turn waits for carrier-pigeon's Codex hook (`codex-hooks install`), else is queued when the turn ends.
+  codexApp: {enabled: true, kinds: ['handoff'], cwd: null, bin: null, opener: null, hooks: true, pickupMs: 90000, pollMs: 2000, startTimeoutMs: 60000, claimTimeoutMs: 600000},
   codexWindow: {enabled: true, kinds: ['handoff'], cwd: null, bin: null, args: [], terminal: null, claimTimeoutMs: 600000},
   toast: {enabled: true},
 };
@@ -605,6 +606,15 @@ export function startAppThread(bin, cwd, name, {spawnFn=spawn, timeoutMs=60000}=
 export const codexQueue=(bin,thread,text,{execFn=execFile}={})=>new Promise((res,rej)=>execFn(bin,['queue','--thread',thread,'--message',text],{timeout:60000,windowsHide:true,env:codexWindowEnv()},
   (e,so,se)=>e?rej(new Error('codex queue failed: '+redact(String(se||e.message)).slice(0,300))):res(String(so||''))));
 export const appOpenArgv=(cfg,url,platform=process.platform)=>{ const o=cfg?.codexApp?.opener; return o?[...[].concat(o),url]:platform==='win32'?['explorer.exe',url]:null; };
+// Whether the rollout's last turn event says a turn is running (as reason-network src/codex.rs:80-95 reads it): task_started or turn_started
+// against task_complete, turn_complete or turn_aborted. Read back from the end; a single tool output can be one very long line.
+export function turnRunning(file, chunk=256*1024, cap=32*1024*1024){ let fd; try{ fd=fs.openSync(file,'r'); const size=fs.fstatSync(fd).size; let end=size, carry='';
+    while(end>0&&size-end<cap){ const start=Math.max(0,end-chunk), b=Buffer.alloc(end-start); fs.readSync(fd,b,0,b.length,start); const lines=(b.toString('utf8')+carry).split('\n'); carry=start>0?lines.shift():'';
+      for(let i=lines.length-1;i>=0;i--){ const l=lines[i]; if(!l.includes('event_msg')||!/"(task|turn)_/.test(l)) continue; let v; try{ v=JSON.parse(l); }catch{ continue; } if(v.type!=='event_msg') continue;
+        const t=v.payload?.type; if(t==='task_started'||t==='turn_started') return true; if(t==='task_complete'||t==='turn_complete'||t==='turn_aborted') return false; }
+      end=start; } return false; }catch{ return false; }finally{ if(fd!==undefined) try{ fs.closeSync(fd); }catch{} } }
+// Written by bin/cp-hook.mjs when it hands a pending follow-up to a running Codex turn.
+const hookedMark=(root,id)=>path.join(root,'host','codex-app-hooked',id);
 const sawInRollout=(file,from,needle)=>{ try{ const size=fs.statSync(file).size; if(size<=from) return false; const len=Math.min(size-from,16*1024*1024), b=Buffer.alloc(len), fd=fs.openSync(file,'r');
   try{ fs.readSync(fd,b,0,len,from); }finally{ fs.closeSync(fd); } return b.toString('utf8').includes(needle); }catch{ return false; } };
 export function codexAppAdapter({spawnFn=spawn, execFn=execFile, platform=process.platform}={}){ let ctx;
@@ -617,19 +627,38 @@ export function codexAppAdapter({spawnFn=spawn, execFn=execFile, platform=proces
     const tm=setInterval(()=>{ waited+=every; if(sawInRollout(b.path,from,m.id)){ clearInterval(tm); ctx.receipt?.(m.id,'app-turn-started',{thread:b.id}); ctx.log?.({ev:'codex-app-started',id:m.id,thread:b.id}); return; }
       if(waited<limit) return; waited=0; if(!reopened){ reopened=true; open(b.id); ctx.log?.({ev:'codex-app-reopened',id:m.id,thread:b.id}); return; }
       clearInterval(tm); ctx.alert?.('app-pickup:'+m.id,'carrier-pigeon: Codex app has not started a message',`${m.id} is queued in Codex thread ${b.id}, but the app has not run it; open codex://threads/${b.id} in the Codex app.`); },every); tm.unref?.(); };
-  return { name:'codexApp', wakes:true, start(c){ ctx=c; }, presence:()=>({wakes:true,state:ctx?.cfg?.codexApp?.enabled?'ready':'disabled'}),
+  // Queue on Codex's own queue, record it, open the link for a first message, and watch for the app to start it.
+  const enqueue=async(id,b,text,first)=>{ let from=0; try{ from=b.path?fs.statSync(b.path).size:0; }catch{}
+    await codexQueue(bin(),b.id,text,{execFn}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); }); // nothing was queued: safe to retry
+    const cur=appBindings(ctx.root).find(x=>x.key===b.key)||b; saveAppBinding(ctx.root,{...cur,queued:[...(cur.queued||[]),id],pending:(cur.pending||[]).filter(p=>p.id!==id)});
+    const opened=first&&open(b.id); ctx.log?.({ev:'codex-app',id,thread:b.id,follow_up:!first}); watch({id},b,from,!!opened); };
+  // A deferred follow-up ends one of two ways: the hook hands it to the running turn, or the turn ends first and it is queued. The mark file is
+  // the one arbiter: whichever of the hook and the host creates it first ('wx') delivers it, so a turn ending mid-queue can't get it twice.
+  const deferWatch=(id,key)=>{ const tm=setInterval(()=>{ const b=appBindings(ctx.root).find(x=>x.key===key), p=b?.pending?.find(x=>x.id===id); if(!p){ clearInterval(tm); return; }
+      const hooked=()=>{ clearInterval(tm); saveAppBinding(ctx.root,{...b,pending:b.pending.filter(x=>x.id!==id),queued:[...(b.queued||[]),id]});
+        ctx.receipt?.(id,'app-hooked',{thread:b.id}); ctx.log?.({ev:'codex-app-hooked',id,thread:b.id}); };
+      let mark=null; try{ mark=fs.readFileSync(hookedMark(ctx.root,id),'utf8'); }catch{}
+      if(mark==='host'){ clearInterval(tm); saveAppBinding(ctx.root,{...b,pending:b.pending.filter(x=>x.id!==id)}); // the host took it, then stopped before queueing finished
+        return ctx.alert?.('app-queue:'+id,'carrier-pigeon: Codex app follow-up may not be queued',`${id} was being queued into Codex thread ${b.id} when the listener stopped; check codex://threads/${b.id} before resending.`); }
+      if(mark!==null) return hooked(); if(!b.path||turnRunning(b.path)) return;
+      try{ fs.mkdirSync(path.dirname(hookedMark(ctx.root,id)),{recursive:true}); const fd=fs.openSync(hookedMark(ctx.root,id),'wx'); try{ fs.writeSync(fd,'host'); }finally{ fs.closeSync(fd); } }
+      catch(e){ if(e.code==='EEXIST') return hooked(); return; }
+      clearInterval(tm); enqueue(id,b,p.text,false).catch(e=>ctx.alert?.('app-queue:'+id,'carrier-pigeon: Codex app follow-up not queued',`${id} waited for a running turn in Codex thread ${b.id}, then could not be queued: ${e.message}`)); },ctx.cfg.codexApp.pollMs??2000); tm.unref?.(); };
+  return { name:'codexApp', wakes:true, start(c){ ctx=c; for(const b of appBindings(c.root)) for(const p of b.pending||[]) deferWatch(p.id,b.key); }, presence:()=>({wakes:true,state:ctx?.cfg?.codexApp?.enabled?'ready':'disabled'}),
     ownsSession:m=>!!(m.to_session&&appThreadFor(ctx.root,m,ctx.cfg)),
     observe(m){ if(m.from!=='codex'||!m.from_session||m.from_session===LISTENER||!cpx.safeName(m.from_session)) return; const b=appBindings(ctx.root).find(x=>x.key===m.thread);
       if(b&&!(b.sessions||[]).includes(m.from_session)){ saveAppBinding(ctx.root,{...b,sessions:[...(b.sessions||[]),m.from_session]}); ctx.log?.({ev:'codex-app-session',thread:b.id,session:m.from_session}); } },
     async deliver(m){ const c=ctx.cfg.codexApp; let b=appThreadFor(ctx.root,m,ctx.cfg);
-      if(b&&(b.queued||[]).includes(m.id)) return true; // already on this thread's queue
+      if(b&&((b.queued||[]).includes(m.id)||(b.pending||[]).some(p=>p.id===m.id))) return true; // already queued, or waiting for the hook
       if(!b){ if(!appHandoff(m,ctx.cfg,platform)) return false;
         const t=await startAppThread(bin(),c.cwd||os.homedir(),`carrier-pigeon hand-off from ${m.from} (${m.id})`,{spawnFn,timeoutMs:c.startTimeoutMs??60000}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); });
         b={key:String(m.thread),id:t.id,path:t.path,created_by:m.id,at:Date.now(),sessions:[],queued:[]}; saveAppBinding(ctx.root,b); }
-      const first=b.created_by===m.id, text=codexAppPrompt(m,ctx.root,!first); let from=0; try{ from=b.path?fs.statSync(b.path).size:0; }catch{}
-      await codexQueue(bin(),b.id,text,{execFn}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); }); // nothing was queued: safe to retry
-      saveAppBinding(ctx.root,{...b,queued:[...(b.queued||[]),m.id]}); const opened=first&&open(b.id); ctx.log?.({ev:'codex-app',id:m.id,thread:b.id,follow_up:!first});
-      watch(m,b,from,!!opened); const inbox=path.join(ctx.root,'agents','codex','inbox',m.id+'.md');
+      const first=b.created_by===m.id, text=codexAppPrompt(m,ctx.root,!first);
+      // A follow-up while the thread's turn runs waits for carrier-pigeon's Codex hook (bin/cp-hook.mjs), which shows it at the turn's next tool
+      // call or its Stop; the queue would hold it until the turn ends. Untrusted or missing hooks only mean it is queued when the turn ends.
+      if(!first&&c.hooks!==false&&b.path&&turnRunning(b.path)){ saveAppBinding(ctx.root,{...b,pending:[...(b.pending||[]),{id:m.id,text}]}); ctx.log?.({ev:'codex-app-deferred',id:m.id,thread:b.id}); deferWatch(m.id,b.key); }
+      else await enqueue(m.id,b,text,first);
+      const inbox=path.join(ctx.root,'agents','codex','inbox',m.id+'.md');
       setTimeout(()=>{ if(fs.existsSync(inbox)) ctx.alert?.('app-claim:'+m.id,'carrier-pigeon: Codex app has not claimed',`${m.id} is queued in Codex thread ${b.id} but still unclaimed; open codex://threads/${b.id} in the Codex app.`); },c.claimTimeoutMs??600000).unref?.();
       return true; } }; }
 

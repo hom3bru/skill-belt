@@ -206,6 +206,18 @@ t('install: copies code into the root, keeps an existing config, backs up what i
   const r3=JSON.parse(execFileSync('node',[CLI,'install','--json'],{env:home,encoding:'utf8'})); assert.equal(r3.root,path.join(H2,'.carrier-pigeon')); assert.ok(fs.existsSync(path.join(H2,'.carrier-pigeon','bin','carrier-pigeon.mjs')));
   assert.ok(!fs.existsSync(path.join(SK,'agents','claude')),'nothing created in the skill folder'); fs.rmSync(H2,{recursive:true,force:true});
   fs.rmSync(T,{recursive:true,force:true}); });
+t('codex-hooks: install adds carrier-pigeon\'s PostToolUse and Stop hooks beside the others, once; remove takes only those; a backup is kept', ()=>{
+  const CH=fs.mkdtempSync(path.join(os.tmpdir(),'cpcodexhome-')), f=path.join(CH,'hooks.json'), e2={...env,CODEX_HOME:CH}; const hk=(...a)=>JSON.parse(execFileSync('node',[CLI,'codex-hooks',...a,'--json'],{env:e2,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+  const theirs={matcher:'Edit|Write',hooks:[{type:'command',command:'other-tool hook',timeout:5}]}; const before={hooks:{SessionStart:[],PostToolUse:[theirs],Stop:[{hooks:[{type:'command',command:'other-tool stop'}]}]}};
+  fs.writeFileSync(f,JSON.stringify(before,null,2)); assert.equal(hk('status').installed,false);
+  const r=hk('install'); const cp=c=>String(c).includes('cp-hook.mjs'); let h=JSON.parse(fs.readFileSync(f,'utf8')).hooks;
+  assert.deepEqual(h.PostToolUse[0],theirs,'other tools\' hooks are kept'); assert.equal(h.Stop.length,2); assert.deepEqual(h.SessionStart,[],'untouched events stay as they were');
+  const post=h.PostToolUse[1].hooks[0]; assert.ok(cp(post.command)&&cp(post.commandWindows)); assert.match(post.command,/ codex post-tool-use$/); assert.match(h.Stop[1].hooks[0].commandWindows,/^node ".*cp-hook\.mjs" codex stop$/);
+  assert.equal(post.timeout,10); assert.equal(h.PostToolUse[1].matcher,undefined,'every tool'); assert.match(r.note,/trusted/); assert.deepEqual(JSON.parse(fs.readFileSync(r.backup,'utf8')),before);
+  hk('install'); h=JSON.parse(fs.readFileSync(f,'utf8')).hooks; assert.equal(h.PostToolUse.filter(g=>g.hooks.some(x=>cp(x.command))).length,1,'reinstall replaces, never duplicates'); assert.equal(hk('status').installed,true);
+  hk('remove'); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')),before,'remove restores exactly what was there'); assert.equal(hk('status').installed,false);
+  fs.writeFileSync(f,'{not json'); assert.throws(()=>hk('install'),/not valid JSON/); assert.equal(fs.readFileSync(f,'utf8'),'{not json','a broken file is left alone');
+  fs.rmSync(CH,{recursive:true,force:true}); });
 t('command help is read-only, succeeds before required arguments, and documents structured replies',()=>{
   const before=run('status');const help=run('reply','--help');assert.match(help.help,/--result/);assert.match(help.help,/request-key/);assert.deepEqual(run('status'),before);
 });

@@ -25,6 +25,9 @@ def main():
     # Focused developer runs may select host fixtures; the required suite must always execute all of them.
     suite_env = dict(os.environ)
     suite_env.pop("CARRIER_PIGEON_TEST_FILTER", None)
+    # Run from inside a Claude Code session, test MCP servers would otherwise find that session's inbox and post test mail into it.
+    for name in ("CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN", "CLAUDE_CODE_SESSION_ID"):
+        suite_env.pop(name, None)
     for cwd, script in SUITES:
         result = subprocess.run(["node", script], cwd=cwd, capture_output=True, timeout=900, env=suite_env)
         # Node writes UTF-8. Decode it as such, and pass on only ASCII: a caller that reads this output in its locale (verify.py: cp1252
