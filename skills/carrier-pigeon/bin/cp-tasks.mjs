@@ -1,8 +1,9 @@
+import * as identity from './cp-identity.mjs';
 // Durable local request controls. Message content is immutable; cancellation, leases and delivery state live beside it.
 // No provider calls, timers, shell, or dependencies. control() is a pure read so the host can gate dispatch safely.
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto';
 import {ID_RE,hasSecret} from './cp-context.mjs';
-const AGENTS=['grok','cursor','claude','codex','matt'];
+const AGENTS=['grok','cursor','claude','codex',identity.HUMAN_ID];
 export const TERMINAL=new Set(['completed','declined','blocked','partial','closed_without_reply','cancelled','expired']);
 const STATES=new Set(['queued','claimed','running','cancel_requested','recovery_needed','missing_reply',...TERMINAL]);
 const fail=m=>{throw new Error(m);};

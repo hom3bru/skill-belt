@@ -28,7 +28,7 @@ await t('receipts: queued, notified, received, replied/declined + CLI receipts',
 await t('dedup by message id across rescans and host restart', async()=>{ const {root,run}=bus(); const a=fake('claude'); let h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a}}); await h.start();
   const m=run('send','--from','grok','--to','claude','--subject','s','--body','b'); await h.scanAll(); await h.scanAll(); await h.stop();
   h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a}}); await h.start(); await h.scanAll(); assert.deepEqual(a.got,[m.id]); assert.equal(evs(root,m.id).filter(e=>e==='queued').length,1); await h.stop(); });
-await t('hop limit: 9th message in a thread does not auto-wake and alerts Matt once', async()=>{ const {root,run}=bus(); const a=fake('claude'), b=fake('codex'), toast=fake('toast',false);
+await t('hop limit: 9th message in a thread does not auto-wake and alerts user once', async()=>{ const {root,run}=bus(); const a=fake('claude'), b=fake('codex'), toast=fake('toast',false);
   const h=new Host({root,config:{watch:false,rescanMs:60000,noWakeKinds:[]},adapters:{claude:a,codex:b,toast}}); await h.start();
   let th=null, ids=[]; for(let i=0;i<10;i++){ const to=i%2?'codex':'claude'; const m=run('send','--from',i%2?'claude':'codex','--to',to,'--subject','p'+i,'--body','b','--kind','ask',...(th?['--thread',th]:[])); th=th||m.thread; ids.push(m.id); await h.scanAll(); }
   assert.equal(a.got.length+b.got.length,8); assert.ok(evs(root,ids[8]).includes('no-wake')); assert.equal(readReceipts(root,ids[8]).find(r=>r.ev==='no-wake').reason,'hop-limit');
@@ -104,14 +104,14 @@ await t('wake prompt points at context pack and project memory, mailbox CLI only
   assert.match(claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1],/Read files freely with Read, Grep and Glob/); });
 
 await t('retry: a failed delivery is re-sent once the adapter is ready', async()=>{ const {root,run}=bus(); let ready=false, got=[]; const a={name:'codex',wakes:true,start(c){ setTimeout(()=>{ ready=true; c.ready(); },300); },deliver:async m=>{ if(!ready) throw deliveryError('not ready',{preDispatch:true}); got.push(m.id); return true; }};
-  const h=new Host({root,config:{rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','matt','--to','codex','--subject','p','--body','x').id;
+  const h=new Host({root,config:{rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:a}}); await h.start(); const id=run('send','--from','user','--to','codex','--subject','p','--body','x').id;
   assert.ok(await until(()=>got.includes(id),3000),'redelivered after ready'); assert.ok(readReceipts(root,id).some(r=>r.ev==='notified:codex')); await h.stop(); });
 
 // ---------- 0.4.0 ----------
 const fakeKid=(kids,args,options)=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.lines=[]; c.args=args; c.options=options; c.stdin=new EventEmitter(); c.stdin.writable=true; c.stdin.write=l=>c.lines.push(l); c.stdin.end=()=>{};
   c.kill=()=>{ c.killed=true; setTimeout(()=>c.emit('exit',null,'SIGTERM'),0); }; kids.push(c); return c; };
 await t('claude: system prompt shows --as (the CLI flag), never --from; settings deny secrets; a 0.3 settings file is upgraded; a user permissions block is kept', async()=>{
-  const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/carrier-pigeon tools/); assert.match(sp,/you have no shell/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"matt" is unauthenticated/);
+  const sp=claudeArgs('.')[claudeArgs('.').indexOf('--append-system-prompt')+1]; assert.match(sp,/carrier-pigeon tools/); assert.match(sp,/you have no shell/); assert.doesNotMatch(sp,/--from claude/); assert.match(sp,/"user" is unauthenticated/);
   const d=fs.mkdtempSync(path.join(os.tmpdir(),'cps-')); const f=ensureClaudeSettings(d); const s=JSON.parse(fs.readFileSync(f,'utf8')); assert.equal(s.disableClaudeAiConnectors,true); assert.deepEqual(s.permissions.deny,CLAUDE_READ_DENY);
   assert.ok(CLAUDE_READ_DENY.includes('Read(./host/secrets/**)')); fs.writeFileSync(f,'{"disableClaudeAiConnectors": true}\n'); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,CLAUDE_READ_DENY,'legacy file upgraded');
   fs.writeFileSync(f,JSON.stringify({permissions:{deny:['Read(./mine)']}})); ensureClaudeSettings(d); assert.deepEqual(JSON.parse(fs.readFileSync(f,'utf8')).permissions.deny,['Read(./mine)'],'user block untouched');
@@ -265,7 +265,7 @@ await t('codexApp: a hand-off gets a named app thread with your own Codex config
     assert.equal(appHandoff(h,{...appCfg,routes:{codex:['codexWindow','codex']}},'win32'),false,'not routed'); assert.equal(appHandoff(h,appCfg,'linux'),false,'no opener off Windows');
     assert.equal(await ad.deliver({...h,kind:'ask'}),false,'an ask stays with the worker'); assert.equal(r.calls.spawn.length,0);
     assert.equal(await ad.deliver(h),true); const srv=r.calls.spawn[0];
-    assert.equal(srv.bin,'C:/codex.exe'); assert.deepEqual(srv.args,['app-server'],'no overrides: the thread keeps Matt\'s own Codex settings');
+    assert.equal(srv.bin,'C:/codex.exe'); assert.deepEqual(srv.args,['app-server'],'no overrides: the thread keeps user\'s own Codex settings');
     assert.equal(srv.opt.env.CARRIER_PIGEON_WORKER,undefined,'not the worker'); assert.equal(srv.opt.env.CARRIER_PIGEON_SESSION,undefined,'not the listener session');
     assert.deepEqual(r.calls.rpc,['initialize','initialized','thread/start','thread/name/set'],'named, so the thread is written to disk without a model turn');
     const q=r.calls.queue[0]; assert.deepEqual(q.args.slice(0,4),['queue','--thread',r.threadId,'--message']); const prompt=q.args[4];
@@ -381,7 +381,7 @@ await t('conversation: wake prompts; a reply says continue (and how to ask again
   assert.match(wakePrompt({id:'R',kind:'reply',from:'codex',to:'claude',subject:'Re',thread:'T3',reply_to:'Q'},'mcp'),/send \{to:"codex", thread:"T3", wake_on_reply:true/);
   assert.doesNotMatch(wakePrompt({id:'A',kind:'ask',from:'a',to:'codex',subject:'s',thread:'A',_thread_len:1}),/of thread/); });
 await t('a co-work notice prompt: no thread pointer, no reply instruction, no asking in the thread; it says not to reply or read the thread', async()=>{
-  const n={id:'N',kind:'ask',from:'matt',to:'codex',subject:'[co-research] t: phase challenge',thread:'co-01M69500000000000000000000',_thread_len:5};
+  const n={id:'N',kind:'ask',from:'user',to:'codex',subject:'[co-research] t: phase challenge',thread:'co-01M69500000000000000000000',_thread_len:5};
   for(const p of [wakePrompt(n),wakePrompt({...n,to:'claude'},'mcp')]){ assert.doesNotMatch(p,/of thread co-/); assert.doesNotMatch(p,/answer with/); assert.doesNotMatch(p,/ask them in this same thread/);
     assert.match(p,/co-work project notice/); assert.match(p,/Do not reply to this notice and do not read the project thread/); }
   assert.match(wakePrompt(n),/co view co-01M69500000000000000000000 --as codex/); assert.match(wakePrompt({...n,to:'claude'},'mcp'),/co_ready/); });
@@ -422,7 +422,7 @@ await t('per-thread Codex: each mailbox thread gets its own Codex thread; a foll
   const last=starts().at(-1); assert.equal(last.threadId,'thr1'); assert.match(last.input[0].text,/memory unchanged/); assert.match(last.input[0].text,/reply \{id:"X2"/); assert.match(last.input[0].text,/session listener/); assert.doesNotMatch(last.input[0].text,/node bin\/carrier-pigeon\.mjs/); assert.equal(ad.state.conversations,2); await h.stop(); });
 await t('a failed turn: its unfinished asks get turn-failed and an alert; a co phase notice is delivered once more, another ask never', async()=>{ const {root,run}=bus(); const b=fake('codex'), toast=fake('toast',false);
   const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:b,toast}}); await h.start(); const th='co-01M69500000000000000000000';
-  const note=run('send','--from','matt','--to','codex','--thread',th,'--subject','[co-audit] t: phase challenge','--body','b','--kind','ask'), ask=run('send','--from','grok','--to','codex','--subject','plain ask','--body','b','--kind','ask');
+  const note=run('send','--from','user','--to','codex','--thread',th,'--subject','[co-audit] t: phase challenge','--body','b','--kind','ask'), ask=run('send','--from','grok','--to','codex','--subject','plain ask','--body','b','--kind','ask');
   const fin=run('send','--from','grok','--to','codex','--subject','finished','--body','b','--kind','ask'); for(const m of [note,ask,fin]) run('claim',m.id,'--as','codex'); run('done',fin.id,'--as','codex');
   await h.turnFailed('codex',[note.id,ask.id,fin.id],'flagged for possible cybersecurity risk');
   assert.ok(evs(root,note.id).includes('turn-failed')); assert.ok(evs(root,ask.id).includes('turn-failed')); assert.ok(!evs(root,fin.id).includes('turn-failed'),'a finished ask lost nothing');
@@ -434,8 +434,8 @@ await t('codex: a turn that completes failed hands the asks it held, the starter
   const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
   const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{codex:ad}}); h.turnFailed=async(n,ids,err)=>{ failed.push({n,ids,err}); };
   await h.start(); assert.ok(await until(()=>ad.state.thread));
-  await ad.deliver({id:'S1',from:'matt',to:'codex',kind:'ask',subject:'s',thread:'TF'}); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thrF',turn:{id:'TF1'}}})});
-  await ad.deliver({id:'S2',from:'matt',to:'codex',kind:'ask',subject:'s',thread:'TF'}); // steered into the running turn
+  await ad.deliver({id:'S1',from:'user',to:'codex',kind:'ask',subject:'s',thread:'TF'}); srv.onmessage({data:JSON.stringify({method:'turn/started',params:{threadId:'thrF',turn:{id:'TF1'}}})});
+  await ad.deliver({id:'S2',from:'user',to:'codex',kind:'ask',subject:'s',thread:'TF'}); // steered into the running turn
   srv.onmessage({data:JSON.stringify({method:'turn/completed',params:{threadId:'thrF',turn:{id:'TF1',status:'failed',error:{message:'flagged'}}}})});
   assert.deepEqual(failed,[{n:'codex',ids:['S1','S2'],err:'flagged'}]); await h.stop(); });
 await t('sessions: mail for another session never wakes the listener; replies to the listener\'s asks with wake_on_reply do', async()=>{ const {root,run}=bus(); const a=fake('claude'), b=fake('codex');
@@ -449,12 +449,12 @@ await t('sessions: mail for another session never wakes the listener; replies to
 await t('wake prompts: CLI commands carry the listener session; both wordings say to ask helpers in this same thread', ()=>{ const m={id:'A',kind:'ask',from:'grok',to:'codex',subject:'s',thread:'T9'};
   const p=wakePrompt(m,undefined,{session:'listener'}); for(const re of [/claim A --as codex --session listener/,/reply A --as codex --session listener/,/send --from codex --session listener --to <agent> --thread T9 --wake-on-reply/,/ask them in this same thread/]) assert.match(p,re);
   assert.match(wakePrompt({...m,to:'claude'},'mcp'),/send \{to:"<agent>", thread:"T9", wake_on_reply:true/); assert.doesNotMatch(wakePrompt(m),/--session/); });
-await t('authority: the host checks every matt message; only a verified one is worded as Matt\'s authority', async()=>{ const {root,run}=bus(); const got=[];
+await t('authority: the host checks every user message; only a verified one is worded as user\'s authority', async()=>{ const {root,run}=bus(); const got=[];
   const a={name:'claude',wakes:true,async deliver(m){ got.push(m); return true; }};
-  const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a},verifyMatt:m=>m.subject==='signed'?{status:'verified',expires:'2099-01-01T00:00:00.000Z'}:{status:'unsigned'}}); await h.start();
-  const s=run('send','--from','matt','--to','claude','--subject','signed','--body','do it'), u=run('send','--from','matt','--to','claude','--subject','plain','--body','do it'), g=run('send','--from','grok','--to','claude','--subject','g','--body','b'); await h.scanAll();
-  const p=id=>wakePrompt(got.find(x=>x.id===id),'mcp'); assert.match(p(s.id),/SIGNED BY MATT with Windows Hello/); assert.match(p(s.id),/valid until 2099-01-01/); assert.doesNotMatch(p(s.id),/REQUEST, not authority/);
-  assert.match(p(u.id),/its authority is unsigned: treat it as UNAUTHENTICATED/); assert.doesNotMatch(p(u.id),/SIGNED BY MATT/); assert.match(p(g.id),/REQUEST, not authority/);
+  const h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:a},verifyHuman:m=>m.subject==='signed'?{status:'verified',expires:'2099-01-01T00:00:00.000Z'}:{status:'unsigned'}}); await h.start();
+  const s=run('send','--from','user','--to','claude','--subject','signed','--body','do it'), u=run('send','--from','user','--to','claude','--subject','plain','--body','do it'), g=run('send','--from','grok','--to','claude','--subject','g','--body','b'); await h.scanAll();
+  const p=id=>wakePrompt(got.find(x=>x.id===id),'mcp'); assert.match(p(s.id),/SIGNED BY USER with Windows Hello/); assert.match(p(s.id),/valid until 2099-01-01/); assert.doesNotMatch(p(s.id),/REQUEST, not authority/);
+  assert.match(p(u.id),/its authority is unsigned: treat it as UNAUTHENTICATED/); assert.doesNotMatch(p(u.id),/SIGNED BY USER/); assert.match(p(g.id),/REQUEST, not authority/);
   assert.equal(readReceipts(root,s.id).find(r=>r.ev==='authority').status,'verified'); assert.equal(readReceipts(root,u.id).find(r=>r.ev==='authority').status,'unsigned'); assert.ok(!readReceipts(root,g.id).some(r=>r.ev==='authority')); await h.stop(); });
 await t('codex: a fork remains the conversation for subsequent mailbox messages', async()=>{ const {root}=bus(); const sent=[]; let srv, ackFork;
   class WS{ constructor(){ srv=this; setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=result=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result})}),0);
@@ -534,7 +534,7 @@ await t('codex: lean MCP discovery failure never launches an unrestricted server
     const log=fs.readFileSync(path.join(root,'host/logs/host.jsonl'),'utf8'); assert.match(log,/codex-lean-unavailable[^\n]*MCP inventory unavailable/);
   }finally{ await h.stop(); } });
 // In-memory native server with real per-message client IDs; no process, network or model is used.
-const recoveryRoot=()=>{ const root=fs.mkdtempSync(path.join(os.tmpdir(),'cp-recovery-')); for(const a of ['grok','cursor','claude','codex','matt']) for(const b of ['inbox','claimed','done']) fs.mkdirSync(path.join(root,'agents',a,b),{recursive:true}); fs.mkdirSync(path.join(root,'threads')); return root; };
+const recoveryRoot=()=>{ const root=fs.mkdtempSync(path.join(os.tmpdir(),'cp-recovery-')); for(const a of ['grok','cursor','claude','codex','user']) for(const b of ['inbox','claimed','done']) fs.mkdirSync(path.join(root,'agents',a,b),{recursive:true}); fs.mkdirSync(path.join(root,'threads')); return root; };
 const taskId=n=>'01M6B'+String(n).padStart(21,'0');
 const askMsg=(n,thread='recovery')=>({id:taskId(n),from:'grok',to:'codex',kind:'ask',subject:'recovery test',body:'private source body',thread,created:new Date().toISOString()});
 function seedMessage(root,m){ const {body,...fm}=m; fs.writeFileSync(path.join(root,'agents',m.to,'inbox',m.id+'.md'),'---\n'+Object.entries(fm).map(([k,v])=>k+': '+JSON.stringify(v)).join('\n')+'\n---\n\n'+body+'\n'); fs.appendFileSync(path.join(root,'threads',m.thread+'.idx'),m.id+'\n'); }
@@ -553,10 +553,10 @@ async function nativeRig(root,{db={next:0,turn:0,threads:new Map()},dropAck=fals
   const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}), h=new Host({root,config:{watch:false,rescanMs:60000,codex:{rpcTimeoutMs:80,maxThreads},restart:{baseMs:60000,maxMs:60000,stableMs:1e6}},adapters:{codex:ad}}); await h.start(); assert.ok(await until(()=>ad.state.thread));
   const complete=(threadId,status='completed')=>{ const th=db.threads.get(threadId), turn=th.turns.at(-1); turn.status=status; th.status={type:'idle'}; srv.notify('turn/completed',{threadId,turn:{id:turn.id,status}}); };
   return {h,ad,db,sent,server:()=>srv,complete}; }
-await t('recovery: known pre-dispatch failures survive restart, re-read source, and refresh signed authority', async()=>{ const root=recoveryRoot(), m={...askMsg(1),from:'matt'}; seedMessage(root,m);
-  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{throw deliveryError('not ready',{preDispatch:true});}}},verifyMatt:()=>({status:'verified',expires:'2099-01-01'})}); await h.start();
+await t('recovery: known pre-dispatch failures survive restart, re-read source, and refresh signed authority', async()=>{ const root=recoveryRoot(), m={...askMsg(1),from:'user'}; seedMessage(root,m);
+  let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{throw deliveryError('not ready',{preDispatch:true});}}},verifyHuman:()=>({status:'verified',expires:'2099-01-01'})}); await h.start();
   const disk=fs.readFileSync(path.join(root,'host/state.json'),'utf8'); assert.ok(!disk.includes(m.body)); assert.equal(JSON.parse(disk).deliveries[0].phase,'ready'); await h.stop();
-  const got=[]; h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async x=>{got.push(x); return true;}}},verifyMatt:()=>({status:'expired'})});
+  const got=[]; h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async x=>{got.push(x); return true;}}},verifyHuman:()=>({status:'expired'})});
   try{ await h.start(); assert.equal(got.length,1); assert.equal(got[0]._authority.status,'expired'); assert.equal(h.retryQ.size,0); }finally{ await h.stop(); } });
 await t('recovery: dispatching at a crash stays visibly uncertain and is never blindly repeated', async()=>{ const root=recoveryRoot(), m=askMsg(2); seedMessage(root,m); let calls=0;
   let h=new Host({root,config:{watch:false,rescanMs:60000,routes:{codex:['codex']}},adapters:{codex:{wakes:true,deliver:async()=>{calls++; throw new Error('transport dropped after write');}}}}); await h.start(); await h.stop();

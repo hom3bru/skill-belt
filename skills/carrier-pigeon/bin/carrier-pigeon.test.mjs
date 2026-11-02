@@ -18,7 +18,7 @@ t('validation errors are clear', ()=>{ assert.match(fail('send','--from','bob','
 t('claim, reply, thread, done', ()=>{ const id=run('inbox','claude')[0].id; assert.equal(run('claim',id,'--as','claude').status,'claimed');
   assert.match(fail('claim',id,'--as','claude'),/not in claude's inbox/); const r=run('reply',id,'--as','claude','--body','claude here');
   assert.equal(r.to,'grok'); assert.equal(r.reply_to,id); const th=run('thread',id); assert.equal(th.length,2); assert.equal(th[0]._box,'claude/done'); assert.equal(run('inbox','grok').length,1); });
-t('ids are time-sortable and unique', ()=>{ const ids=Array.from({length:20},(_,i)=>run('send','--from','matt','--to','codex','--subject','s'+i,'--body','b').id);
+t('ids are time-sortable and unique', ()=>{ const ids=Array.from({length:20},(_,i)=>run('send','--from','user','--to','codex','--subject','s'+i,'--body','b').id);
   assert.deepEqual([...ids].sort(),ids); assert.equal(new Set(ids).size,20); });
 await ta('8 concurrent claims -> exactly 1 winner', async()=>{ const id=run('send','--from','grok','--to','codex','--subject','race','--body','b').id;
   const res=await Promise.all(Array.from({length:8},()=>new Promise(r=>{const p=spawn('node',[CLI,'claim',id,'--as','codex'],{env}); p.on('exit',c=>r(c));})));
@@ -33,7 +33,7 @@ t('context pack cap and secret rejection', ()=>{ const big=path.join(HOME,'big.t
   assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--context-file',big),/cap is 8192/);
   assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--summary','token ghp_abcdefghijklmnopqrstuvwxyz12'),/context pack looks like it contains a secret/); });
 t('memory: instructions are human-only; findings record provenance; list', ()=>{ assert.equal(run('memory','read','Org/Repo').instructions,null);
-  assert.match(fail('memory','instructions','Org/Repo','--as','codex','--text','x'),/only matt/); run('memory','instructions','Org/Repo','--as','matt','--text','Run tests with node.');
+  assert.match(fail('memory','instructions','Org/Repo','--as','codex','--text','x'),/only user/); run('memory','instructions','Org/Repo','--as','user','--text','Run tests with node.');
   const src=path.join(HOME,'src.txt'); fs.writeFileSync(src,'v1');
   const f=run('memory','add','Org/Repo','--as','grok','--note','parser bug fixed','--repo','org/repo','--sha','abc123','--files',src+',other/x.js@'+'a'.repeat(64),'--sources','PR#3','--status','verified','--evidence','tests: all 11 passed');
   assert.equal(f.project,'org-repo'); assert.ok(fs.existsSync(path.join(HOME,'memory','org-repo','findings',f.id+'.md')));
@@ -76,8 +76,8 @@ t('flag values may start with --; empty body and bad subject/sha/due are rejecte
   assert.match(fail('send','--from','grok','--to','codex','--subject','a\nb','--body','b'),/one line/); assert.match(fail('send','--from','grok','--to','codex','--subject','S'.repeat(301),'--body','b'),/max 300/);
   assert.match(fail('send','--from','grok','--to','codex','--subject','key ghp_abcdefghijklmnopqrstuvwxyz12','--body','b'),/subject\/metadata looks like it contains a secret/);
   assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--sha','not-a-sha'),/bad --sha/); assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--due','someday'),/bad --due/);
-  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-matt-approval').requires_matt_approval,true);
-  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-matt-approval=false').requires_matt_approval,false,'--flag=false is false');
+  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-user-approval').requires_user_approval,true);
+  assert.equal(run('send','--from','grok','--to','codex','--subject','s','--body','b','--requires-user-approval=false').requires_user_approval,false,'--flag=false is false');
   assert.match(fail('send','--from','grok','--to','codex','--subject','s','--body','b','--json=maybe'),/--json is yes\/no/);
   const k=run('send','--from','grok','--to','claude','--subject','kd','--body','b').id; run('reply',k,'--as','claude','--body','not a decline','--decline=false'); assert.equal(run('read',k).status,'done','--decline=false does not decline');
   for(const s of ['see docs/risk-assessment-framework-notes.md','task-based-onboarding-workflow']) assert.ok(run('send','--from','grok','--to','codex','--subject',s,'--body',s).id,'no false secret: '+s);
@@ -107,9 +107,9 @@ t('run: the printed cd line round-trips a root with an apostrophe and a curly qu
 t('memory: a UNC path in a finding is never opened (reported unchecked)', ()=>{ const unc='\\\\example.invalid\\share\\x.txt'; const t0=Date.now();
   run('memory','add','unc','--as','codex','--note','n','--files',unc+'@'+'b'.repeat(64)+','+unc.replace('x.txt','y.txt')); const x=run('memory','read','unc').findings[0];
   assert.deepEqual(x.unchecked.sort(),[unc,unc.replace('x.txt','y.txt')].sort()); assert.ok(Date.now()-t0<20000,'no network wait'); });
-t('status counts files without parsing them; read flags matt as unauthenticated; version', ()=>{ fs.writeFileSync(path.join(HOME,'agents/codex/done/01ZZZZZZZZZZZZZZZZZZZZZZZZ.md'),'not a message');
-  assert.ok(run('status','codex').codex.done>=1); const m=run('send','--from','matt','--to','codex','--subject','m','--body','b');
-  assert.match(execFileSync('node',[CLI,'read',m.id],{env,encoding:'utf8'}),/"matt" is not authenticated/); assert.match(run('version').version,/^\d+\.\d+\.\d+$/); });
+t('status counts files without parsing them; read flags user as unauthenticated; version', ()=>{ fs.writeFileSync(path.join(HOME,'agents/codex/done/01ZZZZZZZZZZZZZZZZZZZZZZZZ.md'),'not a message');
+  assert.ok(run('status','codex').codex.done>=1); const m=run('send','--from','user','--to','codex','--subject','m','--body','b');
+  assert.match(execFileSync('node',[CLI,'read',m.id],{env,encoding:'utf8'}),/"user" is not authenticated/); assert.match(run('version').version,/^\d+\.\d+\.\d+$/); });
 t('a non-usage error prints one line, no stack trace', ()=>{ const r=spawnSync('node',[CLI,'transcript','pack',path.join(HOME,'missing.jsonl'),'--as','claude'],{env,encoding:'utf8'});
   assert.equal(r.status,1); assert.match(r.stderr,/^carrier-pigeon: ENOENT/); assert.doesNotMatch(r.stderr,/\n\s+at /); });
 t('file flags refuse host secrets, credential stores and .env files, including through a junction; ordinary files still work', ()=>{
@@ -121,7 +121,7 @@ t('file flags refuse host secrets, credential stores and .env files, including t
   const send=['send','--from','claude','--to','grok','--subject','s'];
   assert.match(f3(...send,'--body-file',sec),/refusing to read the host secrets folder/); assert.match(f3(...send,'--body-file',path.join(link,'probe.txt')),/host secrets folder/,'junction resolved');
   assert.match(f3(...send,'--body','b','--context-file',ssh),/refusing to read ~\/\.ssh/); assert.match(f3(...send,'--body-file',env),/a \.env file/);
-  assert.match(f3('memory','add','p','--as','codex','--body-file',auth),/~\/\.codex\/auth\.json/); assert.match(f3('memory','instructions','p','--as','matt','--file',env),/\.env file/);
+  assert.match(f3('memory','add','p','--as','codex','--body-file',auth),/~\/\.codex\/auth\.json/); assert.match(f3('memory','instructions','p','--as','user','--file',env),/\.env file/);
   assert.match(f3('transcript','pack',tj,'--as','claude'),/refusing to read ~\/\.ssh/); assert.match(f3('transcript','verify','0'.repeat(64),'--text-file',sec),/host secrets/);
   const coEntry=put(path.join(HOME,'co','co-01M69500000000000000000000','entries','0001.json'),'{"text":"blind work"}'); // a peer's co entry: only co view may show it
   assert.match(f3(...send,'--body-file',coEntry),/refusing to read the co-work project store/); fs.rmSync(path.join(HOME,'co','co-01M69500000000000000000000'),{recursive:true,force:true});
@@ -143,8 +143,8 @@ await ta('ask --wait 0 sends and exits 3 with a handle; wait picks the reply up 
 t('agents: pull without a listener; auto-wake / notify-only from a live listener\'s presence file; stale presence ignored', ()=>{
   assert.ok(run('agents').every(x=>x.reach==='pull')); const hd=path.join(HOME,'host'); fs.mkdirSync(hd,{recursive:true});
   fs.writeFileSync(path.join(hd,'host.lock'),String(process.pid)); // a live pid: this test process
-  fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:process.pid,routes:{codex:['codex','toast'],matt:['toast'],claude:['claude']},adapters:{codex:{wakes:true,state:'ready',model:'m1'},toast:{wakes:false,state:'ready'},claude:{wakes:true,state:'down'}}}));
-  const by=Object.fromEntries(run('agents').map(x=>[x.agent,x])); assert.equal(by.codex.reach,'auto-wake'); assert.equal(by.matt.reach,'notify-only'); assert.equal(by.claude.reach,'auto-wake (not ready)'); assert.equal(by.grok.reach,'pull');
+  fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:process.pid,routes:{codex:['codex','toast'],user:['toast'],claude:['claude']},adapters:{codex:{wakes:true,state:'ready',model:'m1'},toast:{wakes:false,state:'ready'},claude:{wakes:true,state:'down'}}}));
+  const by=Object.fromEntries(run('agents').map(x=>[x.agent,x])); assert.equal(by.codex.reach,'auto-wake'); assert.equal(by.user.reach,'notify-only'); assert.equal(by.claude.reach,'auto-wake (not ready)'); assert.equal(by.grok.reach,'pull');
   fs.writeFileSync(path.join(hd,'presence.json'),JSON.stringify({pid:1,routes:{codex:['codex']},adapters:{codex:{wakes:true,state:'ready'}}})); assert.equal(run('agents').find(x=>x.agent==='codex').reach,'pull','presence from another pid is stale');
   fs.rmSync(path.join(hd,'host.lock')); fs.rmSync(path.join(hd,'presence.json')); });
 // ---------- 0.6.0 ----------

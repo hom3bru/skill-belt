@@ -18,7 +18,10 @@ BLOCKED = [re.compile(pattern) for pattern in (
     r"[A-Za-z]:[/\\]{1,2}Users[/\\]", r"libfile_[0-9a-f]{20,}",
     r"01a[0-9a-f]{5}-[0-9a-f-]{27,}", r"github\.com/hom3bru/Maginot",
     r"gh[pousr]_[A-Za-z0-9]{30,}", r"github_pat_[A-Za-z0-9_]{50,}", r"-----BEGIN [A-Z ]*PRIVATE KEY-----")]
-PRIVATE_TERMS = re.compile(r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|\bMatt\b|CANDO|egressFetch|intel\.sqlite|gbatch_|antigravity|\bCL:|\bCX:|gstack")
+PRIVATE_TERMS = re.compile(r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|CANDO|egressFetch|intel\.sqlite|gbatch_|antigravity|\bCL:|\bCX:|gstack")
+# Anonymous ownership checks cover any named owner rather than embedding a private name.
+PRIVATE_TERMS = re.compile(PRIVATE_TERMS.pattern + r"|(?m:^(?:Owner[^:\n]*:(?![ \t]*user\.)[^\n]+|license:[ \t]*Proprietary[ \t]*\((?![ \t]*user[ \t]*\))[^)\n]+))")
+
 PUBLIC_PROFILES = ("generic", "coding-workflow", "self", "frankenmine", "westack")
 
 
@@ -84,7 +87,7 @@ class RootHintTests(unittest.TestCase):
     def test_public_profiles_are_generic_and_document_root_fallback(self):
         for name in PUBLIC_PROFILES:
             text = (ROOT / "references" / "profiles" / f"{name}.md").read_text(encoding="utf-8")
-            lines = [line for line in text.splitlines() if not line.startswith("Owner (")]
+            lines = text.splitlines()
             found = [m.group(0) for line in lines for m in [PRIVATE_TERMS.search(line)] if m]
             self.assertEqual(found, [], name)
         for name in ("self", "frankenmine", "westack"):
@@ -130,6 +133,14 @@ class PublicCopyTests(unittest.TestCase):
         record["recipients"][0]["profile"] = "radar"
         self.assertIn("unknown recipient profile", " ".join(aa.validate(record, run)))
 
+
+
+class AnonymousOwnershipTests(unittest.TestCase):
+    def test_owner_and_license_are_anonymous_without_weakening_named_owner_rejection(self):
+        for value in ("Owner (release): Fictional Reviewer.", "license: Proprietary (Fictional Reviewer)"):
+            self.assertIsNotNone(PRIVATE_TERMS.search(value))
+        for value in ("Owner (release): user.", "license: Proprietary (user)"):
+            self.assertIsNone(PRIVATE_TERMS.search(value))
 
 if __name__ == "__main__":
     unittest.main()

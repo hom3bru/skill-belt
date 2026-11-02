@@ -88,16 +88,16 @@ An agent id (`claude`, `codex`, …) names a kind. Any running Claude may take a
 
 ## Signed authority (Windows Hello)
 
-A message from `matt` carries Matt's authority only when it is signed with his Windows Hello key.
-- **Setup:** `hello init`, once, in Matt's own terminal. Windows Hello creates the key in the TPM, and it never leaves it.
-- **Signing:** `send --from matt … --sign` (or `reply … --as matt --sign`) prints what is about to be signed. Windows Hello then asks for his PIN, face or fingerprint in Windows' own prompt.
+A message from `user` carries user's authority only when it is signed with his Windows Hello key.
+- **Setup:** `hello init`, once, in user's own terminal. Windows Hello creates the key in the TPM, and it never leaves it.
+- **Signing:** `send --from user … --sign` (or `reply … --as user --sign`) prints what is about to be signed. Windows Hello then asks for his PIN, face or fingerprint in Windows' own prompt.
   - The signature covers that message's id, sender, recipient, session, thread, reply-to, kind, subject, body and context hashes, and an expiry (`--expires-min`, default 60).
   - Changing any of them breaks it.
 - **Checking:** `read` (CLI and MCP) and the listener check the signature themselves, so no model decides. They read the public key from the same Windows Hello credential, never from a file, so an agent that can write the mailbox can't substitute its own key. The listener records the result as an `authority` receipt.
-  - `verified`: Matt's authority for exactly what the message says, until it expires.
+  - `verified`: user's authority for exactly what the message says, until it expires.
   - `unsigned`, `expired`, `invalid` or `unverifiable`: unauthenticated.
-- **What it stops:** an agent or malware running as Matt can request a signature, which shows a Windows Hello prompt on his screen. It can't complete that prompt.
-- **What it doesn't stop:** malware that already controls Matt's session could change a message between the moment it's displayed and the moment it's signed. A separate low-privilege account for the agents is the next layer.
+- **What it stops:** an agent or malware running as user can request a signature, which shows a Windows Hello prompt on his screen. It can't complete that prompt.
+- **What it doesn't stop:** malware that already controls user's session could change a message between the moment it's displayed and the moment it's signed. A separate low-privilege account for the agents is the next layer.
 - There is no MCP tool for signing: only a human at the terminal signs.
 
 ## Remaining boundaries
@@ -105,7 +105,7 @@ A message from `matt` carries Matt's authority only when it is signed with his W
 - **Hard token/dollar budgets.** Optional effort and an execution deadline exist; exact provider token or spending caps do not.
 - **Exactly-once external effects.** Idempotent local sends and native reconciliation do not undo partial work or guarantee an external operation ran once.
 - **Machines other than this one.** Grok is pull-only through the user's approval. A relay that keeps the same message format would be next.
-- **A separate low-privilege account for the agents.** This would stop a compromised agent from reading Matt's files or keystrokes. It's the layer after Windows Hello signing.
+- **A separate low-privilege account for the agents.** This would stop a compromised agent from reading user's files or keystrokes. It's the layer after Windows Hello signing.
 
 ## Verified (2026-10-30, one Windows machine)
 

@@ -1,3 +1,4 @@
+import * as identity from './cp-identity.mjs';
 // carrier-pigeon co-work engine: two or more agents work one project adversarially (co-research, co-audit, co-design, co-build).
 // Phases: independent (blind: you see only your own entries) -> challenge (attack the others' entries, or pass with a reason) ->
 // respond (concede, revise or defend each challenge to your work) -> adjudicate (a judge who is neither author nor challenger rules on
@@ -106,8 +107,8 @@ function reveal(p, retry = false) { const d = path.join(dirOf(p.id), 'entries');
     const f = path.join(d, String(rec.n).padStart(4, '0') + '.json'), tmp = `${f}.tmp-${process.pid}-${crypto.randomBytes(4).toString('hex')}`; fs.writeFileSync(tmp, JSON.stringify(out, null, 1)); fs.renameSync(tmp, f); }
   const after = entries(p.id), failed = after.filter(e => e.type === 'reveal-failed' || e.type === 'sealed').length;
   if (!failed) fs.rmSync(keyFile(p.id), {force: true}); p.revealed = {at: now(), opened: after.filter(e => e.seal).length, failed}; }
-// co reveal: the lead (or matt) retries a reveal that left failed records, while the key is still there.
-export function retryReveal(pid, as) { const p = load(pid); if (as !== p.lead && as !== 'matt') die('only the lead (or matt) retries the reveal');
+// co reveal: the lead (or user) retries a reveal that left failed records, while the key is still there.
+export function retryReveal(pid, as) { const p = load(pid); if (as !== p.lead && as !== identity.HUMAN_ID) die('only the lead (or user) retries the reveal');
   if (!p.sealed || !p.revealed) die('nothing to retry: the first round was not sealed, or has not been revealed yet'); withLock(pid, () => reveal(p, true)); save(p); return {project: pid, revealed: p.revealed}; }
 // Re-check a revealed entry against its commitment: its fields other than id, n, at and seal, in stored order, are the sealed JSON.
 const sealHolds = e => { const {id, n, at, seal: s, ...rest} = e; return sha(s.salt + JSON.stringify(rest)) === s.commitment; };
@@ -220,7 +221,7 @@ function advanceIfDone(p, r) { if (p.phase === 'closed' || readyList(p, p.phase)
   let next = PHASES[PHASES.indexOf(p.phase) + 1]; if (next === 'adjudicate' && !disputesToJudge(p, entries(p.id)).length) next = 'closed'; // nothing a non-party judge can rule on
   p.phase = next; p.phases.push({phase: next, at: now()}); save(p); notify(p); return {...r, advanced: true, phase: next}; }
 // The lead may move a stalled project on (a member gone quiet); the move and its reason are recorded.
-export function advance(pid, as, reason) { const p = load(pid); if (as !== p.lead && as !== 'matt') die('only the lead (or matt) forces a phase on'); if (p.phase === 'closed') die('already closed');
+export function advance(pid, as, reason) { const p = load(pid); if (as !== p.lead && as !== identity.HUMAN_ID) die('only the lead (or user) forces a phase on'); if (p.phase === 'closed') die('already closed');
   const left = participants(p, p.phase).filter(a => !readyList(p, p.phase).includes(a)); append(pid, {type: 'forced', by: as, phase: p.phase, reason: req(reason, '--reason'), skipped: left});
   for (const a of left) fs.writeFileSync(readyFile(p, p.phase, a), JSON.stringify({agent: a, forced_by: as, at: now()})); return advanceIfDone(p, {project: pid, phase: p.phase, forced: left}); }
 // Phase notices: an ask to each participant in the project thread (the listener wakes them; per-thread sessions keep the project in one conversation).

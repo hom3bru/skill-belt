@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "profile": {
+    "display_name": "Alex Rivera (fictional)",
+    "career_summary": "Fictional program coordinator who supports public workshops; no supervisory authority is implied.",
+    "current_direction": "Explore community program coordination roles."
+  },
+  "preferences": {
+    "timezone": "Etc/UTC",
+    "routing": {
+      "gap_scale": 5,
+      "main_max_gap": 3.5
+    },
+    "writing_guidance": [
+      "Use supported sustained remit and accurate contribution.",
+      "Preserve authority, dates and qualifiers."
+    ],
+    "constraints": [
+      "Confirm current location and pay requirements before applying."
+    ]
+  },
+  "tracker": {
+    "reference": "private-tracker-selected-by-user",
+    "description": "Placeholder for one canonical tracker; this example contains no job records."
+  },
+  "materials": [
+    {
+      "kind": "career_evidence",
+      "reference": "private-career-evidence-selected-by-user",
+      "description": "Fictional reference only. The loader does not open this source."
+    }
+  ],
+  "corrections": [
+    {
+      "statement": "Coordinated workshops with a team; did not manage direct reports.",
+      "source_reference": "fictional-user-confirmation",
+      "observed_on": "2026-01-01"
+    }
+  ]
+}

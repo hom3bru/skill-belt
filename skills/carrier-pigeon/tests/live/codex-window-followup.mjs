@@ -13,7 +13,7 @@ const cli = (...a) => JSON.parse(execFileSync(process.execPath, [path.join(SK, '
 const until = async (f, ms = limit) => { const t = Date.now(); while (Date.now() - t < ms) { const v = f(); if (v) return v; await sleep(1500); } return null; };
 const said = (file, word) => fs.readFileSync(file, 'utf8').split('\n').some(l => { try { const r = JSON.parse(l); return r.type === 'response_item' && r.payload?.role === 'assistant' && (r.payload.content || []).some(c => String(c?.text || '').includes(word)); } catch { return false; } });
 cli('init'); const w1 = 'first-' + crypto.randomBytes(3).toString('hex'), w2 = 'second-' + crypto.randomBytes(3).toString('hex'), report = {root, w1, w2};
-const host = new h.Host({root, config: {watch: true, rescanMs: 5000, adapters: ['codexApp', 'codexWindow'], routes: {codex: ['codexApp', 'codexWindow'], claude: [], grok: [], cursor: [], matt: []},
+const host = new h.Host({root, config: {watch: true, rescanMs: 5000, adapters: ['codexApp', 'codexWindow'], routes: {codex: ['codexApp', 'codexWindow'], claude: [], grok: [], cursor: [], user: []},
   codex: {bin}, codexWindow: {enabled: true, kinds: ['handoff'], args: ['--no-daemon']}, codexApp: {kinds: [], pollMs: 1000, pickupMs: 120000}}, adapters: {codexApp: h.codexAppAdapter(), codexWindow: h.codexWindowAdapter()}});
 await host.start();
 try {

@@ -1,3 +1,4 @@
+import * as identity from './cp-identity.mjs';
 // Read-only diagnostics shared by the CLI and MCP transport. No mailbox setup or process probes.
 import fs from 'node:fs'; import path from 'node:path';
 
@@ -13,7 +14,7 @@ function installedVersion(root){
 
 export function diagnose({root,loadedVersion,agent=null,session=null,agents=[]}){
   // Identical to cp-context.isMailbox: use only init's two markers, without loading the installed module.
-  const initialized=fs.existsSync(path.join(root,'log.jsonl'))&&fs.existsSync(path.join(root,'agents','matt','inbox'));
+  const initialized=fs.existsSync(path.join(root,'log.jsonl'))&&fs.existsSync(path.join(root,'agents',identity.HUMAN_ID,'inbox'));
   const installed_version=installedVersion(root), needs_reconnect=installed_version!==null&&installed_version!==loadedVersion;
   // agentsStatus already checked the listener's liveness. Presence timestamps are state transitions, not heartbeats.
   const listener=agents.find(a=>Number.isInteger(a.listener_pid)&&a.listener_pid>0);

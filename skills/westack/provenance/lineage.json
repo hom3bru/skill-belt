@@ -4,7 +4,7 @@
     {
       "date": "2026-10-28",
       "change": "renamed estack 0.3.0 (unreleased) to westack 0.3.1; no behaviour change",
-      "decided_by": "Matt (owner): \"careful to change all 'estack's to 'westack's\"",
+      "decided_by": "user (owner): \"careful to change all 'estack's to 'westack's\"",
       "repository": "westack (renamed from estack with history kept)",
       "from": {
         "path": "skills/estack",

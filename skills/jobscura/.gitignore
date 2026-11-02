@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.private/
+private-context/
+user-context.json
+user-context.local.json
+*.local.json
+packets/
+__pycache__/
+*.py[cod]
+*.zip

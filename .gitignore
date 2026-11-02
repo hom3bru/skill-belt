@@ -10,3 +10,11 @@ __pycache__/
 *.zip
 .DS_Store
 Thumbs.db
+
+# Private Jobscura material stays outside this repository by default.
+.private/
+private-context/
+user-context.json
+user-context.local.json
+*.local.json
+packets/

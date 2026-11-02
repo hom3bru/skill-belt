@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hom3bru/skill-belt/tree/codex/skill-belt/skills/jobscura/context/user-context.schema.json",
+  "title": "Jobscura private user context v1",
+  "description": "Private source context and preferences. Contains no action grants or credentials.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "preferences"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "display_name"
+      ],
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "career_summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 16000
+        },
+        "current_direction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timezone"
+      ],
+      "properties": {
+        "timezone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "routing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gap_scale",
+            "main_max_gap"
+          ],
+          "properties": {
+            "gap_scale": {
+              "type": "integer",
+              "const": 5
+            },
+            "main_max_gap": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            }
+          }
+        },
+        "writing_guidance": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "tracker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference"
+      ],
+      "properties": {
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reference"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "career_evidence",
+              "resume",
+              "writing_example",
+              "submitted_application",
+              "correction",
+              "interview_notes"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "corrections": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "statement",
+          "source_reference"
+        ],
+        "properties": {
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8000
+          },
+          "source_reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "observed_on": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      }
+    }
+  }
+}

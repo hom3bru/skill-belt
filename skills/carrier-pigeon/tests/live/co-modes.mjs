@@ -13,7 +13,7 @@
 //                  ordinary ask. Reported: whether each answer names the mismatch, with latency and usage, as a baseline for co-research.
 //   --mode solo-audit  No project: Claude and Codex each audit the same limiter alone, as one ordinary ask. Reported: which planted
 //                  defects each answer names, with latency and usage, as a baseline for co-audit.
-// In every project mode the script is lead and judge (matt) and rules "unresolved" on any defended dispute. Pass (project modes): the
+// In every project mode the script is lead and judge (user) and rules "unresolved" on any defended dispute. Pass (project modes): the
 // project closed with a clean protocol check, every real member added work and challenged or passed, and no member wrote into the
 // project thread.
 // Usage: node tests/live/co-modes.mjs --mode audit|design|build|solo [--claude BIN] [--claude-model haiku] [--codex BIN] [--port 4521] [--keep]
@@ -101,15 +101,15 @@ if (mode === 'solo-audit') { const f = path.join(work, 'limiter.mjs'); fs.writeF
 // ---------- projects ----------
 let p; const realMembers = mode === 'build' ? ['codex'] : ['claude', 'codex'];
 if (mode === 'audit') { const f = path.join(work, 'limiter.mjs'); fs.writeFileSync(f, LIMITER); const sha = crypto.createHash('sha256').update(LIMITER).digest('hex').slice(0, 16);
-  p = cli('co', 'new', '--mode', 'audit', '--as', 'matt', '--lead', 'matt', '--judge', 'matt', '--members', 'claude,codex', '--min-challenges', '1', '--subject', `limiter.mjs@sha256:${sha}`,
+  p = cli('co', 'new', '--mode', 'audit', '--as', 'user', '--lead', 'user', '--judge', 'user', '--members', 'claude,codex', '--min-challenges', '1', '--subject', `limiter.mjs@sha256:${sha}`,
     '--title', 'wake limiter audit', '--question', 'What defects does this wake limiter have against the contract stated on its line 1?',
     '--scope', `Only this file; no web; do not edit it. File: ${f}. Location as "path:line".`); }
-if (mode === 'design') p = cli('co', 'new', '--mode', 'design', '--as', 'matt', '--lead', 'matt', '--judge', 'matt', '--members', 'claude,codex', '--min-challenges', '1',
+if (mode === 'design') p = cli('co', 'new', '--mode', 'design', '--as', 'user', '--lead', 'user', '--judge', 'user', '--members', 'claude,codex', '--min-challenges', '1',
   '--title', 'per-project token budget', '--question', 'Design a per-project token budget for co-work projects in this listener: where it is enforced, how usage is counted, and what happens to a wake when it runs out.',
   '--scope', `Read only ${hostCode}; no web; design only, edit nothing. Proposals name the functions they change in that file.`,
   '--criterion', 'names the function(s) in host/carrier-pigeon-host.mjs where the budget is checked', '--criterion', 'says what happens to a wake when the budget is exhausted',
   '--criterion', 'leaves the per-agent rate limit unchanged');
-if (mode === 'build') p = cli('co', 'new', '--mode', 'build', '--as', 'matt', '--lead', 'matt', '--judge', 'matt', '--members', 'claude,codex', '--min-challenges', '1', '--subject', `work@${base}`,
+if (mode === 'build') p = cli('co', 'new', '--mode', 'build', '--as', 'user', '--lead', 'user', '--judge', 'user', '--members', 'claude,codex', '--min-challenges', '1', '--subject', `work@${base}`,
   '--title', 'slug and list helpers', '--question', 'Add two helpers with tests: slugify (codex) and formatList (claude), each in its own module, so that `node --test` passes on the merged branch.',
   '--scope', `Repository ${work}, base ${base}. Contracts: slugify(s: string): string lowercases, turns each run of characters outside a-z0-9 into one "-", and trims leading and trailing "-". formatList(items: string[]): string joins with ", " and puts " and " before the last item. Each member works and commits only in its own worktree; never edit another unit's files.`,
   '--assign', `codex: src/slug.mjs and test/slug.test.mjs (node:test), in worktree ${wt.codex} on branch co/codex; commit there, then record the unit with your test receipt`,
@@ -119,7 +119,7 @@ if (mode === 'build') p = cli('co', 'new', '--mode', 'build', '--as', 'matt', '-
 // ---------- the script's own parts: lead (adjudicate, closed) and, in build mode, the claude member ----------
 const hooks = {
   adjudicate: async () => { const all = co.entries(p.id); for (const c of all.filter(e => e.type === 'challenge' && all.some(r => r.type === 'response' && r.target === e.id && r.outcome === 'defend') && !all.some(v => v.type === 'verdict' && v.target === e.id)))
-    co.verdict(p.id, 'matt', {target: c.id, outcome: 'unresolved', reason: 'the live-test driver does not judge content'}); co.ready(p.id, 'matt'); }};
+    co.verdict(p.id, 'user', {target: c.id, outcome: 'unresolved', reason: 'the live-test driver does not judge content'}); co.ready(p.id, 'user'); }};
 const integration = {}; if (mode === 'build') Object.assign(hooks, {
   independent: async () => { fs.mkdirSync(path.join(wt.claude, 'src')); fs.mkdirSync(path.join(wt.claude, 'test'));
     fs.writeFileSync(path.join(wt.claude, 'src', 'format.mjs'), "export function formatList(items) {\n  if (items.length < 2) return items.join('');\n  return items.slice(0, -1).join(', ') + ' and ' + items.at(-1);\n}\n");
@@ -129,7 +129,7 @@ const integration = {}; if (mode === 'build') Object.assign(hooks, {
     co.add(p.id, 'claude', {text: 'formatList with tests', files: 'src/format.mjs,test/format.test.mjs', verification: `node --test (in ${wt.claude}): exit ${r.code}, ${counts(r.out)}`, branch: 'co/claude', contract: 'formatList(items: string[]): string'});
     co.ready(p.id, 'claude');
     await runCodex('independent', codexBrief() + `\nPhase independent: implement src/slug.mjs and test/slug.test.mjs (node:test) in your worktree, to the slugify contract in the brief. Run node --test there and commit on co/codex. Then record the unit: co add ${p.id} --as codex --text "..." --files src/slug.mjs,test/slug.test.mjs --verification "<exact command>: exit <code>, <N> passed, <M> failed" --branch co/codex --contract "slugify(s: string): string". Then co ready ${p.id} --as codex.`); },
-  challenge: async () => { const unit = co.entries(p.id).filter(e => e.type === 'unit' && e.by === 'codex').pop(); if (!unit) return co.advance(p.id, 'matt', 'codex recorded no unit');
+  challenge: async () => { const unit = co.entries(p.id).filter(e => e.type === 'unit' && e.by === 'codex').pop(); if (!unit) return co.advance(p.id, 'user', 'codex recorded no unit');
     const r = run('node', ['--test'], wt.codex); integration.codex_rerun = `exit ${r.code}, ${counts(r.out)}`;
     if (r.code) co.challenge(p.id, 'claude', {target: unit.id, kind: 'bug', text: 'node --test fails in your worktree when I rerun it', evidence: r.out.slice(-600)});
     else co.challenge(p.id, 'claude', {target: unit.id, kind: 'test-gap', text: 'No test pins the trimming rule on both ends with mixed separators: slugify("--Hello,  World!--") must be "hello-world". Add it and re-record the unit with a new receipt.', evidence: `rerun in ${wt.codex}: ${integration.codex_rerun}`});
@@ -148,8 +148,8 @@ hooks.closed = async () => { const ratings = [];
     const stray = ['codex', 'claude'].flatMap(a => (changed('co/' + a) || ['(branch unreadable)']).filter(f => !own(a).has(f)).map(f => `${a}: ${f}`)); integration.stray = stray;
     ratings.push(['C1', merged && r.code === 0 ? 'pass' : 'fail', integration.receipt], ['C2', stray.length ? 'fail' : 'pass', stray.length ? 'outside its unit: ' + stray.join(', ') : 'each branch diff stays inside its unit\'s files']); }
   else for (const c of co.load(p.id).criteria || []) ratings.push([c.id, 'untested', 'the live-test driver does not judge designs']);
-  for (const [criterion, result, text] of ratings) co.add(p.id, 'matt', {type: 'rating', criterion, result, text});
-  co.add(p.id, 'matt', {type: 'synthesis', text: mode === 'build' ? `Integration: ${integration.receipt}. See the units, challenges and ratings below.` : 'Placeholder synthesis written by the live-test driver; see the sections below.'}); co.ready(p.id, 'matt'); };
+  for (const [criterion, result, text] of ratings) co.add(p.id, 'user', {type: 'rating', criterion, result, text});
+  co.add(p.id, 'user', {type: 'synthesis', text: mode === 'build' ? `Integration: ${integration.receipt}. See the units, challenges and ratings below.` : 'Placeholder synthesis written by the live-test driver; see the sections below.'}); co.ready(p.id, 'user'); };
 
 const timeline = [{phase: 'independent', s: 0}]; let last = null, lastChange = Date.now(); const handled = new Set();
 while (Date.now() - t0 < 1800000) { const pr = co.load(p.id);
@@ -157,7 +157,7 @@ while (Date.now() - t0 < 1800000) { const pr = co.load(p.id);
   const mine = pr.phase === 'adjudicate' || pr.phase === 'closed' || (mode === 'build' && ['independent', 'challenge', 'respond'].includes(pr.phase));
   if (mine && !handled.has(pr.phase)) { handled.add(pr.phase); try { await hooks[pr.phase](); } catch (e) { integration.hook_error = `${pr.phase}: ${String(e.message).slice(0, 300)}`; break; } if (pr.phase === 'closed') break; continue; }
   if (Date.now() - lastChange > 900000) break; await sleep(5000); }
-const delivered = a => cli('thread', p.id, '--as', 'matt').filter(m => m.kind === 'ask' && m.to === a && H.readReceipts(root, m.id).some(r => String(r.ev).startsWith('notified'))).length;
+const delivered = a => cli('thread', p.id, '--as', 'user').filter(m => m.kind === 'ask' && m.to === a && H.readReceipts(root, m.id).some(r => String(r.ev).startsWith('notified'))).length;
 // one usage row per delivered notice, so no run is still going when the host stops (a steered Codex turn can cover several notices,
 // hence the cap on the wait)
 for (const t1 = Date.now(); Date.now() - t1 < 240000 && !realMembers.every(a => rows().filter(u => u.agent === a).length >= delivered(a)); await sleep(5000));
@@ -165,7 +165,7 @@ await sleep(mode === 'build' ? 20000 : 5000); // a steered Codex turn may still 
 const all = co.entries(p.id), rep = co.report(p.id), chk = co.check(p.id), pr = co.load(p.id); const prim = co.MODES[mode].primary;
 const per = a => ({entries: all.filter(e => e.type === prim && e.by === a).length, coverage: all.some(e => e.type === 'coverage' && e.by === a), challenges: all.filter(e => e.type === 'challenge' && e.by === a).length,
   passes: all.filter(e => e.type === 'pass' && e.by === a).length, responses: all.filter(e => e.type === 'response' && e.by === a).map(r => r.outcome), revisions: all.filter(e => e.revises && e.by === a).length});
-const members = Object.fromEntries(['claude', 'codex'].map(a => [a, per(a)])); const threadMsgs = cli('thread', p.id, '--as', 'matt').filter(m => realMembers.includes(m.from));
+const members = Object.fromEntries(['claude', 'codex'].map(a => [a, per(a)])); const threadMsgs = cli('thread', p.id, '--as', 'user').filter(m => realMembers.includes(m.from));
 const md = path.join(root, `co-${mode}-report.md`); fs.writeFileSync(md, rep.markdown);
 const report = {mode, elapsed_s: Math.round((Date.now() - t0) / 1000), project: p.id, phase: pr.phase, timeline, members, check: chk.findings.map(f => `${f.code} ${f.id || ''}: ${f.msg}`),
   survived: rep.survived.length, overturned: rep.overturned.length, disputed: rep.disputed.length, accepted: rep.accepted, criteria: rep.criteria?.map(c => `${c.id} ${c.result}`),

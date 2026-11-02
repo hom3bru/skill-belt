@@ -1,3 +1,4 @@
+import * as identity from './cp-identity.mjs';
 // User-authorised automatic co-build. The controller owns phase advancement, Git and verified publication.
 // Native jobs receive scoped workspaces and a check-only MCP connection; peer output never expands the grant.
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';
@@ -164,7 +165,7 @@ function coEntry(s,key,verb,agent,args){s.co_ops??={};if(s.co_ops[key])return s.
 function ready(s,phaseName,agents){for(const a of agents){const v=cli(s,'co','view',s.co,'--as',a);if(v.phase!==phaseName)break;if(!v.ready.includes(a))cli(s,'co','ready',s.co,'--as',a,'--session','auto-controller');}}
 function audit(s){phase(s,'acceptance','Recording native work, peer findings, repairs and verified integration.');
  if(!s.co){const coRoot=path.join(s.runDir,'mailbox','co');let prior=null;if(fs.existsSync(coRoot))for(const d of fs.readdirSync(coRoot)){const p=optional(path.join(coRoot,d,'project.json'));if(p?.session===s.id)prior=p;}
-  const p=prior||cli(s,'co','new','--mode','build','--title',s.plan.title,'--question',s.grant.task,'--members','codex,claude','--lead','codex','--judge','matt','--as','codex','--session',s.id,'--min-challenges','0','--subject',s.snapshot.base,'--scope',s.plan.contract,...s.plan.units.flatMap(u=>['--assign',u.agent+': '+u.files.join(', ')]),'--criterion','Unit ownership and authored native contributions verified','--criterion','Both agents independently checked and cross-reviewed the current units','--criterion','Integrated checks pass and no blocking finding remains');s.co=p.id;s.projects.push(p.id);writeState(s);}
+  const p=prior||cli(s,'co','new','--mode','build','--title',s.plan.title,'--question',s.grant.task,'--members','codex,claude','--lead','codex','--judge',identity.HUMAN_ID,'--as','codex','--session',s.id,'--min-challenges','0','--subject',s.snapshot.base,'--scope',s.plan.contract,...s.plan.units.flatMap(u=>['--assign',u.agent+': '+u.files.join(', ')]),'--criterion','Unit ownership and authored native contributions verified','--criterion','Both agents independently checked and cross-reviewed the current units','--criterion','Integrated checks pass and no blocking finding remains');s.co=p.id;s.projects.push(p.id);writeState(s);}
  const entries={};for(const u of Object.values(s.units)){entries[u.agent]=coEntry(s,'unit-'+u.agent,'add',u.agent,['--text',u.spec.summary+'; native author job '+u.initial.job.dir,'--files',u.files.join(','),'--verification',JSON.stringify(u.initial.job.checks),'--branch',u.branch,'--contract',s.plan.contract]);}
  ready(s,'independent',['codex','claude']);
  const all=Object.values(s.reviews).flatMap(r=>r.findings||[]).filter(f=>f.blocking&&!f.finding_id.startsWith('integration-'));

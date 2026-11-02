@@ -8,7 +8,7 @@ const t=async(name,fn)=>{ n++; try{ await fn(); console.log('ok',n,name); }catch
 function fixture({initialized=true,source=`export const VERSION = '${VERSION}';\n`}={}){
   const root=path.join(HOME,String(++fixtures)), file=path.join(root,'bin','cp-context.mjs');
   fs.mkdirSync(root);
-  if(initialized){ fs.writeFileSync(path.join(root,'log.jsonl'),''); fs.mkdirSync(path.join(root,'agents','matt','inbox'),{recursive:true}); }
+  if(initialized){ fs.writeFileSync(path.join(root,'log.jsonl'),''); fs.mkdirSync(path.join(root,'agents','user','inbox'),{recursive:true}); }
   if(source!==null){ fs.mkdirSync(path.dirname(file),{recursive:true}); fs.writeFileSync(file,source); }
   return {root,file};
 }
@@ -54,7 +54,7 @@ await t('a missing root stays absent and defaults identity, session and agent sn
   assert.equal(fs.existsSync(root),false); assert.deepEqual(snapshot(HOME),before);
 });
 await t('initialization requires both existing mailbox markers and takes health priority',()=>{
-  for(const missing of ['log.jsonl',path.join('agents','matt','inbox')]){
+  for(const missing of ['log.jsonl',path.join('agents','user','inbox')]){
     const {root}=fixture(); fs.rmSync(path.join(root,missing),{recursive:true});
     const result=run(root);
     assert.equal(result.initialized,false); assert.equal(result.health,'uninitialized'); assert.equal(check(result,'mailbox').status,'warning');
@@ -166,7 +166,7 @@ await t('an absent agent is warned even when another agent has a ready listener'
   assert.equal(check(result,'agent:claude').status,'ok'); assert.equal(check(result,'agent:codex').status,'warning'); assert.equal(result.health,'attention'); warningsAreActionable(result);
 });
 await t('unrelated pull agents do not prevent ready health',()=>{
-  const {root}=fixture(), result=run(root,[{agent:'matt',reach:'pull',listener_pid:null},...ready(),{agent:'grok',reach:'pull',listener_pid:null}]);
+  const {root}=fixture(), result=run(root,[{agent:'user',reach:'pull',listener_pid:null},...ready(),{agent:'grok',reach:'pull',listener_pid:null}]);
   assert.equal(result.health,'ready'); assert.equal(result.checks.length,5);
 });
 await t('the supplied snapshot and nested adapter/session objects are returned without mutation',()=>{

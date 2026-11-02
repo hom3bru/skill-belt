@@ -69,7 +69,7 @@ An earlier attempt went through `PostToolUse` instead, because Codex was still m
 
 ## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
 
-**What 0.12.0 did.** Matt shared nine Codex threads that "never progressed past a single message", and their local rollouts and mailbox receipts were read.
+**What 0.12.0 did.** user shared nine Codex threads that "never progressed past a single message", and their local rollouts and mailbox receipts were read.
 - Hand-offs opened a terminal session. Every follow-up named that session and was marked `no-wake` (`session-addressed`).
 - One grading hand-off read two follow-ups only because it happened to check its inbox mid-task.
 - Six automated test threads did get a second turn, because their follow-ups named `codex` rather than a session.
@@ -79,7 +79,7 @@ An earlier attempt went through `PostToolUse` instead, because Codex was still m
 - `codex queue` writes to Codex's shared queue. Nothing runs a queued message until an app-server loads the thread.
 - When the app opened a thread with `codex://threads/<id>`, it ran the waiting message. It also ran a message queued while the thread was on screen, and one queued while another thread was on screen.
 - A thread started over the app-server protocol with no turn is not saved; `codex queue` then reports "no rollout found". `thread/name/set` saves it, and the app then fills it from the queue.
-- A thread keeps the settings of the process that created it. Here those were Matt's own: approval `never`, full access.
+- A thread keeps the settings of the process that created it. Here those were user's own: approval `never`, full access.
 
 **`codex-app.mjs`:** pass. The first reply came 14 s after the link was opened; the second, queued with no link, came 6 s after queueing.
 
@@ -87,7 +87,7 @@ An earlier attempt went through `PostToolUse` instead, because Codex was still m
 1. A Claude hand-off opened a named app thread, and its first turn started 6 s after queueing. Codex claimed it and replied with the nonce, and the listener recorded its session.
 2. A follow-up addressed to that session was queued into the same thread and started 2 s later.
 3. Codex answered it with both nonces, recalling the first from the conversation rather than re-reading the mailbox.
-4. Both turns ran with Matt's own settings.
+4. Both turns ran with user's own settings.
 
 **Limits:**
 - This is one machine and one app version.

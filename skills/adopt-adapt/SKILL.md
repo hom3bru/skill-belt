@@ -1,7 +1,7 @@
 ---
 name: adopt-adapt
 description: Evaluate pasted repos, papers, products, docs, posts, datasets or agent skills for mechanisms a user-named recipient (a project, a coding workflow, Frankenmine, westack, or this skill itself) should ADOPT, ADAPT, or DISCARD, with evidence-backed transfer plans. Use for "adopt-adapt", "adopt or adapt these", "should this project use this", "mine these links", "salvage anything from this". Not for implementing an already-chosen tool, ordinary code review, product how-to, or merely wiring recipient paths. A new product built from several sources belongs to frankenmine; recovering how one opaque product, binary or app works belongs to reverse-engineer-anything.
-license: Proprietary (Matt Kolkin)
+license: Proprietary (user)
 metadata:
   compatibility: "Claude Code, Codex, Cursor. Python 3.10+ optional for scripts/aa.py; manual fallback defined."
   version: "3.0.0-grok-draft.r16"

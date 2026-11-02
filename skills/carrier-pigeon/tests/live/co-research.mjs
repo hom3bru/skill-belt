@@ -1,6 +1,6 @@
 // Live check (opt-in; a few haiku wakes plus a few Codex turns): a real co-research project between the listener's Claude and Codex in a
 // throwaway mailbox. The question is answerable from files inside that mailbox (the installed host code, and a docs copy with one planted
-// mismatch: it says 5 auto-wakes per 10 minutes where the code says 6), so no web access is needed. The script is lead and judge (matt): it
+// mismatch: it says 5 auto-wakes per 10 minutes where the code says 6), so no web access is needed. The script is lead and judge (user): it
 // opens the project, rules "unresolved" on any defended dispute (it does not judge content), writes a placeholder synthesis and reads the
 // report. Pass: the project closed with a clean protocol check, each member added cited claims and a coverage statement, challenged or
 // passed, and answered every challenge to its claims, and no member wrote into the shared project thread (the first run, before the fix,
@@ -25,7 +25,7 @@ const cfg = {rescanMs: 5000, adapters: ['claude', 'codex'], routes: {claude: ['c
 const host = new H.Host({root, config: cfg, adapters: H.defaultAdapters({...H.DEFAULTS, ...cfg})}); await host.start();
 const sleep = ms => new Promise(r => setTimeout(r, ms)); const t0 = Date.now();
 const code = path.join(root, 'host', 'carrier-pigeon-host.mjs'), doc = path.join(docs, 'listener.md');
-const p = cli('co', 'new', '--mode', 'research', '--as', 'matt', '--lead', 'matt', '--judge', 'matt', '--members', 'claude,codex', '--min-challenges', '1',
+const p = cli('co', 'new', '--mode', 'research', '--as', 'user', '--lead', 'user', '--judge', 'user', '--members', 'claude,codex', '--min-challenges', '1',
   '--title', 'listener auto-wake limits', '--question', 'What limits does this carrier-pigeon listener put on automatic wakes (messages per thread, co-work threads, wakes per agent per time window), and do its docs match its code?',
   '--scope', `Only these two files; no web. Code: ${code}. Docs: ${doc}. Cite as "path | line N | exact words".`,
   '--assign', `codex: the code (${code})`, '--assign', `claude: the docs (${doc})`);
@@ -37,14 +37,14 @@ while (Date.now() - t0 < 1800000) { const pr = co.load(p.id);
   if (pr.phase !== last) { timeline.push({phase: pr.phase, s: Math.round((Date.now() - t0) / 1000)}); last = pr.phase; lastChange = Date.now(); }
   if (pr.phase === 'adjudicate') { const all = co.entries(p.id);
     for (const c of all.filter(e => e.type === 'challenge' && all.some(r => r.type === 'response' && r.target === e.id && r.outcome === 'defend') && !all.some(v => v.type === 'verdict' && v.target === e.id)))
-      co.verdict(p.id, 'matt', {target: c.id, outcome: 'unresolved', reason: 'the live-test driver does not judge content'});
-    co.ready(p.id, 'matt'); continue; }
-  if (pr.phase === 'closed') { if (!co.entries(p.id).some(e => e.type === 'synthesis')) co.add(p.id, 'matt', {type: 'synthesis', text: 'Placeholder synthesis written by the live-test driver; see the sections below.'}); co.ready(p.id, 'matt'); break; }
+      co.verdict(p.id, 'user', {target: c.id, outcome: 'unresolved', reason: 'the live-test driver does not judge content'});
+    co.ready(p.id, 'user'); continue; }
+  if (pr.phase === 'closed') { if (!co.entries(p.id).some(e => e.type === 'synthesis')) co.add(p.id, 'user', {type: 'synthesis', text: 'Placeholder synthesis written by the live-test driver; see the sections below.'}); co.ready(p.id, 'user'); break; }
   if (Date.now() - lastChange > 900000) break; // a phase stalled for 15 minutes: report it rather than force it
   await sleep(5000); }
 // let every run finish before stopping the host: usage is logged when a run or turn ends, one row per delivered notice
 const uf = path.join(root, 'host/logs/usage.jsonl'); const rows = () => fs.existsSync(uf) ? fs.readFileSync(uf, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse) : [];
-const delivered = a => cli('thread', p.id, '--as', 'matt').filter(m => m.kind === 'ask' && m.to === a && H.readReceipts(root, m.id).some(r => String(r.ev).startsWith('notified'))).length;
+const delivered = a => cli('thread', p.id, '--as', 'user').filter(m => m.kind === 'ask' && m.to === a && H.readReceipts(root, m.id).some(r => String(r.ev).startsWith('notified'))).length;
 for (const t1 = Date.now(); Date.now() - t1 < 240000; await sleep(5000)) if (['claude', 'codex'].every(a => rows().filter(u => u.agent === a).length >= delivered(a))) break;
 const usage = rows(); const all = co.entries(p.id), rep = co.report(p.id), chk = co.check(p.id), pr = co.load(p.id);
 const per = a => ({claims: all.filter(e => e.type === 'claim' && e.by === a).length, cited: all.filter(e => e.type === 'claim' && e.by === a).every(e => (e.cites || []).length > 0),
@@ -57,15 +57,15 @@ const surfaced = all.filter(e => { const s = [e.text, e.evidence, e.reason].filt
   return /\b5\b/.test(s) && /\b6\b/.test(s) && /mismatch|discrepan|contradict|differ|stale|does not (match|describe)|doesn't match|inconsisten/i.test(s); }).map(e => e.id);
 const report = {elapsed_s: Math.round((Date.now() - t0) / 1000), project: p.id, phase: pr.phase, timeline, members,
   passed: pr.phase === 'closed' && chk.clean && Object.values(members).every(m => m.claims > 0 && m.cited && m.coverage && (m.challenges > 0 || m.passes > 0))
-    && !cli('thread', p.id, '--as', 'matt').some(m => ['claude', 'codex'].includes(m.from)) // a member's message in the shared thread is the blind-phase leak 0.8.0 closes
+    && !cli('thread', p.id, '--as', 'user').some(m => ['claude', 'codex'].includes(m.from)) // a member's message in the shared thread is the blind-phase leak 0.8.0 closes
     && pr.sealed === true && !plaintextBeforeReveal.size && pr.revealed?.opened > 0 && !pr.revealed?.failed, // 0.9.0: sealed until one clean reveal
   sealed: {sealed: !!pr.sealed, sealed_records_seen_before_reveal: sealedSeen > 0, plaintext_before_reveal: [...plaintextBeforeReveal], revealed: pr.revealed || null},
   check: chk.findings.map(f => `${f.code} ${f.id || ''}: ${f.msg}`), survived: rep.survived.length, overturned: rep.overturned.length, disputed: rep.disputed.length,
-  member_messages_in_thread: cli('thread', p.id, '--as', 'matt').filter(m => ['claude', 'codex'].includes(m.from)).map(m => `${m.from} ${m.kind}: ${String(m.body).replace(/\s+/g, ' ').slice(0, 80)}`),
+  member_messages_in_thread: cli('thread', p.id, '--as', 'user').filter(m => ['claude', 'codex'].includes(m.from)).map(m => `${m.from} ${m.kind}: ${String(m.body).replace(/\s+/g, ' ').slice(0, 80)}`),
   planted_mismatch_surfaced_in: surfaced,
   wakes: usage.map(u => ({agent: u.agent, thread: u.thread === p.id ? 'project' : u.thread, resumed: u.resumed, input_total: u.input_total, cost_usd: u.cost_usd, latency_s: u.latency_ms ? Math.round(u.latency_ms / 1000) : null})),
   claude_cost_usd: +usage.filter(u => u.agent === 'claude').reduce((s, u) => s + (u.cost_usd || 0), 0).toFixed(4),
-  no_wake: cli('thread', p.id, '--as', 'matt').map(m => H.readReceipts(root, m.id).filter(r => r.ev === 'no-wake').map(r => m.kind + ':' + r.reason)).flat(),
+  no_wake: cli('thread', p.id, '--as', 'user').map(m => H.readReceipts(root, m.id).filter(r => r.ev === 'no-wake').map(r => m.kind + ':' + r.reason)).flat(),
   errors: fs.readFileSync(path.join(root, 'host/logs/host.jsonl'), 'utf8').trim().split('\n').map(JSON.parse).filter(e => /error|failed/.test(e.ev) && !/not ready/.test(e.err || '')).map(e => e.ev + ' ' + (e.err || e.why || '').slice(0, 100)),
   live_mailbox_untouched: liveMtime === null || fs.statSync(liveLog).mtimeMs === liveMtime};
 await host.stop(); await sleep(2000); fs.writeFileSync(path.join(root, 'co-report.md'), rep.markdown); console.log(JSON.stringify(report, null, 1)); console.log('\n' + rep.markdown);

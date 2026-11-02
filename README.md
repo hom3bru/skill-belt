@@ -4,7 +4,24 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#verification)
 [![Node.js 24](https://img.shields.io/badge/Node.js-24-5FA04E?logo=nodedotjs&logoColor=white)](#verification)
 
-Agent skills for evaluating existing work, designing tools from multiple sources, and completing engineering tasks with verifiable results.
+Practical agent capabilities for engineering work, source research, collaboration, and source-grounded job searches and applications.
+
+## Jobscura
+
+[Start with Jobscura](skills/jobscura/SKILL.md) for a complete job-search and
+application toolkit. Its six workflows cover [intake and fit assessment](skills/jobscura/skills/application-intake/SKILL.md),
+[tracking and deadlines](skills/jobscura/skills/application-tracking/SKILL.md),
+[application history](skills/jobscura/skills/application-history/SKILL.md),
+[writing and revision](skills/jobscura/skills/application-writing/SKILL.md),
+[reviewed application packets](skills/jobscura/skills/application-packet/SKILL.md), and
+[interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md).
+
+Use the [private-context setup](skills/jobscura/context/README.md),
+[public schema](skills/jobscura/context/user-context.schema.json) and
+[fictional example](skills/jobscura/context/user-context.example.json) to select
+your own context explicitly. Keep the real context outside Git and the installed
+toolkit; `JOBSCURA_CONTEXT_FILE` holds only its local path. Credentials stay in
+separate secret storage. Jobscura does not install a background scheduler.
 
 ## Skills
 
@@ -14,6 +31,12 @@ Agent skills for evaluating existing work, designing tools from multiple sources
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
 | [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
+| [Jobscura](skills/jobscura/SKILL.md) | A cohesive job-search and application toolkit with [loadable private user context](skills/jobscura/context/README.md). | [Intake](skills/jobscura/skills/application-intake/SKILL.md), [tracking](skills/jobscura/skills/application-tracking/SKILL.md), [history](skills/jobscura/skills/application-history/SKILL.md), [writing](skills/jobscura/skills/application-writing/SKILL.md), [reviewed packets](skills/jobscura/skills/application-packet/SKILL.md), and [interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md). |
+
+Carrier Pigeon uses a configurable generic `user` identity. Read its
+[compatibility guide](skills/carrier-pigeon/references/identity.md) before selecting
+an existing mailbox; existing messages, signing keys and approval semantics are
+preserved through explicit private configuration.
 
 westack (then called estack) was renamed in 0.3.1, with no change in behaviour.
 
@@ -91,7 +114,7 @@ Run from the repository root:
 python -B scripts/verify.py
 ```
 
-The verifier checks repository structure, local links, and byte manifests, then runs the collection tests and all four skill suites. Raw results are written to a temporary directory; use `--output <new-directory>` to choose a new output directory. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
+The verifier checks repository structure, local links, and byte manifests, then runs the collection tests and all five skill suites. Raw results are written to a temporary directory; use `--output <new-directory>` to choose a new output directory. [GitHub Actions](.github/workflows/verify.yml) runs the same command on Linux and Windows.
 
 On Windows, only `test_research.ResearchTests.test_linked_source_entry_is_rejected` may be skipped when its reason is `symlink creation unavailable`; this is reported as `passed-with-platform-limitation`. Linux must run it. Other skips, empty suites, and failures are rejected.
 

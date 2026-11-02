@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "author": {
+    "name": "Skill Belt"
+  },
+  "description": "Jobscura: source-grounded intake, tracking, application history, writing, reviewed packets and interview preparation with explicit private user context.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "developerName": "Skill Belt",
+        "displayName": "Jobscura",
+        "shortDescription": "Job search and applications"
+      }
+    }
+  },
+  "name": "application-assistant-workflows",
+  "version": "0.4.0"
+}

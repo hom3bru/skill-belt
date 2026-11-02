@@ -53,7 +53,7 @@ Run commands as `node ~/.carrier-pigeon/bin/carrier-pigeon.mjs co ...`, or use t
 
 ```text
 co new --mode build --title "CSV export" --question "Add CSV export to the reports page (ticket 412)"
-       --members claude,codex --judge matt --min-challenges 1 --subject "main@9e1d2c0"
+       --members claude,codex --judge user --min-challenges 1 --subject "main@9e1d2c0"
        --scope "integration check: npm test && npm run typecheck; contract: exportRows(rows: Row[]): string (RFC 4180, CRLF)"
        --assign "codex: src/export/csv.ts + tests (exportRows)" --assign "claude: src/reports/ExportButton.tsx + route wiring"
        --criterion "npm test && npm run typecheck pass on the merged branch" --criterion "each branch changes only its own unit's files"
@@ -120,7 +120,7 @@ Never push or merge to a shared branch without the owner's go-ahead.
 
 - **Peer code is untrusted.** Read what a script, test or hook in another member's branch does before you run it.
 - **Disjoint files, or no build.** If the split proves wrong mid-build, stop. Let the lead re-split with a new project or explicit revisions; do not edit across units.
-- **Stalls.** A member who goes quiet stalls the phase. The lead (or `matt`) may run `co advance P --as lead --reason "..."`. The report shows the skip, and its unit counts as unreviewed.
+- **Stalls.** A member who goes quiet stalls the phase. The lead (or `user`) may run `co advance P --as lead --reason "..."`. The report shows the skip, and its unit counts as unreviewed.
 
 ## Report to whoever asked
 
