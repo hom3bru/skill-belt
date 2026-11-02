@@ -99,7 +99,7 @@ t('run: the printed cd line round-trips a root with an apostrophe and a curly qu
   const here=process.platform==='win32'
     ? Buffer.from(execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',sc[1]+'; [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((Get-Location).Path))'],{encoding:'utf8'}).trim(),'base64').toString('utf8')
     : execFileSync('sh',['-c',sc[1]+' && pwd'],{encoding:'utf8'}).trim();
-  const norm=p=>process.platform==='win32'?path.resolve(p).toLowerCase():path.resolve(p); assert.equal(norm(here),norm(fs.realpathSync(Q)),'the printed cd line lands in the root');
+  const norm=p=>{const physical=fs.realpathSync.native(p);return process.platform==='win32'?physical.toLowerCase():physical;}; assert.equal(norm(here),norm(Q),'the printed cd line lands in the root');
   assert.match(sc[2],/^codex exec --sandbox workspace-write --skip-git-repo-check -C '/); assert.ok(sc[2].includes(sc[1].replace(/^(Set-Location|cd) /,'')),'codex -C is the same quoted root');
   for(const f of ['(node bin/carrier-pigeon.mjs *)','--permission-mode dontAsk','--strict-mcp-config','--mcp-config host/empty-mcp.json','--settings host/claude-settings.json']) assert.ok(sk[2].includes(f),f);
   assert.ok(JSON.parse(fs.readFileSync(path.join(Q,'host/claude-settings.json'),'utf8')).permissions.deny.includes('Read(./host/secrets/**)')); assert.ok(fs.existsSync(path.join(Q,'host/empty-mcp.json')));

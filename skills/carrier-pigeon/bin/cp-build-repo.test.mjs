@@ -1,7 +1,7 @@
 // Disposable repositories only: no model, global Git setting, live mailbox or original checkout is changed.
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';
 import * as build from './cp-build-repo.mjs';
-const HOME=fs.mkdtempSync(path.join(os.tmpdir(),'cp-build-repo-'));let fixtures=0,n=0,failed=0;
+const HOME=fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(),'cp-build-repo-')));let fixtures=0,n=0,failed=0;
 const t=async(name,fn)=>{n++;try{await fn();console.log('ok',n,name);}catch(e){failed++;console.log('not ok',n,name);console.log(String(e.stack||e).split('\n').slice(0,9).join('\n'));}};
 const write=(root,rel,data)=>{const file=path.join(root,...rel.split('/'));fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,data);return file;};
 const git=(cwd,...args)=>{const r=spawnSync('git',['-C',cwd,...args],{encoding:'utf8',windowsHide:true});if(r.status)throw new Error(r.stderr);return r.stdout.trim();};
@@ -14,6 +14,29 @@ const capture=async f=>{const snapshot=await build.snapshotRepo(f);return {...f,
 const work=(f,agent='codex')=>build.initWorktree({...f,agent});
 const commit=(f,w,id,patterns=['src/**'])=>build.commitUnit({repo:f.repo,cwd:w.cwd,patterns,expectedHead:f.base,operationId:id,message:'fixture unit'});
 const expectCode=(promise,code)=>assert.rejects(promise,e=>e.code===code);
+
+await t('native canonical roots accept Windows short aliases and retain containment, subdirectory and link safeguards',async()=>{
+  const f=await fixture();fs.mkdirSync(f.runDir);
+  const alias=dir=>{
+    if(process.platform!=='win32')return dir;
+    // FSO queries the existing filesystem alias; never enable 8.3 names or change settings.
+    const script="$ErrorActionPreference='Stop'; $f=New-Object -ComObject Scripting.FileSystemObject; $f.GetFolder($env:CP_SHORT_PATH_FIXTURE).ShortPath | ConvertTo-Json -Compress";
+    const r=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(script,'utf16le').toString('base64')],{encoding:'utf8',windowsHide:true,timeout:30000,env:{...process.env,CP_SHORT_PATH_FIXTURE:dir}});
+    assert.equal(r.status,0,'querying the available filesystem alias succeeds');const short=JSON.parse(r.stdout.trim());
+    assert.equal(fs.realpathSync.native(short),fs.realpathSync.native(dir));return short;
+  };
+  const source=alias(f.source),runDir=alias(f.runDir);
+  const s=await build.snapshotRepo({source,runDir});assert.equal(s.source,fs.realpathSync.native(f.source));assert.equal(s.repo,path.join(fs.realpathSync.native(f.runDir),'repo'));
+  assert.equal(fs.readFileSync(path.join(s.repo,'src/a.mjs'),'utf8'),'export const a = 1;\n','snapshot captures the nonempty source');
+  assert.equal((await build.snapshotRepo({source:f.source,runDir:f.runDir})).base,s.base,'long and short paths resume the same snapshot');
+  const w=await build.initWorktree({...s,runDir,agent:'codex'});
+  assert.deepEqual(await build.initWorktree({...s,runDir,agent:'codex'}),w,'existing worktree uses the same canonical root');
+  assert.equal(build.validateCheck({argv:['node','--test'],cwd:alias(w.cwd),root:runDir}).cwd,fs.realpathSync.native(w.cwd));
+  await expectCode(build.snapshotRepo({source,runDir:path.join(source,'nested-run')}),'BAD_RUN_ROOT');
+  await expectCode(build.snapshotRepo({source:path.join(source,'src'),runDir:path.join(f.root,'subdir-run')}),'BAD_ROOT');
+  const linked=path.join(f.root,'linked-run');fs.symlinkSync(f.runDir,linked,process.platform==='win32'?'junction':'dir');
+  await expectCode(build.snapshotRepo({source,runDir:linked}),'LINKED_PATH');
+});
 
 await t('a dirty and untracked source snapshot preserves the source index and excludes ignored and credential files',async()=>{
   const f=await fixture({'.env':'fixture configuration\n','AGENTS.md':'Fixture instructions.\n'});
@@ -123,5 +146,5 @@ await t('repository checks inherit neither operator build authority nor token en
  assert.equal(result.passed,true);const env=JSON.parse(fs.readFileSync(result.stdout_path,'utf8'));assert.equal(env.worker,'1');assert.equal(env.mailbox,path.join(scratch,'check-mailbox'));assert.equal(env.cache,path.join(scratch,'npm-cache'));assert.equal(env.token,undefined);
 });
 // Every fixture was created under this resolved temporary root; never remove a computed external target.
-assert.equal(path.dirname(fs.realpathSync(HOME)),fs.realpathSync(os.tmpdir()));fs.rmSync(HOME,{recursive:true,force:true});
+assert.equal(path.dirname(fs.realpathSync.native(HOME)),fs.realpathSync.native(os.tmpdir()));fs.rmSync(HOME,{recursive:true,force:true});
 console.log(`# ${n} tests, ${failed} failed (build-repo)`);process.exit(failed?1:0);

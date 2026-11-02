@@ -321,7 +321,7 @@ def main():
             if result.stdout:
                 print(result.stdout[-16000:], file=sys.stderr)
             if result.stderr:
-                print(result.stderr[-16000:], file=sys.stderr)
+                print(result.stderr, file=sys.stderr)
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))

@@ -243,7 +243,8 @@ await t('codex adapter: leaves a visible hand-off to the window and starts no tu
   class WS{ constructor(){ setTimeout(()=>this.onopen(),0); } send(s){ const m=JSON.parse(s); sent.push(m); const r=res=>setTimeout(()=>this.onmessage({data:JSON.stringify({id:m.id,result:res})}),0);
       if(m.method==='initialize') r({}); if(m.method==='model/list') r({data:[{id:'gpt-ok',isDefault:true}]}); if(m.method==='thread/start') r({thread:{id:'thr1'}}); if(m.method==='turn/start') r({}); } close(){} }
   const spawnFn=()=>{ const c=new EventEmitter(); c.stdout=new EventEmitter(); c.stderr=new EventEmitter(); c.kill=()=>{}; return c; };
-  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000,codexWindow:{enabled:true,kinds:['handoff']}},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
+  const ad=codexAdapter({spawnFn,WS,mcpList:noMcp}); const h=new Host({root,config:{watch:false,rescanMs:60000,codexApp:{enabled:false},codexWindow:{enabled:true,kinds:['handoff'],terminal:['fixture-terminal']}},adapters:{codex:ad}}); await h.start(); await until(()=>ad.state.thread);
+  assert.equal(visibleHandoff({to:'codex',kind:'handoff'},h.cfg),true,'the configured window owns this hand-off');
   const won=await ad.deliver({id:'H9',from:'claude',to:'codex',kind:'handoff',thread:'H9',subject:'s'}); assert.equal(won,false); assert.ok(!sent.some(m=>m.method==='turn/start'),'no worker turn for a hand-off');
   await ad.deliver({id:'A9',from:'claude',to:'codex',kind:'ask',thread:'A9',subject:'s'}); assert.ok(sent.some(m=>m.method==='turn/start'),'an ask still reaches the worker'); await h.stop(); });
 // Fake Codex for codexApp: an app-server child answering over stdio, `codex queue` through execFn, and the codex:// opener through spawnFn.
