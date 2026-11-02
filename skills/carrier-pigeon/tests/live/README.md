@@ -42,7 +42,14 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 3. The rollout shows the pointer at the next tool call as a developer message with `"hook":true`, mid-turn.
 4. Codex read, claimed and answered the follow-up with its nonce within 20 s, then finished the remaining steps. The turn ended 2.5 minutes after the follow-up was answered.
 
-This also shows that the desktop app runs trusted hooks. Not live-tested: the `Stop` hook (it wasn't trusted in this run) and the queue fallback at the end of a turn. Both are covered by authored tests.
+This also shows that the desktop app runs trusted hooks.
+
+**The `Stop` path**, once that hook was trusted:
+1. A hand-off asked for an essay with no tools after reading the message.
+2. The follow-up was sent after the turn had gone 6 s without a tool call, while Codex was writing. The listener held it, and 16 s later, as the turn tried to end, the hook took it.
+3. The rollout shows it as a `HookPrompt` from `stop:…hooks.json`. Codex then read, claimed and answered the follow-up in the same turn.
+
+An earlier attempt went through `PostToolUse` instead, because Codex was still making tool calls. Not live-tested: the queue fallback when a turn ends with no hook taking the follow-up; it is covered by an authored test.
 
 ## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
 

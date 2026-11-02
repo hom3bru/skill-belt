@@ -98,7 +98,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - **Codex skips a new hook until it is trusted in `/hooks`.**
   - Codex runs the hook after every tool call in every session. So it reads one small file, prints nothing for a thread with nothing pending, never fails loudly, and exits within 8 s.
   - `codexApp.hooks: false` turns the waiting off.
-  - **Live-tested 2026-11-01** in the Codex desktop app: a follow-up sent while a turn ran six slow steps reached the turn at its next tool call, as developer context marked as from a hook, and was answered 2.5 minutes before the turn ended. The `Stop` hook is untested live.
+  - **Live-tested 2026-11-01** in the Codex desktop app: a follow-up sent while a turn ran six slow steps reached the turn at its next tool call, as developer context marked as from a hook, and was answered 2.5 minutes before the turn ended. One sent while Codex was writing its final answer, with no tool call to follow, was handed over by the `Stop` hook as the turn tried to end, and answered in the same turn.
 - **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings). A window's session can still not be woken.
 
 **Interactive Claude Code sessions (session push, 0.14.0).** Mail addressed to a running Claude Code session (`to_session`) is announced inside that session, so it no longer has to poll its inbox.
