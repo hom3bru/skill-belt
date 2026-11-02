@@ -27,7 +27,8 @@ function safeTarget(root,rel,{parentsOnly=false}={}){
     if(i===parts.length-1&&!parentsOnly&&!stat.isFile())fail('NONREGULAR_PATH','Only regular repository files are supported.',{path:rel});
   }return target;
 }
-function regularRoot(root){if(isRemotePath(root))fail('BAD_ROOT','Build repositories must use a local path.');const resolved=fs.realpathSync(root);if(!fs.statSync(resolved).isDirectory())fail('BAD_ROOT','Expected a repository directory.');return resolved;}
+// Native realpath expands Windows 8.3 aliases to the same physical spelling Git reports.
+function regularRoot(root){if(isRemotePath(root))fail('BAD_ROOT','Build repositories must use a local path.');const resolved=fs.realpathSync.native(root);if(!fs.statSync(resolved).isDirectory())fail('BAD_ROOT','Expected a repository directory.');return resolved;}
 function rawGit(cwd,args,{input,allowFailure=false,encoding='utf8',timeout=60000}={}){
   const result=spawnSync('git',['--literal-pathspecs','-C',cwd,...args],{env:cleanEnv(),input,encoding,windowsHide:true,timeout,maxBuffer:64*1024*1024});
   if(result.error)throw result.error;
@@ -56,7 +57,7 @@ function assertInput(current,expected){if(current.inputs_hash!==hash(canonical(e
 export async function snapshotRepo({source,runDir}){
   source=regularRoot(source);runDir=path.resolve(runDir);
   if(inside(source,runDir))fail('BAD_RUN_ROOT','The isolated run directory must be outside the source repository.');
-  fs.mkdirSync(runDir,{recursive:true});if(exists(runDir)?.isSymbolicLink())fail('LINKED_PATH','The run directory must not be linked.');runDir=fs.realpathSync(runDir);
+  fs.mkdirSync(runDir,{recursive:true});if(exists(runDir)?.isSymbolicLink())fail('LINKED_PATH','The run directory must not be linked.');runDir=fs.realpathSync.native(runDir);
   if(inside(source,runDir))fail('BAD_RUN_ROOT','The resolved run directory must be outside the source repository.');
   const repo=path.join(runDir,'repo'),manifestPath=path.join(runDir,'snapshot.json');
   return withLock(runDir,'snapshot',()=>{
@@ -88,7 +89,7 @@ export async function initWorktree({repo,runDir,agent,base}){
   if(!inside(runDir,repo))fail('PATH_ESCAPE','The seed repository is outside this run.');
   const cwd=path.join(runDir,'worktrees',agent),branch='codex/'+path.basename(runDir).replace(/[^a-zA-Z0-9_-]/g,'-')+'-'+agent;
   safeTarget(runDir,'worktrees/'+agent,{parentsOnly:true});
-  if(exists(cwd)){if(regularRoot(git(cwd,'rev-parse','--show-toplevel'))!==fs.realpathSync(cwd)||commonDir(cwd)!==commonDir(repo)||git(cwd,'branch','--show-current')!==branch)fail('WORKTREE_CONFLICT','Existing worktree belongs to a different build.');
+  if(exists(cwd)){if(regularRoot(git(cwd,'rev-parse','--show-toplevel'))!==fs.realpathSync.native(cwd)||commonDir(cwd)!==commonDir(repo)||git(cwd,'branch','--show-current')!==branch)fail('WORKTREE_CONFLICT','Existing worktree belongs to a different build.');
     if(rawGit(cwd,['merge-base','--is-ancestor',base,'HEAD'],{allowFailure:true}).status!==0)fail('WORKTREE_CONFLICT','Worktree no longer contains its recorded base.');return {cwd,branch};}
   fs.mkdirSync(path.dirname(cwd),{recursive:true});safeGit(repo,['worktree','add','-b',branch,cwd,base]);return {cwd,branch};
 }
