@@ -23,6 +23,15 @@ t('ids are time-sortable and unique', ()=>{ const ids=Array.from({length:20},(_,
 await ta('8 concurrent claims -> exactly 1 winner', async()=>{ const id=run('send','--from','grok','--to','codex','--subject','race','--body','b').id;
   const res=await Promise.all(Array.from({length:8},()=>new Promise(r=>{const p=spawn('node',[CLI,'claim',id,'--as','codex'],{env}); p.on('exit',c=>r(c));})));
   assert.equal(res.filter(c=>c===0).length,1,'exactly one claimer wins: '+res); assert.equal(res.filter(c=>c===2).length,7); });
+t('a competing claim moving the message between lookup and read reports a retryable usage error',()=>{
+  const id=run('send','--from','grok','--to','codex','--subject','read race','--body','b').id;
+  const script=`import fs from 'node:fs';import path from 'node:path';import {pathToFileURL} from 'node:url';import assert from 'node:assert/strict';
+    const cp=await import(pathToFileURL(${JSON.stringify(CLI)}).href),src=path.join(cp.ROOT,'agents','codex','inbox',${JSON.stringify(id)}+'.md'),dst=path.join(cp.ROOT,'agents','codex','claimed',${JSON.stringify(id)}+'.md');
+    const read=fs.readFileSync;fs.readFileSync=(file,...args)=>{if(file===src)fs.renameSync(src,dst);return read(file,...args);};
+    try{assert.throws(()=>cp.claim(${JSON.stringify(id)},'codex'),e=>e instanceof cp.E&&/moved while being read/.test(e.message));}finally{fs.readFileSync=read;}`;
+  execFileSync('node',['--input-type=module','-e',script],{env,stdio:['ignore','pipe','pipe']});
+});
+
 t('run prints but does not execute', ()=>{ const id=run('inbox','codex')[0].id; const s=execFileSync('node',[CLI,'run',id],{env,encoding:'utf8'}); assert.match(s,/NOT executed/); assert.match(s,/codex exec/); });
 t('context pack round-trips and read shows it', ()=>{ const cf=path.join(HOME,'ctx.txt'); fs.writeFileSync(cf,'decided: use plan B');
   const m=run('send','--from','grok','--to','codex','--subject','pk','--body','b','--summary','short sum','--files','a.js,b/c.md','--refs','01X,01Y','--context-file',cf);

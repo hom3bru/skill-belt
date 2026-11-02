@@ -677,7 +677,7 @@ const catalogOption = "model_catalog_json='C:/catalog folder/models.json'";
 const catalogArgs = ['--no-daemon', '-c', catalogOption];
 
 await t('window custom terminal preserves process-local model catalog override', () => {
-  assert.deepEqual(codexWindowLaunch('codex.exe', 'C:/work folder', 'fixed prompt', 'test', ['terminal', '--'], args),
+  assert.deepEqual(codexWindowLaunch('codex.exe', 'C:/work folder', 'fixed prompt', 'test', ['terminal', '--'], catalogArgs),
     ['terminal', '--', 'codex.exe', ...catalogArgs, '-C', 'C:/work folder', 'fixed prompt']);
 });
 

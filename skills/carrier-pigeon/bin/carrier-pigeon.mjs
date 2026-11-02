@@ -72,7 +72,8 @@ function parse(txt){ const m=/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(txt.repla
   fm.body=m[2].trim(); return fm; }
 function find(id){ needInit(); vid(id); for(const a of AGENTS) for(const d of dirs(a)){ const f=path.join(d,id+'.md'); if(fs.existsSync(f)) return {file:f,agent:a,box:path.basename(d)}; }
   die(`message ${id} not found`); }
-function load(id){ const h=find(id); return {...h,msg:parse(fs.readFileSync(h.file,'utf8'))}; }
+function load(id){ const h=find(id); try{return {...h,msg:parse(fs.readFileSync(h.file,'utf8'))};}
+  catch(e){if(e.code==='ENOENT')die(`message ${id} moved while being read; retry the same operation`);throw e;} }
 // Flags take a value unless listed in BOOL, so a value may itself start with "--" (or use --flag=value). A boolean flag also accepts a following true/false.
 const BOOL=new Set(['json','all','decline','keep-open','requires-matt-approval','render','no-canaries','help','wake-on-reply','keep','all-sessions','sign','unsealed','no-apply','allow-dependencies']);
 // Options whose names start with "_" are internal (library-only switches such as _coEngine); the command line may never set one.
