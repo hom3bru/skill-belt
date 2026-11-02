@@ -45,7 +45,7 @@ class PackageTests(unittest.TestCase):
             for path in ("plugin.json", ".codex-plugin/plugin.json"):
                 meta = json.loads(archive.read(path))
                 self.assertEqual(meta["name"], "application-assistant-workflows")
-                self.assertEqual(meta["version"], "0.4.0")
+                self.assertEqual(meta["version"], "0.4.1")
                 self.assertNotIn("email", meta["author"])
             self.assertEqual(len([n for n in names if n.startswith("skills/") and n.endswith("/SKILL.md")]), 6)
 

@@ -38,7 +38,7 @@ Full agent effectiveness, repeated comparative model trials, native host behavio
 
 ## Jobscura
 
-Jobscura 0.4.0 derives from the Application Assistant 0.3.0 workflow source,
+Jobscura 0.4.1 derives from the Application Assistant 0.3.0 workflow source,
 including the November 2 tracking update. Its package identifier and six workflow
 names remain compatible. The sanitized canonical edition adds a suite router,
 loadable user-context schema/example/validator, privacy controls and deterministic

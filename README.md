@@ -8,7 +8,7 @@ Practical agent capabilities for engineering work, source research, collaboratio
 
 ## Jobscura
 
-[Start with Jobscura](skills/jobscura/SKILL.md) for a complete job-search and
+[Start with Jobscura 0.4.1](skills/jobscura/SKILL.md) for a complete job-search and
 application toolkit. Its six workflows cover [intake and fit assessment](skills/jobscura/skills/application-intake/SKILL.md),
 [tracking and deadlines](skills/jobscura/skills/application-tracking/SKILL.md),
 [application history](skills/jobscura/skills/application-history/SKILL.md),
