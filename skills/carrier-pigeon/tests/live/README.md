@@ -18,6 +18,8 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 | `codex-recovery.mjs [--keep]` | Two real Codex turns in a throwaway mailbox, with a full listener/app-server restart between them. Both replies must satisfy an object schema; arithmetic must be correct; the native conversation id must stay the same; the live mailbox must stay untouched. Uses the existing Codex login/default model, low effort and a six-minute deadline per request. | Two Codex turns |
 | `codex-sandbox.mjs` | Codex's workspace-write sandbox (`codex sandbox -P :workspace`, with the mailbox as the workspace) lets a write inside the mailbox through and blocks one into a fresh folder in the home directory. It also reports whether the OS temp folder is writable. | None (no model) |
 | `codex-app.mjs [--minutes 4]` | The `codexApp` mechanics against the real Codex and the real desktop app, with no mailbox.<br>1. A named thread with no turn is started with the user's own Codex config, and its rollout must exist.<br>2. One prompt is queued and the thread is opened with `codex://threads/<id>`; the app must run it.<br>3. A second prompt is queued with no link; the app must run that too.<br>Each prompt asks for a fresh nonce word, and the run reads the reply from the thread's rollout. | Two tiny Codex turns in the app (Windows only) |
+| `codex-app-fallback.mjs [--minutes 6]` | The `codexApp` fallback, with no hook able to take a follow-up. A throwaway mailbox and its own listener run a real hand-off in the app; installed hooks read the live mailbox, so they find nothing for this thread. A follow-up sent mid-turn must wait, be queued when the turn ends, and run as the next turn. | About three Codex turns in the app (Windows only) |
+| `codex-window-followup.mjs [--minutes 6]` | A follow-up reaches a hand-off window. A throwaway mailbox and its own listener (`codexWindow` for hand-offs, `codexApp` with no kinds) open a real terminal window. The window's thread must be found from its rollout, and a follow-up sent once it is idle must be queued into it and run by the window. Allow minutes: a new window can wait on Codex's model-list fetch. | Two Codex turns in one terminal window (Windows only) |
 | `toast.mjs [--show]` | PowerShell's parser finds only the expected commands in the toast script, and a hostile subject never appears in it. `--show` fires one real toast and checks it exits 0. | None (Windows only) |
 | `claude-deny.mjs [--legacy]` | A real headless Claude, launched with the listener's arguments, can't read `host/secrets`. It can't do it with Read, or by sending the file with the mailbox CLI. An ordinary file stays readable. `--legacy` reruns the Read part with 0.3.1's settings as a negative control. | One Haiku session, about $0.003 |
 | `mcp-claude.mjs` | A real Claude Code client with only the carrier-pigeon MCP server (no shell) reads and answers a seeded ask, then uses the blocking `ask` tool. The script plays "codex" and replies. | One Haiku session, about $0.003 |
@@ -49,7 +51,17 @@ This also shows that the desktop app runs trusted hooks.
 2. The follow-up was sent after the turn had gone 6 s without a tool call, while Codex was writing. The listener held it, and 16 s later, as the turn tried to end, the hook took it.
 3. The rollout shows it as a `HookPrompt` from `stop:…hooks.json`. Codex then read, claimed and answered the follow-up in the same turn.
 
-An earlier attempt went through `PostToolUse` instead, because Codex was still making tool calls. Not live-tested: the queue fallback when a turn ends with no hook taking the follow-up; it is covered by an authored test.
+An earlier attempt went through `PostToolUse` instead, because Codex was still making tool calls.
+
+**The queue fallback** (`codex-app-fallback.mjs`): pass. The follow-up was deferred, no hook took it, it was queued when the first turn ended, and the app ran it as the next turn and answered with its nonce.
+
+**Hand-off windows:**
+- An idle Codex terminal session (`codex --no-daemon`) ran a message put on its queue 10.6 s later. This was a direct probe.
+- `codex-window-followup.mjs` twice timed out waiting for a new window to start. Codex logs show the window held before its first frame: its model-list fetch timed out, and the retry came 4.5 minutes later. The window that did start wrote a rollout naming the hand-off, which is what the window lookup searches for.
+
+**The hook's cost:** a median 0.21 s per no-mail run, against 0.16 s for starting Node. A `cmd.exe` or PowerShell flag check measured slower (0.36 s, 1.6 s), so none was added.
+
+**Other hooks:** in that probe window, "Hook failed (exit 1)" came from the security-guidance plugin's hooks, which run `bash` and have no Windows command. carrier-pigeon's and impeccable's hooks exit 0 when run with their Windows command through either `cmd.exe` or PowerShell.
 
 ## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
 

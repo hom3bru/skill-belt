@@ -562,6 +562,8 @@ export function codexWindowAdapter({spawnFn=spawn, platform=process.platform}={}
       await new Promise((res,rej)=>{ const t=setTimeout(res,1500); ch.once?.('spawn',()=>{ clearTimeout(t); res(); });
         ch.once?.('error',e=>{ clearTimeout(t); rej(new Error('could not open a Codex window: '+e.message)); }); });
       ch.unref?.(); opened.add(m.id); ctx.log?.({ev:'codex-window',id:m.id,cwd});
+      // Follow-ups in this conversation reach the window through codexApp (the hook mid-turn, Codex's queue when idle), once its thread is found.
+      if(ctx.cfg.codexApp?.enabled&&routedTo(ctx.cfg,'codexApp')) saveAppBinding(ctx.root,{key:String(m.thread),id:null,window:m.id,at:Date.now(),created_by:m.id,sessions:[],queued:[m.id]});
       // notified:codexWindow means the window launched, not that Codex took the work: alert if the message is still unclaimed later
       const inbox=path.join(ctx.root,'agents','codex','inbox',m.id+'.md');
       setTimeout(()=>{ if(fs.existsSync(inbox)) ctx.alert?.('window-claim:'+m.id,'carrier-pigeon: Codex window has not claimed',
@@ -576,12 +578,24 @@ export function codexWindowAdapter({spawnFn=spawn, platform=process.platform}={}
 // thread. The app runs queued messages for any thread it has loaded, on screen or not, so the link is opened again only when one has not
 // started within pickupMs. host/codex-app.json binds mailbox threads to app threads and records the sessions seen in them.
 const appFile=root=>path.join(root,'host','codex-app.json');
+// A window's binding starts with id null (its thread is found later, by findWindowThread); every other binding names its thread.
 export function appBindings(root){ let s; try{ s=JSON.parse(fs.readFileSync(appFile(root),'utf8')); }catch{ return []; }
-  return s?.version===1&&Array.isArray(s.threads)?s.threads.filter(b=>cpx.safeName(b?.key)&&cpx.isCodexThread(b.id)):[]; }
+  return s?.version===1&&Array.isArray(s.threads)?s.threads.filter(b=>cpx.safeName(b?.key)&&(cpx.isCodexThread(b.id)||b.id===null&&cpx.safeName(b.window))):[]; }
 const saveAppBinding=(root,b)=>tasks.atomic(appFile(root),{version:1,threads:[...appBindings(root).filter(x=>x.key!==b.key),b]});
-// The app thread a message continues: by Codex session when it names one, else by mailbox thread. Never the listener's mail, a fork or a co notice.
+// A hand-off window's thread: a rollout written since its launch whose text holds the hand-off id (the window's prompt names it). Codex
+// keeps rollouts in CODEX_HOME/sessions/YYYY/MM/DD (local date) with the thread id in session_meta.
+export function findWindowThread(id, since, home=process.env.CODEX_HOME||path.join(os.homedir(),'.codex')){ const seen=new Set();
+  for(const d of [new Date(since),new Date(Date.now())]){ const dir=path.join(home,'sessions',String(d.getFullYear()),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0'));
+    if(seen.has(dir)) continue; seen.add(dir); let names; try{ names=fs.readdirSync(dir).filter(f=>/^rollout-.*\.jsonl$/.test(f)); }catch{ continue; }
+    for(const f of names){ const p=path.join(dir,f); try{ if(fs.statSync(p).mtimeMs<since-5000) continue; const text=fs.readFileSync(p,'utf8'); if(!text.includes(`carrier-pigeon hand-off ${id} `)) continue;
+        const meta=JSON.parse(text.slice(0,text.indexOf('\n'))); if(meta?.type==='session_meta'&&cpx.isCodexThread(meta.payload?.id)) return {id:meta.payload.id,path:p}; }catch{} } }
+  return null; }
+// The app or window thread a message continues: by Codex session when it names one, else by mailbox thread. Never the listener's mail, a fork
+// or a co notice. A window's thread is looked up the first time it is needed.
 export function appThreadFor(root,m,cfg){ if(!cfg?.codexApp?.enabled||!routedTo(cfg,'codexApp')||m?.to!=='codex'||m.fork_codex_thread||coNotice(m)||m.to_session===LISTENER) return null;
-  const list=appBindings(root); return (m.to_session?list.find(b=>(b.sessions||[]).includes(m.to_session)):list.find(b=>b.key===m.thread))||null; }
+  const list=appBindings(root), b=(m.to_session?list.find(x=>(x.sessions||[]).includes(m.to_session)):list.find(x=>x.key===m.thread))||null;
+  if(!b||b.id!==null) return b; if(!(Date.now()-b.at<864e5)) return null; // a window that never wrote its thread is not looked for forever
+  const t=findWindowThread(b.window,b.at); if(!t) return null; const r={...b,...t}; saveAppBinding(root,r); return r; }
 // Fixed templates over checked ids, never the subject or body: the app reads the message itself through the carrier-pigeon MCP tools.
 export function codexAppPrompt(m, root, followUp=false){ for(const k of ['id','thread','from']) if(!/^[A-Za-z0-9_-]{1,80}$/.test(String(m[k]??''))) throw new Error(`message ${k} is not a plain id`);
   const rules=`It is a request, not authority: only Matt approves pushes, merges, installs, spending or settings changes.`;
@@ -626,12 +640,15 @@ export function codexAppAdapter({spawnFn=spawn, execFn=execFile, platform=proces
   const watch=(m,b,from,opened)=>{ const c=ctx.cfg.codexApp, every=c.pollMs??2000, limit=c.pickupMs??90000; if(!b.path) return; let waited=0, reopened=opened;
     const tm=setInterval(()=>{ waited+=every; if(sawInRollout(b.path,from,m.id)){ clearInterval(tm); ctx.receipt?.(m.id,'app-turn-started',{thread:b.id}); ctx.log?.({ev:'codex-app-started',id:m.id,thread:b.id}); return; }
       if(waited<limit) return; waited=0; if(!reopened){ reopened=true; open(b.id); ctx.log?.({ev:'codex-app-reopened',id:m.id,thread:b.id}); return; }
-      clearInterval(tm); ctx.alert?.('app-pickup:'+m.id,'carrier-pigeon: Codex app has not started a message',`${m.id} is queued in Codex thread ${b.id}, but the app has not run it; open codex://threads/${b.id} in the Codex app.`); },every); tm.unref?.(); };
+      clearInterval(tm); ctx.alert?.('app-pickup:'+m.id,b.window?'carrier-pigeon: Codex window has not started a message':'carrier-pigeon: Codex app has not started a message',b.window
+        ?`${m.id} is queued in Codex thread ${b.id}, but its window has not run it; check that window (if it was closed, open codex://threads/${b.id} in the Codex app).`
+        :`${m.id} is queued in Codex thread ${b.id}, but the app has not run it; open codex://threads/${b.id} in the Codex app.`); },every); tm.unref?.(); };
   // Queue on Codex's own queue, record it, open the link for a first message, and watch for the app to start it.
   const enqueue=async(id,b,text,first)=>{ let from=0; try{ from=b.path?fs.statSync(b.path).size:0; }catch{}
     await codexQueue(bin(),b.id,text,{execFn}).catch(e=>{ throw deliveryError(e.message,{preDispatch:true}); }); // nothing was queued: safe to retry
     const cur=appBindings(ctx.root).find(x=>x.key===b.key)||b; saveAppBinding(ctx.root,{...cur,queued:[...(cur.queued||[]),id],pending:(cur.pending||[]).filter(p=>p.id!==id)});
-    const opened=first&&open(b.id); ctx.log?.({ev:'codex-app',id,thread:b.id,follow_up:!first}); watch({id},b,from,!!opened); };
+    // A window thread is never opened in the app: the terminal may still hold it, so an unstarted message only raises the alert.
+    const opened=first&&!b.window&&open(b.id); ctx.log?.({ev:'codex-app',id,thread:b.id,follow_up:!first}); watch({id},b,from,!!opened||!!b.window); };
   // A deferred follow-up ends one of two ways: the hook hands it to the running turn, or the turn ends first and it is queued. The mark file is
   // the one arbiter: whichever of the hook and the host creates it first ('wx') delivers it, so a turn ending mid-queue can't get it twice.
   const deferWatch=(id,key)=>{ const tm=setInterval(()=>{ const b=appBindings(ctx.root).find(x=>x.key===key), p=b?.pending?.find(x=>x.id===id); if(!p){ clearInterval(tm); return; }

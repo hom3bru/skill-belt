@@ -99,7 +99,11 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - Codex runs the hook after every tool call in every session. So it reads one small file, prints nothing for a thread with nothing pending, never fails loudly, and exits within 8 s.
   - `codexApp.hooks: false` turns the waiting off.
   - **Live-tested 2026-11-01** in the Codex desktop app: a follow-up sent while a turn ran six slow steps reached the turn at its next tool call, as developer context marked as from a hook, and was answered 2.5 minutes before the turn ended. One sent while Codex was writing its final answer, with no tool call to follow, was handed over by the `Stop` hook as the turn tried to end, and answered in the same turn.
-- **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings). A window's session can still not be woken.
+- **Cost of the hook.** Codex runs it after every tool call in every session. On this machine one no-mail run took a median 0.21 s, against 0.16 s for starting Node at all.
+  - A shell check that would skip Node when nothing is pending was slower still: 0.36 s with `cmd.exe`, 1.6 s with PowerShell. So the hook stays as it is.
+  - `carrier-pigeon codex-hooks remove` takes it out.
+- **Fallback, live-tested 2026-11-01** (`tests/live/codex-app-fallback.mjs`). With no hook able to take a follow-up sent mid-turn, it waited, was queued when the turn ended, and ran as the thread's next turn in the app.
+- **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings).
 
 **Interactive Claude Code sessions (session push, 0.14.0).** Mail addressed to a running Claude Code session (`to_session`) is announced inside that session, so it no longer has to poll its inbox.
 - **Where:** the carrier-pigeon MCP server runs inside the session, so `bin/cp-push.mjs` lives there, never in the listener's worker.
@@ -141,11 +145,16 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 - **Identity:** the window starts with `CARRIER_PIGEON_WORKER` and `CARRIER_PIGEON_SESSION` removed from its environment, so it is the user's own session and never the listener's.
 - **Launched is not delivered:** `notified:codexWindow` means the window launched. If the message is still unclaimed in the inbox after `codexWindow.claimTimeoutMs` (default 10 minutes), the host raises one alert: a trust or sign-in prompt, or Codex having exited.
 - **Retries:** a window opens once per message per listener run, and the persisted `notified:codexWindow` receipt stops a redelivery. A failed launch is reported for recovery, not retried silently.
+- **Follow-ups reach the window (0.14.0).** When `codexApp` is routed and enabled (its `kinds` may be empty, leaving hand-offs to the window), the window's launch is recorded in `host/codex-app.json`, with its thread still unknown.
+  - The first follow-up finds the thread: a rollout written since the launch whose text names the hand-off (`findWindowThread`).
+  - From then on the window is treated like an app thread: the hook mid-turn, Codex's queue when idle. An idle terminal session runs a message put on its queue: a probe answered one 10.6 s after queueing.
+  - A window thread is never opened in the app, since the terminal may still hold it. A message it hasn't started within `pickupMs` raises an alert to check the window instead.
+  - A window that never writes its thread is no longer looked for after a day.
+  - **A new terminal window can take minutes to start.** Codex fetches its model list first, and on 2026-11-01 one fetch timed out and the retry came about 4.5 minutes later.
 - **Not done yet:**
-  - a durable link from a message to the window's own session, so follow-ups in the thread reach it (send them with `to_session` meanwhile);
   - a per-message working folder;
   - attaching with `codex --remote` instead. That needs a controlled test of who receives approvals.
-- **An interactive session can't be woken.** It must check its inbox while it works. `wait_reply` only waits for replies to its own asks. There are two exceptions (above): a Codex app thread opened by the listener, and an interactive Claude Code session, which gets a pointer from its own MCP server.
+- **An interactive session can't be woken** unless something reaches it. There are three exceptions (above): a Codex app thread opened by the listener, a hand-off window whose thread was found, and an interactive Claude Code session, which gets a pointer from its own MCP server. Any other session must check its inbox while it works; `wait_reply` only waits for replies to its own asks.
 
 **The user.** A desktop toast for every message (Windows; `notify-send` elsewhere). A toast addressed to Cursor opens a Cursor prompt deeplink that only prefills and never sends.
 - The toast's PowerShell script is a constant; the title, text and XML reach it only through environment variables.

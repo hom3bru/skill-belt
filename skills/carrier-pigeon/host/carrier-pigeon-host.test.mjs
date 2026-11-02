@@ -1,6 +1,6 @@
 // node carrier-pigeon-host.test.mjs — temp CARRIER_PIGEON_HOME, fake adapters; never launches claude/codex or touches the real bus.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync,spawn} from 'node:child_process'; import {EventEmitter} from 'node:events';
-import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread,turnRunning} from './carrier-pigeon-host.mjs';
+import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread,turnRunning,appThreadFor} from './carrier-pigeon-host.mjs';
 import {output as hookOutput} from '../bin/cp-hook.mjs';
 import * as tasks from '../bin/cp-tasks.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.resolve(here,'../bin/carrier-pigeon.mjs');
@@ -331,6 +331,24 @@ await t('codexApp + cp-hook: a follow-up during a running turn waits for the Cod
   assert.match(r.calls.queue[1].args[4],/follow-up G5 from claude/); assert.equal(hook('stop',{session_id:r.threadId}),'','nothing pending after it was queued');
   assert.deepEqual(JSON.parse(hookOutput('stop','hi')),{decision:'block',reason:'hi'}); assert.equal(hookOutput('stop','café'),'{"decision":"block","reason":"caf\\u00e9"}','ASCII only, for Windows shells');
   assert.equal(hookOutput('session-start','x'),null); });
+await t('codexWindow + codexApp: a hand-off window\'s thread is found from its rollout; follow-ups are queued into it and never opened in the app', async()=>{
+  const {root}=bus(), r=appRig(root), alerts=[], ch=fs.mkdtempSync(path.join(os.tmpdir(),'cpcodexhome-')), was=process.env.CODEX_HOME; process.env.CODEX_HOME=ch;
+  const cfg={...appCfg,codexApp:{...appCfg.codexApp,kinds:[]}}; // the window takes hand-offs; codexApp still carries the follow-ups
+  try{ const win=codexWindowAdapter({spawnFn:r.spawnFn,platform:'win32'}); win.start({root,log:()=>{},cfg});
+    const h={id:'W1',from:'claude',to:'codex',kind:'handoff',thread:'W1',subject:'s'}; assert.equal(visibleHandoff(h,cfg,'win32'),true); assert.equal(await win.deliver(h),true);
+    const b0=appBindings(root).find(x=>x.key==='W1'); assert.equal(b0.id,null); assert.equal(b0.window,'W1');
+    const f={id:'WF',from:'claude',to:'codex',kind:'ask',thread:'W1',subject:'f'}; assert.equal(appThreadFor(root,f,cfg),null,'no rollout names the hand-off yet');
+    const d=new Date(), dir=path.join(ch,'sessions',String(d.getFullYear()),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')); fs.mkdirSync(dir,{recursive:true});
+    const tid=fakeCodexThread(3), roll=path.join(dir,`rollout-2026-11-01T21-00-00-${tid}.jsonl`);
+    fs.writeFileSync(path.join(dir,`rollout-2026-11-01T20-59-00-${fakeCodexThread(4)}.jsonl`),JSON.stringify({type:'session_meta',payload:{id:fakeCodexThread(4)}})+'\n'+JSON.stringify({type:'response_item',payload:{text:'another thread'}})+'\n');
+    fs.writeFileSync(roll,JSON.stringify({type:'session_meta',payload:{id:tid}})+'\n'+JSON.stringify({type:'event_msg',payload:{type:'user_message',message:codexWindowPrompt(h,root)}})+'\n');
+    const ad=codexAppAdapter({spawnFn:r.spawnFn,execFn:r.execFn,platform:'win32'}); ad.start({root,cfg,log:()=>{},alert:(k,title)=>alerts.push(title)});
+    const spawnsBefore=r.calls.spawn.length; assert.equal(await ad.deliver(f),true);
+    const b=appBindings(root).find(x=>x.key==='W1'); assert.equal(b.id,tid,'found from the rollout that names the hand-off'); assert.equal(b.path,roll);
+    assert.equal(r.calls.queue.length,1); assert.equal(r.calls.queue[0].args[2],tid); assert.match(r.calls.queue[0].args[4],/follow-up WF from claude in this conversation/);
+    assert.ok(await until(()=>alerts.length>0,2000)); assert.deepEqual(alerts,['carrier-pigeon: Codex window has not started a message']);
+    assert.equal(r.calls.spawn.length,spawnsBefore,'a window thread is never opened in the app, not even when unstarted');
+  }finally{ if(was===undefined) delete process.env.CODEX_HOME; else process.env.CODEX_HOME=was; fs.rmSync(ch,{recursive:true,force:true}); } });
 await t('startAppThread (real child process): stdio JSON-RPC, a named thread, and an app-server that exits early is an error', async()=>{ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cp-appsrv-')), srv=path.join(dir,'fake-app-server.mjs');
   fs.writeFileSync(srv,`import readline from 'node:readline'; const mode=process.argv[2]; const rl=readline.createInterface({input:process.stdin});
 rl.on('line',l=>{ const m=JSON.parse(l); if(m.id===undefined) return; if(mode==='exit'&&m.method==='thread/start') process.exit(3);
