@@ -14,7 +14,7 @@ The scoped engineering release does not establish discovery superiority: baselin
 
 # adopt-adapt 3.0.0-grok-draft.r16 - released 2026-10-29 PT
 
-Released after the round-3 pre-registered blind before/after comparison on Claude Code (2026-10-29): not worse than the previous version (r15.1) at n=8 pairs (2 wins, 1 loss, 5 ties; no new hard fail; sign-test p=1.0, so no superiority is claimed). Codex was not run. The only changes from the evaluated candidate are this version label and the SKILL.md status line, which no longer says the candidate awaits evaluation. License remains **Proprietary (Matt Kolkin)**; this edition grants no new reuse rights.
+Released after the round-3 pre-registered blind before/after comparison on Claude Code (2026-10-29): not worse than the previous version (r15.1) at n=8 pairs (2 wins, 1 loss, 5 ties; no new hard fail; sign-test p=1.0, so no superiority is claimed). Codex was not run. The only changes from the evaluated candidate are this version label and the SKILL.md status line, which no longer says the candidate awaits evaluation. License remains **Proprietary (user)**; this edition grants no new reuse rights.
 
 This file is the public edition of the changelog. It summarizes the r16 line without the private project details, machine paths and internal review notes that the full history carries. See "Public edition" at the end.
 

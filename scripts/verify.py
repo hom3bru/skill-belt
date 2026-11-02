@@ -14,9 +14,10 @@ import time
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon")
+SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura")
 # Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
-SUB_SKILLS = {"carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research")}
+SUB_SKILLS = {"carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research"),
+              "jobscura": ("application-intake", "application-tracking", "application-history", "application-writing", "application-packet", "interview-preparation")}
 WINDOWS_SKIP = ("test_research.ResearchTests.test_linked_source_entry_is_rejected", "symlink creation unavailable")
 # The adopt-adapt suite alone takes about three minutes on an idle Windows machine.
 DEFAULT_TIMEOUT = 900
@@ -265,7 +266,7 @@ def structure():
     expected |= {"skills/" + parent + "/skills/" + sub + "/SKILL.md" for parent, subs in SUB_SKILLS.items() for sub in subs}
     actual = {name for name in all_files if name.endswith("/SKILL.md")}
     if actual != expected:
-        raise ValueError("Expected exactly the four collection entrypoints and their declared sub-skills; unexpected: "
+        raise ValueError("Expected exactly the five collection entrypoints and their declared sub-skills; unexpected: "
                          + ", ".join(sorted(actual - expected)) + "; missing: " + ", ".join(sorted(expected - actual)))
     for name in SKILLS:
         check_vocabulary(ROOT / "skills" / name, name, ROOT)
@@ -322,7 +323,7 @@ def main():
             if result.stderr:
                 print(result.stderr[-16000:], file=sys.stderr)
             raise ValueError(label + " failed; inspect " + str(output))
-        if label in {"adopt-adapt-tests", "collection-tests"}:
+        if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
         elif label in {"frankenmine-tests", "westack-tests", "carrier-pigeon-tests"}:
             counts = json.loads(result.stdout)
@@ -344,6 +345,9 @@ def main():
         run("westack-package", [python, "-B", "scripts/validate.py", "package", "."], westack)
         run("westack-tests", [python, "-B", "tests/run.py", "--output", str(output / "westack-results.json")], westack)
         run("carrier-pigeon-tests", [python, "-B", "tests/run.py"], ROOT / "skills/carrier-pigeon")
+        jobscura = ROOT / "skills/jobscura"
+        run("jobscura-context-package-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], jobscura)
+        run("jobscura-packet-tests", [python, "-B", "-m", "unittest", "discover", "-s", "skills/application-packet/tests", "-v"], jobscura)
         structure()  # Tests must not mutate the published snapshots.
         status = "passed-with-platform-limitation" if any(row.get("skipped", 0) for row in records) else "passed"
         summary = dict(status=status, publication_files=count, checks=records,

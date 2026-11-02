@@ -16,7 +16,7 @@ const cli = (...a) => JSON.parse(execFileSync(process.execPath, [path.join(SK, '
 const evs = id => h.readReceipts(root, id).map(r => r.ev), until = async (f, ms = limit) => { const t = Date.now(); while (Date.now() - t < ms) { const v = f(); if (v) return v; await sleep(1000); } return null; };
 const said = (file, word) => fs.readFileSync(file, 'utf8').split('\n').some(l => { try { const r = JSON.parse(l); return r.type === 'response_item' && r.payload?.role === 'assistant' && (r.payload.content || []).some(c => String(c?.text || '').includes(word)); } catch { return false; } });
 cli('init'); const nonce = 'fallback-' + crypto.randomBytes(3).toString('hex'), report = {root, nonce};
-const host = new h.Host({root, config: {watch: true, rescanMs: 5000, adapters: ['codexApp'], routes: {codex: ['codexApp'], claude: [], grok: [], cursor: [], matt: []}, codex: {bin}, codexApp: {cwd: work, pollMs: 1000, pickupMs: 120000}}, adapters: {codexApp: h.codexAppAdapter()}});
+const host = new h.Host({root, config: {watch: true, rescanMs: 5000, adapters: ['codexApp'], routes: {codex: ['codexApp'], claude: [], grok: [], cursor: [], user: []}, codex: {bin}, codexApp: {cwd: work, pollMs: 1000, pickupMs: 120000}}, adapters: {codexApp: h.codexAppAdapter()}});
 await host.start();
 try {
   const ho = cli('send', '--from', 'claude', '--to', 'codex', '--kind', 'handoff', '--subject', 'fallback live check: three slow steps', '--body',

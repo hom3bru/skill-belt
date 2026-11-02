@@ -9,7 +9,7 @@
     "codex": ["codexApp", "codexWindow", "codex", "toast"],
     "cursor": ["cursorCloud", "toast"],
     "grok": ["grokWebhook", "toast"],
-    "matt": ["toast"]
+    "user": ["toast"]
   },
   "claude": { "bin": "claude", "extraArgs": [] },
   "codex": { "bin": "codex", "port": 4500, "model": null, "sandbox": "busOnly" },

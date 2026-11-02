@@ -61,7 +61,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
 **Codex app (visible hand-offs and their follow-ups, 0.13.0).** On Windows, a `handoff` to Codex opens a new thread in the Codex desktop app (the program is `ChatGPT.exe`), and the rest of that conversation goes into the same thread.
 - **Why:** the Codex window below starts a terminal session, and nothing can wake a terminal session. Every follow-up named the window's session and got `no-wake` (`session-addressed`), so each conversation stopped after its first message. It was reached only when the window happened to check its inbox mid-task.
 - **How a hand-off starts:**
-  1. A short-lived `codex app-server` with Matt's own Codex config starts the thread (`thread/start`) and names it `carrier-pigeon hand-off from <sender> (<id>)`. Naming writes the thread to disk without a model turn; a thread with no name and no turn isn't saved, and `codex queue` then fails with "no rollout found". The thread keeps the creating process's settings, so it runs with Matt's own approvals and sandbox, never the worker's mailbox-only profile.
+  1. A short-lived `codex app-server` with user's own Codex config starts the thread (`thread/start`) and names it `carrier-pigeon hand-off from <sender> (<id>)`. Naming writes the thread to disk without a model turn; a thread with no name and no turn isn't saved, and `codex queue` then fails with "no rollout found". The thread keeps the creating process's settings, so it runs with user's own approvals and sandbox, never the worker's mailbox-only profile.
   2. The fixed prompt goes on Codex's own durable queue: `codex queue --thread <id> --message <prompt>`.
   3. `explorer.exe codex://threads/<id>` opens the thread, and the app runs the queued prompt live.
 - **Follow-ups** are queued into the same thread with `codex queue`. A message is a follow-up when it is to `codex` and either:
@@ -87,7 +87,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
     1. A Claude hand-off opened an app thread, and its first turn started 6 s after queueing.
     2. A follow-up addressed to the Codex session that replied ran as a second turn in the same thread, 2 s after queueing.
     3. Codex answered it with the earlier turn's nonce from memory.
-    4. Both turns ran with Matt's own settings.
+    4. Both turns ran with user's own settings.
 - **Follow-ups during a running turn (0.14.0).** The app runs a queued message only after the current turn ends. So when the thread's rollout says a turn is running, the follow-up waits on a pending list in `host/codex-app.json` instead, for carrier-pigeon's Codex hook (`bin/cp-hook.mjs`):
   - At the turn's next tool call, the `PostToolUse` hook hands the pointer over as `additionalContext`. At the turn's end, the `Stop` hook hands it over as `decision:block`, which Codex runs as a new prompt in the same turn.
   - If no hook takes it, because the hooks aren't installed or not yet trusted, it is queued when the turn ends, exactly as before.
@@ -103,7 +103,7 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - A shell check that would skip Node when nothing is pending was slower still: 0.36 s with `cmd.exe`, 1.6 s with PowerShell. So the hook stays as it is.
   - `carrier-pigeon codex-hooks remove` takes it out.
 - **Fallback, live-tested 2026-11-01** (`tests/live/codex-app-fallback.mjs`). With no hook able to take a follow-up sent mid-turn, it waited, was queued when the turn ended, and ran as the thread's next turn in the app.
-- **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with Matt's settings).
+- **Not done:** asks stay with the worker (add `"ask"` to `codexApp.kinds` to send them to the app, with user's settings).
 
 **Interactive Claude Code sessions (session push, 0.14.0).** Mail addressed to a running Claude Code session (`to_session`) is announced inside that session, so it no longer has to poll its inbox.
 - **Where:** the carrier-pigeon MCP server runs inside the session, so `bin/cp-push.mjs` lives there, never in the listener's worker.

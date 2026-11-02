@@ -2,7 +2,7 @@
   "format": "skill-belt-public-build-1",
   "skills": {
     "adopt-adapt": {
-      "notes": "r18 release, including r17 open mechanism discovery and captured local legal citations. Excludes derive exactly from scripts/package.py private_files() on the committed release tree; release.json is regenerated from public bytes. The canonical description is recipient-neutral and unchanged. Existing license and frozen routing overlay remain unchanged.",
+      "notes": "r18 release, including r17 open mechanism discovery and captured local legal citations. Excludes derive exactly from scripts/package.py private_files() on the committed release tree; release.json is regenerated from public bytes. The canonical description is recipient-neutral and unchanged. Existing license and frozen routing overlay remain unchanged. The public source is an isolated r18 archive copy with the current base anonymization retained in SKILL.md, the SELF profile and two ownership-privacy tests. The proprietary terms are unchanged; only the owner label is user. Raw canonical source is not modified.",
       "exclude": [
         "references/historical-findings.md",
         "references/profiles/aliases.json",
@@ -70,12 +70,12 @@
       }
     },
     "carrier-pigeon": {
-      "notes": "Original skill: CLI, listener host, MCP server, the co-work engine and its four sub-skills (skills/co-*), and their tests. Runtime mailbox data, receipts, logs and host/secrets are not part of the snapshot.",
+      "notes": "Original skill: CLI, listener host, MCP server, the co-work engine and its four sub-skills (skills/co-*), and their tests. Runtime mailbox data, receipts, logs and host/secrets are not part of the snapshot. Public edition 0.15.1 uses configurable generic human identity and explicit legacy key/approval-field settings; no live mailbox or keys are bundled or migrated. All source and tests use anonymous examples.",
       "exclude": [],
       "overlays": {}
     },
     "westack": {
-      "notes": "Two records ship although the rest of tests/results/ does not: provenance/ARTIFACT_REVIEW.md (a dated review) and tests/results/tests-final.json (the final test receipt). Both are clean on the leak patterns, and westack's own rename guard lists both in its keep list, so an edition that omits them fails that guard. The other receipts stay excluded as machine-specific transcripts; 12 of them contain machine paths and private project names.",
+      "notes": "Two records ship although the rest of tests/results/ does not: provenance/ARTIFACT_REVIEW.md (a dated review) and tests/results/tests-final.json (the final test receipt). Both are clean on the leak patterns, and westack's own rename guard lists both in its keep list, so an edition that omits them fails that guard. The other receipts stay excluded as machine-specific transcripts; 12 of them contain machine paths and private project names. The owner attribution in provenance/lineage.json is anonymized to user in the current privacy edition, with historical meaning and source identifiers preserved.",
       "exclude": [
         "tests/results/**",
         "!tests/results/usage-trials.json",
@@ -87,6 +87,11 @@
           "reason": "The collection also publishes adopt-adapt, so 'not bundled, relicensed or redistributed' becomes 'not bundled into westack or relicensed by westack'. Re-pinned to westack 0.3.1 (commit 37feb98); every other byte is the canonical file."
         }
       }
+    },
+    "jobscura": {
+      "notes": "Jobscura 0.4.0 sanitized canonical edition, derived from application-assistant-workflows 0.3.0. Private author email, owner settings and binary workbook omitted; six skill identifiers and package identity retained. Private context never forms part of the source edition.",
+      "exclude": [],
+      "overlays": {}
     }
   }
 }

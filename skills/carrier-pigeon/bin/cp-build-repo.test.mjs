@@ -33,7 +33,7 @@ await t('snapshots refuse linked tracked files and submodule entries without fol
 await t('run and worktree roots cannot escape their isolated repository and repeated worktree setup is idempotent',async()=>{
   const f=await fixture();await expectCode(build.snapshotRepo({source:f.source,runDir:path.join(f.source,'nested')}),'BAD_RUN_ROOT');
   const s=await capture(f),a=await work(s);assert.deepEqual(await work(s),a);assert.ok(a.branch.startsWith('codex/'));assert.equal(git(a.cwd,'rev-parse','HEAD'),s.base);
-  await expectCode(build.initWorktree({...s,agent:'matt'}),'BAD_AGENT');
+  await expectCode(build.initWorktree({...s,agent:'user'}),'BAD_AGENT');
 });
 await t('ownership detects case-insensitive prefix overlap and protected/traversal paths',async()=>{
   assert.equal(build.validateOwnership([{agent:'codex',files:['src/a.mjs']},{agent:'claude',files:['src/b.mjs','test/**']}]),true);

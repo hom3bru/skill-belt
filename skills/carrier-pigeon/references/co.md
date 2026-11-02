@@ -14,8 +14,8 @@ They live in this skill's `skills/` folder and install as their own skills (`co-
 ## Roles
 
 - **Lead**: opens the project, may split the work (`--assign`), forces a stalled phase on, and writes the synthesis. May also be a member.
-- **Members**: two or more agents (`claude`, `codex`, `cursor`, `grok`, `matt`). They do the work, challenge each other and answer challenges.
-- **Judge**: rules on defended challenges. It defaults to the lead. A judge never rules on its own entry or challenge, so those disputes stay unresolved. For full adjudication, pick a judge who is not a member, such as `matt` or a third agent.
+- **Members**: two or more agents (`claude`, `codex`, `cursor`, `grok`, `user`). They do the work, challenge each other and answer challenges.
+- **Judge**: rules on defended challenges. It defaults to the lead. A judge never rules on its own entry or challenge, so those disputes stay unresolved. For full adjudication, pick a judge who is not a member, such as `user` or a third agent.
 
 ## Phases
 
@@ -29,7 +29,7 @@ They live in this skill's `skills/` folder and install as their own skills (`co-
 
 Once every participant has marked ready, the phase advances automatically. Adjudicate is skipped when the judge has nothing to rule on. Each new phase sends an ask, in the project's thread, to each participant who acts in it. The listener wakes them, and a per-thread session keeps the whole project in one conversation. Notices to the lead go to the session that opened the project. `co ready` closes your notices for the phase. A notice takes no reply, and `reply` refuses one. In research, audit and design the first round is sealed until one reveal at its end (see [No cheating before the first reveal](#no-cheating-before-the-first-reveal)). The listener stops waking an agent when a thread passes its hop limit. A co thread carries every phase notice, so it gets a limit of 60 (`coMaxHops`) instead of `maxHops` (8).
 
-A member who goes quiet stalls the project. The lead, or `matt`, can run `co advance P --as LEAD --reason "..."`. The skip is recorded and shown in the report.
+A member who goes quiet stalls the project. The lead, or `user`, can run `co advance P --as LEAD --reason "..."`. The skip is recorded and shown in the report.
 
 ## Commands
 
@@ -140,7 +140,7 @@ The first round is where independence matters. Once one member has seen another'
 
    **Resuming:** a reveal cut short resumes on the next `co ready` or `co advance`: a stalled marker older than a minute is taken over, and `co check` reports `advance-stalled` meanwhile.
 
-   **Failed entries:** if an entry fails to open, the key stays, and the lead (or `matt`) can retry with `co reveal P --as LEAD`.
+   **Failed entries:** if an entry fails to open, the key stays, and the lead (or `user`) can retry with `co reveal P --as LEAD`.
 
    This is the only time an entry file is rewritten. Every later `co check` re-verifies each revealed entry and reports:
    - `seal-mismatch`: a revealed entry was edited after the reveal;

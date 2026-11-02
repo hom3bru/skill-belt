@@ -1,9 +1,10 @@
-// carrier-pigeon authority: Matt signs with a Windows Hello key. Pure Node plus Windows' own WinRT, through powershell.exe (5.1).
-// The private key is created in the TPM and never leaves it; creating it and every signature need Matt's Windows Hello gesture (PIN, face,
-// fingerprint) in Windows' own prompt, so an agent (or malware running as Matt) can ask for a signature but cannot produce one.
+import * as identity from './cp-identity.mjs';
+// carrier-pigeon authority: user signs with a Windows Hello key. Pure Node plus Windows' own WinRT, through powershell.exe (5.1).
+// The private key is created in the TPM and never leaves it; creating it and every signature need user's Windows Hello gesture (PIN, face,
+// fingerprint) in Windows' own prompt, so an agent (or malware running as user) can ask for a signature but cannot produce one.
 // Verifying needs no gesture: the public key is read from the same Windows Hello credential, never from a file an agent could replace.
 import {spawnSync} from 'node:child_process'; import crypto from 'node:crypto';
-export const KEY_NAME = 'carrier-pigeon-matt', SIG_ALG = 'win-hello-rsa-pkcs1-sha256';
+export const KEY_NAME = identity.HELLO_KEY_NAME, SIG_ALG = 'win-hello-rsa-pkcs1-sha256';
 const sha256 = b => crypto.createHash('sha256').update(b).digest('hex');
 // One script for every operation; inputs arrive in environment variables, never as script text.
 const SCRIPT = `$ErrorActionPreference='Stop'; try {
@@ -37,18 +38,20 @@ export function helloCreate() { const r = hello('create'); if (r.status !== 'Suc
 export function helloSign(bytes) { const r = hello('sign', Buffer.from(bytes).toString('base64'));
   if (r.status !== 'Success' || !r.sig) throw new Error(`Windows Hello did not sign (${r.error || r.status}); nothing was sent`); return Buffer.from(r.sig, 'base64'); }
 // What a signature covers: this exact message (id, route, thread, subject, body and context hashes) until it expires.
-const EXECUTION_FIELDS = ['from_session','transcript','fork_codex_thread','fork_claude_session','wake_on_reply','due','requires_matt_approval',
+const EXECUTION_FIELDS = ['from_session','transcript','fork_codex_thread','fork_claude_session','wake_on_reply','due',identity.APPROVAL_FIELD,
   'request_key','expires_at','timeout_seconds','effort','reply_schema','outcome','result','evidence'];
 export const authorityPayload = m => { const v=m.sig_version==null?1:Number(m.sig_version);
   const payload={v, alg: SIG_ALG, id: m.id, from: m.from, to: m.to, to_session: m.to_session || null, thread: m.thread, reply_to: m.reply_to || null,
     kind: m.kind, subject: m.subject, created: m.created, expires: m.sig_expires, body_sha256: sha256(String(m.body ?? '').trim()), context_sha256: m.context ? sha256(m.context) : null};
   // Preserve legacy signatures byte for byte. Version 2 binds execution controls and handoff references as well as the text.
-  if(v===2) payload.execution=Object.fromEntries(EXECUTION_FIELDS.map(k=>[k,k==='timeout_seconds'&&m[k]!=null?Number(m[k]):m[k]??null]));
+  if(v===2 || v===3) { const fields=EXECUTION_FIELDS.map(k=>v===2 && k===identity.APPROVAL_FIELD ? identity.LEGACY_APPROVAL_FIELD : k); payload.execution=Object.fromEntries(fields.map(k=>[k,k==='timeout_seconds'&&m[k]!=null?Number(m[k]):m[k]??null])); }
   return Buffer.from(JSON.stringify(payload),'utf8'); };
-// status: verified | unsigned | invalid | expired | unverifiable (no Windows Hello key here) | n/a (not from matt). pub: {key, fingerprint} or null.
-export function verifyAuthority(m, pub, now = Date.now()) { if (m.from !== 'matt') return {status: 'n/a'}; if (!m.sig) return {status: 'unsigned'};
-  const version=m.sig_version==null?1:Number(m.sig_version); if(![1,2].includes(version)) return {status:'invalid',why:'unknown signature payload version'};
-  if(version===1&&EXECUTION_FIELDS.some(k=>m[k]!=null&&m[k]!==false)) return {status:'invalid',why:'legacy signature does not cover added execution or handoff metadata; sign this message again'};
+// status: verified | unsigned | invalid | expired | unverifiable (no Windows Hello key here) | n/a (not from user). pub: {key, fingerprint} or null.
+export function verifyAuthority(m, pub, now = Date.now()) { if (m.from !== identity.HUMAN_ID) return {status: 'n/a'}; if (!m.sig) return {status: 'unsigned'};
+  const version=m.sig_version==null?1:Number(m.sig_version); if(![1,2,3].includes(version)) return {status:'invalid',why:'unknown signature payload version'};
+  if(version===1&&[...EXECUTION_FIELDS,identity.LEGACY_APPROVAL_FIELD].some(k=>m[k]!=null&&m[k]!==false)) return {status:'invalid',why:'legacy signature does not cover added execution or handoff metadata; sign this message again'};
+  try { identity.approvalRequired(m); } catch { return {status:'invalid',why:'invalid or conflicting approval markers'}; }
+  if(identity.LEGACY_APPROVAL_FIELD!==identity.APPROVAL_FIELD && ((version===2 && Object.hasOwn(m,identity.APPROVAL_FIELD)) || (version===3 && Object.hasOwn(m,identity.LEGACY_APPROVAL_FIELD)))) return {status:'invalid',why:'approval marker is not covered by this signature version'};
   if (!pub) return {status: 'unverifiable', why: 'no Windows Hello key on this machine'}; if (m.sig_alg !== SIG_ALG || m.sig_key !== pub.fingerprint) return {status: 'invalid', why: 'signed with another key'};
   let ok = false; try { ok = crypto.verify('sha256', authorityPayload(m), {key: pub.key, padding: crypto.constants.RSA_PKCS1_PADDING}, Buffer.from(m.sig, 'base64')); } catch {}
   if (!ok) return {status: 'invalid', why: 'signature does not match this message'};

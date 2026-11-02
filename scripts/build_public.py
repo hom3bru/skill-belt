@@ -339,10 +339,11 @@ def main():
     parser.add_argument("--frankenmine", type=Path, help="canonical Frankenmine skill directory")
     parser.add_argument("--adopt-adapt", dest="adopt_adapt", type=Path, help="canonical adopt-adapt skill directory")
     parser.add_argument("--carrier-pigeon", dest="carrier_pigeon", type=Path, help="canonical carrier-pigeon skill directory")
+    parser.add_argument("--jobscura", type=Path, help="sanitized canonical Jobscura toolkit directory")
     parser.add_argument("--check", action="store_true", help="stage and check only; never replace skills/")
     args = parser.parse_args()
     sources = {name: path for name, path in (("adopt-adapt", args.adopt_adapt), ("westack", args.westack),
-                                             ("frankenmine", args.frankenmine), ("carrier-pigeon", args.carrier_pigeon)) if path is not None}
+                                             ("frankenmine", args.frankenmine), ("carrier-pigeon", args.carrier_pigeon), ("jobscura", args.jobscura)) if path is not None}
     if not sources:
         parser.error("name at least one canonical skill directory")
     try:

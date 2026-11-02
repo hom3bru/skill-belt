@@ -45,7 +45,7 @@ await t('byte-exact mode (default): verbatim bytes incl. CRLF, call ids, error f
   const ix2={...ix,records:ix.records.map((r,i)=>i===0?{...r,sha256:'0'.repeat(64)}:r)}; fs.writeFileSync(path.join(root,'transcripts',p.sha256+'.index.json'),JSON.stringify(ix2)); assert.match(fail('transcript','read',p.sha256),/span check/);
   const sf=path.join(root,'sec.jsonl'); fs.writeFileSync(sf,J({type:'user',message:{role:'user',content:'sk-abcdefghijklmnopqrstuvwxyz0'}})+'\n'); assert.match(fail('transcript','pack',sf,'--as','claude'),/secret-looking/); });
 await t('stable prefix: byte-identical across calls; new finding only appends (old prefix is a strict prefix of new)', ()=>{ const {root,run}=bus();
-  run('memory','instructions','p','--as','matt','--text','Use pnpm.'); run('memory','add','p','--as','codex','--note','first'); const p1=cpx.stablePrefix(root,'p'); assert.equal(cpx.stablePrefix(root,'p').sha256,p1.sha256);
+  run('memory','instructions','p','--as','user','--text','Use pnpm.'); run('memory','add','p','--as','codex','--note','first'); const p1=cpx.stablePrefix(root,'p'); assert.equal(cpx.stablePrefix(root,'p').sha256,p1.sha256);
   run('memory','add','p','--as','claude','--note','second'); const p2=cpx.stablePrefix(root,'p'); assert.ok(p2.text.startsWith(p1.text.slice(0,-1)),'append-only'); assert.ok(p2.text.indexOf('first')<p2.text.indexOf('second')); });
 await t('digest: needs --files or --sha, marked DIGEST in prefix, body from file, stale when file changes', ()=>{ const {root,run,fail}=bus(); const src=path.join(root,'src.txt'); fs.writeFileSync(src,'v1'); const bf=path.join(root,'map.md'); fs.writeFileSync(bf,'repo map: 3 dirs');
   assert.match(fail('memory','digest','p','--as','codex','--note','x'),/needs --files/); const d=run('memory','digest','p','--as','codex','--body-file',bf,'--files',src);
@@ -123,7 +123,7 @@ await t('wakeTurn delta: a warm session gets only findings added since its prefi
   run('memory','add','general','--as','codex','--note','OLD-FINDING'); const w1=wakeTurn(m('1'),root,sent); assert.match(w1,/OLD-FINDING/);
   run('memory','add','general','--as','codex','--note','NEW-FINDING'); const w2=wakeTurn(m('2'),root,sent); assert.match(w2,/NEW-FINDING/); assert.ok(!w2.includes('OLD-FINDING'),'old finding not resent');
   assert.match(w2,/1 finding\(s\) added since prefix/); assert.ok(!w2.includes('[carrier-pigeon v0.4 stable prefix]'));
-  run('memory','instructions','general','--as','matt','--text','New rule.'); const w3=wakeTurn(m('3'),root,sent); assert.ok(w3.startsWith('[carrier-pigeon v0.4 stable prefix]')); assert.match(w3,/OLD-FINDING[\s\S]*NEW-FINDING/);
+  run('memory','instructions','general','--as','user','--text','New rule.'); const w3=wakeTurn(m('3'),root,sent); assert.ok(w3.startsWith('[carrier-pigeon v0.4 stable prefix]')); assert.match(w3,/OLD-FINDING[\s\S]*NEW-FINDING/);
   assert.match(wakeTurn(m('4'),root,sent),/memory unchanged/); assert.match(wakeTurn(m('5'),root,new Map()),/OLD-FINDING/,'a fresh session gets everything'); });
 await t('gitState: a non-repo is reported as git:false, never thrown', ()=>{ const {root}=bus(); const d=path.join(root,'plain'); fs.mkdirSync(d); assert.deepEqual(cpx.gitState(d),{repo:d,git:false}); });
 await t('repository capture rejects remote paths before launching git',()=>{

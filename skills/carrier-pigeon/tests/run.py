@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SUITES = ((ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "bin", "cp-tasks.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"),
+SUITES = ((ROOT / "bin", "cp-identity.test.mjs"), (ROOT / "bin", "carrier-pigeon.test.mjs"), (ROOT / "bin", "cp-tasks.test.mjs"), (ROOT / "host", "carrier-pigeon-host.test.mjs"), (ROOT / "bin", "cp-context.test.mjs"),
           (ROOT / "bin", "carrier-pigeon-mcp.test.mjs"), (ROOT / "bin", "cp-hello.test.mjs"), (ROOT / "bin", "cp-co.test.mjs"),
           (ROOT / "bin", "cp-diagnostics.test.mjs"), (ROOT / "bin", "cp-build-repo.test.mjs"),
           (ROOT / "bin", "cp-build-runtime.test.mjs"), (ROOT / "bin", "cp-build.test.mjs"),

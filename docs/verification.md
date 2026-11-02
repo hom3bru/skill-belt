@@ -1,6 +1,6 @@
 # What verification establishes
 
-The collection verifier runs the root rejection controls and all three bundled skill suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
+The collection verifier runs the root rejection controls and all five bundled toolkit suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
 
 | Layer | Evidence | Limit |
 | --- | --- | --- |
@@ -25,3 +25,9 @@ python -B scripts/verify.py
 ```
 
 Changing a source note with a pinned expected digest also requires an explicit provenance update in that skill; do not change a hash merely to hide an unexpected difference. A regenerated manifest identifies the chosen bytes, not their truth or historical fidelity.
+
+Jobscura adds context/schema/version validation, no-reference-read and no-value-log
+controls, private-file and corrupted-package rejection, deterministic archive checks
+and the existing packet-helper regression suite. XLSX uses an already-installed
+optional dependency; without it, the suite verifies the explicit unsupported-input
+error. Passing instruction/link checks do not prove future reminder delivery.

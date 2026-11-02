@@ -23,7 +23,7 @@ await t('initialize echoes a supported protocol version, sends instructions nami
   const tools = (await c.req('tools/list')).result.tools; const names = tools.map(x => x.name);
   for (const x of ['agents', 'ask', 'wait_reply', 'send', 'inbox', 'read', 'claim', 'reply', 'done', 'thread', 'memory_read', 'memory_add']) assert.ok(names.includes(x), x);
   const ask = tools.find(x => x.name === 'ask'); assert.deepEqual(ask.inputSchema.required, ['to', 'subject', 'body']); assert.ok(!('as' in ask.inputSchema.properties), 'identity fixed by --as');
-  assert.deepEqual(ask.inputSchema.properties.to.enum, ['grok', 'cursor', 'claude', 'codex', 'matt']);
+  assert.deepEqual(ask.inputSchema.properties.to.enum, ['grok', 'cursor', 'claude', 'codex', 'user']);
   assert.equal(tools.find(x => x.name === 'read').annotations.readOnlyHint, true); assert.equal(ask.annotations.readOnlyHint, false); assert.ok(tools.every(x => x.annotations.openWorldHint === false && x.annotations.destructiveHint === false)); assert.equal((await c.req('ping')).result && 1, 1);
   assert.equal((await c.req('bogus/method')).error.code, -32601); });
 await t('ask returns the reply when the other agent answers within wait_seconds (the reply is consumed)', async () => {

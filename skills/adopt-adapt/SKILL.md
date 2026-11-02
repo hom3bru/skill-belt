@@ -1,7 +1,7 @@
 ---
 name: adopt-adapt
 description: Evaluate any source for useful parts and patterns recipients (including westack) should ADOPT, ADAPT, or DISCARD. Look beyond purpose, domain and language; judge recipient benefit, compatible assumptions and net transfer burden. Use for "adopt-adapt", "mine these links", "salvage anything from this", tool comparisons and transfer plans. Not for implementing an already-chosen tool, ordinary code review or product how-to. A new product built from several sources belongs to frankenmine; recovering how one opaque product works belongs to reverse-engineer-anything.
-license: Proprietary (Matt Kolkin)
+license: Proprietary (user)
 metadata:
   compatibility: "Claude Code, Codex, Cursor. Python 3.10+ optional for scripts/aa.py; manual fallback defined."
   version: "3.0.0-grok-draft.r18"
