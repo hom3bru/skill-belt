@@ -29,6 +29,10 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 | `co-real.mjs setup\|listen\|codex\|report` | Every role is a real model, and the material is real: no scripted member, lead or judge, and no planted defects.<br>`setup --mode audit`: Claude and Codex audit carrier-pigeon's own sealed-round code at the version under test, with Codex as lead.<br>`setup --mode build`: two real builders in their own worktrees, Codex as lead.<br>Codex runs through `listen` (listener-woken members) or `codex` (a sandboxed write-capable session). The harness never launches Claude itself: Claude builders and the non-member judge (id `grok`, no grok runtime here) are the operator's Claude subagents, under that session's permission system.<br>`report` gates on:<br>- closed with a clean check;<br>- the lead's synthesis;<br>- a judge verdict on every defended dispute;<br>- no member message in the thread;<br>- audit: sealed until one clean reveal;<br>- build: C1 rated pass, and the merged tests pass when the harness reruns them. | Audit: listener Claude (Sonnet) and Codex, plus one subagent judge. Build: two Claude subagent rounds and 3 to 4 Codex sessions |
 | `e2e.mjs` | The whole listener: install, real Claude (Haiku) and lean Codex on a spare port (default 4511). Each is woken with an ask that needs a read-only listing; the run checks the replies and the per-wake usage. | One Haiku wake and one Codex turn |
 
+## 0.16.0 qualification
+
+The listener registry fallback and shared push reservation are covered by authored local named-pipe/stdio fixtures. Real Claude registry delivery was **not run**: no isolated idle Claude session was established, and the operator's active sessions must not receive probes. No real model calls or terminal follow-up trial were launched without Matt's spending approval. Earlier live results below qualify their labeled versions only. Installation, listener restart, hook trust, plugin settings and pushes remain operator actions.
+
 ## Delivery into running sessions on 2026-11-01 (one Windows machine, 0.14.0)
 
 **Donor.** Read at reason-network `bcf045c` (MIT OR Apache-2.0); see `references/listener.md`.

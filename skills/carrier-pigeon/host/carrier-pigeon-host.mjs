@@ -5,6 +5,8 @@
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import crypto from 'node:crypto';
 import {spawn,execFile} from 'node:child_process'; import * as cpx from '../bin/cp-context.mjs'; import * as hello from '../bin/cp-hello.mjs'; import * as tasks from '../bin/cp-tasks.mjs'; import {fileURLToPath} from 'node:url';
 
+import {sessionInbox, sessionIdentity, pushOnce} from '../bin/cp-push.mjs';
+
 export const AGENTS = ['grok','cursor','claude','codex','matt'];
 export const DEFAULTS = {
   watch: true, rescanMs: 15000, debounceMs: 75, maxHops: 8, coMaxHops: 60, rate: {max: 6, windowMs: 600000},
@@ -327,7 +329,7 @@ export function claudeAdapter({spawnFn=spawn}={}){ let sup, ctx, out, lastCtx=0,
     const hd=path.join(ctx.root,'host'); const t=Date.now(); const ch=spawnFn(ctx.cfg.claude.bin,[...claudeForkArgs(hd,m.fork_claude_session),...ctx.cfg.claude.extraArgs],{cwd:ctx.root,stdio:['pipe','pipe','pipe'],windowsHide:true,env:{...process.env,CARRIER_PIGEON_WORKER:'1'}});
     ch.on?.('error',e=>c_log(ctx,{ev:'claude-fork-error',id:m.id,err:redact(e.message)})); quiet(ch.stdin,'fork-stdin'); ch.stdin.write(wakeTurn(m,ctx.root,new Map(),'mcp')); ch.stdin.end();
     jsonl(ch.stdout,l=>{ out?.write(l+'\n'); let o; try{ o=JSON.parse(l); }catch{ return; } if(o.type==='result'){ const u=cpx.claudeUsage(o); if(u) appendUsage(ctx.root,{agent:'claude',fork_of:m.fork_claude_session,msg:m.id,latency_ms:Date.now()-t,...u}); } }); return true; }
-  return { name:'claude', wakes:true, presence:()=>perThread()?{wakes:true,state:'ready',model,mode:'per-thread',conversations:convs.size,running}:{wakes:true,state:sup?.child?(recycling?'recycling':'ready'):'down',model},
+  return { name:'claude', wakes:true, ownsSession:m=>!!(m.to==='claude'&&m.to_session&&sessionIdentity(ctx.root,m.to_session)), presence:()=>perThread()?{wakes:true,state:'ready',model,mode:'per-thread',conversations:convs.size,running}:{wakes:true,state:sup?.child?(recycling?'recycling':'ready'):'down',model},
     start(c){ ctx=c; stopping=false; const cfg=c.cfg; fs.mkdirSync(paths(c.root).logs,{recursive:true}); out=fs.createWriteStream(path.join(paths(c.root).logs,'claude.jsonl'),{flags:'a'});
       if(perThread()){ loadConvs(); return; } // processes start per wake
       sup=new Supervisor('claude',()=>{ const hd=path.join(c.root,'host'); ensureClaudeMcp(hd,c.root); cpx.ensureClaudeSettings(hd);
@@ -339,7 +341,13 @@ export function claudeAdapter({spawnFn=spawn}={}){ let sup, ctx, out, lastCtx=0,
             // A warm session re-reads its whole history every wake; past the threshold, start fresh once idle (queued wakes are retried after the restart).
             const lim=cfg.claude.recycleAtContextTokens; if(lim>0&&lastCtx>lim&&!pending.length&&!recycling){ recycling=true; c.log({ev:'claude-recycle',context_tokens:lastCtx,limit:lim}); try{ ch.kill(); }catch{} } } });
         ch.stderr.on('data',d=>out.write(JSON.stringify({stderr:redact(d)})+'\n')); return ch; }, cfg.restart, c.log); sup.start(); this.sup=sup; },
-    async deliver(m){ if(m.fork_claude_session) return forkClaude(m);
+    async deliver(m){ if(m.to_session && m.to_session !== LISTENER){
+      if(m.kind === 'fyi') return false; const inbox = sessionInbox(ctx.root,m.to_session);
+      if(!inbox) throw deliveryError('Claude session registry inbox unavailable',{preDispatch:true});
+      const result = await pushOnce({root:ctx.root,session:m.to_session,inbox,message:m});
+      if(result === 'pending') throw deliveryError('Claude session push already in flight',{retrySafe:true});
+      if(result === 'uncertain') throw deliveryError('Claude session push acceptance uncertain'); return true; }
+      if(m.fork_claude_session) return forkClaude(m);
       if(perThread()){ const key=String(m.thread??''); let e=convs.get(key); if(!e){ e={sid:null,at:Date.now(),busy:false,queue:[],sent:new Map()}; convs.set(key,e);
           const max=ctx.cfg.claude.maxConversations||200; if(convs.size>max) for(const [k,v] of [...convs].sort((a,b)=>a[1].at-b[1].at)){ if(convs.size<=max) break; if(!v.busy&&!v.queue.length&&v!==e) convs.delete(k); } }
         e.queue.push(m); pump(); return true; }

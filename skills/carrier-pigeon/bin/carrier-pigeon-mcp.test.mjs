@@ -1,6 +1,7 @@
+import {EventEmitter} from 'node:events';
 // node carrier-pigeon-mcp.test.mjs — the MCP server over real stdio, on a temp CARRIER_PIGEON_HOME; never touches the real bus.
 import {spawn, execFileSync} from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict';
-import net from 'node:net'; import {claudeInbox} from './cp-push.mjs';
+import net from 'node:net'; import {claudeInbox, pushOnce, sessionInbox, post} from './cp-push.mjs';
 const here = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')); const CLI = path.join(here, 'carrier-pigeon.mjs'), MCP = path.join(here, 'carrier-pigeon-mcp.mjs');
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'cpmcp-')); const env = {...process.env, CARRIER_PIGEON_HOME: HOME};
 // Never the operator's own Claude Code session: test servers would post test mail into it (cp-push.mjs). Tests that want an inbox pass a fake one.
@@ -234,4 +235,37 @@ await t('session push: without the variables, the inbox comes from Claude Code\'
     assert.equal(claudeInbox({CLAUDE_CODE_SESSION_ID: 'sess-b', CLAUDE_CONFIG_DIR: dir}), null, 'a session with no inbox'); assert.equal(claudeInbox({}), null);
     assert.deepEqual(claudeInbox({CLAUDE_CODE_MESSAGING_SOCKET: 'S', CLAUDE_CODE_MESSAGING_TOKEN: 'T', CLAUDE_CODE_SESSION_ID: 'sess-a', CLAUDE_CONFIG_DIR: dir}), {path: 'S', token: 'T', via: 'env'});
   } finally { fs.rmSync(dir, {recursive: true, force: true}); } });
+await t('shared push reservation prevents concurrent duplicate posts and retains uncertain delivery', async () => {
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'cppush-'));
+  const message={id:'01M60000000000000000000001',thread:'push-test',from:'codex',kind:'ask',subject:'PRIVATE',body:'PRIVATE'};
+  let calls=0,release; const pending=new Promise(r=>release=r);
+  const args={root,session:'s',inbox:{via:'fixture'},message,send:async(i,text)=>{calls++;assert.ok(!text.includes('PRIVATE'));await pending;}};
+  try { const first=pushOnce(args); assert.equal(await pushOnce(args),'pending'); release();assert.equal(await first,'delivered');
+    assert.equal(await pushOnce(args),'delivered');assert.equal(calls,1);
+    const bad={...args,message:{...message,id:'01M60000000000000000000002'},send:async()=>{calls++;throw new Error('secret transport path');}};
+    await assert.rejects(pushOnce(bad));const abandoned=path.join(root,'host','session-push',bad.message.id+'.json');
+    fs.writeFileSync(abandoned,JSON.stringify({state:'dispatching',pid:process.pid,at:Date.now()-20000}));assert.equal(await pushOnce(bad),'uncertain');assert.equal(calls,2);
+    assert.ok(!fs.readFileSync(path.join(root,'receipts',bad.message.id+'.jsonl'),'utf8').includes('secret'));
+    const retry={...args,message:{...message,id:'01M60000000000000000000003'},send:async()=>{throw Object.assign(new Error('offline'),{preDispatch:true});}};
+    await assert.rejects(pushOnce(retry));assert.equal(await pushOnce({...retry,send:async()=>{}}),'delivered');
+    const publishing={...args,message:{...message,id:'01M60000000000000000000004'}};
+    const partial=path.join(root,'host','session-push',publishing.message.id+'.json');fs.writeFileSync(partial,'');
+    assert.equal(await pushOnce(publishing),'pending','exclusive create can precede JSON publication');
+    fs.utimesSync(partial,new Date(0),new Date(0));assert.equal(await pushOnce(publishing),'uncertain','abandoned partial publication is not replayed');
+    assert.equal(sessionInbox(root,'../escape'),null);
+  } finally {release();fs.rmSync(root,{recursive:true,force:true});}
+});
+await t('session connection timeout before connect is safe to retry',async()=>{
+  const connect=net.connect;net.connect=()=>Object.assign(new EventEmitter(),{destroy(){}});
+  try {await assert.rejects(post({path:'fixture'},'pointer',5),e=>e.preDispatch===true);}
+  finally {net.connect=connect;}
+});
+await t('MCP presence publishes native Claude identity and safe wake capability, never inbox credentials', async()=>{
+  const sid='native-fixture',k=client(['--as','claude','--session','native-presence'],{...env,CLAUDE_CODE_SESSION_ID:sid});
+  try {await k.req('initialize',{protocolVersion:'2025-06-18',clientInfo:{name:'fixture'}});
+    const file=path.join(HOME,'sessions','claude~native-presence.json');const info=JSON.parse(fs.readFileSync(file,'utf8'));
+    assert.equal(info.claude_session_id,sid);assert.equal(info.session_push,null);assert.ok(!('token' in info));
+    const status=await k.call('agents',{});assert.equal(status.json.find(x=>x.agent==='claude').sessions.find(x=>x.session==='native-presence').wake_via,null);
+  } finally {k.close();}
+});
 c.close(); fs.rmSync(HOME, {recursive: true, force: true}); console.log(`# ${n} tests, ${failed} failed (mcp)`); process.exit(failed ? 1 : 0);

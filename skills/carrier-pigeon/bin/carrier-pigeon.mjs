@@ -2,6 +2,7 @@
 // carrier-pigeon: dependency-free file mailbox for coding agents. Node >= 18. Runs as the CLI when executed; imported (by the MCP server),
 // it is a library: see the export list at the end.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import crypto from 'node:crypto'; import {fileURLToPath} from 'node:url';
+import {sessionInbox} from './cp-push.mjs';
 import * as ctx from './cp-context.mjs'; import * as hello from './cp-hello.mjs'; import * as tasks from './cp-tasks.mjs'; import {diagnose} from './cp-diagnostics.mjs';
 // Root: CARRIER_PIGEON_HOME, else the mailbox this CLI is installed in, else ~/.carrier-pigeon. So an agent woken in any mailbox, running
 // `node bin/carrier-pigeon.mjs` from its root, acts on that mailbox even without the variable. A mailbox is recognised by what init creates
@@ -340,7 +341,7 @@ function agentsStatus(){ needInit(); let pid=null, pres=null; try{ pid=+fs.readF
     // "not ready": the waking adapter is starting, recycling or restarting; the listener retries delivery until it is ready
     const reach=ads.some(x=>x.wakes&&x.state==='ready')?'auto-wake':ads.some(x=>x.wakes&&x.state!=='dormant')?'auto-wake (not ready)':ads.some(x=>x.state==='ready')?'notify-only':'pull';
     return {agent:a,reach,listener_pid:pid,adapters:ads,inbox:count(a,'inbox'),wakes_logged:s?.wakes??0,median_reply_ms:s?.median_latency_ms??null,
-      sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null}))}; }); }
+      sessions:live.filter(x=>x.agent===a).map(x=>({session:x.session,client:x.client||null,since:x.started||null,last_seen:x.last_seen||null,...(a==='claude'?{wake_via:x.session_push?'session-mcp:'+x.session_push:sessionInbox(ROOT,x.session)&&ads.some(d=>d.adapter==='claude'&&d.state==='ready')?'listener:registry':null}: {})}))}; }); }
 // Read-only health shared by the CLI and the MCP doctor tool (bin/cp-diagnostics.mjs). Before init it reports an uninitialised mailbox
 // instead of failing, and never creates one: agentsStatus runs only on an initialised mailbox.
 function doctor({agent:a=null,session=null}={}){ if(a!=null) agent(a); if(session!=null) vname(String(session),'session');

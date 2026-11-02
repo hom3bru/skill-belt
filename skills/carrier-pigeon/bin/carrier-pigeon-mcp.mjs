@@ -13,7 +13,7 @@ if (ME && !cp.AGENTS.includes(ME)) { process.stderr.write(`carrier-pigeon-mcp: u
 const si = process.argv.indexOf('--session'); const SESSION = (si > 0 ? process.argv[si + 1] : process.env.CARRIER_PIGEON_SESSION) || (ME ? `${ME}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}` : null);
 if (SESSION && !ctx.safeName(SESSION)) { process.stderr.write(`carrier-pigeon-mcp: bad session "${SESSION}" (letters, digits, . _ -)\n`); process.exit(2); }
 const sessFile = ME && SESSION ? path.join(cp.ROOT, 'sessions', `${ME}~${SESSION}.json`) : null; let sessInfo = null, sessTouched = 0;
-const touchSession = (client) => { if (!sessFile) return; try { const now = new Date().toISOString(); if (client !== undefined) sessInfo = {agent: ME, session: SESSION, pid: process.pid, client, started: now};
+const touchSession = (client) => { if (!sessFile) return; try { const now = new Date().toISOString(); if (client !== undefined) sessInfo = {agent: ME, session: SESSION, pid: process.pid, client, started: now, ...(ME === 'claude' && !WORKER ? {claude_session_id: process.env.CLAUDE_CODE_SESSION_ID || null, claude_config_dir: process.env.CLAUDE_CONFIG_DIR || null, session_push: claudeInbox()?.via || null} : {})};
   if (!sessInfo || (client === undefined && Date.now() - sessTouched < 30000)) return; sessTouched = Date.now(); fs.mkdirSync(path.dirname(sessFile), {recursive: true}); fs.writeFileSync(sessFile, JSON.stringify({...sessInfo, last_seen: now})); } catch {} };
 const dropSession = () => { try { if (sessFile) fs.rmSync(sessFile, {force: true}); } catch {} };
 process.on('exit', dropSession); for (const sig of ['SIGINT', 'SIGTERM', 'SIGBREAK']) process.on(sig, () => process.exit(0));

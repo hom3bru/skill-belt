@@ -121,6 +121,15 @@ The listener watches every inbox (fs.watch plus a 15 s rescan) and wakes the rec
   - **Idle session:** Codex in the app sent an ask to an idle Claude desktop session. The session's 0.15.0 server posted the pointer (`pushed:session` via `env`), and one second later the session started a new turn from it, recorded in its transcript as a user entry of origin `peer`.
 - **Tests:** `tests/run.py` and the MCP test remove these variables, so tests run inside a Claude Code session never post into it.
 
+**Listener registry fallback (0.16.0).** A current interactive Claude MCP server publishes its native Claude session id and optional profile directory in its existing session record. The listener's Claude adapter resolves that identity through the registry and posts the same fixed pointer. Generic Claude mail continues to the headless worker; `fyi` never wakes.
+- Both paths reserve `host/session-push/<message>.json` with exclusive creation before posting. A `pushed:session` receipt suppresses duplicates across servers and listener restarts. A failure before connecting releases the reservation for retry. A competing active dispatch is rechecked without blocking the mailbox claim. A missing registry inbox is retried after session identity is known. A crash or failure after connecting stays uncertain and requires inspection before any replay. Socket write completion establishes submission, not proof Claude accepted or acted on it.
+- `agents` exposes `wake_via`: `session-mcp:env`, `session-mcp:registry`, `listener:registry`, or null. These report available mechanisms, not end-to-end provider readiness. Tokens and socket paths are never published in presence.
+- A server predating the new identity metadata cannot be mapped safely: upgrade/reconnect that server when Matt approves. Do not infer an identity from a matching directory or arbitrary live session.
+- Reply policy: keep the existing listener `wake_on_reply` opt-in. The session's own MCP push still announces session-addressed replies as before. This preserves the listener's explicit wake contract; callers wanting continuation should set `wake_on_reply`.
+- Authored named-pipe fixtures cover fallback, fixed pointers, shared duplicate suppression, failed delivery, and routing. Real Claude registry fallback remains untested; no pointer was posted into Matt's active sessions.
+
+**Routing recommendation.** Keep ordinary Codex asks on the worker by default. Read-only asks fit its restricted profile, while app threads use Matt's broader settings. Matt can opt into app asks with `codexApp.kinds`; changing that default warrants a separate product decision.
+
 **Codex window (visible hand-offs).** When the Codex app route is off, not routed or unavailable, a `handoff` to Codex opens a new interactive Codex session in its own Windows Terminal window, not in the listener's worker.
 - **How it launches:** the tab runs `powershell.exe -NoProfile -NoExit -EncodedCommand <constant script>`.
   - The script carries the Codex path, the folder and the prompt as base64 literals, and runs `& $bin -C $cwd $prompt`, so Codex gets each as exactly one argument.

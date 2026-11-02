@@ -1,6 +1,8 @@
+import {pushOnce} from '../bin/cp-push.mjs';
+import net from 'node:net';
 // node carrier-pigeon-host.test.mjs — temp CARRIER_PIGEON_HOME, fake adapters; never launches claude/codex or touches the real bus.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import assert from 'node:assert/strict'; import {execFileSync,spawn} from 'node:child_process'; import {EventEmitter} from 'node:events';
-import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread,turnRunning,appThreadFor} from './carrier-pigeon-host.mjs';
+import {Host,Supervisor,readReceipts,claudeAdapter,codexAdapter,grokWebhookAdapter,cursorCloudAdapter,toastScript,toastEnv,toastAdapter,cursorDeeplink,wakePrompt,claudeArgs,claudeShell,ensureClaudeSettings,CLAUDE_READ_DENY,codexLeanArgs,codexOwnMcpArgs,grokPayload,deliveryError,visibleHandoff,codexWindowPrompt,codexWindowAdapter,codexWindowScript,codexWindowLaunch,appHandoff,appBindings,codexAppAdapter,codexAppPrompt,startAppThread,turnRunning,appThreadFor} from './carrier-pigeon-host.mjs';
 import {output as hookOutput} from '../bin/cp-hook.mjs';
 import * as tasks from '../bin/cp-tasks.mjs';
 const here=path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')); const CLI=path.resolve(here,'../bin/carrier-pigeon.mjs');
@@ -644,4 +646,53 @@ await t('recovery: concurrent scans and ready callbacks cannot recover an initia
     assert.ok(!evs(root,m.id).includes('recovery-needed')); assert.equal(h.retryQ.get('codex:'+m.id).phase,'dispatching'); release(); await startup;
     assert.equal(evs(root,m.id).filter(x=>x==='notified:codex').length,1); assert.equal(h.retryQ.size,0);
   }finally{ release(); await startup; await h.stop(); } });
+await t('Claude listener registry fallback posts only a pointer, shares dedup, and respects session and fyi routing', async()=>{
+  const {root,run}=bus(),dir=path.join(root,'claude-profile'),reg=path.join(dir,'sessions');fs.mkdirSync(reg,{recursive:true});
+  const sock=process.platform==='win32'?'\\\\.\\pipe\\cp-listener-'+process.pid+'-'+Date.now():path.join(root,'inbox.sock');
+  const frames=[],server=net.createServer(c=>{let b='';c.on('data',d=>b+=d);c.on('end',()=>frames.push(...b.trim().split('\n').filter(Boolean).map(JSON.parse)));});
+  await new Promise(r=>server.listen(sock,r));fs.writeFileSync(path.join(reg,'4242.json'),JSON.stringify({pid:4242,sessionId:'native',messagingSocketPath:sock}));
+  fs.writeFileSync(path.join(reg,'4242.test.key'),JSON.stringify({peerToken:'fixture-peer'}));
+  fs.mkdirSync(path.join(root,'sessions'),{recursive:true});const presence=path.join(root,'sessions','claude~interactive.json');
+  fs.writeFileSync(presence,JSON.stringify({agent:'claude',session:'interactive',pid:process.pid,claude_session_id:'native',claude_config_dir:dir}));
+  const ad=claudeAdapter({spawnFn:()=>{throw new Error('must not spawn for session mail');}}),h=new Host({root,config:{watch:false,rescanMs:60000},adapters:{claude:ad}});
+  try {await h.start();const m=run('send','--from','codex','--to','claude','--to-session','interactive','--subject','PRIVATE','--body','PRIVATE');await h.scanAll();
+    assert.ok(await until(()=>frames.length===2));assert.equal(frames[0].token,'fixture-peer');assert.ok(frames[1].message.content.includes(m.id));assert.ok(!JSON.stringify(frames[1]).includes('PRIVATE'));
+    assert.ok(evs(root,m.id).includes('pushed:session'));await ad.deliver(run('read',m.id));await sleep(50);assert.equal(frames.length,2);
+    const race=run('send','--from','codex','--to','claude','--to-session','interactive','--subject','race','--body','b');
+    let release;const gate=new Promise(r=>release=r);const sending=pushOnce({root,session:'interactive',inbox:{via:'fixture'},message:race,send:()=>gate});
+    await h.scanAll();assert.notEqual(h.control(race.id)?.state,'recovery_needed');release();await sending;await h.retry();
+    assert.equal(run('claim',race.id,'--as','claude','--session','interactive').status,'claimed');
+    fs.rmSync(path.join(reg,'4242.json'));
+    const late=run('send','--from','codex','--to','claude','--to-session','interactive','--subject','late','--body','b');await h.scanAll();
+    assert.ok(h.retryQ.has('claude:'+late.id));fs.writeFileSync(path.join(reg,'4242.json'),JSON.stringify({pid:4242,sessionId:'native',messagingSocketPath:sock}));
+    await h.retry();assert.ok(await until(()=>frames.length===4));assert.ok(evs(root,late.id).includes('pushed:session'));
+
+    const f=run('send','--from','codex','--to','claude','--to-session','interactive','--kind','fyi','--subject','f','--body','b');await h.scanAll();assert.ok(!evs(root,f.id).includes('pushed:session'));
+    assert.equal(ad.ownsSession({to:'claude',to_session:'other'}),false);assert.equal(ad.ownsSession({to:'claude'}),false);
+    const status=run('agents').find(x=>x.agent==='claude').sessions.find(x=>x.session==='interactive');assert.equal(status.wake_via,'listener:registry');
+    fs.rmSync(presence);assert.equal(ad.ownsSession({to:'claude',to_session:'interactive'}),false);
+  } finally {await h.stop();await new Promise(r=>server.close(r));}
+});
+const catalogOption = "model_catalog_json='C:/catalog folder/models.json'";
+const catalogArgs = ['--no-daemon', '-c', catalogOption];
+
+await t('window custom terminal preserves process-local model catalog override', () => {
+  assert.deepEqual(codexWindowLaunch('codex.exe', 'C:/work folder', 'fixed prompt', 'test', ['terminal', '--'], args),
+    ['terminal', '--', 'codex.exe', ...catalogArgs, '-C', 'C:/work folder', 'fixed prompt']);
+});
+
+if(process.platform==='win32') await t('window PowerShell script passes catalog path with spaces as one native argument', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cp-window-options-'));
+  try {
+    const fake = path.join(dir, 'fake codex.mjs');
+    fs.writeFileSync(fake, 'process.stdout.write(JSON.stringify(process.argv.slice(2)));\n');
+    const script = codexWindowScript(process.execPath, dir, 'fixed prompt', [fake, ...catalogArgs]);
+    const output = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand',
+      Buffer.from(script, 'utf16le').toString('base64')], {encoding: 'utf8', windowsHide: true, timeout: 30000});
+    assert.deepEqual(JSON.parse(output.trim()), [...catalogArgs, '-C', dir, 'fixed prompt']);
+  } finally {
+    fs.rmSync(dir, {recursive: true, force: true});
+  }
+});
+
 console.log(`# ${n} tests, ${failed} failed (host)`); process.exit(failed?1:0);
