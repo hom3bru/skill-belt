@@ -36,9 +36,13 @@ The current lifecycle/recovery contract is in [reliable-tasks.md](../../referenc
 2. Then the real 0.14.0 MCP server ran with a throwaway mailbox and that session's variables. An ask addressed to its session produced exactly the fixed pointer in the conversation, with no subject or body. The receipt read `pushed:session` via `env`, and the server reported `session push on (env)`.
 3. Not tested: an idle session starting a turn (reason-network documents it), and the registry fallback against a real session. The fallback is covered by an authored fixture.
 
-**Codex mid-turn delivery:** authored tests only, so far.
-- The hook was run as a real child process with Codex-shaped stdin, and the mark file decides who delivers.
-- Codex skips hooks until Matt trusts them in `/hooks`, so a live run in the Codex app is owed. It is recorded here once done.
+**Codex mid-turn delivery**, in the Codex desktop app (Codex 0.166.0-alpha.5.1, with the `PostToolUse` hook trusted in `/hooks`):
+1. A Claude hand-off asked for six 12-second shell steps.
+2. A follow-up sent after the second step started was held by the listener (`codex-app-deferred`), and 2 s later the hook took it (`app-hooked`).
+3. The rollout shows the pointer at the next tool call as a developer message with `"hook":true`, mid-turn.
+4. Codex read, claimed and answered the follow-up with its nonce within 20 s, then finished the remaining steps. The turn ended 2.5 minutes after the follow-up was answered.
+
+This also shows that the desktop app runs trusted hooks. Not live-tested: the `Stop` hook (it wasn't trusted in this run) and the queue fallback at the end of a turn. Both are covered by authored tests.
 
 ## Codex app route on 2026-11-01 (one Windows machine, 0.13.0)
 
