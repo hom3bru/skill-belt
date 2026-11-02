@@ -316,11 +316,11 @@ def main():
         records.append(entry)
         if result.returncode:
             # Keep CI failures diagnosable when its temporary directory is gone.
-            # The full raw output remains in the selected results directory.
+            # A failure near the start of a combined suite must not be clipped.
             if result.stdout:
                 print(result.stdout[-16000:], file=sys.stderr)
             if result.stderr:
-                print(result.stderr[-16000:], file=sys.stderr)
+                print(result.stderr, file=sys.stderr)
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
