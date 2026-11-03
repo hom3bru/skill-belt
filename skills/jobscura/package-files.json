@@ -1,19 +1,19 @@
 {
   "format": "jobscura-public-files-1",
   "files": {
-    ".codex-plugin/plugin.json": "003ea953579ebfd905affa2f1e0a62171a263e367547ea2d45ce7ffdf815e632",
+    ".codex-plugin/plugin.json": "9d1d3f15f117fa2fae283c016a68a46f548de021e01506da4924337af7b06ea0",
     ".env.example": "a6af66dfc12d10499e324d03336c03274402c5f82c7e5666b5d58003d23cb0e2",
     ".gitignore": "56a058c2692b0e5725d373e3457fc262585489d3f2415bb725faf6115797324a",
-    "CHANGELOG.md": "dabb1df45d046b3c1c48a61d36f8eb7928e9569ac10f8a0d8a9028ba84d609bd",
+    "CHANGELOG.md": "c85c927612b5e0ce1e15a8f3abb096ee8f90d685db50afb17c1458570f2d5017",
     "context/README.md": "453467372e246bd4b90fe498784083f24c7b8dd70ac9efcf1d560a9dbbf71eae",
     "context/user-context.example.json": "a13fd7fff18de4a3e502fe58c7ec9e46f32ac3707470c6cfafaa14307fabe015",
     "context/user-context.schema.json": "b22c1f11f6b547087e740771f71c723045936a4db3ad9551f6d551d210022636",
     "NOTICE.md": "32aae1cfac40a422fa9702d4289271337688308dd17f023105949ebc52e3c416",
-    "plugin.json": "53e2cd937533e05b8aa3ea31e3c33805c432b11c210cbd72834ed66c88d44cac",
-    "README.md": "d420813b14d1acded6c052ce0f6be18e18a99343b89cea27af5f3f5f5afff3f0",
-    "scripts/package.py": "7bf0790c54e52a32e47402df8340e7b2d63039c224e7028a5c9a47e71d49434c",
-    "scripts/user_context.py": "61cd6b6db3e7f20a9a717c9f61e321580dba3d9f48712b9a2f6c69a20cdc9639",
-    "SKILL.md": "d9d992a39cde4dc02812e33718e793d56c8a60514c32259037a77de7db5abb29",
+    "plugin.json": "3cfda4436b53a64ea9528833c4eb10acff0032c4fc3944557e7ec79df4ab3a10",
+    "README.md": "91d78e755a19d08287efb8307e13f7069223aac40ac656076bc4af7dcbec45ba",
+    "scripts/package.py": "79bcbe45084526540ab273845b31573e4aacd6a7dac2dcb3d7d91b03abc162b2",
+    "scripts/user_context.py": "f957bf73aa00ffdfbcb7121b8d891af5c2a53264d59097c8da23663c136cb277",
+    "SKILL.md": "da52b7e220ba64347980237380c28c05b36406d544b68e042c8c01614167b8f1",
     "skills/application-history/references/reconciliation-and-interest.md": "b92d25ff9381646dde555193e13b69b656dfa36eceaf157561f6434a7606f6cf",
     "skills/application-history/SKILL.md": "0fda8ac4162d3a7d23445100ed37e0bc79ff2f63870491e58c3bc6768ad06855",
     "skills/application-intake/references/assessment-method.md": "adabbfb70407b76d2a23be636e1915009a40b0b45534cbe79acf469471054ad1",
@@ -33,7 +33,7 @@
     "skills/interview-preparation/references/feedback-and-practice.md": "2de38170315e07f8cd0928ae63e3ff5571a17efca9916de3b7e2b4266dc68a8e",
     "skills/interview-preparation/references/question-families.md": "0e5e9bf52ed1b627bea9cbfad78159d9340b52ea8592201663da2e96e58929de",
     "skills/interview-preparation/SKILL.md": "504afb275e66a849771b484405ff6c14c275a66bd55ca2184c30285a7a8ef7b7",
-    "tests/test_package.py": "eae54bb6bad6f230a75f3a4d9797f211d465087448b9a19ea0cb08e36aadceb3",
-    "tests/test_user_context.py": "a11481fe860c565c5ff9260f7d608e3061ef161855186d4f19eea38efbb83804"
+    "tests/test_package.py": "b98403748baadf3ba7c58e07b5080f52a44eba1417662e3805028daf6c360271",
+    "tests/test_user_context.py": "5ee276bdbc9a439f1f76c2520c2e9dbf12a37214384c9742b095de4ea81b903d"
   }
 }

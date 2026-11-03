@@ -1,4 +1,4 @@
-# Jobscura 0.4.0
+# Jobscura 0.4.1
 
 Jobscura is a job-search and application toolkit in [Skill Belt](https://github.com/hom3bru/skill-belt).
 It connects opportunity intake, one canonical tracker, application history,
@@ -23,13 +23,13 @@ prints only validation status and section names. No real user profile ships here
 Python 3.10+ is sufficient for context validation, JSON/CSV/TSV packet workflows,
 packaging and tests. XLSX matching uses already-installed `openpyxl`; it is optional
 and never installed automatically. The packet helper version is 0.2.1; the toolkit
-version is 0.4.0. They use separate compatibility versions.
+version is 0.4.1. They use separate compatibility versions.
 
 ```sh
 python -B scripts/user_context.py --context /absolute/private/jobscura/user-context.json
 python -B -m unittest discover -s tests -v
 python -B -m unittest discover -s skills/application-packet/tests -v
-python -B scripts/package.py --output /absolute/output/jobscura-0.4.0.zip
+python -B scripts/package.py --output /absolute/output/jobscura-0.4.1.zip
 ```
 
 The [packet command guide](skills/application-packet/references/command-guide.md)

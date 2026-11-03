@@ -2,7 +2,7 @@
 name: jobscura
 description: Coordinate a source-grounded job search from intake and a canonical tracker through history, writing, reviewed application packets and interview practice. Load private user context only when explicitly selected; use the six focused workflows for the actual task.
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
 ---
 
 # Jobscura

@@ -1,5 +1,11 @@
 # Changes
 
+## 0.4.1 - Windows path containment
+
+- Resolve output and toolkit paths before comparing containment, including Windows short aliases.
+- Reject internal private context before opening it; retain repository and linked-path guards.
+- Add alias rejection and outside-output positive controls; preserve schema version 1 and package identity.
+
 ## 0.4.0 — Jobscura
 
 - Rename the public product to Jobscura and add a discoverable Skill Belt router.

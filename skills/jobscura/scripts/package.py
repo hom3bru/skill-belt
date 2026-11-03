@@ -43,14 +43,14 @@ def payload(root=ROOT):
         result[name] = data
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         metadata = json.loads(result[name])
-        if metadata["name"] != "application-assistant-workflows" or metadata["version"] != "0.4.0":
+        if metadata["name"] != "application-assistant-workflows" or metadata["version"] != "0.4.1":
             raise ValueError("Plugin identity or version mismatch")
     return result
 
 
 def build(output, root=ROOT):
     files = payload(root)
-    output = Path(output).absolute()
+    output = Path(output).resolve()
     if output.is_relative_to(Path(root).resolve()):
         raise ValueError("Keep generated archives outside the toolkit")
     # Exclusive creation prevents overwriting an earlier result.

@@ -1,6 +1,6 @@
 # What verification establishes
 
-The collection verifier runs the root rejection controls and all five bundled toolkit suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
+The collection verifier runs the root rejection controls and all six bundled toolkit suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
 
 | Layer | Evidence | Limit |
 | --- | --- | --- |

@@ -1,4 +1,4 @@
-"""Verify portable snapshots and run all four local skill suites. Standard library only."""
+"""Verify portable snapshots and run the local skill suites. Standard library only."""
 import argparse
 import fnmatch
 import hashlib
@@ -14,7 +14,7 @@ import time
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura")
+SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason")
 # Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
 SUB_SKILLS = {"carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research"),
               "jobscura": ("application-intake", "application-tracking", "application-history", "application-writing", "application-packet", "interview-preparation")}
@@ -266,7 +266,7 @@ def structure():
     expected |= {"skills/" + parent + "/skills/" + sub + "/SKILL.md" for parent, subs in SUB_SKILLS.items() for sub in subs}
     actual = {name for name in all_files if name.endswith("/SKILL.md")}
     if actual != expected:
-        raise ValueError("Expected exactly the five collection entrypoints and their declared sub-skills; unexpected: "
+        raise ValueError("Expected exactly the declared collection entrypoints and their declared sub-skills; unexpected: "
                          + ", ".join(sorted(actual - expected)) + "; missing: " + ", ".join(sorted(expected - actual)))
     for name in SKILLS:
         check_vocabulary(ROOT / "skills" / name, name, ROOT)
@@ -321,9 +321,9 @@ def main():
             if result.stdout:
                 print(result.stdout[-16000:], file=sys.stderr)
             if result.stderr:
-                print(result.stderr[-16000:], file=sys.stderr)
+                print(result.stderr, file=sys.stderr)
             raise ValueError(label + " failed; inspect " + str(output))
-        if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests"}:
+        if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests", "rule-or-reason-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
         elif label in {"frankenmine-tests", "westack-tests", "carrier-pigeon-tests"}:
             counts = json.loads(result.stdout)
@@ -344,6 +344,7 @@ def main():
         run("frankenmine-tests", [python, "-B", "tests/run_tests.py", "--output", str(output / "frankenmine-results")], fm)
         run("westack-package", [python, "-B", "scripts/validate.py", "package", "."], westack)
         run("westack-tests", [python, "-B", "tests/run.py", "--output", str(output / "westack-results.json")], westack)
+        run("rule-or-reason-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], ROOT / "skills/rule-or-reason")
         run("carrier-pigeon-tests", [python, "-B", "tests/run.py"], ROOT / "skills/carrier-pigeon")
         jobscura = ROOT / "skills/jobscura"
         run("jobscura-context-package-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], jobscura)

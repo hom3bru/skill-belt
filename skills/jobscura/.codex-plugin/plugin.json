@@ -9,7 +9,7 @@
     "defaultPrompt": null
   },
   "name": "application-assistant-workflows",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Jobscura: source-grounded intake, tracking, application history, writing, reviewed packets and interview preparation with explicit private user context.",
   "author": {
     "name": "Skill Belt"
