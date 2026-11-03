@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "task_id": "synthetic-multilingual-status",
+  "oracle": {
+    "kind": "synthetic",
+    "source": "authored package example; no production accuracy claim",
+    "independent_of_candidate": true
+  },
+  "cases": [
+    {
+      "id": "ja",
+      "group_id": "jp",
+      "stratum": "unicode",
+      "language": "ja",
+      "expectation": {
+        "status": "answered",
+        "output": "東京"
+      }
+    },
+    {
+      "id": "ar",
+      "group_id": "ar",
+      "stratum": "unicode",
+      "language": "ar",
+      "expectation": {
+        "status": "answered",
+        "output": "تم"
+      }
+    },
+    {
+      "id": "fr",
+      "group_id": "fr",
+      "stratum": "unicode",
+      "language": "fr",
+      "expectation": {
+        "status": "answered",
+        "output": "levée confirmée"
+      }
+    },
+    {
+      "id": "absent",
+      "group_id": "missing",
+      "stratum": "missing-evidence",
+      "expectation": {
+        "status": "abstained"
+      }
+    }
+  ]
+}

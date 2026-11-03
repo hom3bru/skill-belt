@@ -97,6 +97,22 @@
       "notes": "Jobscura 0.4.1 sanitized canonical edition, derived from application-assistant-workflows 0.3.0. Private author email, owner settings and binary workbook omitted; six skill identifiers and package identity retained. Private context never forms part of the source edition.",
       "exclude": [],
       "overlays": {}
+    },
+    "rule-or-reason": {
+      "notes": "Original Rule Or Reason 0.1.1, frozen local canonical snapshot. Public edition omits the private project profile and overlays its spec/provenance to remove private project navigation and machine paths. Helper/tests are unchanged; no released source commit or comparative agent qualification is claimed.",
+      "exclude": [
+        "references/radar-maginot.md"
+      ],
+      "overlays": {
+        "references/design-spec.md": {
+          "base_sha256": "1d8ac55be1dc8f6121a6627d14d9e30fc9c404849677c8f1d2f9fe801942ef7d",
+          "reason": "Generalize private project/lab navigation and omit its private profile from the package tree; keep the full generic design and qualification limits."
+        },
+        "references/skill-usage.md": {
+          "base_sha256": "86d3c4e616559389675a0af1af138e17754be797f2e405d2615cb8ad6e48c189",
+          "reason": "Retain guidance roles and gaps while omitting creation-host paths, private profiles and raw local session records."
+        }
+      }
     }
   }
 }
