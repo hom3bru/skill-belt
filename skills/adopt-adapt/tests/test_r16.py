@@ -16,7 +16,7 @@ from unittest import mock
 from test_aa import aa, fixture, SCRIPT
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "3.0.0-grok-draft.r16"
+VERSION = "3.0.0-grok-draft.r18"
 
 # What a run actually loads (fourth pass): SKILL.md, routing.md and the generated routing index
 # (`aa.py routing-index`), then only the chosen profile, the shared vocabulary that §0.7 makes normative and the

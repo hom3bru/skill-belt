@@ -1,12 +1,12 @@
 ---
 name: adopt-adapt
-description: Evaluate pasted repos, papers, products, docs, posts, datasets or agent skills for mechanisms a user-named recipient (a project, a coding workflow, Frankenmine, westack, or this skill itself) should ADOPT, ADAPT, or DISCARD, with evidence-backed transfer plans. Use for "adopt-adapt", "adopt or adapt these", "should this project use this", "mine these links", "salvage anything from this". Not for implementing an already-chosen tool, ordinary code review, product how-to, or merely wiring recipient paths. A new product built from several sources belongs to frankenmine; recovering how one opaque product, binary or app works belongs to reverse-engineer-anything.
+description: Evaluate any source for useful parts and patterns recipients (including westack) should ADOPT, ADAPT, or DISCARD. Look beyond purpose, domain and language; judge recipient benefit, compatible assumptions and net transfer burden. Use for "adopt-adapt", "mine these links", "salvage anything from this", tool comparisons and transfer plans. Not for implementing an already-chosen tool, ordinary code review or product how-to. A new product built from several sources belongs to frankenmine; recovering how one opaque product works belongs to reverse-engineer-anything.
 license: Proprietary (user)
 metadata:
   compatibility: "Claude Code, Codex, Cursor. Python 3.10+ optional for scripts/aa.py; manual fallback defined."
-  version: "3.0.0-grok-draft.r16"
+  version: "3.0.0-grok-draft.r18"
   lineage: "adopt-adapt 2.11.0 + adopt-adapt-v2 2.0.0 (Codex) + 3.0.0-proposal (other bot)"
-  status: "DRAFT - user-authorized bounded review route; scoped checks are separate from formal multi-host qualification (references/evaluation.md)"
+  status: "DRAFT - scoped validation; formal multi-host qualification incomplete (references/evaluation.md)"
   canonical-name-note: "installs as adopt-adapt; supersedes adopt-adapt-v2 naming"
 ---
 
@@ -14,7 +14,7 @@ metadata:
 
 > **DRAFT.** Multi-host qualification is incomplete ([evaluation](references/evaluation.md)); tests establish only their stated scopes.
 
-Find mechanisms worth taking, prove they help the real recipient, and make the transfer concrete. Explain what the source does unusually well before judging fit. Never manufacture a positive finding, and never default to rejection or ceremony to look rigorous. A large or irrelevant system can still contain one excellent part.
+Absolutely anything could contain useful parts or patterns. **A wildly unrelated source could contain the most valuable mechanism.** Inspect beyond purpose, domain and language. Relevance reveals connections and recipients; apparent unrelatedness alone supplies no deduction. Prove recipient benefit, compatible assumptions and net transfer cost. Never manufacture a positive finding, and never default to rejection or ceremony to look rigorous.
 
 ## 0. Contract (fail-closed; applies to every run)
 1. **Plans only.** Do not edit recipient source, install packages or skills, run donor code or scripts, or change credentials during evaluation. Implementation is a separate task that needs its own explicit request. Agreement to a recommendation is not permission to install.
@@ -36,7 +36,7 @@ A skill recipient is never SELF by default; wiring recipient paths is maintenanc
 Snapshot each recipient: root, branch, HEAD SHA, dirty files you will rely on, scoped instructions read (path + date).
 
 ### Quick call (default for a small idea)
-A snippet, one function or one idea for a named seam gets a quick call, unless a governed or frozen seam, a skill/hook/MCP/config donor, a new dependency or whole-tool adoption is at stake. Read the part, the seam and its callers, then write a few lines: evidence with file:line (what the part does, whether callers and tests keep working, the licence in one line, read versus run) as its ledger (§0.6); the verdict with its reason and the strongest reason against; the transfer step; one test that fails without the mechanism. Add no template, refutation targets, lens list, printed numbers, routing line for a named recipient, or files. Move up a route only when size or risk turns decision-changing.
+A snippet, one function or one idea for a named seam gets a quick call, unless a governed or frozen seam, a skill/hook/MCP/config donor, a new dependency or whole-tool adoption is at stake. Read the part, the seam and its callers, then write a few lines: evidence with file:line (what the part does, whether callers and tests keep working, the licence in one line, read versus run) as its ledger (§0.6); the verdict with its reason and the strongest reason against; the transfer step with benefit and burden; one test that fails without the mechanism. Add no template, refutation targets, lens list, printed numbers, routing line for a named recipient, or files. Move up a route only when size or risk turns decision-changing.
 
 ### Bounded mechanism review
 The lean route through §§2–8 for a named part of a larger source, or a small batch of bounded pairs (finish every queued pair). Whole-tool ADOPT, opaque behavior, execution-backed verification and skill/hook/MCP/config donors take the full route.
@@ -64,18 +64,18 @@ Run all that apply and record flag, scope and resolution:
 - PAID-ELEMENT, OPAQUE-CODE (documented-behavior salvage only; decompilation stays disabled unless the user scopes it), PROHIBITED-BEHAVIOR/ANTI-DETECT, SUPPLY-CHAIN-RISK.
 
 ## 4. Numbers: fit, mechanism value, confidence
-**Whole-tool fit (−2..10, triage only):** four components on the recipient profile's own rubric (else generic's), then the single strongest penalty 0/−1/−2. Unknown component → fit UNKNOWN. It never decides whether salvage runs.
-**Mechanism value (0–3)** of the best mechanism for this recipient — 0: no confirmed recipient need, or the recipient already has it WIRED; 1: plausible need not yet confirmed, or a benefit too small to justify transfer (a `promising` lesson; report `DISCARD (promising: <check to run>)` when one check would confirm it, never for a need the user stated); 2: confirmed need — a recipient gap plus an observed symptom or a stated requirement (the user's own statement counts; a missing component alone is a gap, not a need) — and the donor mechanism inspected at PRESENT or above with an identified receiving seam; 3: as 2, plus the mechanism TESTED or OBSERVED in this work on a workload comparable to the recipient's (author-tested donor results do not qualify).
+**Whole-tool fit (−2..10, triage only):** four components on the recipient profile's own rubric (else generic's), then the single strongest penalty 0/−1/−2. Unknown component → fit UNKNOWN. It never decides whether salvage runs. Source labels alone cannot lower mechanism value; concrete incompatibility or transfer cost can.
+**Mechanism value (0–3)** of the best mechanism for this recipient — 0: no recipient benefit identified, or its proposed benefit is already WIRED with no worthwhile improvement; 1: plausible need not yet confirmed, or a benefit too small to justify transfer (a `promising` lesson; report `DISCARD (promising: <check to run>)` when one check would confirm it, never for a need the user stated); 2: confirmed need — a recipient gap, including improvement or simplification, plus an observed symptom or a stated requirement (the user's own statement counts; a missing component alone is a gap, not a need) — and the donor mechanism inspected at PRESENT or above with an identified receiving seam and benefit worth its burden; 3: as 2, plus the mechanism TESTED or OBSERVED in this work on a workload comparable to the recipient's (author-tested donor results do not qualify).
 **Confidence (low/medium/high)** in the verdict — low: a decisive claim rests on CLAIMED or inferred evidence, or a decisive unknown is open; medium: decisive donor and recipient claims are PRESENT or above and the stated unknowns would not flip the verdict; high: decisive claims are WIRED or above on both sides with at least one TESTED or OBSERVED, contradictions are resolved, and nothing open could flip the verdict.
 **Numbers by route.** Quick call: judged, not printed. Bounded review: mechanism value and confidence for every verdict, `fit: not scored (bounded route)`, no whole-tool ADOPT. Full route: all three; ADOPT needs a scored fit ≥8. In structured records every claim carries its ladder `level`, and `aa.py validate` caps value and confidence by those levels and enforces the §8 thresholds ([records](references/records.md)).
 
 ## 5. Salvage hunt (every source, every score)
-Five lenses: algorithms · error handling/recovery · data structures/schemas · security/compliance · performance. Add test oracles, interfaces, ops/observability, developer workflow or reproducibility when relevant. Each finding names file:line at the pinned SHA. Reporting: structured records carry all five axes, each `found`/`none`/`not-applicable` with evidence; bounded and full manual reports list the lenses with a finding plus one line naming what else was inspected.
+Five starting lenses: algorithms · error handling/recovery · data structures/schemas · security/compliance · performance. Follow other useful patterns too: tests, interfaces, interaction, workflow, observability or organization. Cite inspected lines/sections at the pinned revision. Reporting: structured records carry all five axes plus any additional useful area, each `found`/`none`/`not-applicable` with evidence; bounded and full manual reports list areas with a finding plus one line naming what else was inspected.
 
-Search both directions (recipient needs → donor parts; donor strengths → an overlooked need), and for an apparently irrelevant source ask what it does unusually well. Check the actual recipient before claiming a new need. Unqualified clues stay `promising` in [lessons](references/lessons.md), not ADAPT verdicts. There is no positive-finding quota.
+Search both directions (recipient needs → donor parts; donor strengths → an overlooked need). Describe the problem, mechanism and analogy-breaking assumption independently of domain labels. Match discoveries to inspected recipient needs, including better or simpler existing capabilities; update provisional routing within scope ([routing](references/routing.md)). Unqualified clues stay `promising` in [lessons](references/lessons.md), not ADAPT verdicts. There is no positive-finding quota.
 
 ## 6. Transfer contract (any ADOPT/ADAPT)
-Full procedure: [transfer](references/transfer.md) and [Python→TS](references/python-to-typescript.md). Observable behavior · donor dependencies/state · exact recipient seam (caller, config, flag) · semantic differences · smaller alternative · license obligation · risk + rollback · **acceptance test that fails when the mechanism is disconnected** · governed/frozen status. Distinguish donor parity, domain correctness, recipient regression, and real-entrypoint integration.
+Full procedure: [transfer](references/transfer.md) and [Python→TS](references/python-to-typescript.md). Observable behavior · dependency/state closure · receiving seam · semantic differences · smaller alternative and burden added/removed · license obligation · risk + rollback · **acceptance test that fails when the mechanism is disconnected** · governed/frozen status. Distinguish donor parity, domain correctness, recipient regression, and real-entrypoint integration.
 **RE claims** follow [methods](references/re-methods.md) and [verification](references/re-verification.md): one claim per reconstruction method; pass needs a discriminating oracle and a negative control; decompiler output remains `inferred`.
 **Oracle liveness**: before trusting any passing check, show it fails on a deliberately broken or disconnected copy and that it reads live state, not a frozen capture. A test's name or path doesn't establish its depth; an empty selected-test set means nothing was verified.
 **Execution evidence**: a supported `verified_outcome` or passing RE claim needs a captured receipt (harness, inputs, raw output, positive/control observations); source-only work may end `not-run`. Separately authorized experiments use [execution](references/execution.md); evaluation never invokes it.
@@ -86,13 +86,13 @@ For ADOPT, a governed, frozen or perimeter seam, a consequential decision or hig
 Rebuild doubt and transfer prose from this pair's evidence, never another case's arguments, and run the short [narrative review](references/narrative-review.md).
 
 ## 8. Decide and publish
-Results (one per READY pair): **ADOPT** (use as-is) · **ADAPT** (take a named mechanism) · **ADAPT-with-prerequisite** (ADAPT once a named condition holds) · **ALREADY-COVERED** (the recipient has it implemented and wired) · **DISCARD** (its salvage names every separable part that passed the screen, a line each, not just the first found) · **OPPORTUNITY** (no recipient) · **INCONCLUSIVE** (decisive evidence missing).
+Results (one per READY pair): **ADOPT** (use as-is) · **ADAPT** (take a named mechanism) · **ADAPT-with-prerequisite** (ADAPT once a named condition holds) · **ALREADY-COVERED** (proposed benefit wired, no worthwhile improvement) · **DISCARD** (its salvage names every separable part that passed the screen, a line each, not just the first found) · **OPPORTUNITY** (no recipient) · **INCONCLUSIVE** (decisive evidence missing).
 Item states: **QUEUED** · **RESEARCHING** · **READY** · **BLOCKED** · **UNPROCESSED** · **CANCELLED** — a pair that is not READY shows its reason and never a result.
 ```
 hard gate fails for the whole tool (paid / prohibited / injection unresolved / legal RED|UNKNOWN)? -> whole tool DISCARD; a clean part may still transfer on its own lawful legal part
 no recipient? -> OPPORTUNITY
 decisive source fact unsupported, needed donor path unread, or recipient seam uninspected? -> INCONCLUSIVE (state what's missing)
-recipient already has it implemented and wired? -> ALREADY-COVERED
+recipient already achieves the proposed benefit wired, with no worthwhile improvement? -> ALREADY-COVERED
 usable unmodified, scored fit >=8, mechanism value >=2, every gate resolved? -> ADOPT
 mechanism value >=2, transfer contract complete, transferred part's legal flag GREEN? -> ADAPT (YELLOW, or a named open condition -> ADAPT-with-prerequisite)
 else -> DISCARD with reasons + residual salvage list (value 1 -> DISCARD (promising: <check to run>), §4)
@@ -105,6 +105,6 @@ For ADOPT/ADAPT, ask accept / defer / decline. Write plans only into the recipie
 **Outcome log:** when an accepted plan is implemented, record its acceptance-test result (passed/failed/blocked/not-run, with the receipt) next to the original result, value and confidence, in the research record the recipient's profile names, else the report's next step (structured runs: `aa.py outcome`). It is calibration data, never an input to a fresh judgment (§0.8).
 
 ## 9. Failure modes this skill exists to prevent
-Summary-only reads · grep-hit = "already have it" · author-tested = TESTED · verdict before ledger · silent batch triage · stale historical verdicts · hallucinated packages or repos · invented citations · donor-script execution · profile bleed · touching frozen or governed paths · paid creep · rubric arithmetic drift · self-edit mid-run.
+Superficial relevance judgments · missed mechanisms · unmeasured burden · unsupported claims · stale verdicts · donor execution · profile bleed · scope violations. §0 governs evidence, permissions and safeguards.
 
 [Evolution](references/evolution.md) governs self-change. Read on demand only: [legal-research](references/legal-research.md), and `references/historical-findings.md` where an edition ships it (dated per-donor findings; re-verify any fact before reuse, §0.8). History: [CHANGES](CHANGES.md).

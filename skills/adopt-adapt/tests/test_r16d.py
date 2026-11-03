@@ -320,7 +320,7 @@ class LegalTests(Case):
         self.decision["result"] = "ADAPT"
         self.assertRejected("discard")
 
-    def test_legal_sources_need_a_url_and_iso_date(self):
+    def test_web_legal_sources_need_a_url_and_iso_date(self):
         self.legal["sources"] = [{"title": "x", "url": "x", "accessed": "2026-10-09"}]
         self.assertRejected("url")
         self.legal["sources"] = [{"title": "x", "url": "https://example.test/terms", "accessed": "yesterday-ish"}]

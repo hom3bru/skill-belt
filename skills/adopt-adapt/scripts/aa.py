@@ -766,8 +766,9 @@ def _validate(record, root, live):
         require(all(c["subject"] == recipient["id"] for c in overlaps), "overlap claim belongs to another recipient or donor")
         check_subsystems(cov, ev, executions, source)
         hunt = ledger.get("salvage")
-        require(isinstance(hunt, dict) and set(hunt) == set(AXES), "all five salvage axes required")
+        require(isinstance(hunt, dict) and set(AXES) <= set(hunt), "all five salvage axes required")
         for axis, row in hunt.items():
+            require(nonempty(axis), "salvage area name must be nonempty text")
             strings(row, ("result", "note"), axis)
             require(row["result"] in {"found", "none", "not-applicable"}, "unknown salvage requires incomplete state")
             es = refs(row.get("evidence"), ev, axis)
@@ -793,8 +794,17 @@ def _validate(record, root, live):
             require(legal["flag"] == "RED", "hard line: a donor past a hard line is RED as a whole")
         require(isinstance(legal.get("sources"), list) and legal["sources"], "legal.sources required")
         for src in legal["sources"]:
-            strings(src, ("title", "url", "accessed"), "legal source")
-            require(HTTP_URL.fullmatch(src["url"]) is not None, "legal source url must be an http(s) URL")
+            strings(src, ("title", "accessed"), "legal source")
+            require("url" in src or "evidence" in src, "legal source needs url or captured evidence")
+            if "url" in src:
+                strings(src, ("url",), "legal source")
+                require(HTTP_URL.fullmatch(src["url"]) is not None, "legal source url must be an http(s) URL")
+            if "evidence" in src:
+                cited = refs(src["evidence"], ev, "legal source.evidence")
+                require(all(e["subject"] in {source["id"], recipient["id"]}
+                            and e["read_scope"] != "unread"
+                            and e.get("artifact_kind", "source") == "source" for e in cited),
+                        "legal source evidence must be read source material for this donor/recipient pair")
             require(ISO_DATE.match(src["accessed"]) is not None, "legal source accessed must start with an ISO date (YYYY-MM-DD)")
         present_risks = check_donor_risks(ledger, source)
         source_executions = {k: v for k, v in executions.items() if v["subject"] == source["id"]}
@@ -1034,7 +1044,10 @@ def render_review_fields(ledger, fields):
         legal = ledger["legal"]
         lines.extend([f"- LEGAL: {text(legal['flag'])} | route {text(legal['route'])} | escalate={legal['escalate_to_lawyer']} | ladder: {text(', '.join(legal['ladder_steps_tried']))}", f"- LEGAL notice: {text(legal['advice_notice'])}"])
         for source in legal["sources"]:
-            lines.append(f"- LEGAL source: {text(source['title'])}; {text(source['url'])}; accessed {text(source['accessed'])}")
+            provenance = [source["url"]] if "url" in source else []
+            if "evidence" in source:
+                provenance.append("captured evidence " + ", ".join(source["evidence"]))
+            lines.append(f"- LEGAL source: {text(source['title'])}; {text('; '.join(provenance))}; accessed {text(source['accessed'])}")
         for key in sorted(set(legal) - {"flag", "route", "escalate_to_lawyer", "ladder_steps_tried", "advice_notice", "sources"}):
             lines.append(f"- LEGAL {text(key)}: {text(json.dumps(legal[key], ensure_ascii=False))}")
     if "donor_risks" in fields:
@@ -1090,7 +1103,7 @@ def render_shared_donor(source, items, identity, common):
                 lines.extend(render_subsystems(value))
             else:
                 for axis, row in value.items():
-                    lines.append(f"- {axis}: {text(row['result'])} — {text(row['note'])} [{text(', '.join(row['evidence']))}]")
+                    lines.append(f"- {text(axis)}: {text(row['result'])} — {text(row['note'])} [{text(', '.join(row['evidence']))}]")
     if common:
         lines.append(f"- Exact common review for pairs {', '.join(x['id'] for x in items)}: {', '.join(common)}. Each pair below explicitly references this basis.")
         lines.extend(render_review_fields(items[0]["ledger"], common))

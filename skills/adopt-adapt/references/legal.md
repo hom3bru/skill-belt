@@ -1,10 +1,10 @@
 # Legal flag and defensible-route analysis
 
-Artifact boundary: apply this gate separately to acquiring inputs, analyzing them, any access-control step, copying/adapting source, and publishing tools/source/translated code/binaries/content. Record the actual intended distribution in the [method contract](re-methods.md). A tool's license, an AI rewrite, separate assets or a user-supplied copy do not by themselves resolve every artifact's rights. Repository contribution/AI policies are distinct from downstream license permissions. This is a review checklist, not a new legal conclusion; unresolved primary-law checks stay unresolved ([legal-research](legal-research.md) lists them).
+Apply acquisition, analysis, access-control, reuse and distribution gates separately; record planned distribution in the [method contract](re-methods.md). A tool license, AI rewrite, separate assets or user-supplied copy does not settle each artifact's rights. Contribution/AI policies differ from downstream permissions. This checklist supplies no new legal conclusion; unresolved primary-law checks remain unresolved ([legal-research](legal-research.md)).
 
-**Notice:** Research flags and process guidance only — **not legal counsel**. No attorney–client relationship. Escalate before shipping, decompiling, scraping personal data at scale, or touching console/DRM stacks. Full dossier + source table: [legal-research.md](legal-research.md) (shipped in this package).
+**Notice:** Process guidance, **not legal counsel**; no attorney–client relationship. Escalate before shipping, decompiling, large-scale personal-data scraping or console/DRM work. [legal-research.md](legal-research.md) contains the full dossier and sources.
 
-Every donor run emits `ledger.legal` with `flag`, `route`, ladder steps, and cited sources (URL + accessed date). Recipient profiles may raise the flag (each lists its own overlay: privacy/egress/anti-detect, paid elements, stealth, holdout or live-data rules; injection, undisclosed persistence or unclear skill licences for skill recipients and SELF).
+Each run emits `ledger.legal`: flag, route, ladder and cited sources. Each source has title, accessed date, and an HTTP(S) `url` or captured `evidence` IDs (both allowed). Local references must be read source material from this donor/recipient pair, bound to checked bytes/revision; paths alone are insufficient. References do not clear legal flags. Recipient profiles add their own overlays.
 
 ## Flags
 
@@ -84,7 +84,7 @@ RED before implement; console/DRM; decompile/clean-room for shipping; AGPL/SSPL 
 ```
 flag, route, ladder_steps_tried[], license_parts[], tos{}, section_1201{},
 fair_use_note, hard_line_hit, escalate_to_lawyer, advice_notice,
-sources[{title,url,accessed}], patent_signal (every reuse route), terms_restriction (idea-only routes),
+sources[{title,url? (HTTP(S)),evidence? (IDs),accessed}] (url or evidence required), patent_signal (every reuse route), terms_restriction (idea-only routes),
 waiver{by, covers: licence, text, date} (an UNKNOWN licence only),
 parts[{id, part, flag, route, basis, patent_signal?, terms_restriction?, waiver?}]
 ```

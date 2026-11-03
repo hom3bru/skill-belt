@@ -18,13 +18,13 @@ Refutation targets (written before the deep seam read):
 Evidence ladder:
 | Claim | Level (CLAIMED/PRESENT/WIRED/TESTED/OBSERVED) | Citation (file:line or run receipt) |
 
-Need: <gap> + <observed symptom or stated requirement; the user's statement counts> (a gap alone is not a need)
-Five lenses: <lens with a finding: file:line>; also inspected: <one line>
+Need: <gap, improvement or simplification> + <observed symptom or stated requirement; the user's statement counts> (a gap alone is not a need)
+Discovery: <finding in a starting lens or other area: source lines/section>; also inspected: <one line>
 LEGAL: <flag> | route <route> | patent_signal <none|hit|unknown> | terms_restriction <...> | escalate? <yes|no>
 Gates: <recipient perimeter, governed/frozen status of the seam, paid elements>
 
 For / against: <strongest reason each way>
-ADAPT only: behaviour/invariant · exact seam · semantic difference · smaller alternative · licence route · rollback · test that fails when the mechanism is disconnected
+ADAPT only: behaviour/invariant · exact seam · semantic difference · current behavior → benefit → burden added/removed → smaller alternative · licence route · rollback · test that fails when the mechanism is disconnected
 Review: self | <level, packet or report hash, strongest disconfirming observation, checked?>
 
 VERDICT: <result> | fit not scored (bounded route) | mechanism <0-3>/3 | confidence <low|medium|high>
