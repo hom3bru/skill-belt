@@ -77,7 +77,7 @@
     "skills/opportunity-discovery/SKILL.md": "db93f082d0ee4e7e50d7510297dd30fa112d202886bf996f868ae63f2301885d",
     "tests/test_audit_board.py": "2811b3cbb82ad516ce4bd3f0018c627d7234cb2adf9a59f97a27c38e89335a30",
     "tests/test_audit_calendar_offers.py": "f15d738cdb9896669527118d5fc806058ce2d87acc81102c419d34ba9aebfddd",
-    "tests/test_audit_safety.py": "8df11ac4035f57776a4f72c3b0561563fa428a4d4b5668fde92deb771e6358b4",
+    "tests/test_audit_safety.py": "447b741fac79d6f68a0146cd3964b1cbdffbd668190e9049bd7d00bfbd490aaf",
     "tests/test_audit_tracker.py": "2c2b623838b245dcae874a8b4a8d9ca554abd43f95e825318b2081863ddfa721",
     "tests/test_evals.py": "dec750fd8228f032334309fd5a1edcc531e99edb78cb87d7551074a6c6d980ed",
     "tests/test_package.py": "1d54658c0646532a7e87d718d96a862293addbbd7cb061d7b24d5d7d14aa6282",
