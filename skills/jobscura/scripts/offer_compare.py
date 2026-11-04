@@ -42,7 +42,7 @@ def vested_fraction(month, total, cliff, every):
     return max(vested_months, cliff) / total if month >= cliff else 0.0
 
 
-def equity_by_year(equity, years):
+def equity_by_year(equity, years, name="offer"):
     if not equity:
         return [0.0] * years, None
     require(isinstance(equity, dict), "equity must be an object such as {\"type\": \"rsu\", \"grant_value\": 80000}")
@@ -53,6 +53,9 @@ def equity_by_year(equity, years):
     growth = number(equity.get("annual_growth_pct"), "equity.annual_growth_pct", -100, 1000, 0.0) / 100
     schedule = equity.get("schedule_pct")
     vesting_years = number(equity.get("vesting_years"), "equity.vesting_years", 1, 10, 4, integer=True)
+    cliff = number(equity.get("cliff_months"), f"{name}.equity.cliff_months", 0, 60, 12, integer=True)
+    total = vesting_years * 12
+    require(cliff <= total, f"{name}.equity.cliff_months must not exceed the vesting term ({total} months)")
     if schedule is not None:
         require(isinstance(schedule, list) and schedule, "equity.schedule_pct must be a list of yearly percentages")
         shares = [number(x, "equity.schedule_pct item", 0, 100) for x in schedule]
@@ -60,10 +63,8 @@ def equity_by_year(equity, years):
         fractions = [x / 100 for x in shares]
         note = "explicit yearly schedule " + "/".join(f"{x:g}" for x in shares)
     else:
-        cliff = number(equity.get("cliff_months"), "equity.cliff_months", 0, 60, 12, integer=True)
         frequency = equity.get("frequency", "monthly")
         require(frequency in FREQUENCY_MONTHS, "equity.frequency must be monthly, quarterly, semiannual or annual")
-        total = vesting_years * 12
         every = FREQUENCY_MONTHS[frequency]
         fractions = [vested_fraction(12 * y, total, cliff, every) - vested_fraction(12 * (y - 1), total, cliff, every)
                      for y in range(1, vesting_years + 1)]
@@ -97,7 +98,7 @@ def offer_years(offer, years):
     refresher = number(offer.get("refresher_annual_value"), f"{name}.refresher_annual_value", 0, 1e9, 0.0)
     refresher_start = number(offer.get("refresher_start_year"), f"{name}.refresher_start_year", 1, 10, 2, integer=True)
     costs = number(offer.get("annual_costs"), f"{name}.annual_costs", 0, 1e8, 0.0)
-    equity, equity_note = equity_by_year(offer.get("equity"), years)
+    equity, equity_note = equity_by_year(offer.get("equity"), years, name)
     rows = []
     for y in range(1, years + 1):
         salary = base * (1 + raise_pct) ** (y - 1)

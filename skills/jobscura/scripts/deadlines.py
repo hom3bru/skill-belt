@@ -301,7 +301,7 @@ def ics_utc(moment):
     return moment.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
-def calendar(result, timezone_name):
+def calendar(result, timezone_name, skipped=None):
     """Events for active dated roles with alarms at each future reminder window.
 
     The user imports the file into their own calendar; Jobscura schedules and sends nothing.
@@ -312,15 +312,28 @@ def calendar(result, timezone_name):
     windows = result["conventions"]["reminder_windows_days"]
     lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Skill Belt//Jobscura deadlines " + VERSION + "//EN",
              "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Job application deadlines"]
-    events = 0
+    events, uids = 0, set()
     for record in result["records"]:
         if not record["active"] or not record.get("deadline") or record.get("days_remaining") is None \
                 or record["days_remaining"] < 0:
             continue
         deadline = date.fromisoformat(record["deadline"])
         cutoff = datetime.fromisoformat(record["cutoff_local"]) if record.get("cutoff_local") else None
-        identity = "|".join(str(record.get(k) or "") for k in ("employer", "requisition_id", "record_id")) + "|" + record["deadline"]
+        if record.get("record_id") or record.get("requisition_id"):
+            # Preserve published UIDs for identified rows, including the empty fields.
+            identity = "|".join(str(record.get(k) or "") for k in ("employer", "requisition_id", "record_id")) + "|" + record["deadline"]
+        elif record.get("url"):
+            link = common.normalized_link(record["url"])
+            require(link, "calendar URL must be an HTTP(S) URL for a stable identity")
+            identity = "|".join((str(record.get("employer") or ""), link, record["deadline"]))
+        else:
+            if skipped is not None:
+                skipped.append({k: record.get(k) for k in ("row", "employer", "title")} |
+                               {"reason": "no record ID, requisition ID or URL for a stable calendar identity"})
+            continue
         uid = "jobscura-" + common.sha256(identity.encode("utf-8"))[:32] + "@jobscura.invalid"
+        require(uid not in uids, "duplicate calendar UID; resolve duplicate role identities before exporting")
+        uids.add(uid)
         role = " - ".join(x for x in (record.get("title"), record.get("employer")) if x) or str(record.get("record_id") or "role")
         prefix = "Closes" if cutoff or record.get("deadline_type") not in SOFT_TYPES else \
             record["deadline_type"].replace("_", " ").capitalize()
@@ -383,10 +396,11 @@ def main(argv=None):
             tz_name = tz_name or value["preferences"]["timezone"]
         result = plan(args.tracker, tz_name, args.as_of, conventions, overrides)
         if args.ics:
-            text, events = calendar(result, tz_name)
+            skipped = []
+            text, events = calendar(result, tz_name, skipped)
             with Path(args.ics).open("x", encoding="utf-8", newline="") as handle:
                 handle.write(text)
-            result["calendar"] = {"file": Path(args.ics).name, "events": events,
+            result["calendar"] = {"file": Path(args.ics).name, "events": events, "skipped": skipped,
                                   "note": "Import into your own calendar; nothing was scheduled or sent."}
         common.emit(result, args.out)
     return common.run_cli(run)
