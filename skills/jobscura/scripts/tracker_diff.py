@@ -18,15 +18,25 @@ from jobscura_common import require
 
 VERSION = "1.0.0"
 TITLE_MATCH = 0.6
-# Once a role reached one of these application states, an edit that returns it to an
-# earlier or blank state loses history rather than updating it.
+# Match individual milestones so negation applies to each occurrence independently.
 FINAL = re.compile(r"\b(applied|submitted|interview\w*|offer\w*|rejected|declined|withdrawn|hired|accepted)\b", re.I)
 NEGATED = re.compile(r"\b(?:not|never|yet to)\s+(?:yet\s+)?$", re.I)
+TERMINAL = {"rejected", "declined", "withdrawn", "hired", "accepted"}
+
+
+def application_state(status):
+    text = str(status or "")
+    milestones = [m.group().casefold() for m in FINAL.finditer(text)
+                  if not NEGATED.search(text[:m.start()])]
+    terminals = set(milestones) & TERMINAL
+    rank = max((3 if word.startswith("offer") else 2 if word.startswith("interview") else 1
+                for word in milestones if word not in TERMINAL), default=0)
+    return rank, terminals
 
 
 def reached_final(status):
-    text = str(status or "")
-    return any(not NEGATED.search(text[:m.start()]) for m in FINAL.finditer(text))
+    rank, terminals = application_state(status)
+    return bool(rank or terminals)
 
 
 def load(path, overrides):
@@ -66,10 +76,15 @@ def compare(before_path, after_path, overrides=None):
     problems, review = [], []
     before, before_missing = by_id(before_rows, "before", problems)
     after, after_missing = by_id(after_rows, "after", problems)
-    require(before or after, "neither export has record IDs; map one with --map record_id=Header")
     dropped = [h for h in before_headers if h not in after_headers]
     if dropped:
         problems.append({"kind": "columns_removed", "columns": dropped})
+    if before_missing:
+        review.append({"kind": "rows_without_record_id", "side": "before", "rows": before_missing})
+    if len(after_missing) < len(before_missing):
+        problems.append({"kind": "unidentified_rows_decreased", "before": len(before_missing),
+                         "after": len(after_missing),
+                         "message": "Add record IDs or compare unidentified rows by hand."})
     if after_missing:
         review.append({"kind": "rows_without_record_id", "side": "after", "rows": after_missing})
     for rid in sorted(set(before) - set(after)):
@@ -83,9 +98,18 @@ def compare(before_path, after_path, overrides=None):
             if old_id[key] and old_id[key] != new_id[key]:
                 problems.append({"kind": "identity_changed", "record_id": rid, "field": key,
                                  "before": old.get(key), "after": new.get(key)})
-        if reached_final(old.get("status")) and not reached_final(new.get("status")):
+        old_rank, old_terminal = application_state(old.get("status"))
+        new_rank, new_terminal = application_state(new.get("status"))
+        if ((old_rank or old_terminal) and not (new_rank or new_terminal)
+                or not old_terminal and not new_terminal and new_rank < old_rank):
             problems.append({"kind": "application_history_regressed", "record_id": rid,
                              "before": old.get("status"), "after": new.get("status")})
+        if old_terminal and new_rank and not new_terminal:
+            review.append({"kind": "status_reopened", "record_id": rid,
+                           "before": old.get("status"), "after": new.get("status")})
+        if old_terminal and new_terminal and old_terminal != new_terminal:
+            review.append({"kind": "terminal_status_changed", "record_id": rid,
+                           "before": old.get("status"), "after": new.get("status")})
         cleared = [h for h, v in old["_raw"].items() if str(v or "").strip() and not str(new["_raw"].get(h) or "").strip()]
         if cleared:
             review.append({"kind": "values_cleared", "record_id": rid, "columns": cleared})
@@ -115,8 +139,12 @@ def compare(before_path, after_path, overrides=None):
                                            "possible repost; never merge or overwrite the earlier record"})
     status = "blocked" if problems else "review_required" if review or candidates else "conserved"
     return {"schema_version": 1, "tool": "tracker_diff", "tool_version": VERSION, "status": status,
-            "before": {"file": Path(before_path).name, "records": len(before), "sha256": common.sha256(common.read_input(before_path))},
-            "after": {"file": Path(after_path).name, "records": len(after), "sha256": common.sha256(common.read_input(after_path))},
+            "before": {"file": Path(before_path).name, "records": len(before),
+                       "rows": len(before_rows), "unidentified": len(before_missing),
+                       "sha256": common.sha256(common.read_input(before_path))},
+            "after": {"file": Path(after_path).name, "records": len(after),
+                      "rows": len(after_rows), "unidentified": len(after_missing),
+                      "sha256": common.sha256(common.read_input(after_path))},
             "expected_after_records": len(before) + len(added) - len(set(before) - set(after)),
             "added": added, "changed": changed, "problems": problems, "review": review, "repost_candidates": candidates,
             "limits": "Structural comparison of two exports. It cannot see formulas, hidden tabs or edits made outside "
