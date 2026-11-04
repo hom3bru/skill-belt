@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/hom3bru/skill-belt/tree/codex/skill-belt/skills/jobscura/context/user-context.schema.json",
-  "title": "Jobscura private user context v1",
-  "description": "Private source context and preferences. Contains no action grants or credentials.",
+  "title": "Jobscura private user context v1-v2",
+  "description": "Private source context and preferences. Contains no action grants or credentials. Version 2 adds optional monitoring and search preferences.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -13,7 +13,10 @@
   "properties": {
     "schema_version": {
       "type": "integer",
-      "const": 1
+      "enum": [
+        1,
+        2
+      ]
     },
     "profile": {
       "type": "object",
@@ -86,6 +89,139 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 2000
+          }
+        },
+        "monitoring": {
+          "description": "Version 2. Workflow conventions for tracking cadence and reminders; never a permission.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dated_check_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "undated_check_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "reminder_windows_days": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 365
+              }
+            },
+            "closing_horizon_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            },
+            "shortlist_size": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20
+            },
+            "urgency_open_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365
+            },
+            "long_open_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 730
+            },
+            "delivery_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            }
+          }
+        },
+        "search": {
+          "description": "Version 2. What the user is looking for; a filter for discovery, not a hard rule unless the user says so.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "target_roles": {
+              "type": "array",
+              "maxItems": 30,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "locations": {
+              "type": "array",
+              "maxItems": 30,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "work_arrangements": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "onsite",
+                  "hybrid",
+                  "remote"
+                ]
+              }
+            },
+            "min_base_pay": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "amount",
+                "currency",
+                "period"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000000
+                },
+                "currency": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 3
+                },
+                "period": {
+                  "type": "string",
+                  "enum": [
+                    "year",
+                    "month",
+                    "week",
+                    "day",
+                    "hour"
+                  ]
+                }
+              }
+            },
+            "exclusions": {
+              "type": "array",
+              "maxItems": 30,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            },
+            "work_authorization_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
           }
         }
       }

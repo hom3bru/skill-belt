@@ -1,6 +1,6 @@
 ---
 name: interview-preparation
-description: Prepare for an interview from existing application and career evidence, run question-specific coaching or simulation, give grounded feedback, and produce useful preparation cues. Use for practice, targeted drills, work samples and debriefs, not covert live assessment assistance.
+description: Prepare for interviews from the user's real application and career evidence - likely questions mapped to the posting's requirements, a story bank of true incidents, mock interviews with one question at a time, grounded feedback, cue cards and debriefs. Use when the user has an interview, wants to practise or do a mock interview, prepare STAR stories, rehearse a work sample, or debrief afterwards. Never covert help during a live interview or assessment.
 ---
 
 # Interview preparation
@@ -30,6 +30,9 @@ or claim answers were saved when no authorized persistence tool ran.
    the right answer unit. Career overviews need connected remit; past-behavior
    questions need an actual incident; situations need an intended method. STAR is
    available for an incident, not a universal form. Preserve every mixed-prompt subpart.
+   To plan coverage, map the posting's required items to the user's real incidents
+   (`grounding.py coverage` gives a first pass). Name every requirement that has no
+   true story as a gap to prepare honestly for, not one to fill with invention.
 4. Preserve the user's actual answer, completeness and uncertainty before critique.
    Clarify an uncertain transcript rather than assigning invented words. Ask a
    neutral probe only for a material gap, one at a time, without supplying an
@@ -41,8 +44,9 @@ or claim answers were saved when no authorized persistence tool ran.
    due, give what worked, the relevant answer span and why a repair matters.
    Do not require another attempt when none is useful or wanted. A clear answer
    may need no rewrite. An unasked competency is unassessed, not failed.
-6. Finish with concise cues or the requested preparation document, keeping actual
-   history, intended actions and examples separate. Use the
+6. Finish with concise cues ([cue card](../../references/output-formats.md)) or the
+   requested preparation document, keeping actual history, intended actions and
+   examples separate. Use the
    [writing delivery checks](../application-writing/references/checks-and-delivery.md)
    for a file. Confirm what was saved versus delivered in the conversation.
 

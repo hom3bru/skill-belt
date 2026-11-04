@@ -89,7 +89,7 @@
       }
     },
     "jobscura": {
-      "notes": "Jobscura 0.4.1 sanitized canonical edition, derived from application-assistant-workflows 0.3.0. Private author email, owner settings and binary workbook omitted; six skill identifiers and package identity retained. Private context never forms part of the source edition.",
+      "notes": "Jobscura 0.5.0 edited in-repository on the 0.4.1 sanitized canonical edition (sync any private canonical source before rebuilding). 0.4.1 derived from application-assistant-workflows 0.3.0. Private author email, owner settings and binary workbook omitted; six skill identifiers and package identity retained. Private context never forms part of the source edition.",
       "exclude": [],
       "overlays": {}
     },

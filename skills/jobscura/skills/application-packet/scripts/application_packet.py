@@ -20,11 +20,13 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 from zipfile import ZipFile, BadZipFile
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 KINDS = {"resume", "cover_letter", "writing_sample", "portfolio", "other"}
 EXTENSIONS = {".pdf", ".docx", ".txt"}
 MAX_SOURCE = 10 * 1024 * 1024
 MAX_DOCUMENT = 50 * 1024 * 1024
+REPARSE_POINT = 0x400          # FILE_ATTRIBUTE_REPARSE_POINT
+NAME_SURROGATE = 0x20000000    # reparse tags that redirect a name: symlinks, junctions, mount points
 
 
 class PacketError(ValueError):
@@ -58,11 +60,39 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def read_bytes(path, limit=MAX_DOCUMENT):
+def is_link(path):
+    """True for a symlink or a Windows name-surrogate reparse point (junction/mount point).
+
+    Cloud-sync placeholders and deduplicated files are reparse points too, but they
+    are ordinary files, not redirections, so they are not treated as links.
+    """
+    info = Path(path).lstat()
+    if stat.S_ISLNK(info.st_mode):
+        return True
+    if getattr(info, "st_file_attributes", 0) & REPARSE_POINT:
+        tag = getattr(info, "st_reparse_tag", None)
+        return tag is None or bool(tag & NAME_SURROGATE)
+    return False
+
+
+def link_chain(path, anchor=None):
+    """The file plus any directories between it and a trusted anchor directory.
+
+    Links above the anchor (operating-system aliases such as macOS /var, or a
+    folder the user deliberately chose) are outside the helper's trust boundary.
+    """
     p = Path(path)
-    require(p.is_file() and not any(stat.S_ISLNK(x.lstat().st_mode) or
-            getattr(x.lstat(), "st_file_attributes", 0) & 0x400 for x in (p, *p.parents)),
-            f"not a regular non-symlink file: {p.name}")
+    chain = [p]
+    if anchor is not None:
+        anchor = Path(anchor)
+        chain += [x for x in p.parents if x != anchor and x.is_relative_to(anchor)]
+    return chain
+
+
+def read_bytes(path, limit=MAX_DOCUMENT, anchor=None):
+    p = Path(path)
+    require(p.is_file() and not any(is_link(x) for x in link_chain(p, anchor)),
+            f"not a regular non-symlink file (links and junctions are refused): {p.name}")
     require(p.stat().st_size <= limit, f"file exceeds {limit} byte limit: {p.name}")
     data = p.read_bytes()
     require(len(data) <= limit, f"file exceeds {limit} byte limit")
@@ -73,7 +103,7 @@ def json_bytes(value):
     return (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
-def read_json(path):
+def read_json(path, anchor=None):
     def unique_object(pairs):
         result = {}
         for key, value in pairs:
@@ -81,7 +111,7 @@ def read_json(path):
             result[key] = value
         return result
     try:
-        return json.loads(read_bytes(path, MAX_SOURCE).decode("utf-8"), object_pairs_hook=unique_object)
+        return json.loads(read_bytes(path, MAX_SOURCE, anchor).decode("utf-8"), object_pairs_hook=unique_object)
     except (UnicodeError, json.JSONDecodeError) as exc:
         raise PacketError(f"invalid UTF-8 JSON: {Path(path).name}") from exc
 
@@ -120,6 +150,11 @@ def normalized_url(value):
     return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path, parts.query, parts.fragment))
 
 
+BLOCK_TAGS = {"p", "div", "li", "section", "article", "header", "footer", "main", "aside", "nav",
+              "h1", "h2", "h3", "h4", "h5", "h6", "label", "tr", "ul", "ol", "dl", "dt", "dd",
+              "table", "blockquote", "pre", "form", "fieldset", "legend", "figcaption"}
+
+
 class PostingHTML(HTMLParser):
     """Observe static declarations only; never execute, navigate, or infer semantics."""
     def __init__(self):
@@ -138,6 +173,8 @@ class PostingHTML(HTMLParser):
             self.suppressed += 1
         if self.suppressed:
             return
+        if tag == "br":
+            self.text.append("\n")
         if tag == "label":
             self.active_label = {"for": attrs.get("for"), "text": [], "fields": []}
         if tag in {"input", "select", "textarea"}:
@@ -172,7 +209,7 @@ class PostingHTML(HTMLParser):
             self.active_select = self.active_option = None
         if tag == "option":
             self.active_option = None
-        if tag in {"p", "div", "li", "section", "h1", "h2", "h3", "label", "br"}:
+        if tag in BLOCK_TAGS:
             self.text.append("\n")
 
     def handle_data(self, data):
@@ -307,22 +344,57 @@ def load_requirements(path, capture_hash, raw, text, form_fields=None):
     return req, digest(read_bytes(path, MAX_SOURCE))
 
 
-ALIASES = {"employer": ["employer", "company"], "record_id": ["record id", "record_id"],
-           "requisition_id": ["requisition id", "requisition_id", "requisition", "req id"],
-           "urls": ["application url", "source url", "source_url", "url"]}
+# Header aliases, tried tier by tier. Values within one tier must agree (a conflict
+# blocks the tracker). A later tier is consulted only when every earlier tier is
+# empty, so adding common real-world headers cannot change how an existing tracker
+# that uses the original headers is read.
+ALIAS_TIERS = {
+    "employer": (("employer", "company"),
+                 ("company name", "employer name", "organization", "organisation", "hiring organization")),
+    "record_id": (("record id", "record_id"), ("tracker id", "tracker_id")),
+    "requisition_id": (("requisition id", "requisition_id", "requisition", "req id"),
+                       ("requisition number", "requisition #", "req #", "req no", "req number")),
+}
+# Secondary employer job identifiers: an equal value can match, but a different value
+# is not treated as a requisition conflict (an ATS job ID and a requisition can differ).
+ALT_ID_HEADERS = ("job id", "job_id", "job number", "posting id", "vacancy id", "job requisition id")
+URL_HEADERS = ("application url", "source url", "source_url", "url", "job url", "job_url", "posting url",
+               "job posting url", "job link", "link", "apply url", "apply link", "listing url")
+ALIASES = {key: [name for tier in tiers for name in tier] for key, tiers in ALIAS_TIERS.items()}
+ALIASES["urls"] = list(URL_HEADERS)
+HYPERLINK = re.compile(r'^=\s*HYPERLINK\(\s*"((?:[^"]|"")*)"', re.I)
+
+
+def normalized_id(value):
+    """Requisition comparison ignores case and whitespace runs, never punctuation."""
+    return " ".join(str(value).split()).casefold()
+
+
+def cell_url(value):
+    """A spreadsheet HYPERLINK formula stores its target as the first quoted argument."""
+    text = str(value).strip()
+    found = HYPERLINK.match(text)
+    return found.group(1).replace('""', '"') if found else text
 
 
 def normalized_row(row, location):
     pairs = [(str(k).strip().casefold(), v) for k, v in row.items() if k is not None and str(k).strip()]
     require(len({k for k, _ in pairs}) == len(pairs), "duplicate normalized tracker headers")
     mapped = dict(pairs)
+    def present(names):
+        return [str(mapped[k]).strip() for k in names if mapped.get(k) is not None and str(mapped[k]).strip()]
     def first(key):
-        values = [str(mapped[k]).strip() for k in ALIASES[key] if mapped.get(k) is not None and str(mapped[k]).strip()]
-        distinct = {normalized_employer(x) if key == "employer" else x for x in values}
-        require(len(distinct) <= 1, f"conflicting tracker aliases for {key}")
-        return values[0] if values else None
+        for tier in ALIAS_TIERS[key]:
+            values = present(tier)
+            distinct = {normalized_employer(x) if key == "employer" else normalized_id(x) if key == "requisition_id" else x
+                        for x in values}
+            require(len(distinct) <= 1, f"conflicting tracker aliases for {key}")
+            if values:
+                return values[0]
+        return None
     return {"employer": first("employer"), "record_id": first("record_id"), "requisition_id": first("requisition_id"),
-            "urls": [str(mapped[k]).strip() for k in ALIASES["urls"] if mapped.get(k)], "location": location}
+            "alt_ids": present(ALT_ID_HEADERS),
+            "urls": [cell_url(x) for x in present(URL_HEADERS)], "location": location}
 
 
 def tracker_rows(path):
@@ -344,7 +416,10 @@ def tracker_rows(path):
             import openpyxl
         except ImportError as exc:
             raise PacketError(".xlsx reading needs already-installed openpyxl; use a read-only CSV/JSON export instead") from exc
-        workbook = openpyxl.load_workbook(path, read_only=True, data_only=False, keep_links=False)
+        try:
+            workbook = openpyxl.load_workbook(path, read_only=True, data_only=False, keep_links=False)
+        except Exception as exc:  # openpyxl raises its own and zipfile errors for corrupt workbooks
+            raise PacketError(".xlsx tracker could not be read; export it read-only to CSV/JSON") from exc
         try:
             for sheet in workbook:
                 headers = None
@@ -373,12 +448,12 @@ def match_record(capture_directory, tracker):
     record, capture_hash, _, _ = load_capture(capture_directory)
     rows, tracker_hash = tracker_rows(tracker)
     candidates = []
-    target_req = record.get("requisition_id")
+    target_req = normalized_id(record["requisition_id"]) if record.get("requisition_id") else None
     url = normalized_url(record["source_url"])
     for row in rows:
         if normalized_employer(row["employer"]) != normalized_employer(record["employer"]):
             continue
-        req = row["requisition_id"]
+        req = normalized_id(row["requisition_id"]) if row["requisition_id"] else None
         # Explicit conflicting requisitions override URL similarity/reuse.
         if req and target_req and req != target_req:
             continue
@@ -388,7 +463,9 @@ def match_record(capture_directory, tracker):
                 valid_urls.append(normalized_url(value))
             except (PacketError, ValueError):
                 pass
-        basis = "employer_and_requisition" if req and target_req and req == target_req else (
+        ids = {req} if req else set()
+        ids |= {normalized_id(x) for x in row["alt_ids"]}
+        basis = "employer_and_requisition" if target_req and target_req in ids else (
             "employer_and_exact_url" if url in valid_urls else None)
         if basis:
             candidates.append({k: row[k] for k in ("record_id", "employer", "requisition_id", "location")} | {"basis": basis})
@@ -475,10 +552,14 @@ def assemble(capture_directory, requirements, tracker, documents, out_root, pack
     plan = read_json(documents)
     plan_dir = Path(documents).resolve().parent
     def loader(item):
-        return read_bytes(plan_dir / item["file"]), read_json(plan_dir / item["review"])
+        require(isinstance(item.get("file"), str) and isinstance(item.get("review"), str),
+                "each documents plan entry needs file and review paths")
+        # Links inside the plan's own directory tree are refused; the plan cannot redirect inputs.
+        return (read_bytes(plan_dir / item["file"], anchor=plan_dir),
+                read_json(plan_dir / item["review"], anchor=plan_dir))
     verified = check_attachments(plan, req, req_hash, capture_hash, loader)
     root = Path(out_root)
-    require(root.is_dir() and not root.is_symlink(), "output root must be an existing non-symlink directory")
+    require(root.is_dir() and not is_link(root), "output root must be an existing non-symlink directory")
     destination = root / packet_name
     destination.mkdir(exist_ok=False)
     try:
@@ -517,13 +598,14 @@ def contained_file(root, relative):
     require(not p.is_absolute() and all(x not in {"..", "."} for x in p.parts), "unsafe packet-relative path")
     candidate = root / p
     require(candidate.resolve().is_relative_to(root.resolve()), "packet path escapes root")
-    require(not any(x.is_symlink() for x in [candidate, *candidate.parents] if x != root.parent), "packet contains a symlink")
+    # Every component inside the packet, plus the packet root, must be a real entry.
+    require(not any(is_link(x) for x in [root, *link_chain(candidate, root)]), "packet contains a symlink")
     return candidate
 
 
 def validate_packet(packet):
     root = Path(packet)
-    require(root.is_dir() and not root.is_symlink(), "not a packet directory")
+    require(root.is_dir() and not is_link(root), "not a packet directory")
     manifest = read_json(root / "manifest.json")
     require(manifest.get("schema_version") == 1 and manifest.get("status") == "prepared_not_submitted", "invalid packet manifest")
     expected = manifest.get("files")
@@ -586,11 +668,23 @@ def main(argv=None):
             result = assemble(args.capture, args.requirements, args.tracker, args.documents, args.out_root, args.packet_name)
         else:
             result = validate_packet(args.packet)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        utf8_out(sys.stdout, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         return 0
-    except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
-        print(json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+    except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError, csv.Error, BadZipFile,
+            EOFError, RecursionError) as exc:
+        utf8_out(sys.stderr, json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False) + "\n")
         return 2
+
+
+def utf8_out(stream, text):
+    """Emit UTF-8 whatever the console code page is (Windows pipes default to cp1252)."""
+    raw = getattr(stream, "buffer", None)
+    if raw is None:
+        stream.write(text)
+        return
+    stream.flush()
+    raw.write(text.encode("utf-8"))
+    raw.flush()
 
 
 if __name__ == "__main__":

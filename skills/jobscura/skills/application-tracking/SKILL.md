@@ -1,6 +1,6 @@
 ---
 name: application-tracking
-description: Audit tracked job status, retire closed opportunities, investigate reposts, maintain deadline countdowns and status-check dates, and prepare morning job changes using the existing tracker and authorized reminders.
+description: Keep the one canonical job tracker current - audit status, retire verified closures, investigate reposts, compute deadline countdowns and reminder windows in the user's time zone, plan status checks, and prepare the morning digest of what is due, closing, new or changed. Use when the user asks what is due or closing, for a status audit, a morning job update, deadline reminders, or to reconcile the tracker. Uses existing host tools; never claims a reminder was sent without a receipt.
 ---
 
 # Job status, deadlines and morning delivery
@@ -22,10 +22,17 @@ claim a scheduled check, save or reminder exists merely because this file says s
 3. Reconcile new discoveries, prior assessments, closures and reposts. Keep
    application history and user decisions separate from public vacancy status.
 4. Maintain days to a stated date, deadline type, cutoff/timezone, last checked,
-   next check, evidence, and actual reminder receipts. Follow the procedure's
-   daily dated-role and every-other-day undated-role cadence when authorized.
-5. Prepare and deliver the requested morning changes: worthwhile new discoveries,
-   every active role closing within two weeks, and newly closed roles once.
+   next check, evidence, and actual reminder receipts. Compute them with
+   `scripts/deadlines.py` on a read-only export when an executor is available
+   ([helpers](../../references/helpers.md)). Model date arithmetic is a known failure
+   point. Cadence, reminder windows and horizon come from the user's current
+   instructions or validated context `preferences.monitoring`. When neither sets them,
+   the documented defaults apply: daily for dated roles, every other day for undated
+   roles, reminders at 14/7/3/1/0 days, a 14-day horizon.
+5. Prepare and deliver the requested morning changes in the [morning digest](../../references/output-formats.md)
+   format: worthwhile new discoveries, every active role closing within the horizon,
+   and newly closed roles once. Use [opportunity-discovery](../opportunity-discovery/SKILL.md)
+   for the fresh search.
 6. Verify edits and supported automation changes, then report what changed and
    what remains unverified. A successful fetch or old search snippet is not proof
    a job is open. Never submit an application or contact an employer from this skill.

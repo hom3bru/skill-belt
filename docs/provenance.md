@@ -41,9 +41,12 @@ Full agent effectiveness, repeated comparative model trials, native host behavio
 
 ## Jobscura
 
-Jobscura 0.4.1 derives from the Application Assistant 0.3.0 workflow source,
-including the November 2 tracking update. Its package identifier and six workflow
-names remain compatible. The sanitized canonical edition adds a suite router,
+Jobscura 0.5.0 was edited directly in this repository on top of the published
+0.4.1 snapshot (see its CHANGELOG). If a private canonical source is kept, bring
+it up to date from this snapshot before the next `build_public.py --jobscura` run,
+or that run will revert 0.5.0. Jobscura 0.4.1 derives from the Application Assistant
+0.3.0 workflow source, including the November 2 tracking update. Its package
+identifier and six original workflow names remain compatible. The sanitized canonical edition adds a suite router,
 loadable user-context schema/example/validator, privacy controls and deterministic
 packaging. Private contact metadata, user settings, historical audit material and
 the binary tracker fixture are excluded. The fictional XLSX case is generated at

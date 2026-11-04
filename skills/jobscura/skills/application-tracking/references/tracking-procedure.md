@@ -1,9 +1,24 @@
 # Tracking procedure
 
-Preserves the November 2, 2026 workflow update. This describes
-workflow and presentation preferences. It is not a grant of permission. Current
-user instructions and the live approval rules govern every action; a historical
-package must never reinstate a changed or deleted permission rule.
+These are default workflow and presentation conventions. The user's current
+instructions and validated private context (`preferences.monitoring`, schema
+version 2) override every default named below. Nothing here grants permission.
+Current user instructions and the live approval rules govern every action; a
+packaged procedure must never reinstate a changed or deleted permission rule.
+
+| Convention | Context field | Default |
+| --- | --- | --- |
+| Status check, dated roles | `dated_check_days` | every day |
+| Status check, undated roles | `undated_check_days` | every 2 days |
+| Reminder windows | `reminder_windows_days` | 14, 7, 3, 1 and 0 (deadline morning) |
+| Closing list horizon | `closing_horizon_days` | 14 days |
+| New-find shortlist | `shortlist_size` | up to 3 |
+| No-deadline urgency flag | `urgency_open_days` | open more than 14 days |
+| Long-open warning | `long_open_days` | open more than 60 days |
+| Delivery channel and shape | `delivery_note` | the user's existing channel |
+
+`scripts/deadlines.py` applies these conventions deterministically to a read-only
+tracker export ([helpers](../../../references/helpers.md)).
 
 ## One tracker, distinct states
 
@@ -16,8 +31,9 @@ package must never reinstate a changed or deleted permission rule.
   status and explicit user decision separately.
 - Read the inclusive main-list qualification-gap boundary from the user's
   current instructions or validated private context (`preferences.routing`).
-  On the established 0-5 scale, a configured boundary of 3.5 includes 3.5 in
-  main; higher gaps go to Stretch and unrated roles stay pending. With no
+  On the established 0-5 scale the boundary is inclusive: for example, a
+  configured 3.5 keeps 3.5 in main; higher gaps go to Stretch and unrated roles
+  stay pending. With no
   established scale/boundary, leave routing unresolved. Consult current approval
   rules before additions. A boundary is not authorization. Never silently change
   a score to make a role fit a list.
@@ -45,8 +61,8 @@ more senior role is a related opportunity, not automatically a replacement.
 
 Distinguish first publication, repost, refresh and first discovery. Unknown dates
 must not be labeled newly published within 24 hours. Do not invent a closing date
-from posting age. No deadline plus more than 14 days open is an urgency flag;
-more than two calendar months receives a long-open warning, not automatic rejection.
+from posting age. No deadline plus more than `urgency_open_days` open is an urgency
+flag; more than `long_open_days` receives a long-open warning, not automatic rejection.
 
 ## Dates and countdowns
 
@@ -73,18 +89,20 @@ availability after the cap is reached. Keep past applications/exam results separ
 
 ## Monitoring and reminders
 
-- Dated active/undecided roles are checked daily, regardless of gap or shortlist.
-- Active/uncertain roles without explicit closing dates are checked every other
-  calendar day, due two days after the last recorded check. A material new signal
-  can justify earlier verification. Avoid duplicate checks by the briefing prep.
+- Dated active/undecided roles are checked every `dated_check_days`, regardless of
+  gap or shortlist.
+- Active/uncertain roles without explicit closing dates are checked every
+  `undated_check_days` calendar days after the last recorded check. A material new
+  signal can justify earlier verification. Avoid duplicate checks by the briefing prep.
 - Keep last attempted check and last successful verification distinguishable;
   failures do not refresh old evidence. Record next due date and exact blockers.
 - Include active Stretch and pending/unrated opportunities. Suppress application
   nudges for applied, rejected, explicitly declined, withdrawn and verified closed
   roles; do not reopen parked decisions silently.
-- Remind at first entry into 14-, 7-, 3- and 1-day windows and deadline morning
-  if outstanding. Alert discoveries already inside a window promptly. Deduplicate
-  by employer/requisition/deadline/window against actual sent messages, not plans.
+- Remind at first entry into each `reminder_windows_days` window (0 is deadline
+  morning) if outstanding. Alert discoveries already inside a window promptly, once,
+  for the tightest window entered. Deduplicate by employer/requisition/deadline/window
+  against actual sent messages, not plans.
 - Combine due reminders with exact local cutoff, days remaining, official link
   and a concrete next step. Unanswered calls or skipped briefings do not suppress
   a due reminder. Avoid duplicate separate morning notifications.
@@ -99,17 +117,19 @@ changes to existing opportunities. Favor the user's longer career story and
 personal fit. Verify official opening, pay, seniority, location/eligibility and
 date evidence where accessible. Report unknowns; no useful new find is acceptable.
 
-Prepare a small actionable shortlist, normally up to three roles, with 0–5 gap,
-confidence, fit and one concrete next step. Also provide every active role closing
-within the next 14 calendar days, not just the shortlist, and newly verified closed
-roles since the previous delivered update. Report a closure once rather than
+Prepare a small actionable shortlist of up to `shortlist_size` roles with gap on the
+user's scale, confidence, fit and one concrete next step. Also provide every active
+role closing within `closing_horizon_days`, not just the shortlist, and newly verified
+closed roles since the previous delivered update. Report a closure once rather than
 repeating old closed history. Include verified reposts and material scope changes.
+Use the [morning digest](../../../references/output-formats.md) shape.
 
-The complete written deadline/change list may accompany a short spoken briefing
-or occupy one item in the existing maximum-three-item text fallback. Do not leave
-the actionable update only in silent preparation. Preserve invitation/acceptance
-rules and do not initiate a call. Prioritize already-selected applications and
-authorized drafting instead of repeatedly asking the user to choose again.
+Deliver through the user's existing channel and shape (their instructions or
+`delivery_note`). Keep the complete written deadline/change list available even
+when the main delivery is short or spoken. Do not leave the actionable update only
+in silent preparation. Preserve existing invitation/acceptance rules and never start
+a call or message channel the user has not set up. Prioritize already-selected
+applications and authorized drafting instead of repeatedly asking the user to choose again.
 
 ## Boundaries and verification
 
@@ -119,8 +139,9 @@ permissions rather than treating this document as standing approval. No automati
 submissions, employer contact, payments, registrations or credential handling.
 
 Before saving, verify record conservation, duplicate IDs, moved-row formulas,
-counts, dates, sources and original application/decision history. Test 3.5 exactly,
-unrated, overdue, date-only, priority-review, newly closed and changed-ID cases.
+counts, dates, sources and original application/decision history. Test the configured
+boundary value exactly, plus unrated, overdue, date-only, priority-review, newly closed
+and changed-ID cases.
 Validate the actual exported workbook and affected views. Distinguish sources
 checked, status established and unresolved verification. Never report all clear
 when reconciliation or source checks are incomplete.

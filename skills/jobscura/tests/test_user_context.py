@@ -60,7 +60,7 @@ class ContextTests(unittest.TestCase):
 
     def test_version_types_permissions_and_credentials_are_rejected(self):
         original = copy.deepcopy(self.value)
-        mutations = [("schema_version", 2), ("schema_version", True),
+        mutations = [("schema_version", 3), ("schema_version", 0), ("schema_version", True),
                      ("schema_version", 10**400), ("profile", []),
                      ("permissions", {"submit": True}), ("api_key", "fictional")]
         for key, value in mutations:
@@ -148,12 +148,96 @@ class ContextTests(unittest.TestCase):
                 with self.assertRaisesRegex(context.ContextError, "outside"):
                     context.load_context(str(private.resolve()), {})
 
+    def test_version_one_files_still_load_but_cannot_carry_version_two_fields(self):
+        v1 = copy.deepcopy(self.value)
+        v1["schema_version"] = 1
+        for key in ("monitoring", "search"):
+            v1["preferences"].pop(key)
+        self.value = v1
+        self.save()
+        self.assertEqual(context.load_context(str(self.path), {})["schema_version"], 1)
+        self.value["preferences"]["monitoring"] = {"dated_check_days": 1}
+        self.save()
+        with self.assertRaisesRegex(context.ContextError, "schema_version 2"):
+            context.load_context(str(self.path), {})
+
+    def test_monitoring_bounds_and_defaults(self):
+        merged = context.monitoring(context.load_context(str(self.path), {}))
+        self.assertEqual(merged["reminder_windows_days"], [14, 7, 3, 1, 0])
+        self.assertEqual(context.monitoring(None), context.MONITORING_DEFAULTS)
+        for key, value in (("dated_check_days", 0), ("undated_check_days", 31), ("reminder_windows_days", [7, 7]),
+                           ("reminder_windows_days", [-1]), ("shortlist_size", 2.5), ("long_open_days", True),
+                           ("permission_to_send", True)):
+            with self.subTest(key=key, value=value):
+                broken = copy.deepcopy(self.value)
+                broken["preferences"]["monitoring"][key] = value
+                self.path.write_text(json.dumps(broken), encoding="utf-8")
+                with self.assertRaises(context.ContextError):
+                    context.load_context(str(self.path), {})
+
+    def test_search_preferences_are_closed_and_typed(self):
+        for change in ({"work_arrangements": ["anywhere"]}, {"min_base_pay": {"amount": 1, "currency": "US", "period": "year"}},
+                       {"min_base_pay": {"amount": -5, "currency": "USD", "period": "year"}}, {"auto_apply": True}):
+            with self.subTest(change=change):
+                broken = copy.deepcopy(self.value)
+                broken["preferences"]["search"].update(change)
+                self.path.write_text(json.dumps(broken), encoding="utf-8")
+                with self.assertRaises(context.ContextError):
+                    context.load_context(str(self.path), {})
+
+    def test_operating_system_alias_above_the_file_is_allowed(self):
+        # macOS keeps temporary folders under /var -> /private/var; redirected profiles do the same.
+        real = Path(self.temp.name) / "real-folder"
+        real.mkdir()
+        target = real / "context.json"
+        target.write_text(json.dumps(self.value), encoding="utf-8")
+        alias = Path(self.temp.name) / "alias-folder"
+        if sys.platform == "win32":
+            import _winapi
+            _winapi.CreateJunction(str(real), str(alias))
+        else:
+            alias.symlink_to(real, target_is_directory=True)
+        self.assertEqual(context.load_context(str(alias / "context.json"), {}), self.value)
+
+    def test_alias_into_the_toolkit_is_still_rejected_after_resolution(self):
+        installed = Path(self.temp.name) / "toolkit"
+        installed.mkdir()
+        (installed / "context.json").write_text(json.dumps(self.value), encoding="utf-8")
+        alias = Path(self.temp.name) / "innocent-looking"
+        if sys.platform == "win32":
+            import _winapi
+            _winapi.CreateJunction(str(installed), str(alias))
+        else:
+            alias.symlink_to(installed, target_is_directory=True)
+        with patch.object(context, "ROOT", installed):
+            with self.assertRaisesRegex(context.ContextError, "outside"):
+                context.load_context(str(alias / "context.json"), {})
+
+    def test_cloud_placeholder_reparse_point_is_an_ordinary_file(self):
+        import stat as stat_module
+        original = Path.lstat
+        def placeholder(path, *args, **kwargs):
+            if path == self.path:
+                class Info:
+                    st_mode = stat_module.S_IFREG | 0o644
+                    st_file_attributes = 0x400
+                    st_reparse_tag = 0x9000001A  # cloud files: not a name surrogate
+                return Info()
+            return original(path, *args, **kwargs)
+        with patch.object(Path, "lstat", placeholder):
+            self.assertEqual(context.load_context(str(self.path), {}), self.value)
+
+    def test_timezone_status_never_guesses(self):
+        self.assertIn(context.timezone_status("Etc/UTC"), {"available", "unavailable_in_host", "zoneinfo_unavailable"})
+        self.assertNotEqual(context.timezone_status("Nowhere/Invented_Zone"), "available")
+
     def test_cli_only_emits_status_and_section_names(self):
         self.value["profile"]["display_name"] = "SENSITIVE candidate"
         self.save()
         run = subprocess.run([sys.executable, "-B", str(ROOT / "scripts/user_context.py"), "--context", str(self.path)], capture_output=True, text=True)
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(json.loads(run.stdout)["status"], "validated")
+        self.assertIn(json.loads(run.stdout)["timezone_status"], {"available", "unavailable_in_host", "zoneinfo_unavailable"})
         self.assertNotIn("SENSITIVE", run.stdout + run.stderr)
         self.assertNotIn(str(self.path), run.stdout + run.stderr)
         self.path.write_text("SENSITIVE invalid")

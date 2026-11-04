@@ -7,6 +7,7 @@ user-context.json
 user-context.local.json
 *.local.json
 packets/
+evals/results/
 __pycache__/
 *.py[cod]
 *.zip

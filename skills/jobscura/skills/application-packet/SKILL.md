@@ -1,6 +1,6 @@
 ---
 name: application-packet
-description: Capture a supplied official job posting and static form requirements, match its identity read-only to the existing tracker, and assemble or validate reviewed application attachments in a named local packet. Use for repeated copying and file handling, not drafting, browser autofill, uploads or submission.
+description: Capture a supplied official job posting and its static upload requirements, match it read-only to the existing tracker, lint and review the exact final files, and assemble or validate them in a named, hash-bound local packet that never overwrites. Use when the user is preparing the actual files for an application form (exact filenames, formats, size limits, which file goes in which slot). Not for drafting, browser autofill, uploading or submitting.
 ---
 
 # Prepare the exact application packet
@@ -32,7 +32,11 @@ canonical files; packaging does not authorize changes to them.
    observed static form declarations and a deliberately unreviewed requirements
    draft. Inspect the complete actual form, including conditional fields and
    instructions outside the captured control tags. A snapshot is not proof that
-   a vacancy is still open or the live form is unchanged.
+   a vacancy is still open or the live form is unchanged. Then run
+   `scripts/posting_intel.py analyze --capture DIR` from the Jobscura root. It reports
+   hidden or AI-directed text, the employer's AI-use stance, structured identifiers and
+   scam signals. Handle them as [integrity and safety](../../references/integrity-and-safety.md)
+   directs before you prepare anything.
 3. Review a **copy** of `requirements.draft.json`: classify each upload slot,
    preserve exact prompt/evidence, required status, formats, byte limits and any
    exact filename. A writing sample is not a cover letter. Keep unknowns unresolved.
@@ -46,7 +50,9 @@ canonical files; packaging does not authorize changes to them.
    Ambiguous, conflicting and missing identities remain unresolved. Do not guess a
    merge, add a record or mutate a tracker to make a packet pass.
 5. Review the **exact final document bytes**, including factual, editorial and
-   rendered layout checks with appropriate document tools. Then use
+   rendered layout checks with appropriate document tools. Run `scripts/ats_lint.py`
+   on each file and clear its blockers (tracked changes, comments, hidden text,
+   image-only or encrypted PDF, macros). Then use
    `review-document` to record kind, intended filename, SHA-256, current capture
    and requirements hashes, reviewer, note and expiry. This is an explicit review
    attestation, not independent proof of truth, quality or user approval. Never

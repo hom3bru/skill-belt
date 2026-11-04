@@ -1,6 +1,6 @@
 ---
 name: application-history
-description: Revisit earlier applications, career evidence, corrections, submitted documents and job-interest context with source-linked historical and current distinctions. Use to resume earlier work or reconcile changed evidence, not indiscriminate personal-history import.
+description: Recover what actually happened in earlier job-search work - prior applications and what was submitted, past assessments, corrections the user made, career evidence and why a role interested them - with sources, keeping historical facts separate from what still applies now. Use when the user asks what they sent, what they decided, to pick up earlier work, or to reconcile changed evidence. Not for importing a whole personal history.
 ---
 
 # Application history and continuity
