@@ -418,6 +418,55 @@ def content_tokens(text):
     return keep
 
 
+# ---------------------------------------------------------------- identity and similarity
+SENIORITY_NOISE = {"i", "ii", "iii", "iv", "1", "2", "3", "the", "and", "of", "for", "-", "&"}
+
+
+def employer_key(value):
+    """Casefolded, whitespace-collapsed employer name; no fuzzy brand matching."""
+    return " ".join(str(value or "").split()).casefold()
+
+
+def title_tokens(value):
+    return {t for t in re.findall(r"[a-z0-9+#]+", str(value or "").casefold()) if t not in SENIORITY_NOISE}
+
+
+def jaccard(left, right):
+    if not left or not right:
+        return 0.0
+    return len(left & right) / len(left | right)
+
+
+def title_similarity(left, right):
+    """Jaccard, or containment when two or more words are shared: 'Program Coordinator' and
+    'Program Coordinator (Fixed term)' are the same role re-advertised with a qualifier."""
+    a, b = title_tokens(left), title_tokens(right)
+    shared = len(a & b)
+    if not shared:
+        return 0.0
+    containment = shared / min(len(a), len(b)) if shared >= 2 else 0.0
+    return round(max(jaccard(a, b), containment), 2)
+
+
+def shingles(text, size=5):
+    """Word shingles for near-duplicate text (reposted descriptions); works without a corpus."""
+    words = re.findall(r"[a-z0-9]+", str(text or "").casefold())
+    if len(words) < size:
+        return {" ".join(words)} if words else set()
+    return {" ".join(words[i:i + size]) for i in range(len(words) - size + 1)}
+
+
+def normalized_link(value):
+    """Scheme/host casefolded, fragment kept, trailing slash dropped, for identity comparison only."""
+    text = str(value or "").strip()
+    match = re.match(r"^(https?)://([^/?#]+)(.*)$", text, re.I)
+    if not match:
+        return None
+    rest = match.group(3)
+    path, sep, tail = rest.partition("?")
+    return f"{match.group(1).casefold()}://{match.group(2).casefold()}{path.rstrip('/')}{sep}{tail}"
+
+
 def excerpt(text, limit=240):
     text = " ".join(str(text).split())
     return text if len(text) <= limit else text[: limit - 1] + "…"

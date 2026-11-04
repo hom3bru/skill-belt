@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import argparse
 import csv
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 import io
 from pathlib import Path
 import re
@@ -134,7 +134,7 @@ def load_rows(path, overrides):
     rows = []
     for index, row in enumerate(raw, 1):
         mapped = {str(k).strip().casefold(): v for k, v in row.items() if k is not None}
-        record = {"_row": index}
+        record = {"_row": index, "_raw": {str(k).strip(): v for k, v in row.items() if k is not None}}
         for field, aliases in FIELDS.items():
             names = (overrides[field],) if field in overrides else aliases
             value = next((mapped[n] for n in names if n in mapped and mapped[n] not in (None, "")), None)
@@ -273,6 +273,85 @@ def plan(tracker, timezone_name, as_of=None, conventions=None, overrides=None):
                       "tracker; this plan sends nothing, schedules nothing and does not verify vacancies."}
 
 
+# ------------------------------------------------------------------ calendar export (RFC 5545)
+ALARM_TIME = time(9, 0)  # reminders fire at 09:00 local on the window's day
+
+
+def ics_escape(value):
+    """RFC 5545 TEXT escaping: backslash, semicolon, comma and newline."""
+    return (str(value).replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,")
+            .replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n"))
+
+
+def ics_fold(line):
+    """Fold content lines at 75 octets without splitting a UTF-8 character."""
+    data, out, chunk = line.encode("utf-8"), [], b""
+    limit = 75
+    for char in line:
+        encoded = char.encode("utf-8")
+        if len(chunk) + len(encoded) > limit:
+            out.append(chunk.decode("utf-8"))
+            chunk, limit = b"", 74  # continuation lines start with one space
+        chunk += encoded
+    out.append(chunk.decode("utf-8"))
+    return "\r\n ".join(out) if len(data) > 75 else line
+
+
+def ics_utc(moment):
+    return moment.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def calendar(result, timezone_name):
+    """Events for active dated roles with alarms at each future reminder window.
+
+    The user imports the file into their own calendar; Jobscura schedules and sends nothing.
+    UIDs are stable per employer/requisition/deadline, so a re-import updates the same events.
+    """
+    tz = zone(timezone_name)
+    as_of = common.parse_timestamp(result["as_of"], "as_of")
+    windows = result["conventions"]["reminder_windows_days"]
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Skill Belt//Jobscura deadlines " + VERSION + "//EN",
+             "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Job application deadlines"]
+    events = 0
+    for record in result["records"]:
+        if not record["active"] or not record.get("deadline") or record.get("days_remaining") is None \
+                or record["days_remaining"] < 0:
+            continue
+        deadline = date.fromisoformat(record["deadline"])
+        cutoff = datetime.fromisoformat(record["cutoff_local"]) if record.get("cutoff_local") else None
+        identity = "|".join(str(record.get(k) or "") for k in ("employer", "requisition_id", "record_id")) + "|" + record["deadline"]
+        uid = "jobscura-" + common.sha256(identity.encode("utf-8"))[:32] + "@jobscura.invalid"
+        role = " - ".join(x for x in (record.get("title"), record.get("employer")) if x) or str(record.get("record_id") or "role")
+        prefix = "Closes" if cutoff or record.get("deadline_type") not in SOFT_TYPES else \
+            record["deadline_type"].replace("_", " ").capitalize()
+        lines += ["BEGIN:VEVENT", "UID:" + uid, "DTSTAMP:" + ics_utc(as_of)]
+        if cutoff:
+            lines += ["DTSTART:" + ics_utc(cutoff - timedelta(hours=1)), "DTEND:" + ics_utc(cutoff)]
+        else:
+            lines += ["DTSTART;VALUE=DATE:" + deadline.strftime("%Y%m%d"),
+                      "DTEND;VALUE=DATE:" + (deadline + timedelta(days=1)).strftime("%Y%m%d")]
+        lines.append("SUMMARY:" + ics_escape(f"{prefix}: {role}"))
+        description = [record.get("measures") or "", "Link: " + record["url"] if record.get("url") else "",
+                       "From Jobscura deadlines.py as of " + result["as_of"] + ". Verify the live posting before acting."]
+        lines.append("DESCRIPTION:" + ics_escape("\n".join(x for x in description if x)))
+        if record.get("url") and re.match(r"https?://\S+$", str(record["url"])):
+            lines.append("URL:" + str(record["url"]))
+        for window in windows:
+            local_day = deadline - timedelta(days=window)
+            alarm = datetime.combine(local_day, ALARM_TIME, tz)
+            if cutoff and window == 0 and alarm >= cutoff:
+                alarm = cutoff - timedelta(hours=2)  # early-morning cutoff: warn before it passes
+            if alarm <= as_of:
+                continue  # never fire a reminder for a window that has already opened
+            label = "today" if window == 0 else f"in {window} day{'s' if window != 1 else ''}"
+            lines += ["BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER;VALUE=DATE-TIME:" + ics_utc(alarm),
+                      "DESCRIPTION:" + ics_escape(f"{prefix} {label}: {role}"), "END:VALARM"]
+        lines.append("END:VEVENT")
+        events += 1
+    lines.append("END:VCALENDAR")
+    return "".join(ics_fold(line) + "\r\n" for line in lines), events
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--version", action="version", version=VERSION)
@@ -283,6 +362,7 @@ def main(argv=None):
     parser.add_argument("--map", action="append", default=[], metavar="FIELD=Header",
                         help="map a field to a tracker header, e.g. deadline=Closes On")
     parser.add_argument("--out")
+    parser.add_argument("--ics", help="also write an iCalendar file (new file) the user can import for reminders")
     args = parser.parse_args(argv)
 
     def run():
@@ -301,7 +381,14 @@ def main(argv=None):
                 raise ToolError(str(exc)) from None
             conventions = user_context.monitoring(value)
             tz_name = tz_name or value["preferences"]["timezone"]
-        common.emit(plan(args.tracker, tz_name, args.as_of, conventions, overrides), args.out)
+        result = plan(args.tracker, tz_name, args.as_of, conventions, overrides)
+        if args.ics:
+            text, events = calendar(result, tz_name)
+            with Path(args.ics).open("x", encoding="utf-8", newline="") as handle:
+                handle.write(text)
+            result["calendar"] = {"file": Path(args.ics).name, "events": events,
+                                  "note": "Import into your own calendar; nothing was scheduled or sent."}
+        common.emit(result, args.out)
     return common.run_cli(run)
 
 

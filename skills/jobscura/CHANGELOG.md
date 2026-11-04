@@ -68,6 +68,23 @@ Additions:
 - Trigger-oriented descriptions for every workflow.
 - Packet helper 0.3.0.
 
+Transfers from an adopt-adapt review of open-source job-search tools. Only ideas were taken, each
+reimplemented independently with the standard library; no donor code was copied or run.
+
+- `board_feed.py` (idea: career-ops' provider contract and normalised job record, MIT). It
+  normalises saved Greenhouse, Lever, Ashby and SmartRecruiters feeds, screens them, and marks
+  tracked roles and possible reposts. It adds what career-ops lacks: new and disappeared postings
+  between snapshots.
+- `tracker_diff.py` (ideas: the Codex 0.5.0 draft's conservation check, plus repost detection in
+  career-ops and JobFunnel). It blocks tracker edits that lose records, identities, columns or
+  application history, and lists repost candidates.
+- `deadlines.py --ics` (idea: the RFC 5545 iCalendar standard). It writes an importable calendar
+  with stable UIDs and future-only alarms, so reminders need no scheduler.
+- Pay annualisation and a pay-floor check against `search.min_base_pay` in `posting_intel.py`
+  (idea: JobSpy's interval factors, MIT).
+- A resume parse preview in `ats_lint.py` (idea: OpenResume's rule-based parser, AGPL-3.0; idea only,
+  with independently written rules and scores).
+
 ## 0.4.1 - Windows path containment
 
 - Resolve output and toolkit paths before comparing containment, including Windows short aliases.

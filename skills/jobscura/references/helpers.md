@@ -16,8 +16,10 @@ same review by hand and say that the helper did not run.
 | Understand a posting | `python -B scripts/posting_intel.py analyze --input posting.html --url URL --employer NAME --observed-at ISO` (or `--capture DIR`) | ATS vendor and job ID, schema.org JobPosting fields, required and preferred items with line numbers, pay, remote/hybrid, sponsorship, employer AI-use stance, hidden and AI-directed instructions, scam signals, freshness |
 | Check a draft's claims | `python -B scripts/grounding.py claims --draft draft.docx --evidence cv.docx notes.md` | Per-sentence ledger: `supported`, `present_in_evidence`, `found_elsewhere` (attribution risk), `not_found`; flags for authority escalation and unsupported superlatives |
 | Map requirements to evidence | `python -B scripts/grounding.py coverage --posting posting.html --evidence cv.docx [--draft letter.docx]` | Each requirement marked `addressed`, `evidence_not_used`, `addressed_without_found_evidence` or `no_evidence_found`, plus supported terms the draft leaves out |
-| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx` | Blockers (tracked changes, comments, hidden or white text, macros, image-only or encrypted PDF), warnings (tables, text boxes, columns, contact details only in the header) and metadata |
-| Plan deadlines and checks | `python -B scripts/deadlines.py --tracker export.csv --context /abs/context.json [--as-of ISO]` | Days and hours remaining in the user's time zone, reminder windows now due (minus those already sent), status checks due, unresolved dates, morning digest |
+| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx` | Blockers (tracked changes, comments, hidden or white text, macros, image-only or encrypted PDF), warnings (tables, text boxes, columns, contact details only in the header), metadata, and a parse preview for DOCX and text files: the name, contact details, section titles, dated roles and education lines a simple parser would probably read |
+| Plan deadlines and checks | `python -B scripts/deadlines.py --tracker export.csv --context /abs/context.json [--as-of ISO] [--ics deadlines.ics]` | Days and hours remaining in the user's time zone, reminder windows now due (minus those already sent), status checks due, unresolved dates, morning digest. `--ics` also writes a calendar file for the user to import: one event per active dated role, with a 09:00 alarm on each future reminder window. UIDs are stable, so re-importing updates events instead of duplicating them. |
+| Screen an employer's job board | `python -B scripts/board_feed.py --feed saved.json --company NAME [--board SLUG] [--previous last.json] [--tracker export.csv] [--context ctx.json] [--out this.json]` | Normalised postings from a saved Greenhouse, Lever, Ashby or SmartRecruiters response; title and location screening; tracked and possible-repost flags; new, changed and disappeared since the previous run |
+| Check a tracker edit before saving | `python -B scripts/tracker_diff.py --before old.csv --after new.csv` | `blocked` for removed records, duplicate IDs or identities, a changed employer, requisition or URL, dropped columns, or application history moving backwards; cleared values and repost candidates for review |
 | Compare offers | `python -B scripts/offer_compare.py --offers offers.json [--format markdown]` | Year-by-year pre-tax value, totals, the difference from a baseline offer, and equity at 0, 50, 100 and 150% |
 | Validate private context | `python -B scripts/user_context.py --context /abs/context.json` | Validation status, section names and whether the time zone is available |
 | Capture, match and package uploads | `skills/application-packet/scripts/application_packet.py` | See the [packet command guide](../skills/application-packet/references/command-guide.md) |
@@ -31,7 +33,14 @@ same review by hand and say that the helper did not run.
   not as permission to soften the wording until the check passes.
 - Deadline plans are computed only from the export you supply. A reminder stays due until the
   tracker records an actual send. The plan itself sends nothing.
-- Tracker exports for `deadlines.py` and the packet helper are read-only snapshots of the one
+- `posting_intel.py` annualises pay with a stated unit (full-time: 2,080 hours, 260 days, 52 weeks,
+  12 months) and, with a context file that sets `search.min_base_pay`, reports `floor_check`:
+  `at_or_above_floor`, `floor_within_range`, `below_floor` or `not_comparable` (different currency or
+  unknown period). The assumptions travel with the result.
+- `board_feed.py` never fetches. The host saves the board's public JSON response first (the
+  endpoint patterns are in the opportunity-discovery search strategy). A posting missing from a
+  later feed is a reason to check the live page, never proof that it closed.
+- Tracker exports for `deadlines.py`, `board_feed.py`, `tracker_diff.py` and the packet helper are read-only snapshots of the one
   canonical tracker. Never create a second tracker to feed them.
 - For `deadlines.py`, dates must be ISO (`2026-11-20`) or use a month name (`20 Nov 2026`).
   Numeric dates such as `03/04/2026` are reported as ambiguous rather than guessed. Use

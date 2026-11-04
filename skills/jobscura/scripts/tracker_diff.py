@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Conservation check between two exports of the canonical tracker (before and after an edit).
+
+Run it before saving or syncing a tracker change. It blocks on lost records,
+duplicate record IDs, changed identities (employer, requisition, URL), dropped
+columns and application history that moved backwards. It lists cleared values
+for review, and flags added rows that look like a repost or duplicate of an
+existing role, which should be linked rather than merged. Read-only.
+"""
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+import re
+
+import jobscura_common as common
+from jobscura_common import require
+
+VERSION = "1.0.0"
+TITLE_MATCH = 0.6
+# Once a role reached one of these application states, an edit that returns it to an
+# earlier or blank state loses history rather than updating it.
+FINAL = re.compile(r"\b(applied|submitted|interview\w*|offer\w*|rejected|declined|withdrawn|hired|accepted)\b", re.I)
+NEGATED = re.compile(r"\b(?:not|never|yet to)\s+(?:yet\s+)?$", re.I)
+
+
+def reached_final(status):
+    text = str(status or "")
+    return any(not NEGATED.search(text[:m.start()]) for m in FINAL.finditer(text))
+
+
+def load(path, overrides):
+    import deadlines
+    rows = deadlines.load_rows(path, overrides)
+    headers = []
+    for row in rows:
+        for header in row["_raw"]:
+            if header not in headers:
+                headers.append(header)
+    return rows, headers
+
+
+def identity(row):
+    return {"employer": common.employer_key(row.get("employer")),
+            "requisition_id": str(row.get("requisition_id") or "").strip().casefold() or None,
+            "url": common.normalized_link(row.get("url"))}
+
+
+def by_id(rows, side, problems):
+    index, missing = {}, []
+    for row in rows:
+        rid = str(row.get("record_id") or "").strip()
+        if not rid:
+            missing.append(row["_row"])
+            continue
+        if rid in index:
+            problems.append({"kind": "duplicate_record_id", "side": side, "record_id": rid})
+        index[rid] = row
+    return index, missing
+
+
+def compare(before_path, after_path, overrides=None):
+    overrides = overrides or {}
+    before_rows, before_headers = load(before_path, overrides)
+    after_rows, after_headers = load(after_path, overrides)
+    problems, review = [], []
+    before, before_missing = by_id(before_rows, "before", problems)
+    after, after_missing = by_id(after_rows, "after", problems)
+    require(before or after, "neither export has record IDs; map one with --map record_id=Header")
+    dropped = [h for h in before_headers if h not in after_headers]
+    if dropped:
+        problems.append({"kind": "columns_removed", "columns": dropped})
+    if after_missing:
+        review.append({"kind": "rows_without_record_id", "side": "after", "rows": after_missing})
+    for rid in sorted(set(before) - set(after)):
+        problems.append({"kind": "record_removed", "record_id": rid, "employer": before[rid].get("employer"),
+                         "title": before[rid].get("title")})
+    changed = []
+    for rid in sorted(set(before) & set(after)):
+        old, new = before[rid], after[rid]
+        old_id, new_id = identity(old), identity(new)
+        for key in ("employer", "requisition_id", "url"):
+            if old_id[key] and old_id[key] != new_id[key]:
+                problems.append({"kind": "identity_changed", "record_id": rid, "field": key,
+                                 "before": old.get(key), "after": new.get(key)})
+        if reached_final(old.get("status")) and not reached_final(new.get("status")):
+            problems.append({"kind": "application_history_regressed", "record_id": rid,
+                             "before": old.get("status"), "after": new.get("status")})
+        cleared = [h for h, v in old["_raw"].items() if str(v or "").strip() and not str(new["_raw"].get(h) or "").strip()]
+        if cleared:
+            review.append({"kind": "values_cleared", "record_id": rid, "columns": cleared})
+        if old["_raw"] != new["_raw"]:
+            changed.append(rid)
+    added = sorted(set(after) - set(before))
+    candidates, compared = [], set()
+    for rid in added:
+        row, row_id = after[rid], identity(after[rid])
+        for other_id, other in after.items():
+            pair = frozenset((rid, other_id))
+            if other_id == rid or pair in compared:
+                continue
+            compared.add(pair)
+            other_identity = identity(other)
+            if not row_id["employer"] or row_id["employer"] != other_identity["employer"]:
+                continue
+            same_link = row_id["url"] and row_id["url"] == other_identity["url"]
+            same_req = row_id["requisition_id"] and row_id["requisition_id"] == other_identity["requisition_id"]
+            similarity = common.title_similarity(row.get("title"), other.get("title"))
+            if same_link or same_req:
+                problems.append({"kind": "duplicate_identity", "record_id": rid, "matches": other_id,
+                                 "basis": "same URL" if same_link else "same requisition"})
+            elif similarity >= TITLE_MATCH:
+                candidates.append({"record_id": rid, "related_to": other_id, "title_similarity": round(similarity, 2),
+                                   "note": "different requisition/URL, similar title at the same employer: link as a "
+                                           "possible repost; never merge or overwrite the earlier record"})
+    status = "blocked" if problems else "review_required" if review or candidates else "conserved"
+    return {"schema_version": 1, "tool": "tracker_diff", "tool_version": VERSION, "status": status,
+            "before": {"file": Path(before_path).name, "records": len(before), "sha256": common.sha256(common.read_input(before_path))},
+            "after": {"file": Path(after_path).name, "records": len(after), "sha256": common.sha256(common.read_input(after_path))},
+            "expected_after_records": len(before) + len(added) - len(set(before) - set(after)),
+            "added": added, "changed": changed, "problems": problems, "review": review, "repost_candidates": candidates,
+            "limits": "Structural comparison of two exports. It cannot see formulas, hidden tabs or edits made outside "
+                      "the exported columns, and similarity is a prompt to look, not proof of a repost."}
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--version", action="version", version=VERSION)
+    parser.add_argument("--before", required=True, help="export taken before the edit (JSON/CSV/TSV)")
+    parser.add_argument("--after", required=True, help="export of the edited tracker")
+    parser.add_argument("--map", action="append", default=[], metavar="FIELD=Header")
+    parser.add_argument("--out")
+    args = parser.parse_args(argv)
+
+    def run():
+        import deadlines
+        overrides = {}
+        for item in args.map:
+            require("=" in item, "--map needs FIELD=Header")
+            field, header = item.split("=", 1)
+            require(field.strip() in deadlines.FIELDS, "unknown --map field: " + field.strip())
+            overrides[field.strip()] = header.strip().casefold()
+        common.emit(compare(args.before, args.after, overrides), args.out)
+    return common.run_cli(run)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

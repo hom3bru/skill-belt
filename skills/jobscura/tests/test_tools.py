@@ -546,6 +546,159 @@ class PullRequestReviewTests(Temp):
             self.assertIn("hidden_or_invisible_text", lint(value), value)
 
 
+board_feed = load("board_feed")
+tracker_diff = load("tracker_diff")
+GREENHOUSE = {"jobs": [
+    {"id": 4012345, "title": "Program Coordinator", "absolute_url": "https://job-boards.greenhouse.io/examplearts/jobs/4012345",
+     "location": {"name": "Fictional City"}, "requisition_id": "REQ-42", "first_published": "2026-10-01T10:00:00-04:00"},
+    {"id": 4012399, "title": "Senior Director of Development", "absolute_url": "https://job-boards.greenhouse.io/examplearts/jobs/4012399",
+     "location": {"name": "Fictional City"}, "first_published": "2026-10-02T10:00:00-04:00"},
+    {"id": 4012400, "title": "Program Coordinator II", "absolute_url": "https://job-boards.greenhouse.io/examplearts/jobs/4012400",
+     "location": {"name": "Remote"}, "first_published": "2026-10-20T10:00:00-04:00"}]}
+FEED_TRACKER = ("Record ID,Company,Role,Requisition ID,Application URL\n"
+                "JOB-001,Example Arts,Program Coordinator,REQ-42,https://job-boards.greenhouse.io/examplearts/jobs/4012345\n")
+
+
+class AdoptAdaptTransferTests(Temp):
+    """Transfers from the 0.5.0 adopt-adapt review (board feeds, tracker conservation, calendar, pay floor, parse preview)."""
+
+    def test_board_feed_normalises_screens_and_marks_tracked_and_reposts(self):
+        feed = self.write("gh.json", json.dumps(GREENHOUSE))
+        tracker = self.write("tracker.csv", FEED_TRACKER)
+        result = board_feed.run(str(feed), company="Example Arts", board="examplearts", tracker=str(tracker),
+                                exclude=["director"], locations=["fictional city", "remote"])
+        rows = {p["id"]: p for p in result["postings"]}
+        self.assertEqual(result["vendor"], "greenhouse")
+        self.assertEqual(rows["4012345"]["tracker"], {"status": "tracked", "records": ["JOB-001"]})
+        self.assertEqual(rows["4012345"]["posted"], "2026-10-01")
+        self.assertTrue(rows["4012399"]["screen"].startswith("excluded: title has 'director'"))
+        self.assertEqual(rows["4012400"]["tracker"]["status"], "possible_repost_of_tracked_role")
+        self.assertEqual(rows["4012400"]["screen"], "kept")
+        self.assertEqual(result["counts"]["kept"], 2)
+
+    def test_board_feed_snapshot_diff_reports_new_and_disappeared(self):
+        first = self.root / "first.json"
+        board_feed.main(["--feed", str(self.write("gh1.json", json.dumps(GREENHOUSE))), "--company", "Example Arts",
+                         "--board", "examplearts", "--out", str(first)])
+        later = json.loads(json.dumps(GREENHOUSE))
+        later["jobs"] = [j for j in later["jobs"] if j["id"] != 4012345] + [
+            {"id": 4012500, "title": "Volunteer Manager", "absolute_url": "https://job-boards.greenhouse.io/examplearts/jobs/4012500"}]
+        later["jobs"][0]["title"] = "Senior Director of Development and Partnerships"
+        result = board_feed.run(str(self.write("gh2.json", json.dumps(later))), company="Example Arts", board="examplearts",
+                                previous=str(first))
+        status = {p["id"]: p["since_previous"] for p in result["postings"]}
+        self.assertEqual(status, {"4012399": "changed", "4012400": "unchanged", "4012500": "new"})
+        self.assertEqual([d["key"] for d in result["disappeared_since_previous"]], ["greenhouse:examplearts:4012345"])
+
+    def test_other_board_shapes(self):
+        lever = [{"id": "0f8a2c7e-1b2c-4d5e-8f90-123456789abc", "text": "Community Officer", "workplaceType": "remote",
+                  "hostedUrl": "https://jobs.lever.co/examplearts/0f8a2c7e-1b2c-4d5e-8f90-123456789abc",
+                  "categories": {"location": "London"}, "createdAt": 1760000000000}]
+        ashby = {"jobs": [{"id": "a1", "title": "Partnerships Lead", "jobUrl": "https://jobs.ashbyhq.com/examplearts/a1",
+                           "location": "Berlin", "secondaryLocations": [{"location": "Remote - EU"}], "isRemote": True,
+                           "publishedAt": "2026-10-20T00:00:00Z"}]}
+        smart = {"content": [{"id": "744000012345678", "name": "Programme Officer", "refNumber": "R-7",
+                              "releasedDate": "2026-10-15T08:00:00.000Z", "location": {"city": "Leeds", "country": "gb"}}]}
+        for name, data, check in (("lever", lever, lambda r: (r["remote"], r["posted"]) == (True, "2025-10-09")),
+                                  ("ashby", ashby, lambda r: r["location"] == "Berlin · Remote - EU" and r["remote"]),
+                                  ("smartrecruiters", smart, lambda r: r["url"] == "https://jobs.smartrecruiters.com/ExampleArts/744000012345678"
+                                   and r["requisition_id"] == "R-7")):
+            with self.subTest(vendor=name):
+                records, _ = board_feed.normalize(data, board="ExampleArts", company="Example Arts")
+                self.assertEqual(records[0]["vendor"], name)
+                self.assertTrue(check(records[0]), records[0])
+        with self.assertRaisesRegex(common.ToolError, "unrecognised feed"):
+            board_feed.normalize({"items": []})
+
+    def test_tracker_diff_blocks_losses_and_flags_reposts(self):
+        before = self.write("before.csv", "Record ID,Company,Role,Status,Application URL,Notes\n"
+                                          "JOB-1,Example Arts,Program Coordinator,Applied,https://example.org/jobs/1,Phone screen booked\n"
+                                          "JOB-2,Sample Museum,Educator,Active,https://example.org/jobs/2,\n")
+        after = self.write("after.csv", "Record ID,Company,Role,Status,Application URL\n"
+                                        "JOB-1,Example Arts,Program Coordinator,Undecided,https://example.org/jobs/1\n"
+                                        "JOB-3,Example Arts,Program Coordinator (Fixed term),Active,https://example.org/jobs/9\n")
+        result = tracker_diff.compare(str(before), str(after))
+        kinds = {p["kind"] for p in result["problems"]}
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(kinds, {"record_removed", "application_history_regressed", "columns_removed"})
+        self.assertEqual([(c["record_id"], c["related_to"]) for c in result["repost_candidates"]], [("JOB-3", "JOB-1")])
+        clean_after = self.write("clean.csv", "Record ID,Company,Role,Status,Application URL,Notes\n"
+                                              "JOB-1,Example Arts,Program Coordinator,Interview booked,https://example.org/jobs/1,Phone screen booked\n"
+                                              "JOB-2,Sample Museum,Educator,Active,https://example.org/jobs/2,\n"
+                                              "JOB-4,Demo Trust,Officer,Active,https://example.org/jobs/4,\n")
+        clean = tracker_diff.compare(str(before), str(clean_after))
+        self.assertEqual((clean["status"], clean["added"]), ("conserved", ["JOB-4"]))
+        dup = self.write("dup.csv", "Record ID,Company,Role,Status,Application URL,Notes\n"
+                                    "JOB-1,Example Arts,Program Coordinator,Applied,https://example.org/jobs/1,Phone screen booked\n"
+                                    "JOB-2,Sample Museum,Educator,Active,https://example.org/jobs/2,\n"
+                                    "JOB-5,Example Arts,Coordinator,Active,https://example.org/jobs/1/,\n")
+        self.assertIn("duplicate_identity", {p["kind"] for p in tracker_diff.compare(str(before), str(dup))["problems"]})
+
+    def test_calendar_export_is_valid_icalendar_with_future_alarms_only(self):
+        tracker = self.write("tracker.csv", TRACKER.replace("Example Arts,Coordinator", '"Example Arts, Ltd",Coordinator'))
+        if user_context.timezone_status("America/Los_Angeles") != "available":
+            with self.assertRaises(common.ToolError):
+                deadlines.plan(str(tracker), "America/Los_Angeles", "2026-11-04T16:00:00Z")
+            return
+        result = deadlines.plan(str(tracker), "America/Los_Angeles", "2026-11-04T16:00:00Z")
+        text, events = deadlines.calendar(result, "America/Los_Angeles")
+        again, _ = deadlines.calendar(result, "America/Los_Angeles")
+        self.assertEqual(text, again)  # stable UIDs and content: re-import updates, never duplicates
+        raw = text.encode("utf-8")
+        self.assertTrue(raw.endswith(b"\r\n") and b"\n" not in raw.replace(b"\r\n", b""))
+        self.assertTrue(all(len(line) <= 75 for line in raw.split(b"\r\n")))
+        unfolded = text.replace("\r\n ", "").split("\r\n")
+        self.assertEqual((unfolded[0], unfolded[-2]), ("BEGIN:VCALENDAR", "END:VCALENDAR"))
+        self.assertEqual(events, 3)  # JOB-1, JOB-2, JOB-7 (date only); applied, rolling-less and past roles excluded
+        self.assertIn("DTEND:20261111T220000Z", unfolded)
+        self.assertIn("DTSTART;VALUE=DATE:20261105", unfolded)
+        self.assertIn("SUMMARY:Closes: Coordinator - Example Arts\\, Ltd", unfolded)
+        triggers = [line.split(":", 1)[1] for line in unfolded if line.startswith("TRIGGER;VALUE=DATE-TIME:")]
+        self.assertTrue(triggers and all(t > "20261104T160000Z" for t in triggers))
+        self.assertEqual(sum(1 for line in unfolded if line == "BEGIN:VEVENT"), sum(1 for line in unfolded if line == "END:VEVENT"))
+        out = self.root / "deadlines.ics"
+        run = self.cli("deadlines.py", "--tracker", tracker, "--timezone", "America/Los_Angeles",
+                       "--as-of", "2026-11-04T16:00:00Z", "--ics", out)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(json.loads(run.stdout)["calendar"]["events"], 3)
+        self.assertEqual(self.cli("deadlines.py", "--tracker", tracker, "--timezone", "America/Los_Angeles", "--ics", out).returncode, 2)
+
+    def test_pay_annualisation_and_floor_check(self):
+        hourly = intel.find_pay("Rate: $25 per hour")[0]
+        self.assertEqual((hourly["annual_min"], hourly["unit"]), (52000, "hour"))
+        pay = intel.find_pay("Salary range: $62,000 - $71,000 per year")
+        for amount, expected in ((50000, "at_or_above_floor"), (65000, "floor_within_range"), (80000, "below_floor")):
+            with self.subTest(amount=amount):
+                check = intel.pay_floor_check(pay, [], {"amount": amount, "currency": "USD", "period": "year"})
+                self.assertEqual(check["result"], expected)
+                self.assertIn("'$' read as USD", check["assumptions"])
+        self.assertEqual(intel.pay_floor_check(pay, [], {"amount": 50000, "currency": "EUR", "period": "year"})["result"],
+                         "not_comparable")
+        structured = [{"base_salary": {"currency": "GBP", "min": 30, "max": 32, "value": None, "unit": "HOUR"}}]
+        check = intel.pay_floor_check([], structured, {"amount": 4000, "currency": "GBP", "period": "month"})
+        self.assertEqual((check["result"], check["posting_annual_min"], check["floor_annual"]), ("at_or_above_floor", 62400, 48000))
+        self.assertIsNone(intel.pay_floor_check(pay, [], None))
+
+    def test_parse_preview_reads_contact_sections_and_dated_entries(self):
+        result = ats.lint(make_docx(self.root / "Alex_Rivera_Resume.docx", CLEAN_BODY))
+        preview = result["facts"]["parse_preview"]
+        self.assertEqual(preview["name"], "Alex Rivera (fictional)")
+        self.assertEqual(preview["contact"]["email"], "alex@example.org")
+        self.assertEqual([s["read_as"] for s in preview["sections"]], ["experience", "education", "skills"])
+        self.assertEqual(preview["experience_entries"][0]["dates"], "Jan 2021 - Dec 2024")
+        self.assertEqual(result["status"], "no_issues_found")
+        weak = self.write("weak.txt", "CURRICULUM VITAE\nWhere I've Been\nProgram Coordinator at Example Arts\n"
+                                      "EXPERIENCE\nCoordinated workshops for several years\nEDUCATION\nState University\n"
+                                      "Contact: alex@example.org\n")
+        found = ats.lint(weak)
+        messages = " ".join(f["message"] for f in found["findings"] if f["id"] == "parse_preview")
+        self.assertIn("no recognisable date range", messages)
+        self.assertIn("email appears only below the top block", messages)
+        self.assertEqual(found["facts"]["parse_preview"]["education_lines"][0]["text"], "State University")
+        letter = ats.lint(self.write("letter.txt", "Dear Hiring Manager,\nI am writing to apply.\nSincerely,\nAlex\n"))
+        self.assertFalse(any(f["id"] == "parse_preview" for f in letter["findings"]))
+
+
 class CommonTests(Temp):
     def test_html_hidden_text_comment_and_jsonld(self):
         text, hidden, blocks = common.html_to_text('<p>Visible</p><div hidden>Secret</div><!-- note --><span style="font-size:0">tiny</span>'

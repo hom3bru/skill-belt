@@ -23,7 +23,11 @@ to run and the way to verify what they find. Do not present remembered listings 
    boards (Greenhouse, Lever, Ashby, Workday, SmartRecruiters and others) before aggregators. Use
    the board-scoped search patterns in the reference. When the host can fetch, prefer the board's
    public JSON endpoint where one exists. Aggregators are useful for leads but never final proof of
-   status or dates.
+   status or dates. For a target employer's board, save the public JSON response with the host's
+   fetch tool, then run `scripts/board_feed.py` on it with `--tracker` and `--previous`. It
+   normalises the postings, applies the user's title and location filters, and marks roles
+   already tracked and possible reposts. It also lists what is new and what has disappeared since
+   the last run, which tracking verifies before any closure.
 3. **Verify each find.** Use the official posting URL, the employer, the requisition or ATS job ID,
    location and arrangement, pay if stated, the posted date and the deadline. Record when you
    observed it. If you have a saved snapshot and an executor, `scripts/posting_intel.py analyze`

@@ -42,6 +42,108 @@ APP_COMPANY = "{http://schemas.openxmlformats.org/officeDocument/2006/extended-p
 APP_TEMPLATE = "{http://schemas.openxmlformats.org/officeDocument/2006/extended-properties}Template"
 
 
+# ------------------------------------------------------------------ parse preview
+# What a simple rule-based resume parser would probably extract: contact block, section
+# titles, dated experience entries and education lines. Independent rules, inspired by the
+# documented approach of open-source parsers (profile block + section titles + field scoring).
+SECTION_WORDS = [("work history", "experience"), ("career history", "experience"), ("employment", "experience"),
+                 ("experience", "experience"), ("education", "education"), ("training", "education"),
+                 ("qualifications", "education"), ("skills", "skills"), ("competencies", "skills"),
+                 ("expertise", "skills"), ("projects", "projects"), ("summary", "summary"), ("profile", "summary"),
+                 ("objective", "summary"), ("certifications", "certifications"), ("licenses", "certifications"),
+                 ("awards", "awards"), ("publications", "publications"), ("volunteer", "volunteer"),
+                 ("languages", "languages"), ("interests", "interests"), ("references", "references")]
+DATE_TOKEN = (r"(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}"
+              r"|(?:0?[1-9]|1[0-2])/(?:19|20)\d{2}|(?:19|20)\d{2})")
+DATE_RANGE = re.compile(DATE_TOKEN + r"\s*(?:-|–|—|to|until)\s*(?:" + DATE_TOKEN + r"|present|current|now|today)", re.I)
+INSTITUTION = re.compile(r"\b(university|college|institute|school|academy|polytechnic|conservatoire)\b", re.I)
+DEGREE = re.compile(r"\b(bachelor\w*|master\w*|ph\.?\s?d|doctorate|diploma|certificate|associate|mba|b\.?sc|m\.?sc|b\.?a|m\.?a|"
+                    r"gcse|a-levels?)\b", re.I)
+LINK = re.compile(r"(?:https?://|www\.)\S+|\b(?:linkedin\.com|github\.com)/\S+", re.I)
+PLACE = re.compile(r"\b[A-Z][a-zA-Z.'\- ]{1,40},\s*(?:[A-Z]{2}\b|[A-Z][a-zA-Z]+)")
+
+
+def section_of(line):
+    text = line.strip().rstrip(":").strip()
+    words = text.split()
+    if not words or len(words) > 5 or re.search(r"\d", text) or text.endswith((".", ",", ";")):
+        return None
+    styled = text.isupper() or line.strip().endswith(":") or all(w[0].isupper() for w in words if len(w) > 3 and w[0].isalpha())
+    lowered = text.casefold()
+    if styled:
+        for word, canonical in SECTION_WORDS:
+            if word in lowered:
+                return canonical
+    return None
+
+
+def name_score(line):
+    text = line.strip()
+    words = text.split()
+    score = 0
+    if re.fullmatch(r"[A-Za-zÀ-ɏ .'\-]+", text):
+        score += 3
+    if 2 <= len(words) <= 4:
+        score += 2
+    if text.isupper() or all(w[0].isupper() for w in words if w[0].isalpha()):
+        score += 1
+    if "@" in text or re.search(r"\d|https?:|www\.", text):
+        score -= 5
+    if section_of(text) or re.search(r"\b(resume|résumé|curriculum vitae|cv)\b", text, re.I):
+        score -= 4
+    if len(words) > 5:
+        score -= 3
+    return score
+
+
+def parse_preview(text):
+    lines = [(n, l.strip()) for n, l in enumerate(text.splitlines(), 1) if l.strip()]
+    sections, current, profile = [], None, []
+    for number, line in lines:
+        canonical = section_of(line)
+        if canonical:
+            current = {"title": line.rstrip(":"), "as": canonical, "line": number, "lines": []}
+            sections.append(current)
+        elif current is None:
+            profile.append((number, line))
+        else:
+            current["lines"].append((number, line))
+    head = profile[:8]
+    scored = sorted(((name_score(l), n, l) for n, l in head), key=lambda x: (-x[0], x[1]))
+    name = scored[0] if scored and scored[0][0] > 0 else None
+    first = lambda pattern, pool: next((m.group(0) for _, l in pool for m in [pattern.search(l)] if m), None)
+    contact = {"email": first(EMAIL, head), "phone": first(PHONE, head),
+               "location": next((m.group(0) for _, l in head if "@" not in l for m in [PLACE.search(l)] if m), None),
+               "links": [m.group(0) for _, l in head for m in LINK.finditer(l)][:5]}
+    experience, education = [], []
+    for section in sections:
+        previous = None
+        for number, line in section["lines"]:
+            match = DATE_RANGE.search(line)
+            if section["as"] == "experience" and match:
+                heading = line.replace(match.group(0), "").strip(" |,-–—\t") or previous
+                experience.append({"line": number, "dates": match.group(0), "heading": excerpt(heading or "", 120)})
+            if section["as"] == "education" and (INSTITUTION.search(line) or DEGREE.search(line)):
+                education.append({"line": number, "text": excerpt(line, 120)})
+            if not common.BULLET.match(line):
+                previous = line
+    warnings = []
+    if not name:
+        warnings.append("No line in the top block looks like a name; parsers may leave the name blank.")
+    if not contact["email"] and EMAIL.search(text):
+        warnings.append("The email appears only below the top block; many parsers read contact details from the top.")
+    if not sections:
+        warnings.append("No section titles a parser would recognise (Experience, Education, Skills...).")
+    elif not any(s["as"] == "experience" for s in sections):
+        warnings.append("No experience section title was recognised.")
+    elif not experience:
+        warnings.append("Experience entries have no recognisable date range (e.g. 'Jan 2021 - Present').")
+    return {"name": name[2] if name else None, "contact": contact,
+            "sections": [{"title": s["title"], "read_as": s["as"], "line": s["line"]} for s in sections],
+            "experience_entries": experience, "education_lines": education, "warnings": warnings,
+            "limits": "Heuristic preview of a simple rule-based parser; commercial systems differ."}
+
+
 class Findings:
     def __init__(self):
         self.items = []
@@ -214,6 +316,14 @@ def lint(path):
         raise ToolError("supported formats: .docx, .pdf, .txt, .md")
     if text:
         text_checks(text, findings, facts)
+        preview = parse_preview(text)
+        facts["parse_preview"] = preview
+        if preview["sections"]:  # resume-like; letters and the headings check above cover the rest
+            for warning in preview["warnings"]:
+                findings.add("parse_preview", "warning", warning)
+    elif suffix == ".pdf":
+        facts["parse_preview"] = {"available": False, "why": "no standard-library PDF text extraction; preview the "
+                                                             "source DOCX or a text export instead"}
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 ._-]{0,100}", p.name):
         findings.add("filename", "info", "Plain ASCII filenames (for example First_Last_Resume.pdf) upload most reliably.")
     order = {"blocker": 0, "warning": 1, "info": 2}

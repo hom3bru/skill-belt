@@ -339,9 +339,57 @@ def find_pay(text):
             if low < 7 and not high:
                 continue
             code = (match.group("c1") or "").casefold()
+            unit = UNITS.get((match.group("unit") or "").casefold())
             found.append({"line": number, "span": match.group(0).strip(), "currency": SYMBOLS.get(code, code.upper()),
-                          "min": low, "max": high, "unit": UNITS.get((match.group("unit") or "").casefold())})
+                          "min": low, "max": high, "unit": unit, **annualize(low, high, unit)})
     return found
+
+
+# Full-time conversion factors (40 h x 52 weeks; 5 days x 52 weeks). An assumption, always labelled.
+ANNUAL_FACTOR = {"hour": 2080, "day": 260, "week": 52, "month": 12, "year": 1}
+STRUCTURED_UNITS = {"HOUR": "hour", "DAY": "day", "WEEK": "week", "MONTH": "month", "YEAR": "year"}
+
+
+def annualize(low, high, unit):
+    factor = ANNUAL_FACTOR.get(unit)
+    if not factor:
+        return {"annual_min": None, "annual_max": None}
+    return {"annual_min": round(low * factor, 2) if low is not None else None,
+            "annual_max": round(high * factor, 2) if high is not None else None}
+
+
+def currency_code(value):
+    text = str(value or "").upper().rstrip("?")
+    return text if re.fullmatch(r"[A-Z]{3}", text) else None
+
+
+def pay_floor_check(pay, structured, floor):
+    """Compare annualised pay with the user's stated floor; never across currencies or unknown units."""
+    if not floor:
+        return None
+    floor_annual = floor["amount"] * ANNUAL_FACTOR[floor["period"]]
+    wanted = floor["currency"].upper()
+    candidates = [(p["annual_min"], p["annual_max"], p["currency"], p["span"]) for p in pay if p["annual_min"] is not None]
+    for posting in structured:
+        salary = posting.get("base_salary") or {}
+        unit = STRUCTURED_UNITS.get(str(salary.get("unit") or "").upper())
+        low = salary.get("min") if salary.get("min") is not None else salary.get("value")
+        if unit and low is not None:
+            values = annualize(low, salary.get("max"), unit)
+            candidates.append((values["annual_min"], values["annual_max"], salary.get("currency"), "structured baseSalary"))
+    for low, high, currency, span in candidates:
+        code = currency_code(currency)
+        assumed = str(currency or "").endswith("?")
+        if code != wanted:
+            continue
+        top = high if high is not None else low
+        verdict = ("below_floor" if top < floor_annual else
+                   "floor_within_range" if low < floor_annual else "at_or_above_floor")
+        return {"result": verdict, "posting_annual_min": low, "posting_annual_max": high, "floor_annual": floor_annual,
+                "currency": wanted, "basis": span,
+                "assumptions": "full-time annualisation (2,080 h/yr, 260 days/yr)" + ("; '$' read as USD" if assumed else "")}
+    return {"result": "not_comparable", "floor_annual": floor_annual, "currency": wanted,
+            "assumptions": "no pay figure in the floor's currency with a known period"}
 
 
 ARRANGEMENTS = [
@@ -606,7 +654,7 @@ def load_source(capture=None, input_path=None, url=None, employer=None, observed
 
 def analyze(capture=None, input_path=None, url=None, employer=None, observed_at=None, context=None):
     loaded = load_source(capture, input_path, url, employer, observed_at)
-    conventions = load_conventions(context)
+    conventions, floor = load_conventions(context)
     if loaded["format"] == "html":
         text, hidden, blocks = common.html_to_text(loaded["source"])
     else:
@@ -636,6 +684,7 @@ def analyze(capture=None, input_path=None, url=None, employer=None, observed_at=
         "structured": structured, "structured_parse_errors": jsonld_errors,
         "requirements": requirements,
         "compensation": {"found": pay, "structured": [p["base_salary"] for p in structured if p.get("base_salary")],
+                         "floor_check": pay_floor_check(pay, structured, floor),
                          "note": None if has_pay else "No pay range found in this snapshot. Several jurisdictions now require "
                                  "ranges in postings or on request; check the live posting or ask the employer."},
         "work_arrangement": arrangement, "sponsorship": sponsorship, "work_authorization": authorization,
@@ -653,13 +702,15 @@ def analyze(capture=None, input_path=None, url=None, employer=None, observed_at=
 
 
 def load_conventions(context):
+    """Monitoring thresholds and the optional pay floor from validated private context."""
     import user_context
     if not context:
-        return dict(user_context.MONITORING_DEFAULTS)
+        return dict(user_context.MONITORING_DEFAULTS), None
     try:
-        return user_context.monitoring(user_context.load_context(context))
+        value = user_context.load_context(context)
     except user_context.ContextError as exc:
         raise ToolError(str(exc)) from None
+    return user_context.monitoring(value), value["preferences"].get("search", {}).get("min_base_pay")
 
 
 def main(argv=None):

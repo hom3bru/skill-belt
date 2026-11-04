@@ -33,6 +33,13 @@ claim a scheduled check, save or reminder exists merely because this file says s
    format: worthwhile new discoveries, every active role closing within the horizon,
    and newly closed roles once. Use [opportunity-discovery](../opportunity-discovery/SKILL.md)
    for the fresh search.
-6. Verify edits and supported automation changes, then report what changed and
+   When the user wants reminders without a scheduler, `deadlines.py --ics` writes a
+   calendar file they can import into their own calendar. Importing it is their action;
+   report it as prepared, not as reminders set.
+6. Before saving a tracker edit, compare exports taken before and after it with
+   `scripts/tracker_diff.py`. Do not save while it reports `blocked` (lost records,
+   changed identities, dropped columns, application history moving backwards), unless
+   the user confirms each item. Link repost candidates; never merge them.
+7. Verify edits and supported automation changes, then report what changed and
    what remains unverified. A successful fetch or old search snippet is not proof
    a job is open. Never submit an application or contact an employer from this skill.

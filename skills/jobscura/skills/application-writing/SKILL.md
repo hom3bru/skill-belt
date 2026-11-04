@@ -78,7 +78,10 @@ They catch the errors that rereading misses.
   material. Treat `addressed_without_found_evidence` as a fabrication risk. Add only
   terms the evidence supports.
 - `ats_lint.py` on the exact file to be sent. Clear every blocker (tracked changes,
-  comments, hidden or white text, image-only PDF) before you call it ready.
+  comments, hidden or white text, image-only PDF) before you call it ready. For a
+  DOCX or text resume, read its parse preview. If the name, contact details, section
+  titles or dated roles are not what you expect, fix the layout. Do not change the
+  facts.
 
 Deliver the recommended complete text or requested file and a brief account of
 important changes ([draft delivery](../../references/output-formats.md)). Keep provenance, rejected alternatives and diagnostic commentary
