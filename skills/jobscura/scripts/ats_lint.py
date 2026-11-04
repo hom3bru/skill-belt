@@ -104,7 +104,9 @@ def lint_docx(data, findings, facts):
                          "before sending; deleted text can be recovered by the recipient.")
         if facts["comment_references"] or "word/comments.xml" in names:
             findings.add("comments", "blocker", "Review comments are stored in the file. Delete all comments before sending.")
-        hidden_runs = sum(1 for r in root.iter(W + "rPr") if r.find(W + "vanish") is not None)
+        # w:vanish is an on/off property: val="0", "false" or "off" explicitly makes text visible.
+        hidden_runs = sum(1 for v in root.iter(W + "vanish")
+                          if (v.get(W + "val") or "true").strip().casefold() not in {"0", "false", "off"})
         white_runs = sum(1 for c in root.iter(W + "color") if (c.get(W + "val") or "").upper() in {"FFFFFF", "FFFFFE"})
         tiny_runs = sum(1 for s in root.iter(W + "sz") if (s.get(W + "val") or "").isdigit() and int(s.get(W + "val")) <= 4)
         if hidden_runs or white_runs or tiny_runs:

@@ -514,6 +514,38 @@ class ReviewRegressionTests(Temp):
         self.assertEqual(len(hits), 2)
 
 
+class PullRequestReviewTests(Temp):
+    """Controls for findings raised in PR review of 0.5.0."""
+
+    def test_changed_currency_is_not_supported(self):
+        evidence = self.write("evidence.txt", "Raised €50,000 in sponsorship for the museum gala.\n")
+        draft = self.write("draft.txt", "Raised $50,000 in sponsorship for the museum gala.\n")
+        result = grounding.claims(str(draft), [str(evidence)])
+        self.assertEqual(result["ledger"][0]["atoms"][0]["status"], "not_found")
+        self.assertEqual(result["status"], "review_needed")
+        plain = self.write("plain.txt", "Raised 50,000 in sponsorship for the museum gala.\n")
+        result = grounding.claims(str(draft), [str(plain)])
+        self.assertEqual(result["ledger"][0]["atoms"][0]["status"], "supported")  # no currency stated: compatible
+
+    def test_unclassified_requirements_survive_beside_sections(self):
+        posting = self.write("posting.txt", "Requirements:\n- Python\nApplicants must have a driving license.\n")
+        evidence = self.write("evidence.txt", "Wrote Python tools for scheduling.\n")
+        rows = grounding.coverage(posting=str(posting), evidence_paths=[str(evidence)])["rows"]
+        self.assertEqual([(r["group"], r["requirement"]) for r in rows],
+                         [("required", "Python"), ("unclassified", "Applicants must have a driving license.")])
+        self.assertEqual(rows[1]["status"], "no_evidence_found")
+
+    def test_explicitly_visible_vanish_is_not_hidden_text(self):
+        def lint(value):
+            attribute = f' w:val="{value}"' if value is not None else ""
+            body = CLEAN_BODY + f"<w:p><w:r><w:rPr><w:vanish{attribute}/></w:rPr><w:t>note</w:t></w:r></w:p>"
+            return {f["id"] for f in ats.lint(make_docx(self.root / f"vanish-{value}.docx", body))["findings"]}
+        for value in ("0", "false", "off"):
+            self.assertNotIn("hidden_or_invisible_text", lint(value), value)
+        for value in (None, "1", "true", "on"):
+            self.assertIn("hidden_or_invisible_text", lint(value), value)
+
+
 class CommonTests(Temp):
     def test_html_hidden_text_comment_and_jsonld(self):
         text, hidden, blocks = common.html_to_text('<p>Visible</p><div hidden>Secret</div><!-- note --><span style="font-size:0">tiny</span>'

@@ -141,7 +141,11 @@ class Evidence:
         hits = []
         for unit in self.units:
             if kind in {"number", "percent"}:
-                ok = any(n["kind"] == kind and abs(n["key"] - key) <= max(1e-9, abs(key) * 0.005) for n in unit["numbers"])
+                # Same magnitude and, when both sides name a currency, the same currency:
+                # "$50,000" is not supported by "€50,000".
+                currency = atom.get("currency")
+                ok = any(n["kind"] == kind and abs(n["key"] - key) <= max(1e-9, abs(key) * 0.005)
+                         and not (currency and n.get("currency") and n["currency"] != currency) for n in unit["numbers"])
             elif kind == "year":
                 ok = any(n["kind"] == "year" and n["key"] == key for n in unit["numbers"])
             elif kind == "date":
@@ -283,9 +287,10 @@ def coverage(posting=None, capture=None, evidence_paths=(), draft=None):
             draft_units.append(unit)
     draft_tokens = set().union(*(u["tokens"] for u in draft_units)) if draft_units else set()
     rows, counts = [], {}
-    groups = [("required", requirements["required"]), ("preferred", requirements["preferred"])]
-    if not requirements["required"] and not requirements["preferred"]:
-        groups.append(("unclassified", requirements["unclassified"]))
+    # Requirements outside recognised sections (e.g. "Applicants must have a driving licence"
+    # after the bullet list) are often eligibility conditions: always keep them, labelled.
+    groups = [("required", requirements["required"]), ("preferred", requirements["preferred"]),
+              ("unclassified", requirements["unclassified"])]
     for group, items in groups:
         for item in items:
             tokens = requirement_tokens(item["text"])

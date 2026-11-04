@@ -37,6 +37,10 @@ Fixes from an independent review of the new helpers (each covered by a regressio
 - A status of "Not applied" stays active.
 - Lookalike SuccessFactors domains are not trusted.
 - Employer-paid training or equipment is no longer flagged as a payment scam.
+- Pull-request review fixes:
+  - A money claim whose currency differs from the evidence is no longer marked supported.
+  - Requirements outside recognised sections stay in the coverage matrix, labelled `unclassified`.
+  - `<w:vanish w:val="0|false|off"/>` counts as visible text.
 
 Additions:
 
