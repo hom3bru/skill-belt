@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import math
 from pathlib import Path
 import re
 
@@ -29,8 +30,13 @@ def epoch_or_iso(value):
     if value is None or value == "":
         return None
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        seconds = value / 1000 if value > 1e11 else value  # Lever and others send epoch milliseconds
-        return datetime.fromtimestamp(seconds, timezone.utc).date().isoformat()
+        try:
+            if not math.isfinite(value):
+                raise ValueError("must be finite")
+            seconds = value / 1000 if value > 1e11 else value  # Lever and others send epoch milliseconds
+            return datetime.fromtimestamp(seconds, timezone.utc).date().isoformat()
+        except (OverflowError, OSError, ValueError) as exc:
+            raise ToolError(f"invalid timestamp {value!r}: {exc}") from None
     text = str(value).strip()
     try:
         return datetime.fromisoformat(text.replace("Z", "+00:00")).date().isoformat()
@@ -109,6 +115,12 @@ def detect(data):
 def normalize(data, vendor=None, board=None, company=None):
     vendor = vendor or detect(data)
     require(vendor in VENDORS, "unrecognised feed: pass --vendor greenhouse|lever|ashby|smartrecruiters")
+    container = "content" if vendor == "smartrecruiters" else "jobs"
+    valid = isinstance(data, list) if vendor == "lever" else (
+        isinstance(data, dict) and isinstance(data.get(container), list))
+    shape = f"object with keys {sorted(data)}" if isinstance(data, dict) else type(data).__name__
+    require(valid, f"{vendor} feed has invalid container: {shape}; expected " +
+            ("a list" if vendor == "lever" else f"an object with a list {container!r}"))
     records, skipped = [], 0
     for raw in VENDORS[vendor](data, board):
         if not raw.get("id") or not raw.get("title"):
@@ -159,6 +171,7 @@ def tracker_index(path):
 def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None, include=(), exclude=(),
         locations=(), context=None):
     data = common.read_json(feed)
+    vendor = vendor or detect(data)
     records, skipped = normalize(data, vendor, board, company)
     remote_ok = False
     if context:
@@ -175,12 +188,23 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
     remote_ok = remote_ok or "remote" in locations
     tracked = tracker_index(tracker) if tracker else []
     employer = common.employer_key(company)
-    previous_keys, previous_records = set(), {}
+    previous_ids, previous_records = set(), {}
     if previous:
         snapshot = common.read_json(previous)
-        require(isinstance(snapshot, dict) and snapshot.get("tool") == "board_feed", "previous must be an earlier board_feed result")
-        previous_records = {r["key"]: r for r in snapshot.get("postings", [])}
-        previous_keys = set(previous_records)
+        require(isinstance(snapshot, dict), "previous snapshot field tool differs: expected a board_feed result object")
+        identity = {"schema_version": 1, "tool": "board_feed", "vendor": vendor,
+                    "board": board.casefold() if board is not None else None, "company": employer}
+        for field, expected in identity.items():
+            actual = snapshot.get(field)
+            if field == "board" and isinstance(actual, str):
+                actual = actual.casefold()
+            if field == "company":
+                actual = common.employer_key(actual)
+            require(actual == expected, f"previous snapshot field {field} differs: {actual!r} != {expected!r}")
+        # Board identity is already validated case-insensitively. Compare posting
+        # IDs within that board while retaining the original public keys.
+        previous_records = {r["id"]: r for r in snapshot.get("postings", [])}
+        previous_ids = set(previous_records)
     postings = []
     for record in records:
         record["screen"] = screen(record, include, exclude, locations, remote_ok)
@@ -195,13 +219,14 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
             if similar:
                 record["tracker"] = {"status": "possible_repost_of_tracked_role", "records": similar}
         if previous:
-            record["since_previous"] = "unchanged" if record["key"] in previous_keys else "new"
-            old = previous_records.get(record["key"])
+            record["since_previous"] = "unchanged" if record["id"] in previous_ids else "new"
+            old = previous_records.get(record["id"])
             if old and any(old.get(k) != record.get(k) for k in ("title", "location", "url")):
                 record["since_previous"] = "changed"
         postings.append(record)
-    current_keys = {r["key"] for r in records}
-    disappeared = [{k: previous_records[key].get(k) for k in ("key", "title", "url", "location")} for key in sorted(previous_keys - current_keys)]
+    current_ids = {r["id"] for r in records}
+    disappeared = [{k: previous_records[posting_id].get(k) for k in ("key", "title", "url", "location")}
+                   for posting_id in sorted(previous_ids - current_ids)]
     kept = [p for p in postings if p["screen"].startswith("kept")]
     return {"schema_version": 1, "tool": "board_feed", "tool_version": VERSION, "vendor": records[0]["vendor"] if records else vendor,
             "board": board, "company": company, "feed_file": Path(feed).name, "feed_sha256": common.sha256(common.read_input(feed)),
