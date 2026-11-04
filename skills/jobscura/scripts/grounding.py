@@ -224,6 +224,10 @@ def claims(draft, evidence_paths):
                 entry["flags"].append({"kind": "authority_escalation", "value": AUTHORITY.search(sentence).group(0),
                                        "evidence": location(related),
                                        "why": "The closest evidence describes a supporting role; the draft claims leadership or ownership."})
+            elif not related["authority"]:
+                entry["flags"].append({"kind": "authority_unconfirmed", "value": AUTHORITY.search(sentence).group(0),
+                                       "evidence": location(related),
+                                       "why": "Related evidence does not confirm leadership or ownership; confirm the scope of this role."})
         totals["flags"] += len(entry["flags"])
         if entry["atoms"] or entry["flags"]:
             ledger.append(entry)

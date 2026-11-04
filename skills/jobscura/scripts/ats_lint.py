@@ -190,8 +190,30 @@ def lint_docx(data, findings, facts):
         body = "\n".join(body_paragraphs)
         count = lambda tag: sum(1 for _ in root.iter(W + tag))
         facts.update(tables=count("tbl"), text_boxes=count("txbxContent"), images=count("drawing") + count("pict"),
-                     tracked_insertions=count("ins"), tracked_deletions=count("del") + count("moveFrom"),
-                     comment_references=count("commentReference"))
+                     tracked_insertions=0, tracked_deletions=0, comment_references=0)
+        facts["privacy_parts"] = []
+        hidden_runs = white_runs = tiny_runs = 0
+        story_names = sorted(n for n in names if re.fullmatch(
+            r"word/(?:document|header[^/]*|footer[^/]*|footnotes|endnotes)\.xml", n))
+        for name in story_names:
+            story = root if name == "word/document.xml" else common.xml_root(archive, name)
+            insertions = sum(1 for tag in ("ins", "moveTo") for _ in story.iter(W + tag))
+            deletions = sum(1 for tag in ("del", "moveFrom") for _ in story.iter(W + tag))
+            facts["tracked_insertions"] += insertions
+            facts["tracked_deletions"] += deletions
+            facts["comment_references"] += sum(1 for _ in story.iter(W + "commentReference"))
+            # Explicit false values disable this on/off property.
+            hidden = sum(1 for v in story.iter(W + "vanish")
+                         if (v.get(W + "val") or "true").strip().casefold() not in {"0", "false", "off"})
+            white = sum(1 for c in story.iter(W + "color")
+                        if (c.get(W + "val") or "").upper() in {"FFFFFF", "FFFFFE"})
+            tiny = sum(1 for z in story.iter(W + "sz")
+                       if (z.get(W + "val") or "").isdigit() and int(z.get(W + "val")) <= 4)
+            hidden_runs += hidden
+            white_runs += white
+            tiny_runs += tiny
+            if insertions or deletions or hidden or white or tiny:
+                facts["privacy_parts"].append(name)
         if facts["tables"]:
             findings.add("tables", "warning", f"{facts['tables']} table(s). Some parsers read tables out of order or skip "
                          "them; keep core experience in plain paragraphs.")
@@ -206,11 +228,6 @@ def lint_docx(data, findings, facts):
                          "before sending; deleted text can be recovered by the recipient.")
         if facts["comment_references"] or "word/comments.xml" in names:
             findings.add("comments", "blocker", "Review comments are stored in the file. Delete all comments before sending.")
-        # w:vanish is an on/off property: val="0", "false" or "off" explicitly makes text visible.
-        hidden_runs = sum(1 for v in root.iter(W + "vanish")
-                          if (v.get(W + "val") or "true").strip().casefold() not in {"0", "false", "off"})
-        white_runs = sum(1 for c in root.iter(W + "color") if (c.get(W + "val") or "").upper() in {"FFFFFF", "FFFFFE"})
-        tiny_runs = sum(1 for s in root.iter(W + "sz") if (s.get(W + "val") or "").isdigit() and int(s.get(W + "val")) <= 4)
         if hidden_runs or white_runs or tiny_runs:
             findings.add("hidden_or_invisible_text", "blocker", "Hidden, white or microscopic text found. Parsers read it, "
                          "reviewers may treat it as keyword stuffing; remove it.",

@@ -567,7 +567,7 @@ SCAMS = [
 ]
 
 
-EMPLOYER_PAYS = re.compile(r"\b(?:reimburs\w*|we(?:'ll| will)? (?:pay|cover|provide|fund)|paid (?:for )?by (?:us|the company|"
+EMPLOYER_PAYS = re.compile(r"\b(?:we(?:'ll| will)? (?:pay|cover|provide|fund)|paid (?:for )?by (?:us|the company|"
                            r"the employer)|company[- ](?:provided|paid)|provided by (?:us|the company)|free of charge|at no cost)\b", re.I)
 
 
@@ -576,8 +576,18 @@ def scam_signals(text, recognized):
     for kind, severity, pattern in SCAMS:
         for hit in find_lines(text, pattern):
             line = text.splitlines()[hit["line"] - 1]
-            if kind == "payment_request" and EMPLOYER_PAYS.search(line):
-                continue  # the employer pays: a benefit, not a demand
+            if kind == "payment_request":
+                # A benefit in another clause must not suppress an applicant demand.
+                demands = []
+                # Keep decimal amounts intact when separating sentences and clauses.
+                for clause in re.split(r"[;!?]|\.(?!\d)", line):
+                    for match in pattern.finditer(clause):
+                        applicant = re.match(r"\b(?:you|applicants?|candidates?|new hires?|hires)\b",
+                                             match.group(0), re.I)
+                        if applicant or not EMPLOYER_PAYS.search(clause):
+                            demands.append(match)
+                if not demands:
+                    continue
             signals.append({"kind": kind, "severity": severity, "line": hit["line"], "span": hit["context"]})
     for hit in find_lines(text, FREE_MAIL):
         signals.append({"kind": "free_email_contact", "severity": "medium", "line": hit["line"], "span": hit["span"]})
