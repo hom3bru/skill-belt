@@ -2,6 +2,22 @@
 
 ## 0.5.0 - Full-cycle toolkit with deterministic helpers
 
+Fixes from an independent Codex audit:
+
+- R1. DOCX privacy checks cover revisions, comments and invisible text in headers, footers and notes.
+- R2. Tracker comparisons report raw and unidentified rows, require review for incomplete identities,
+  and block a decrease in unidentified rows.
+- R3. Applicant-paid fees remain flagged when a posting promises reimbursement or refunds.
+- R4. Board feeds reject malformed vendor containers and API-error envelopes before comparison.
+- R5. Previous board snapshots must match the schema version, vendor, board and employer.
+- R6. Calendar events preserve existing ID-bearing UIDs, use URLs for ID-less rows and report skipped
+  rows without stable identity. ID-less events get new UIDs in this unreleased version. Duplicate
+  event identities block export.
+- R7. Leadership claims remain in the grounding ledger when related evidence leaves authority unclear.
+- R8. Tracker checks flag backwards application milestones and require review for terminal-state changes.
+- R9. Out-of-range feed timestamps produce blocked JSON errors.
+- R10. Offer comparisons reject cliffs beyond the vesting term and identify the affected offer.
+
 Fixes:
 
 - Link guards no longer reject paths whose *parent folders* are operating-system aliases
