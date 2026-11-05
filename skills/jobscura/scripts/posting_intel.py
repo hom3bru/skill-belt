@@ -569,6 +569,7 @@ SCAMS = [
 
 EMPLOYER_PAYS = re.compile(r"\b(?:we(?:'ll| will)? (?:pay|cover|provide|fund)|paid (?:for )?by (?:us|the company|"
                            r"the employer)|company[- ](?:provided|paid)|provided by (?:us|the company)|free of charge|at no cost)\b", re.I)
+APPLICANT_SUBJECT = re.compile(r"\b(?:you|applicants?|candidates?|new hires?|hires)\b", re.I)
 
 
 def scam_signals(text, recognized):
@@ -578,15 +579,19 @@ def scam_signals(text, recognized):
             line = text.splitlines()[hit["line"] - 1]
             if kind == "payment_request":
                 # A benefit in another clause must not suppress an applicant demand.
-                demands = []
+                demand_found = clause_match_found = False
                 # Keep decimal amounts intact when separating sentences and clauses.
                 for clause in re.split(r"[;!?]|\.(?!\d)", line):
                     for match in pattern.finditer(clause):
-                        applicant = re.match(r"\b(?:you|applicants?|candidates?|new hires?|hires)\b",
-                                             match.group(0), re.I)
+                        clause_match_found = True
+                        applicant = APPLICANT_SUBJECT.match(match.group(0))
                         if applicant or not EMPLOYER_PAYS.search(clause):
-                            demands.append(match)
-                if not demands:
+                            demand_found = True
+                if not clause_match_found:
+                    # The original line match may connect an instruction with its
+                    # object in the next sentence. Keep that evidence available.
+                    demand_found = bool(APPLICANT_SUBJECT.match(hit["span"])) or not EMPLOYER_PAYS.search(line)
+                if not demand_found:
                     continue
             signals.append({"kind": kind, "severity": severity, "line": hit["line"], "span": hit["context"]})
     for hit in find_lines(text, FREE_MAIL):

@@ -84,6 +84,8 @@ class AuditSafetyTests(unittest.TestCase):
                   "We pay the training fee.",
                   "We pay for your training and certifications.\nWe will send you a laptop on your first day.\nCertification fees are reimbursed."]
         demands = ["You must pay a training fee, which will be reimbursed after your first month.",
+                   "Applicants must pay. The equipment is shipped to you after payment.",
+                   "New hires must purchase. A starter kit is required.",
                    "You must pay $99.00 for equipment.",
                    "Candidates must pay 25.50 for software.",
                    "Candidates purchase a starter kit; the cost is refunded later.",
