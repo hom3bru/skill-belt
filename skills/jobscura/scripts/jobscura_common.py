@@ -321,10 +321,10 @@ def docx_text(data):
 
 
 # ---------------------------------------------------------------- any document
-def document_text(path):
+def document_text(path, data=None):
     """Plain text from .txt/.md/.html/.htm/.docx/.json evidence files."""
     p = Path(path)
-    data = read_input(p)
+    data = read_input(p) if data is None else data
     suffix = p.suffix.casefold()
     if suffix == ".docx":
         return docx_text(data)

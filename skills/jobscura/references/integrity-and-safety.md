@@ -70,6 +70,8 @@ Never call something "safe". Report the signals you found and any you could not 
 - Do not invent or inflate experience, employers, titles, dates, degrees, licences, metrics, team
   sizes or authority. Do not turn "supported" into "led". Run `scripts/grounding.py claims` on
   finished drafts when you can.
+- Evidence of using a tool supports only use-level wording; implementation,
+  configuration, administration, migration, deployment or setup needs its own evidence.
 - Do not stuff keywords, and do not add hidden or white text. Do not add a term the evidence does
   not support just because a parser might look for it.
 - References, referrals and quotes must come from real people who have agreed to them. Do not
