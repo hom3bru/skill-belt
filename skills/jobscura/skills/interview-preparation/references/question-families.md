@@ -34,3 +34,16 @@ employer's actual questions or scoring rubric.
 A useful cue is a short proposition, a few supported evidence anchors and essential
 qualifiers, not a script that adds unverified accomplishments. Keep hypothetical
 examples clearly labeled so they cannot become the user's claimed history.
+
+For failure or mistake questions, choose a real decision the user owns. Explain
+the cause without shifting blame, the resolved end state, what changed and where
+the user applied the learning later. If resolution or later application is unknown,
+say so rather than manufacturing a completed learning arc.
+
+For a job change, gap or short tenure, keep the account consistent with actual
+history. Never invent a reason, gap explanation or tenure, and never disparage a
+former employer. Disclosure choices belong to the user under
+[integrity and safety](../../../references/integrity-and-safety.md).
+
+A mock interviewer must never ask about protected characteristics. Keep practice
+questions focused on the role and permitted evidence.

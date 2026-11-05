@@ -21,6 +21,18 @@ one does not establish the others; absence of a checker is not a pass.
   screenshot does not prove this. Do not reuse review results after an edit without
   checking what changed.
 
+For employer or third-party facts in a letter or answer, including named products,
+programmes, people, papers and news, provide a dated official source the user can
+inspect. Flag any fact without that support as unverified before delivery.
+
+For each lead claim, check that the user could explain the work to an interviewer
+for about two minutes. If the evidence establishes only proximity to the work,
+soften the claim or choose a better-supported lead.
+
+After each revision, compare employer, title, dates, degree and contact fields
+against the source: they must remain unchanged. Check that no employer, role or
+team name from another application remains in the candidate being delivered.
+
 Use suitable available document tools for the requested destination. Preserve the
 canonical file and existing sharing boundaries. Deliver a verified accessible file
 or link when supported, otherwise complete text in the conversation. Never present

@@ -33,6 +33,8 @@ or claim answers were saved when no authorized persistence tool ran.
    To plan coverage, map the posting's required items to the user's real incidents
    (`grounding.py coverage` gives a first pass). Name every requirement that has no
    true story as a gap to prepare honestly for, not one to fill with invention.
+   Build or consult the private [story bank](references/story-bank.md), preserving
+   provenance, withdrawn claims and reuse across questions in this session.
 4. Preserve the user's actual answer, completeness and uncertainty before critique.
    Clarify an uncertain transcript rather than assigning invented words. Ask a
    neutral probe only for a material gap, one at a time, without supplying an

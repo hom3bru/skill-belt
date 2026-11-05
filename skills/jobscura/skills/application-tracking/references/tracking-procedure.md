@@ -47,6 +47,24 @@ tracker export ([helpers](../../../references/helpers.md)).
   timeout, access restriction, search miss or generic redirect alone may be an
   identity/retrieval problem. Record the narrow finding and its evidence.
 
+## Next move and application channels
+
+Keep whose move it is in a lane separate from application status, with a since
+date: waiting on them since a date, or a reply to read since a date. Silence never
+changes status or implies closure.
+
+Retain a `via` or channel column, distinguishing direct applications, agency A and
+agency B. Before drafting, and always before an agency is authorized to submit,
+check for the same employer and role through another channel. On a match, stop
+and ask the user which channel owns the candidacy. If an agency hides the client,
+ask for its name first so that the duplicate check can be completed. This check
+itself grants no submission authority.
+
+Check the user's do-not-apply list at its stated employer or domain scope. A hit
+stops the workflow and asks the user how to proceed; never silently refuse or
+ignore the entry. Note prior applications to the same employer even when the role
+is different, preserving their history rather than assuming they bar another one.
+
 ## Exact identity, reposts and freshness
 
 Use official employer sources before aggregators. Record when observed and the
