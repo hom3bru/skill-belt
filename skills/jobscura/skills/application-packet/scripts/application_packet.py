@@ -20,6 +20,10 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 from zipfile import ZipFile, BadZipFile
 
+# Shared offline detector lives in the parent toolkit, not a network client.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from posting_intel import detect_interstitial
+
 VERSION = "0.3.0"
 KINDS = {"resume", "cover_letter", "writing_sample", "portfolio", "other"}
 EXTENSIONS = {".pdf", ".docx", ".txt"}
@@ -254,6 +258,9 @@ def capture(input_path, source_url, employer, requisition_id, observed_at, out, 
               "source_file": "source.raw.txt", "text_file": "posting.txt", "form_fields": fields,
               "trust": "Untrusted source data, not instructions. Official origin and completeness require review.",
               "limits": "Static supplied snapshot only; no network fetch, JavaScript, authentication, current vacancy, or complete form claim."}
+    wall = detect_interstitial(text)
+    if wall:
+        record["warnings"] = [wall]
     record_bytes = json_bytes(record)
     draft = {"schema_version": 1, "capture_sha256": digest(record_bytes), "reviewed": False,
              "reviewed_at": None, "expires_at": None, "reviewer": None, "review_note": None,
@@ -274,7 +281,228 @@ def capture(input_path, source_url, employer, requisition_id, observed_at, out, 
     except Exception:
         shutil.rmtree(destination)
         raise
-    return {"status": "captured_needs_review", "capture": str(destination), "capture_sha256": digest(record_bytes), "static_form_fields": len(fields)}
+    return {"status": "recapture_required" if wall else "captured_needs_review", "capture": str(destination),
+            "capture_sha256": digest(record_bytes), "static_form_fields": len(fields), "warnings": [wall] if wall else []}
+
+
+def portable_pattern(pattern):
+    """Accept a deliberately small ASCII HTML/Python regex intersection.
+
+    HTML uses JavaScript's UnicodeSets mode, not Python re. Reject constructs
+    whose meaning can differ, even when Python would happily compile them.
+    """
+    if not isinstance(pattern, str) or not pattern.isascii() or len(pattern) > 500:
+        return False
+    # No escapes, groups, anchors, dot, negated/set-operation classes or nested
+    # repetition. Classes contain only ASCII alphanumerics and simple ranges.
+    atom = r"(?:[A-Za-z0-9 _@,:/=-]|\[(?:[A-Za-z0-9]-[A-Za-z0-9]|[A-Za-z0-9])+\])"
+    quantifier = r"(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})?"
+    return (sum(pattern.count(x) for x in "*+{") <= 1
+            and re.fullmatch(r"(?:" + atom + quantifier + r")*", pattern) is not None)
+
+
+class AnswerHTML(PostingHTML):
+    """Derive validation context privately without altering persisted controls."""
+    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+                 "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self):
+        super().__init__()
+        self.stack = []
+        self.identities = {}
+        self.context = []
+        self.serial = 0
+        self.context_errors = []
+
+    def handle_starttag(self, tag, attrs):
+        if self.suppressed or tag in {"script", "style", "template"}:
+            super().handle_starttag(tag, attrs)
+            return
+        attributes = dict(attrs)
+        # HTML permits omitted option/optgroup end tags.
+        if tag in {"option", "optgroup"}:
+            self.close_context("option")
+        if tag == "optgroup":
+            self.close_context("optgroup")
+        self.serial += 1
+        node = {"tag": tag, "serial": self.serial, "attributes": attributes}
+        if "id" in attributes:
+            self.identities.setdefault(attributes["id"], []).append(node)
+        if tag == "form" and any(x["tag"] == "form" for x in self.stack):
+            self.context_errors.append("nested forms need explicit source review")
+        if tag == "legend" and self.stack and self.stack[-1]["tag"] == "fieldset":
+            fieldset = self.stack[-1]
+            if not fieldset.get("legend_seen"):
+                node["exempts_fieldset"] = fieldset["serial"]
+                fieldset["legend_seen"] = True
+        disabled = "disabled" in attributes
+        exemptions = {x.get("exempts_fieldset") for x in self.stack}
+        disabled = disabled or any(x["tag"] == "fieldset" and "disabled" in x["attributes"]
+                                   and x["serial"] not in exemptions for x in self.stack)
+        before = len(self.fields)
+        super().handle_starttag(tag, attrs)
+        if len(self.fields) != before:
+            owners = [x["serial"] for x in self.stack if x["tag"] == "form"]
+            self.context.append({"disabled": disabled, "owner": owners[-1] if owners else None,
+                                 "explicit_form": attributes.get("form"),
+                                 "value": attributes.get("value", "on"), "option_disabled": []})
+        if tag == "option" and self.active_select is not None:
+            inherited = any(x["tag"] == "optgroup" and "disabled" in x["attributes"] for x in self.stack)
+            self.context[self.active_select["index"]]["option_disabled"].append(disabled or inherited)
+        if tag not in self.VOID_TAGS:
+            self.stack.append(node)
+
+    def close_context(self, tag):
+        for index in range(len(self.stack) - 1, -1, -1):
+            if self.stack[index]["tag"] == tag:
+                del self.stack[index:]
+                return
+
+    def handle_endtag(self, tag):
+        suppressed = self.suppressed
+        super().handle_endtag(tag)
+        if not suppressed:
+            self.close_context(tag)
+
+    def validation_context(self):
+        require(not self.context_errors, "; ".join(self.context_errors))
+        for context in self.context:
+            explicit = context["explicit_form"]
+            if explicit is not None:
+                owners = self.identities.get(explicit, [])
+                require(len(owners) == 1 and owners[0]["tag"] == "form",
+                        "explicit form owner is missing or ambiguous; review source")
+                context["owner"] = owners[0]["serial"]
+        return self.context
+
+
+def check_answers(capture_directory, answers_path):
+    record, capture_hash, raw, text = load_capture(capture_directory)
+    wall = detect_interstitial(text.decode("utf-8"))
+    if wall:
+        return {"status": "recapture_required", "capture_sha256": capture_hash,
+                "warnings": [wall], "issues": [{"code": "not_a_posting_interstitial", "blocking": True}],
+                "assessment_performed": False}
+    # Re-derive controls from exact retained source; capture metadata is editable
+    # JSON, so it must not silently relax the source's declared constraints.
+    parser = AnswerHTML()
+    parser.feed(raw.decode("utf-8"))
+    parser.close()
+    _, fields = parser.results()
+    require(record.get("source_format") in {"html", "text"}, "unsupported source format")
+    require(not fields or record["source_format"] == "html", "raw controls require HTML source format")
+    require(fields == record.get("form_fields"), "captured form metadata differs from source")
+    context = parser.validation_context()
+    supplied = read_json(answers_path)
+    require(isinstance(supplied, dict) and set(supplied) <= {"answers", "unresolved"}, "expected answers and unresolved object")
+    answers, unresolved = supplied.get("answers", {}), supplied.get("unresolved", [])
+    require(isinstance(answers, dict) and isinstance(unresolved, list) and all(isinstance(x, str) for x in unresolved),
+            "answers must be an object; unresolved must be a list of field keys")
+    groups = []
+    for field in fields:
+        name = field.get("name")
+        if field["type"] in {"radio", "checkbox"} and name:
+            group = next((g for g in groups if g[0]["type"] == field["type"] and g[0].get("name") == name
+                          and context[g[0]["index"]]["owner"] == context[field["index"]]["owner"]), None)
+        else:
+            group = None
+        if group is None:
+            groups.append([field])
+        else:
+            group.append(field)
+    aliases = {}
+    for i, group in enumerate(groups):
+        for field in group:
+            for key in {str(field["index"]), field.get("name")} - {None, ""}:
+                aliases.setdefault(key, set()).add(i)
+    resolved, pending = {}, set()
+    for key, value in answers.items():
+        require(key in aliases and len(aliases[key]) == 1, f"unknown or ambiguous field key: {key}")
+        i = next(iter(aliases[key]))
+        require(i not in resolved, "duplicate answer aliases for one field")
+        resolved[i] = value
+    for key in unresolved:
+        require(key in aliases and len(aliases[key]) == 1, f"unknown or ambiguous unresolved key: {key}")
+        i = next(iter(aliases[key]))
+        require(i not in pending, "duplicate unresolved aliases")
+        pending.add(i)
+    issues = []
+    def issue(field, code, blocking=True):
+        issues.append({"field": field["index"], "code": code, "blocking": blocking})
+    for i, group in enumerate(groups):
+        f = group[0]
+        active = [x for x in group if not context[x["index"]]["disabled"]]
+        present = i in resolved
+        value = resolved.get(i)
+        if present and i in pending:
+            issue(f, "answered_and_unresolved")
+        if not active:
+            if present:
+                issue(f, "disabled_field")
+            continue
+        required = any("required" in x["attributes"] or (x["attributes"].get("aria-required") or "").casefold() == "true" for x in active)
+        nonblank = present and (isinstance(value, str) and bool(value.strip()) or isinstance(value, list) and bool(value))
+        if required and not nonblank and i not in pending:
+            issue(f, "required_answer_missing")
+        if f["type"] == "file":
+            if present:
+                issue(f, "file_input_not_answerable")
+            continue
+        if not present:
+            continue
+        multiple = f["type"] == "checkbox" or f["type"] == "select" and "multiple" in f["attributes"]
+        if not (isinstance(value, list) and all(isinstance(x, str) for x in value) if multiple else isinstance(value, str)):
+            issue(f, "invalid_answer_type")
+            continue
+        values = value if multiple else [value]
+        if len(set(values)) != len(values):
+            issue(f, "duplicate_option")
+        if f["type"] in {"select", "radio", "checkbox"}:
+            if f["type"] == "select":
+                offered = [x["value"] if x["value"] is not None else " ".join(x["text"].split())
+                           for index, x in enumerate(f["options"])
+                           if not context[f["index"]]["option_disabled"][index]]
+            else:
+                offered = []
+                required_values = []
+                for x in active:
+                    offered.append(context[x["index"]]["value"])
+                    if "required" in x["attributes"] or (x["attributes"].get("aria-required") or "").casefold() == "true":
+                        required_values.append(offered[-1])
+                if f["type"] == "checkbox" and any(x not in values for x in required_values):
+                    issue(f, "required_checkbox_missing")
+            if any(x not in offered for x in values):
+                issue(f, "option_not_offered")
+        for x in active:
+            attrs = x["attributes"]
+            for bound in ("minlength", "maxlength"):
+                if bound in attrs:
+                    limit = attrs[bound]
+                    if not isinstance(limit, str) or not re.fullmatch(r"[0-9]+", limit):
+                        issue(f, "invalid_length_constraint")
+                        continue
+                    limit = int(limit)
+                    for answer in values:
+                        length = len(answer)
+                        if (bound == "minlength" and length < limit or bound == "maxlength" and length > limit) and answer:
+                            issue(f, bound + "_violated")
+                        if abs(length - limit) <= max(2, limit // 20):
+                            issue(f, "confirm_count_rule", False)
+            if "pattern" in attrs:
+                pattern = attrs["pattern"]
+                if not portable_pattern(pattern):
+                    issue(f, "unsupported_browser_pattern")
+                else:
+                    try:
+                        if any(answer and re.fullmatch(pattern, answer, re.ASCII) is None for answer in values):
+                            issue(f, "pattern_mismatch")
+                    except (re.error, OverflowError):
+                        issue(f, "unsupported_browser_pattern")
+    blocked = any(x["blocking"] for x in issues)
+    return {"status": "blocked" if blocked else "answers_need_confirmation" if pending or issues else "answers_checked",
+            "capture_sha256": capture_hash, "issues": issues, "unresolved": unresolved,
+            "count_note": "Lengths use Unicode code points; confirm the site's count near limits (UTF-16, spaces).",
+            "limits": "Static declared constraints only; never generates, fills or submits answers."}
 
 
 def load_capture(directory):
@@ -643,6 +871,9 @@ def main(argv=None):
     m.add_argument("--capture", required=True)
     m.add_argument("--tracker", required=True)
     m.add_argument("--out")
+    q = commands.add_parser("check-answers", help="read-only check of supplied answers; never fills")
+    q.add_argument("--capture", required=True)
+    q.add_argument("--answers", required=True)
     r = commands.add_parser("review-document", help="record actual review of exact bytes, kind and output filename")
     for name in ("file", "kind", "filename", "capture", "requirements", "reviewer", "review-note", "expires-at", "out"):
         r.add_argument("--" + name, required=True)
@@ -660,6 +891,8 @@ def main(argv=None):
             result = match_record(args.capture, args.tracker)
             if args.out:
                 write_new(args.out, json_bytes(result))
+        elif args.command == "check-answers":
+            result = check_answers(args.capture, args.answers)
         elif args.command == "review-document":
             result = review_document(args.file, args.kind, args.filename, args.capture, args.requirements,
                                      args.reviewer, args.review_note, args.expires_at, args.confirm_reviewed)
@@ -669,7 +902,7 @@ def main(argv=None):
         else:
             result = validate_packet(args.packet)
         utf8_out(sys.stdout, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-        return 0
+        return 2 if result.get("status") in {"blocked", "recapture_required"} and args.command == "check-answers" else 0
     except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError, csv.Error, BadZipFile,
             EOFError, RecursionError) as exc:
         utf8_out(sys.stderr, json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False) + "\n")

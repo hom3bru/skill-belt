@@ -22,6 +22,31 @@ from jobscura_common import ToolError, excerpt, require
 
 VERSION = "1.0.0"
 
+
+def detect_interstitial(text):
+    """Detect supplied wall text only; never attempt to bypass or fetch it."""
+    rules = [
+        ("challenge_title", r"(?:^|\n|>)\s*(?:just a moment[.!…]*|attention required!?|verify you are human)\s*(?:$|\n|<)", True),
+        ("ray_id", r"\b(?:cloudflare\s+)?ray\s+id\s*:", True),
+        ("browser_check", r"\bchecking your browser\b", False),
+        ("human_check", r"\b(?:verify (?:that )?you are human|complete the security check|security verification)\b", False),
+        ("javascript_required", r"\b(?:enable|turn on) javascript\b|\bjavascript (?:is )?required\b", False),
+        ("cookies_required", r"\b(?:enable|allow) (?:javascript and )?cookies\b", False),
+        ("login_required", r"\b(?:sign in|log in|login) (?:is required|to continue|to view|to access)\b", False),
+        ("authentication_required", r"\b(?:authentication required|you must (?:sign|log) in)\b", False),
+        ("access_denied", r"(?:^|\n|>)\s*(?:access denied|403 forbidden)\s*(?:$|\n|<)", True),
+        ("rate_limit", r"(?:^|\n|>)\s*(?:too many requests|429(?: too many requests)?)\s*(?:$|\n|<)", True),
+        ("retry_later", r"\b(?:try again later|rate limit exceeded)\b", False),
+        ("empty_shell", r"\b(?:to run this app|to (?:view|display) (?:this page|the content))\b", False),
+    ]
+    hits = [(name, strong, match.group(0).strip()) for name, pattern, strong in rules
+            if (match := re.search(pattern, text, re.I))]
+    if len(hits) < 2 and not any(strong for _, strong, _ in hits):
+        return None
+    return {"kind": "not_a_posting_interstitial", "markers": [name for name, _, _ in hits],
+            "spans": [span for _, _, span in hits],
+            "action": "Re-capture the posting; do not assess this text."}
+
 # ------------------------------------------------------------------ ATS recognition
 AGGREGATORS = {"linkedin.com": "LinkedIn", "indeed.com": "Indeed", "glassdoor.com": "Glassdoor",
                "ziprecruiter.com": "ZipRecruiter", "monster.com": "Monster", "simplyhired.com": "SimplyHired",
@@ -669,6 +694,11 @@ def load_source(capture=None, input_path=None, url=None, employer=None, observed
 
 def analyze(capture=None, input_path=None, url=None, employer=None, observed_at=None, context=None):
     loaded = load_source(capture, input_path, url, employer, observed_at)
+    wall_text = common.html_to_text(loaded["source"])[0] if loaded["format"] == "html" else loaded["source"]
+    wall = detect_interstitial(wall_text)
+    if wall:
+        return {"schema_version": 1, "tool": "posting_intel", "tool_version": VERSION,
+                "status": "recapture_required", "flags": [wall], "assessment_performed": False}
     conventions, floor = load_conventions(context)
     if loaded["format"] == "html":
         text, hidden, blocks = common.html_to_text(loaded["source"])
