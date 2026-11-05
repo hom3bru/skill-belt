@@ -97,7 +97,7 @@
     "tests/test_round3_ats.py": "d6c391651c403d116e523d43b9a147a51df79bf0e0b957092c458cd92ca943d6",
     "tests/test_round3_bookkeeping.py": "4aea1906452d1a1f6c26c1e7241a59092da81345999104cfb0fefe2a03d717b7",
     "tests/test_round3_grounding.py": "6ae351d67f5f3e0a113f126fec03e59f4e0379ad10d3c06204a73d49a29f9299",
-    "tests/test_round3_guidance.py": "9ec0c95ff109c78e8e462606cd90cb62fa29a8b52bc0f6305c8bf4702a34989d",
+    "tests/test_round3_guidance.py": "d531ac86b0bf411373ec9072c50f13f036e1b850813000a44ac2c8070f6c168b",
     "tests/test_round3_posting.py": "a04a297969a5d114ace401fdcec767a9081af1234ccf11c32326bd9bf03beb21",
     "tests/test_round3_titles.py": "e549c1fac44361b7b8b83ca893daa6e8d35d6ebb1891b18d8317f77487ac4216",
     "tests/test_tools.py": "e47477063424f47ecdf46896e9fd8ad2249c685f44250eff95e077964794a549",
