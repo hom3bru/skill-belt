@@ -448,6 +448,43 @@ def title_similarity(left, right):
     return round(max(jaccard(a, b), containment), 2)
 
 
+
+def record_location(record):
+    """Read a tracker location without changing its canonical export schema."""
+    return record.get("location") or next((v for k, v in record.get("_raw", {}).items()
+        if k.strip().casefold() in {"location", "locations", "job location", "city"} and v), None)
+
+
+def location_title(title, location=None):
+    """Strip stated locations or capitalised place-shaped suffixes.
+
+    Unstated places are heuristic; preserve common contract/role qualifiers.
+    """
+    title = " ".join(str(title or "").split())
+    place = employer_key(location)
+    match = re.match(r"^(.*?)(?: - | \| |\s*\(|,\s*)([^()]+)\)?$", title)
+    if not match:
+        return title, place
+    head, tail = match.group(1).strip(), match.group(2).strip()
+    tail_key = employer_key(tail)
+    parts = {employer_key(x) for x in re.split(r"[,;·/]+", str(location or "")) if x.strip()}
+    explicit = tail_key == place or tail_key in parts
+    qualifier = re.search(r"\b(fixed|term|contract|temporary|permanent|senior|junior|level|full|part|time|intern|maternity|cover)\b", tail, re.I)
+    words = re.findall(r"[^\W\d_]+", tail, re.UNICODE)
+    shaped = (not qualifier and 1 <= len(words) <= 6 and
+              all(w[0].isupper() or w in {"am", "an", "de", "del", "on", "upon"} for w in words) and
+              re.fullmatch(r"[^\W\d_][^\d()]*", tail, re.UNICODE))
+    return (head, place or tail_key) if head and (explicit or shaped) else (title, place)
+
+
+def location_title_similarity(left, right):
+    """Return similarity and whether identical role words have distinct places."""
+    a, ap = location_title(left.get("title"), record_location(left))
+    b, bp = location_title(right.get("title"), record_location(right))
+    return title_similarity(a, b), bool(ap and bp and ap != bp and title_tokens(a) and
+                                       title_tokens(a) == title_tokens(b))
+
+
 def shingles(text, size=5):
     """Word shingles for near-duplicate text (reposted descriptions); works without a corpus."""
     words = re.findall(r"[a-z0-9]+", str(text or "").casefold())

@@ -130,10 +130,14 @@ def compare(before_path, after_path, overrides=None):
                 continue
             same_link = row_id["url"] and row_id["url"] == other_identity["url"]
             same_req = row_id["requisition_id"] and row_id["requisition_id"] == other_identity["requisition_id"]
-            similarity = common.title_similarity(row.get("title"), other.get("title"))
+            similarity, variant = common.location_title_similarity(row, other)
             if same_link or same_req:
                 problems.append({"kind": "duplicate_identity", "record_id": rid, "matches": other_id,
                                  "basis": "same URL" if same_link else "same requisition"})
+            elif variant:
+                review.append({"kind": "location_variant", "record_id": rid, "related_to": other_id,
+                               "title_similarity": similarity,
+                               "note": "same role in another location; not a repost"})
             elif similarity >= TITLE_MATCH:
                 candidates.append({"record_id": rid, "related_to": other_id, "title_similarity": round(similarity, 2),
                                    "note": "different requisition/URL, similar title at the same employer: link as a "

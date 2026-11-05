@@ -164,7 +164,7 @@ def tracker_index(path):
     import deadlines
     rows = deadlines.load_rows(path, {})
     return [{"record_id": r.get("record_id"), "employer": common.employer_key(r.get("employer")),
-             "title": r.get("title"), "url": common.normalized_link(r.get("url")),
+             "title": r.get("title"), "location": common.record_location(r), "url": common.normalized_link(r.get("url")),
              "requisition_id": str(r.get("requisition_id") or "").strip().casefold() or None} for r in rows]
 
 
@@ -214,10 +214,20 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
         exact = [t["record_id"] for t in same_employer if (link and t["url"] == link) or (req and t["requisition_id"] == req)]
         record["tracker"] = {"status": "tracked" if exact else "not_tracked", "records": exact}
         if not exact:
-            similar = [{"record_id": t["record_id"], "title_similarity": s} for t in same_employer
-                       if (s := common.title_similarity(record["title"], t["title"])) >= TITLE_MATCH]
+            similar, variants = [], []
+            for tracked_role in same_employer:
+                score, variant = common.location_title_similarity(record, tracked_role)
+                candidate = {"record_id": tracked_role["record_id"], "title_similarity": score}
+                if variant:
+                    variants.append(candidate)
+                elif score >= TITLE_MATCH:
+                    similar.append(candidate)
             if similar:
                 record["tracker"] = {"status": "possible_repost_of_tracked_role", "records": similar}
+            elif variants:
+                record["tracker"] = {"status": "location_variant", "records": variants}
+            if variants:
+                record["tracker"]["location_variants"] = variants
         if previous:
             record["since_previous"] = "unchanged" if record["id"] in previous_ids else "new"
             old = previous_records.get(record["id"])
