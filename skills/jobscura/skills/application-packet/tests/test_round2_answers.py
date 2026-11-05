@@ -102,7 +102,8 @@ class Round2AnswersTests(unittest.TestCase):
         answers = self.root / "answers.json"
         answers.write_text('{"answers": {}}', encoding="utf-8")
         run = subprocess.run([sys.executable, "-B", str(SCRIPT), "check-answers", "--capture", str(capture), "--answers", str(answers)], capture_output=True, encoding="utf-8")
-        self.assertEqual(run.returncode, 2)
+        self.assertEqual(run.returncode, 0)
+        self.assertEqual(run.stderr, "")
         self.assertEqual(json.loads(run.stdout)["issues"][0]["code"], "required_answer_missing")
         answers.write_text('{"answers": {"q": "yes"}}', encoding="utf-8")
         self.assertEqual(p.check_answers(capture, answers)["status"], "answers_checked")
@@ -114,6 +115,11 @@ class Round2AnswersTests(unittest.TestCase):
         (capture / "source.raw.txt").write_text("tampered", encoding="utf-8")
         with self.assertRaisesRegex(p.PacketError, "snapshot changed"):
             p.check_answers(capture, answers)
+        run = subprocess.run([sys.executable, "-B", str(SCRIPT), "check-answers", "--capture", str(capture), "--answers", str(answers)], capture_output=True, encoding="utf-8")
+        self.assertEqual(run.returncode, 2)
+        self.assertEqual(run.stdout, "")
+        self.assertEqual(json.loads(run.stderr)["status"], "blocked")
+        self.assertIn("snapshot changed", json.loads(run.stderr)["error"])
 
     def test_interstitial_warning_schema(self):
         capture, result = self.capture('<h1>Just a moment...</h1><p>Checking your browser</p><p>Ray ID: abc</p>')

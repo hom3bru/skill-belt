@@ -297,7 +297,9 @@ def portable_pattern(pattern):
     # repetition. Classes contain only ASCII alphanumerics and simple ranges.
     atom = r"(?:[A-Za-z0-9 _@,:/=-]|\[(?:[A-Za-z0-9]-[A-Za-z0-9]|[A-Za-z0-9])+\])"
     quantifier = r"(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})?"
-    return (sum(pattern.count(x) for x in "*+{") <= 1
+    # One quantified atom at most also rejects adjacent overlapping repetitions,
+    # including optional atoms whose combinations cause exponential backtracking.
+    return (sum(pattern.count(x) for x in "?*+{") <= 1
             and re.fullmatch(r"(?:" + atom + quantifier + r")*", pattern) is not None)
 
 
@@ -385,14 +387,18 @@ def check_answers(capture_directory, answers_path):
                 "assessment_performed": False}
     # Re-derive controls from exact retained source; capture metadata is editable
     # JSON, so it must not silently relax the source's declared constraints.
-    parser = AnswerHTML()
-    parser.feed(raw.decode("utf-8"))
-    parser.close()
-    _, fields = parser.results()
     require(record.get("source_format") in {"html", "text"}, "unsupported source format")
-    require(not fields or record["source_format"] == "html", "raw controls require HTML source format")
+    if record["source_format"] == "text":
+        require(record["text_sha256"] == record["source_sha256"],
+                "transformed source requires HTML source format")
+        fields, context = [], []
+    else:
+        parser = AnswerHTML()
+        parser.feed(raw.decode("utf-8"))
+        parser.close()
+        _, fields = parser.results()
+        context = parser.validation_context()
     require(fields == record.get("form_fields"), "captured form metadata differs from source")
-    context = parser.validation_context()
     supplied = read_json(answers_path)
     require(isinstance(supplied, dict) and set(supplied) <= {"answers", "unresolved"}, "expected answers and unresolved object")
     answers, unresolved = supplied.get("answers", {}), supplied.get("unresolved", [])
@@ -902,7 +908,7 @@ def main(argv=None):
         else:
             result = validate_packet(args.packet)
         utf8_out(sys.stdout, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-        return 2 if result.get("status") in {"blocked", "recapture_required"} and args.command == "check-answers" else 0
+        return 0
     except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError, csv.Error, BadZipFile,
             EOFError, RecursionError) as exc:
         utf8_out(sys.stderr, json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False) + "\n")

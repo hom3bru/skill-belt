@@ -13,9 +13,13 @@ python skills/application-packet/scripts/application_packet.py --help
 python -m unittest discover -s skills/application-packet/tests -v
 ```
 
-Every successful command emits JSON to stdout. A blocked command exits 2 with a
-JSON error on stderr. `match` may succeed as an observation while returning
-`pending` or `ambiguous`; always inspect `status`, not just the process exit code.
+Every completed command exits 0 with result JSON on stdout and empty stderr.
+This includes `check-answers` results with answer issues, unsafe patterns or
+`recapture_required`, even when the result status is `blocked`. Always inspect
+`status` and the issue list. A tool evaluation failure, such as a missing or
+tampered capture, malformed or ambiguous answers JSON, or a source-format
+mismatch, exits 2 with `{"status":"blocked","error":...}` on stderr and empty
+stdout. `match` may complete while returning `pending` or `ambiguous`.
 Do not print raw source or private document text unnecessarily.
 
 ## 1. Capture a supplied snapshot
@@ -241,14 +245,16 @@ File controls cannot receive answers here; use the reviewed attachment workflow.
 
 The helper verifies snapshot hashes and re-derives captured controls before checking.
 It checks exact offered values, code-point length and full-string patterns. A small
-ASCII regex subset (literal characters, simple alphanumeric ranges and quantifiers)
-is supported; browser-specific or uncertain syntax blocks with
-`unsupported_browser_pattern`, even if Python could compile it. Review these against
+ASCII regex subset (literal characters, simple alphanumeric ranges and at most one
+quantified atom, including optional `?` atoms)
+is supported; browser-specific or uncertain syntax produces an
+`unsupported_browser_pattern` issue and is never executed, even if Python could
+compile it. Review these against
 the actual form rather than deleting the constraint. Near a length bound (within
 5%, at least two characters), `confirm_count_rule` requests confirmation of the site's
-counting rule, including UTF-16 and spaces. JSON issues mark blocking problems;
-blocking results exit 2, confirmation/unresolved results exit 0 with
-`answers_need_confirmation`. This does not validate factual answers, live conditional
+counting rule, including UTF-16 and spaces. JSON issues mark answer problems;
+confirmation/unresolved results use `answers_need_confirmation`.
+This does not validate factual answers, live conditional
 requirements, or server-side rules. No file is modified.
 
 Capture warns with `not_a_posting_interstitial` and `recapture_required` for likely

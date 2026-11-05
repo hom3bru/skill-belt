@@ -31,12 +31,25 @@ class RepostTests(unittest.TestCase):
                                                 "location": {"name": new.get("location")}}]})
             result = board_feed.run(feed, vendor="greenhouse", company="Acme", tracker=before)
             with self.subTest(tool="board_feed"):
-                self.assertEqual(result["postings"][0]["tracker"]["status"], "location_variant")
-                self.assertEqual(result["counts"]["possible_reposts"], 0)
+                tracker = result["postings"][0]["tracker"]
+                if locations:
+                    self.assertEqual(tracker["status"], "location_variant")
+                    self.assertEqual(result["counts"]["possible_reposts"], 0)
+                else:
+                    self.assertEqual(tracker["status"], "possible_repost_of_tracked_role")
+                    self.assertEqual(result["counts"]["possible_reposts"], 1)
+                    self.assertEqual(tracker["records"][0]["title_tail_differs"], ["Berlin", "Munich"])
+                    self.assertEqual(tracker["records"][0]["note"], common.TITLE_TAIL_NOTE)
             diff = tracker_diff.compare(before, after)
             with self.subTest(tool="tracker_diff"):
-                self.assertEqual(diff["repost_candidates"], [])
-                self.assertTrue(any(x["kind"] == "location_variant" for x in diff["review"]))
+                if locations:
+                    self.assertEqual(diff["repost_candidates"], [])
+                    self.assertTrue(any(x["kind"] == "location_variant" for x in diff["review"]))
+                else:
+                    self.assertEqual(len(diff["repost_candidates"]), 1)
+                    self.assertEqual(diff["repost_candidates"][0]["title_tail_differs"], ["Berlin", "Munich"])
+                    self.assertEqual(diff["repost_candidates"][0]["note"], common.TITLE_TAIL_NOTE)
+                    self.assertFalse(any(x["kind"] == "location_variant" for x in diff["review"]))
             # A contract qualifier remains a possible repost; identity beats location.
             qualified = dict(new, title="Program Coordinator (Fixed term)", location="Munich")
             coordinator = dict(old, title="Program Coordinator", location="Munich")

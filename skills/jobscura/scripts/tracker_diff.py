@@ -141,7 +141,8 @@ def compare(before_path, after_path, overrides=None):
             elif similarity >= TITLE_MATCH:
                 candidates.append({"record_id": rid, "related_to": other_id, "title_similarity": round(similarity, 2),
                                    "note": "different requisition/URL, similar title at the same employer: link as a "
-                                           "possible repost; never merge or overwrite the earlier record"})
+                                           "possible repost; never merge or overwrite the earlier record",
+                                   **common.title_tail_review(row, other)})
     status = "blocked" if problems else "review_required" if review or candidates else "conserved"
     return {"schema_version": 1, "tool": "tracker_diff", "tool_version": VERSION, "status": status,
             "before": {"file": Path(before_path).name, "records": len(before),

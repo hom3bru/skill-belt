@@ -24,7 +24,7 @@ EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE = re.compile(r"(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)|\d{2,4})[\s.-]?\d{3,4}[\s.-]?\d{3,4}")
 # Independently authored vocabulary; complete phrases keep prose out of sections.
 HEADING_SYNONYMS = {
-    "en": {"experience": ("experience", "work experience", "professional experience", "relevant experience", "employment experience", "history", "work history", "career history", "professional history", "employment history", "employment"),
+    "en": {"experience": ("experience", "work experience", "professional experience", "relevant experience", "volunteer experience", "employment experience", "work history", "career history", "professional history", "employment history", "employment"),
            "education": ("education", "academic", "qualifications", "training"),
            "skills": ("skills", "technical skills", "core skills", "competencies", "expertise", "tools"),
            "projects": ("projects",), "summary": ("summary", "profile", "objective"),
@@ -80,16 +80,18 @@ PLACE = re.compile(r"\b[A-Z][a-zA-Z.'\- ]{1,40},\s*(?:[A-Z]{2}\b|[A-Z][a-zA-Z]+)
 
 
 def heading_text(line):
-    text = " ".join(line.strip().rstrip(":").split())
+    raw = line.strip().rstrip(":")
+    text = " ".join(raw.split())
     letters = text.split()
     # Only rejoin capitals, never ordinary prose or short initialisms.
     if len(letters) >= 5 and all(len(c) == 1 and c.isalpha() and c.isupper() for c in letters):
-        return "".join(letters)
+        return " ".join("".join(word.split()) for word in re.split(r"\s{2,}", raw))
     return text
 
 
 def heading_sections(line, lang=None):
-    text = heading_text(line).casefold()
+    normalized = heading_text(line)
+    text = normalized.casefold()
     tables = HEADING_SYNONYMS.values() if lang is None else (HEADING_SYNONYMS[lang],)
     lookup = {word: canonical for table in tables for canonical, words in table.items() for word in words}
     if text in lookup:
@@ -97,6 +99,16 @@ def heading_sections(line, lang=None):
     parts = JOINER.split(text)
     if len(parts) > 1 and all(part in lookup for part in parts):
         return list(dict.fromkeys(lookup[part] for part in parts))
+    words = text.split()
+    styled = normalized.isupper() or all(
+        word[:1].isupper() or word.casefold() in {"of", "&"} for word in normalized.split())
+    # Restrict the flexible route to labels, keeping sentences and possessives out.
+    if (1 < len(words) <= 4 and styled and
+            not set(words) & {"in", "and", "or", "my", "your", "y", "et", "e", "und"} and
+            not re.search(r"[:.!?]", text)):
+        for word in (words[0], words[-1]):
+            if word in lookup:
+                return [lookup[word]]
     return []
 
 

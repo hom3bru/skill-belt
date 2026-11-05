@@ -36,7 +36,7 @@ CREDENTIALS = re.compile(r"\b(?:Ph\.?\s?D|MBA|M\.?Sc|B\.?Sc|CPA|PMP|CFA|CISSP|CI
                          r"licence[ds]?|chartered|accredited|bachelor'?s|master'?s|doctorate|degree)\b", re.I)
 AUTHORITY = re.compile(r"\b(?:led|lead|leading|managed|manage|managing|directed|directing|supervised|supervise|oversaw|"
                        r"oversee|overseeing|headed|owned|owning|founded|co-founded|launched|spearheaded|built|"
-                       r"established|architected|drove|chaired|ran|hired|implemented|configured|administered|migrated|deployed|set up|reporting to me|direct reports?)\b", re.I)
+                       r"established|architected|drove|chaired|ran|hired|reporting to me|direct reports?)\b", re.I)
 VERB_STARTERS = {"led", "lead", "built", "ran", "won", "grew", "drove", "taught", "wrote", "oversaw", "spoke", "began", "made",
                  "set", "cut", "sold", "brought", "kept", "met", "took", "gave", "chose", "found", "held", "rebuilt", "redid",
                  "manage", "coordinate", "support", "deliver", "develop", "design", "create", "own", "run", "build",
@@ -44,7 +44,7 @@ VERB_STARTERS = {"led", "lead", "built", "ran", "won", "grew", "drove", "taught"
 SUPPORT = re.compile(r"\b(?:supported|support|supporting|assisted|assist|helped|help|coordinated|coordinate|coordinating|"
                      r"contributed|participated|facilitated|collaborated|partnered|advised|recommended|proposed|drafted|"
                      r"member of|used|worked with|worked in|worked on|worked alongside|shadowed)\b", re.I)
-AUTHORSHIP = re.compile(r"\b(?:implemented|configured|administered|migrated|deployed|set up)\b", re.I)
+AUTHORSHIP = re.compile(r"\b(?:implemented|configured|administered|migrated|deployed|set\s+up)\b", re.I)
 ORGANIZATION_END = re.compile(r"\b(?:Inc|Corp|Ltd|Co|LLC|PLC|GmbH|University|College|Institute)\b", re.I)
 SUPERLATIVE = re.compile(r"\b(?:first|only|sole|solely|single-handedly|best|top|largest|biggest|record|record-breaking|#1|"
                          r"number one|award-winning|unprecedented|leading|world-class|unique(?:ly)?)\b", re.I)
@@ -132,32 +132,49 @@ class Evidence:
             text = common.document_text(path, data=data)
             self.receipts.append({"file": Path(path).name, "sha256": common.sha256(data)})
             file_units = common.units(text, Path(path).name)
-            # Complete sentences stay separate. Only adjacent header fragments may
-            # form a window: joining full employment records would hide swapped roles.
-            lines = text.splitlines()
+            # Header fields form one record in either order. Each bullet is
+            # paired only with its own header, never a neighbouring record.
             for unit in file_units:
-                self.windows.append(unit["text"])
-            fragments = []
-            for raw in lines:
+                self.add_window(unit["text"])
+            headers, fields = [], set()
+            in_bullets = False
+            for raw in text.splitlines():
                 fragment = common.strip_bullet(raw).strip()
-                identities = [a for a in atoms(fragment) if a["kind"] in {"entity", "credential", "year", "date"}]
+                if not fragment:
+                    continue
+                bullet = fragment != raw.strip()
+                if bullet:
+                    if headers:
+                        self.add_window("\n".join(headers + [fragment]))
+                    in_bullets = True
+                    continue
                 abbreviation = re.search(r"\b(?:Inc|Corp|Ltd|Co|LLC|PLC|Ph\.?D|B\.?Sc|M\.?Sc)\.$", fragment, re.I)
                 complete = fragment.endswith(("!", "?", ";")) or fragment.endswith(".") and not abbreviation
-                if (not fragment or complete or len(fragment.split()) > 14
-                        or sum(a["kind"] == "entity" for a in identities) > 1):
-                    fragments = []
+                if complete or len(fragment.split()) > 14 or AUTHORITY.match(fragment) or AUTHORSHIP.match(fragment):
+                    headers, fields = [], set()
+                    in_bullets = False
                     continue
-                organization = bool(ORGANIZATION_END.search(fragment))
-                prior_dates = any(a["kind"] in {"year", "date"} for part in fragments for a in atoms(part))
-                dated = any(a["kind"] in {"year", "date"} for a in identities)
-                # Start another record at a new organization or date block;
-                # keep employer/date/title as well as employer/title/date layouts.
-                if (len(fragments) == 3 or dated and prior_dates
-                        or organization and (prior_dates or any(ORGANIZATION_END.search(part) for part in fragments))):
-                    fragments = []
-                fragments.append(fragment)
-                if len(fragments) > 1:
-                    self.windows.append("\n".join(fragments))
+                current = set()
+                if ORGANIZATION_END.search(fragment):
+                    current.add("organization")
+                if any(a["kind"] in {"year", "date"} for a in atoms(fragment)):
+                    current.add("date")
+                # A non-organization field with words beyond dates is a role
+                # or qualification. Repeating it begins the next record.
+                undated = re.sub(r"\b(?:present|current)\b", "", fragment, flags=re.I)
+                if "organization" not in current and re.search(r"[A-Za-z]", undated):
+                    current.add("role")
+                if not current:
+                    headers, fields = [], set()
+                    in_bullets = False
+                    continue
+                if in_bullets or fields & current:
+                    headers, fields = [], set()
+                in_bullets = False
+                headers.append(fragment)
+                fields.update(current)
+                if len(headers) > 1:
+                    self.add_window("\n".join(headers))
             for unit in common.units(text, Path(path).name):
                 unit["tokens"] = content_tokens(unit["text"])
                 unit["lower"] = " " + " ".join(re.findall(r"[a-z0-9&+#]+", unit["text"].casefold())) + " "
@@ -169,17 +186,19 @@ class Evidence:
                 self.units.append(unit)
         require(self.units, "evidence files contain no readable text")
 
+    def add_window(self, text):
+        self.windows.append({
+            "lower": " " + " ".join(re.findall(r"[a-z0-9&+#]+", text.casefold())) + " ",
+            "keys": {(a["kind"], a["key"]) for a in atoms(text)},
+        })
+
     def paired(self, identity_atoms):
-        # Use the same matching semantics as the ledger, scoped to one window.
-        for text in self.windows:
-            lower = " " + " ".join(re.findall(r"[a-z0-9&+#]+", text.casefold())) + " "
-            present = atoms(text)
-            if all((" " + " ".join(re.findall(r"[a-z0-9&+#]+", a["key"])) + " ") in lower
-                   if a["kind"] == "entity" else
-                   any(b["kind"] == a["kind"] and b["key"] == a["key"] for b in present)
-                   for a in identity_atoms):
-                return True
-        return False
+        # Normalize the query once, independent of the evidence window count.
+        phrases = [" " + " ".join(re.findall(r"[a-z0-9&+#]+", a["key"])) + " "
+                   for a in identity_atoms if a["kind"] == "entity"]
+        keys = {(a["kind"], a["key"]) for a in identity_atoms if a["kind"] != "entity"}
+        return any(keys <= window["keys"] and all(phrase in window["lower"] for phrase in phrases)
+                   for window in self.windows)
 
     def containing(self, atom):
         kind, key = atom["kind"], atom["key"]
@@ -237,7 +256,7 @@ def action_clauses(text):
         if (not boundary.group(0).startswith(";") and actions
                 and not (content_tokens(prefix) - action_tokens)):
             continue  # 'implemented and configured Salesforce' shares its object
-        if boundary.group(0).startswith(";") or AUTHORITY.match(tail) or SUPPORT.match(tail):
+        if boundary.group(0).startswith(";") or AUTHORITY.match(tail) or AUTHORSHIP.match(tail) or SUPPORT.match(tail):
             parts.append(text[start:boundary.start()])
             start = boundary.end()
     return parts + [text[start:]]
@@ -246,9 +265,13 @@ def action_clauses(text):
 def authorship_gaps(sentence, evidence):
     """Each claimed action must share a clause with the same named tool(s)."""
     gaps = []
+    sentence = " ".join(sentence.split())
     for clause in action_clauses(sentence):
         named = entities(clause)
         for action in AUTHORSHIP.finditer(clause):
+            noun = {"implemented": "implementation", "configured": "configuration",
+                    "administered": "administration", "migrated": "migration",
+                    "deployed": "deployment", "set up": "setup"}[action.group(0).casefold()]
             hits = [{id(unit) for unit in evidence.containing(atom)} for atom in named]
             remaining = content_tokens(clause) - content_tokens(action.group(0))
             candidates = [unit for unit in evidence.units
@@ -256,9 +279,11 @@ def authorship_gaps(sentence, evidence):
                               bool(remaining) and remaining <= unit["tokens"])]
             confirmed = False
             for candidate in candidates:
-                for evidence_clause in action_clauses(candidate["text"]):
+                for evidence_clause in action_clauses(" ".join(candidate["text"].split())):
                     lower = " " + " ".join(re.findall(r"[a-z0-9&+#]+", evidence_clause.casefold())) + " "
-                    if (re.search(r"\b" + re.escape(action.group(0)) + r"\b", evidence_clause, re.I)
+                    same_action = re.search(r"\b" + re.escape(action.group(0)) + r"\b", evidence_clause, re.I)
+                    led_action = AUTHORITY.search(evidence_clause) and re.search(r"\b" + noun + r"\b", evidence_clause, re.I)
+                    if ((same_action or led_action)
                             and (all(" " + " ".join(re.findall(r"[a-z0-9&+#]+", atom["key"])) + " " in lower for atom in named)
                                  if named else remaining <= content_tokens(evidence_clause))):
                         confirmed = True
@@ -280,7 +305,7 @@ def claims(draft, evidence_paths):
     for unit in common.units(draft_text, Path(draft).name):
         sentence = unit["text"]
         found_atoms = atoms(sentence)
-        has_authority = bool(AUTHORITY.search(sentence))
+        has_authority = bool(AUTHORITY.search(sentence) or AUTHORSHIP.search(sentence))
         if not found_atoms and not has_authority:
             continue
         context = anchors(sentence, [a["value"] for a in found_atoms])
@@ -322,15 +347,16 @@ def claims(draft, evidence_paths):
             authorship = AUTHORSHIP.search(sentence)
             if authorship:
                 entry["flags"].extend(authorship_gaps(sentence, evidence))
-            elif related is None or score == 0:
-                entry["flags"].append({"kind": "authority_unverified", "value": AUTHORITY.search(sentence).group(0),
+            leadership = AUTHORITY.search(sentence)
+            if leadership and (related is None or score == 0):
+                entry["flags"].append({"kind": "authority_unverified", "value": leadership.group(0),
                                        "why": "No related evidence sentence was found for this leadership/ownership claim."})
-            elif related["support"] and not related["authority"]:
-                entry["flags"].append({"kind": "authority_escalation", "value": AUTHORITY.search(sentence).group(0),
+            elif leadership and related["support"] and not related["authority"]:
+                entry["flags"].append({"kind": "authority_escalation", "value": leadership.group(0),
                                        "evidence": location(related),
                                        "why": "The closest evidence describes support or use-level work; the draft claims leadership or ownership."})
-            elif not related["authority"]:
-                entry["flags"].append({"kind": "authority_unconfirmed", "value": AUTHORITY.search(sentence).group(0),
+            elif leadership and not related["authority"]:
+                entry["flags"].append({"kind": "authority_unconfirmed", "value": leadership.group(0),
                                        "evidence": location(related),
                                        "why": "Related evidence does not confirm leadership or ownership; confirm the scope of this role."})
         totals["flags"] += len(entry["flags"])

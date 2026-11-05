@@ -35,12 +35,22 @@ def detect_interstitial(text):
         ("login_required", r"\b(?:sign in|log in|login) (?:is required|to continue|to view|to access)\b", False),
         ("authentication_required", r"\b(?:authentication required|you must (?:sign|log) in)\b", False),
         ("access_denied", r"(?:^|\n|>)\s*(?:access denied|403 forbidden)\s*(?:$|\n|<)", True),
-        ("rate_limit", r"(?:^|\n|>)\s*(?:too many requests|429(?: too many requests)?)\s*(?:$|\n|<)", True),
+        ("rate_limit", r"(?:^|\n|>)\s*(?:too many requests|429 too many requests)\s*(?:$|\n|<)", True),
         ("retry_later", r"\b(?:try again later|rate limit exceeded)\b", False),
         ("empty_shell", r"\b(?:to run this app|to (?:view|display) (?:this page|the content))\b", False),
     ]
-    hits = [(name, strong, match.group(0).strip()) for name, pattern, strong in rules
-            if (match := re.search(pattern, text, re.I))]
+    # Requirements and responsibilities distinguish posting prose from a short
+    # wall. Weak words in job requirements or navigation cannot block assessment.
+    posting_structure = bool(re.search(r"^\s*(?:requirements|responsibilities|qualifications|what you.ll do)\s*:?\s*$",
+                                       text, re.I | re.M)) or len(text.split()) >= 150
+    hits = []
+    for name, pattern, strong in rules:
+        candidates = [text] if strong else ([] if posting_structure else
+                                           [line.strip() for line in text.splitlines() if len(line.split()) <= 16])
+        match = next((match for candidate in candidates
+                      if (match := re.search(pattern, candidate, re.I))), None)
+        if match:
+            hits.append((name, strong, match.group(0).strip()))
     if len(hits) < 2 and not any(strong for _, strong, _ in hits):
         return None
     return {"kind": "not_a_posting_interstitial", "markers": [name for name, _, _ in hits],
@@ -697,8 +707,17 @@ def analyze(capture=None, input_path=None, url=None, employer=None, observed_at=
     wall_text = common.html_to_text(loaded["source"])[0] if loaded["format"] == "html" else loaded["source"]
     wall = detect_interstitial(wall_text)
     if wall:
+        text, hidden, _ = common.html_to_text(loaded["source"]) if loaded["format"] == "html" else (loaded["source"], [], [])
+        recognized = recognize_url(loaded["url"], loaded["employer"])
+        raw_text = html.unescape(loaded["source"]) if loaded["format"] == "html" else loaded["source"]
         return {"schema_version": 1, "tool": "posting_intel", "tool_version": VERSION,
-                "status": "recapture_required", "flags": [wall], "assessment_performed": False}
+                "status": "recapture_required", "flags": [wall], "assessment_performed": False,
+                "source": {"name": loaded["name"], "url": loaded["url"], "employer": loaded["employer"],
+                           "observed_at": common.iso(loaded["observed"]), "sha256": loaded["sha256"], "format": loaded["format"]},
+                "injection_signals": injection_signals(text, hidden) + unicode_signals(raw_text),
+                "scam_signals": scam_signals(text, recognized),
+                "limits": "Interstitial snapshot. Injection and scam scans ran, but posting assessment requires a new capture. "
+                          "Static heuristics only; absence of a signal proves nothing."}
     conventions, floor = load_conventions(context)
     if loaded["format"] == "html":
         text, hidden, blocks = common.html_to_text(loaded["source"])

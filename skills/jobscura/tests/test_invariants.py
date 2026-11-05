@@ -6,18 +6,32 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 NETWORK_IMPORTS = {"socket", "ssl", "urllib.request", "http.client", "ftplib", "smtplib",
-                   "imaplib", "webbrowser", "requests", "httpx"}
+                   "imaplib", "webbrowser", "requests", "httpx", "asyncio", "xmlrpc.client",
+                   "http.server", "poplib", "telnetlib", "multiprocessing.connection", "urllib3", "aiohttp"}
 
 
 def network_imports(path):
     findings = []
     tree = ast.parse(Path(path).read_text(encoding="utf-8"))
+    importlib_names = {"importlib"}
+    importer_names = {"__import__"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            importlib_names.update(alias.asname or alias.name for alias in node.names if alias.name == "importlib")
+        elif isinstance(node, ast.ImportFrom) and node.module == "importlib":
+            importer_names.update(alias.asname or alias.name for alias in node.names if alias.name == "import_module")
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             names = [alias.name for alias in node.names]
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ""
             names = [module] + [module + "." + alias.name for alias in node.names]
+        elif isinstance(node, ast.Call) and node.args and isinstance(node.args[0], ast.Constant):
+            function = node.func
+            importer = (isinstance(function, ast.Name) and function.id in importer_names
+                        or isinstance(function, ast.Attribute) and function.attr == "import_module"
+                        and isinstance(function.value, ast.Name) and function.value.id in importlib_names)
+            names = [node.args[0].value] if importer and isinstance(node.args[0].value, str) else []
         else:
             continue
         for name in names:

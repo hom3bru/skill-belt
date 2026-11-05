@@ -455,34 +455,61 @@ def record_location(record):
         if k.strip().casefold() in {"location", "locations", "job location", "city"} and v), None)
 
 
-def location_title(title, location=None):
-    """Strip stated locations or capitalised place-shaped suffixes.
+def location_places(location):
+    """Compare stated place components, ignoring administrative and work-mode labels."""
+    noise = {"remote", "hybrid", "on-site", "onsite", "germany", "deutschland",
+             "uk", "united kingdom", "usa", "us", "united states", "canada",
+             "france", "spain", "italy", "portugal", "australia", "europe",
+             "emea", "apac", "north america"}
+    return {part for value in re.split(r"[,·/()]", str(location or ""))
+            for part in [employer_key(value)] if part and part not in noise}
 
-    Unstated places are heuristic; preserve common contract/role qualifiers.
+
+def location_title(title, location=None):
+    """Strip only a suffix supported by an explicit location field.
+
+    Bound parsing work before matching untrusted feed titles.
     """
-    title = " ".join(str(title or "").split())
+    title = " ".join(str(title or "")[:300].split())
     place = employer_key(location)
+    if not place:
+        return title, place
     match = re.match(r"^(.*?)(?: - | \| |\s*\(|,\s*)([^()]+)\)?$", title)
     if not match:
         return title, place
     head, tail = match.group(1).strip(), match.group(2).strip()
-    tail_key = employer_key(tail)
-    parts = {employer_key(x) for x in re.split(r"[,;·/]+", str(location or "")) if x.strip()}
-    explicit = tail_key == place or tail_key in parts
-    qualifier = re.search(r"\b(fixed|term|contract|temporary|permanent|senior|junior|level|full|part|time|intern|maternity|cover)\b", tail, re.I)
-    words = re.findall(r"[^\W\d_]+", tail, re.UNICODE)
-    shaped = (not qualifier and 1 <= len(words) <= 6 and
-              all(w[0].isupper() or w in {"am", "an", "de", "del", "on", "upon"} for w in words) and
-              re.fullmatch(r"[^\W\d_][^\d()]*", tail, re.UNICODE))
-    return (head, place or tail_key) if head and (explicit or shaped) else (title, place)
+    parts = {employer_key(x) for x in re.split(r"[,;·/()]", str(location)) if x.strip()}
+    explicit = employer_key(tail) == place or employer_key(tail) in parts
+    return (head, place) if head and explicit else (title, place)
 
 
 def location_title_similarity(left, right):
-    """Return similarity and whether identical role words have distinct places."""
+    """Require stated places on both sides; a missing field supplies no place evidence."""
     a, ap = location_title(left.get("title"), record_location(left))
     b, bp = location_title(right.get("title"), record_location(right))
-    return title_similarity(a, b), bool(ap and bp and ap != bp and title_tokens(a) and
-                                       title_tokens(a) == title_tokens(b))
+    places_a, places_b = location_places(ap), location_places(bp)
+    return title_similarity(a, b), bool(places_a and places_b and places_a.isdisjoint(places_b)
+                                       and title_tokens(a) and title_tokens(a) == title_tokens(b))
+
+
+TITLE_TAIL_NOTE = (
+    "titles differ only in their trailing segment; if these are places this is the same role "
+    "in another location, if teams or shifts it may be a separate opening — check the postings")
+
+
+def title_tail_review(left, right):
+    """Describe differing tails without treating an unstated place as location evidence."""
+    tails, heads = [], []
+    for record in (left, right):
+        title = " ".join(str(record.get("title") or "")[:300].split())
+        match = re.fullmatch(r"(.+?)(?: - | \| |\s*\(|,\s*)([^()]+)\)?", title)
+        if not match:
+            return {}
+        heads.append(employer_key(match.group(1)))
+        tails.append(match.group(2).strip())
+    if heads[0] == heads[1] and employer_key(tails[0]) != employer_key(tails[1]):
+        return {"title_tail_differs": tails, "note": TITLE_TAIL_NOTE}
+    return {}
 
 
 def shingles(text, size=5):
