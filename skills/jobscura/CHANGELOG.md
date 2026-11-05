@@ -2,6 +2,19 @@
 
 ## 0.5.0 - Full-cycle toolkit with deterministic helpers
 
+Transfers from a second adopt-adapt review of the repositories that shaped Jobscura:
+
+- A1: check entity/date combinations within evidence windows (SimplyApply; AGPL idea only).
+- A2: distinguish tool use from implementation or ownership (Remotivated/job-hunt-skills; MIT idea).
+- A3: bind grounding ledgers to input bytes and text units (earlier provenance design and JobCtrl; AGPL idea only for JobCtrl).
+- A4: recognize multilingual and letter-spaced headings and measure garbled glyphs (Resume-Matcher, Apache-2.0, and career-ops, MIT; ideas).
+- A5: distinguish location variants from potential reposts (career-ops-hq/career-ops; MIT idea).
+- A6: flag interstitials in saved postings and captures (JobNavigator; MIT idea, detection only).
+- A7: check supplied answers offline without filling forms (form-filler-ai, no licence, idea only; jobclaw-skills and give-me-job, MIT ideas).
+- A8: guard offline imports and submission boundaries with an injected-import control (MS-Jahan/job-apply-kit; MIT idea only).
+- A9: strengthen sourcing, claim credit, private story provenance and channel ownership (claude-resume-kit, Remotivated, career-ops, give-me-job and reactive-resume, MIT ideas; waddington, Apache-2.0 idea; jobapply, idea only).
+- A10: document the transfers and refresh distribution hashes; no donor code or prose copied.
+
 Fixes from an independent Codex audit:
 
 - R1. DOCX privacy checks cover revisions, comments and invisible text in headers, footers and notes.

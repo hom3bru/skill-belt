@@ -13,21 +13,32 @@ same review by hand and say that the helper did not run.
 
 | Need | Command | Key output |
 | --- | --- | --- |
-| Understand a posting | `python -B scripts/posting_intel.py analyze --input posting.html --url URL --employer NAME --observed-at ISO` (or `--capture DIR`) | ATS vendor and job ID, schema.org JobPosting fields, required and preferred items with line numbers, pay, remote/hybrid, sponsorship, employer AI-use stance, hidden and AI-directed instructions, scam signals, freshness |
-| Check a draft's claims | `python -B scripts/grounding.py claims --draft draft.docx --evidence cv.docx notes.md` | Per-sentence ledger: `supported`, `present_in_evidence`, `found_elsewhere` (attribution risk), `not_found`; flags for authority escalation and unsupported superlatives |
+| Understand a posting | `python -B scripts/posting_intel.py analyze --input posting.html --url URL --employer NAME --observed-at ISO` (or `--capture DIR`) | ATS vendor and job ID, schema.org JobPosting fields, required and preferred items with line numbers, pay, remote/hybrid, sponsorship, employer AI-use stance, hidden and AI-directed instructions, scam signals, freshness; challenge and login interstitials require re-capture |
+| Check a draft's claims | `python -B scripts/grounding.py claims --draft draft.docx --evidence cv.docx notes.md` | Per-sentence ledger: `supported`, `present_in_evidence`, `found_elsewhere` (attribution risk), `not_found`; flags for unsupported entity combinations, authority escalation and unsupported superlatives; draft and evidence hashes |
 | Map requirements to evidence | `python -B scripts/grounding.py coverage --posting posting.html --evidence cv.docx [--draft letter.docx]` | Each requirement marked `addressed`, `evidence_not_used`, `addressed_without_found_evidence` or `no_evidence_found`, plus supported terms the draft leaves out |
-| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx` | Blockers (tracked changes, comments, hidden or white text in the body, headers, footers and notes, macros, image-only or encrypted PDF), warnings (tables, text boxes, columns, contact details only in the header), metadata, and a parse preview for DOCX and text files: the name, contact details, section titles, dated roles and education lines a simple parser would probably read |
+| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx [--lang es]` | Blockers (tracked changes, comments, hidden or white text, macros, image-only or encrypted PDF), layout and contact warnings, glyph-corruption classes and ratios, spaced-capital heading warnings, metadata and parse preview; headings in en/es/fr/pt/de/it (all accepted unless `--lang` selects one) |
 | Plan deadlines and checks | `python -B scripts/deadlines.py --tracker export.csv --context /abs/context.json [--as-of ISO] [--ics deadlines.ics]` | Days and hours remaining in the user's time zone, reminder windows now due (minus those already sent), status checks due, unresolved dates, morning digest. `--ics` writes a calendar file for active dated roles with stable IDs or URLs and lists rows without either in `calendar.skipped`. Each event has a 09:00 alarm on each future reminder window. Existing ID-bearing UIDs stay stable. |
-| Screen an employer's job board | `python -B scripts/board_feed.py --feed saved.json --company NAME [--board SLUG] [--previous last.json] [--tracker export.csv] [--context ctx.json] [--out this.json]` | Normalised postings from a saved Greenhouse, Lever, Ashby or SmartRecruiters response; title and location screening; tracked and possible-repost flags; new, changed and disappeared since the previous run |
+| Screen an employer's job board | `python -B scripts/board_feed.py --feed saved.json --company NAME [--board SLUG] [--previous last.json] [--tracker export.csv] [--context ctx.json] [--out this.json]` | Normalised postings from a saved Greenhouse, Lever, Ashby or SmartRecruiters response; title and location screening; tracked, location-variant and possible-repost flags; new, changed and disappeared since the previous run |
 | Check a tracker edit before saving | `python -B scripts/tracker_diff.py --before old.csv --after new.csv` | `blocked` for removed records, duplicate IDs or identities, a changed employer, requisition or URL, dropped columns, backwards application milestones or fewer unidentified rows; incomplete identities, reopened terminal states, changed terminal decisions, cleared values and repost candidates require review |
 | Compare offers | `python -B scripts/offer_compare.py --offers offers.json [--format markdown]` | Year-by-year pre-tax value, totals, the difference from a baseline offer, and equity at 0, 50, 100 and 150% |
 | Validate private context | `python -B scripts/user_context.py --context /abs/context.json` | Validation status, section names and whether the time zone is available |
 | Capture, match and package uploads | `skills/application-packet/scripts/application_packet.py` | See the [packet command guide](../skills/application-packet/references/command-guide.md) |
+| Check supplied application answers | `python -B skills/application-packet/scripts/application_packet.py check-answers --capture DIR --answers answers.json` | Read-only field constraints, unresolved required answers and count-rule confirmations; never generates, fills or submits |
 
 ## Reading the results
 
 - Signals and statuses are prompts for review, each tied to an exact source line. A missing signal
   proves nothing. Never pass a helper's output to the employer.
+- Both grounding ledgers retain `evidence_files` and add `evidence: [{file, sha256}]`,
+  with SHA-256 over each exact input file's bytes. `draft_sha256` binds the draft bytes
+  (null for coverage without a draft). Every ledger location has `unit_sha`: the first
+  16 hexadecimal SHA-256 characters of the full unit's UTF-8 text, before excerpts are
+  shortened. Re-run review when bytes or unit hashes change; hashes are not signatures.
+- `combination_unsupported` asks whether names, credentials and dates belong together.
+  Windows contain a single evidence sentence or up to three adjacent short header
+  fragments in the same file, with organization/date boundaries between records.
+  Complete employment sentences are never joined across lines. This catches some
+  swapped attributions, but cannot certify a relationship.
 - `supported` means the matching words were found next to related words in the user's evidence. It
   does not mean the claim is true. Treat `not_found` and `found_elsewhere` as questions for the user,
   not as permission to soften the wording until the check passes.
