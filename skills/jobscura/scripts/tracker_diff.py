@@ -76,6 +76,7 @@ def compare(before_path, after_path, overrides=None):
     problems, review = [], []
     before, before_missing = by_id(before_rows, "before", problems)
     after, after_missing = by_id(after_rows, "after", problems)
+    require(before or after, "neither export has record IDs; map one with --map record_id=Header")
     dropped = [h for h in before_headers if h not in after_headers]
     if dropped:
         problems.append({"kind": "columns_removed", "columns": dropped})

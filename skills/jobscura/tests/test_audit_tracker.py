@@ -53,7 +53,7 @@ class TrackerAuditTests(unittest.TestCase):
         self.assertEqual(json.loads(run.stdout)["status"], "blocked")
 
     def test_retained_unidentified_rows_require_review(self):
-        for rows in ([self.row(), self.row("")], [self.row("")]):
+        for rows in ([self.row(), self.row("")], [self.row(""), self.row()]):
             with self.subTest(rows=rows):
                 result = self.compare(rows, rows)
                 self.assertEqual(result["status"], "review_required")
@@ -66,6 +66,26 @@ class TrackerAuditTests(unittest.TestCase):
         increasing = self.compare([self.row()], [self.row(), self.row("")])
         self.assertEqual(increasing["status"], "review_required")
         self.assertEqual(increasing["problems"], [])
+        for name, status in (("before", "applied"), ("after", "interview")):
+            (self.root / (name + ".json")).write_text(json.dumps([
+                {"Company": "Example Arts", "Title": "Coordinator", "Status": status}]), encoding="utf-8")
+        run = subprocess.run([sys.executable, "-B", str(SCRIPTS / "tracker_diff.py"),
+                              "--before", str(self.root / "before.json"),
+                              "--after", str(self.root / "after.json")], capture_output=True, text=True)
+        self.assertEqual(run.returncode, 2, run.stdout)
+        self.assertEqual(json.loads(run.stderr), {"status": "blocked",
+                         "error": "neither export has record IDs; map one with --map record_id=Header"})
+        self.assertEqual(run.stdout, "")
+        for name, status in (("before", "applied"), ("after", "interview")):
+            (self.root / (name + ".json")).write_text(json.dumps([
+                {"Tracking Key": "A", "Company": "Example Arts", "Title": "Coordinator", "Status": status}]),
+                encoding="utf-8")
+        mapped = subprocess.run([sys.executable, "-B", str(SCRIPTS / "tracker_diff.py"),
+                                 "--before", str(self.root / "before.json"),
+                                 "--after", str(self.root / "after.json"), "--map", "record_id=Tracking Key"],
+                                capture_output=True, text=True)
+        self.assertEqual(mapped.returncode, 0, mapped.stderr)
+        self.assertEqual(json.loads(mapped.stdout)["status"], "conserved")
 
     def test_rank_decreases_and_history_loss_block_with_negation_controls(self):
         for old, new in (("interview", "applied"), ("offer pending", "submitted"),
