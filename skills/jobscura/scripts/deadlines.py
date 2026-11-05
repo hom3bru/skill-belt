@@ -319,17 +319,18 @@ def calendar(result, timezone_name, skipped=None):
             continue
         deadline = date.fromisoformat(record["deadline"])
         cutoff = datetime.fromisoformat(record["cutoff_local"]) if record.get("cutoff_local") else None
+        link = common.normalized_link(record.get("url"))
         if record.get("record_id") or record.get("requisition_id"):
             # Preserve published UIDs for identified rows, including the empty fields.
             identity = "|".join(str(record.get(k) or "") for k in ("employer", "requisition_id", "record_id")) + "|" + record["deadline"]
-        elif record.get("url"):
-            link = common.normalized_link(record["url"])
-            require(link, "calendar URL must be an HTTP(S) URL for a stable identity")
+        elif link:
             identity = "|".join((str(record.get("employer") or ""), link, record["deadline"]))
         else:
             if skipped is not None:
+                reason = ("URL is not an absolute http(s) link; add a record ID or the full URL" if record.get("url") else
+                          "no record ID, requisition ID or URL for a stable calendar identity")
                 skipped.append({k: record.get(k) for k in ("row", "employer", "title")} |
-                               {"reason": "no record ID, requisition ID or URL for a stable calendar identity"})
+                               {"reason": reason})
             continue
         uid = "jobscura-" + common.sha256(identity.encode("utf-8"))[:32] + "@jobscura.invalid"
         require(uid not in uids, "duplicate calendar UID; resolve duplicate role identities before exporting")

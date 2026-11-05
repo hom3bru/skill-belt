@@ -73,6 +73,23 @@ class CalendarOfferAuditTests(unittest.TestCase):
         self.assertIn("identity", skipped["reason"])
         self.assertEqual(len(self.event_uids(output.read_text(encoding="utf-8"))), 2)
 
+    def test_malformed_url_skips_only_the_unidentified_row(self):
+        rows = self.rows()
+        rows[1]["url"] = "www.example.test/jobs/2"
+        tracker = self.save("tracker.json", rows)
+        output = self.root / "mixed.ics"
+        run = self.cli("deadlines.py", "--tracker", tracker, "--timezone", "UTC",
+                       "--as-of", "2026-11-04T12:00:00Z", "--ics", output)
+        self.assertEqual(run.returncode, 0, run.stderr)
+        result = json.loads(run.stdout)["calendar"]
+        self.assertEqual(result["events"], 1)
+        self.assertEqual(result["skipped"], [{"row": 2, "employer": "Example", "title": "Designer",
+                         "reason": "URL is not an absolute http(s) link; add a record ID or the full URL"}])
+        self.assertEqual(len(self.event_uids(output.read_text(encoding="utf-8"))), 1)
+        rows[1]["record_id"] = "JOB-2"
+        text, count = deadlines.calendar(self.plan(rows), "UTC")
+        self.assertEqual((count, len(self.event_uids(text))), (2, 2))
+
     def test_duplicate_calendar_uids_block_before_file_creation(self):
         rows = self.rows()
         rows.append(dict(rows[0]))
