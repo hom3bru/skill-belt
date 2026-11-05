@@ -12,6 +12,7 @@ sys.path.insert(0, str(SCRIPTS))
 deadlines = importlib.import_module("deadlines")
 offers = importlib.import_module("offer_compare")
 common = importlib.import_module("jobscura_common")
+user_context = importlib.import_module("user_context")
 
 
 class CalendarOfferAuditTests(unittest.TestCase):
@@ -36,6 +37,24 @@ class CalendarOfferAuditTests(unittest.TestCase):
         return subprocess.run([sys.executable, "-B", str(SCRIPTS / script), *map(str, args)],
                               capture_output=True, text=True)
 
+    def zone_missing(self):
+        """Hosts without an IANA database (Windows without tzdata) must refuse, never guess.
+
+        Returns True after asserting that refusal, so the calendar checks below run only
+        where UTC resolves, matching the timezone_status guards in test_tools.py.
+        """
+        if user_context.timezone_status("UTC") == "available":
+            return False
+        with self.assertRaisesRegex(common.ToolError, "timezone"):
+            self.plan(self.rows())
+        output = self.root / "no-zone.ics"
+        run = self.cli("deadlines.py", "--tracker", self.save("no-zone.json", self.rows()), "--timezone", "UTC",
+                       "--as-of", "2026-11-04T12:00:00Z", "--ics", output)
+        self.assertEqual(run.returncode, 2, run.stdout)
+        self.assertIn("timezone", json.loads(run.stderr)["error"])
+        self.assertFalse(output.exists())
+        return True
+
     def event_uids(self, text):
         events = {}
         for event in text.replace("\r\n ", "").split("BEGIN:VEVENT")[1:]:
@@ -44,6 +63,8 @@ class CalendarOfferAuditTests(unittest.TestCase):
         return events
 
     def test_url_fallback_is_unique_stable_and_preserves_identified_uids(self):
+        if self.zone_missing():
+            return
         rows = self.rows()
         rows.append({"employer": "Example", "title": "Legacy", "record_id": "JOB-1",
                      "requisition_id": "REQ-42", "deadline": "2026-11-20"})
@@ -58,6 +79,8 @@ class CalendarOfferAuditTests(unittest.TestCase):
         self.assertEqual(uids["Closes: Legacy - Example"], legacy)
 
     def test_identityless_calendar_rows_are_reported_as_skipped(self):
+        if self.zone_missing():
+            return
         rows = self.rows()
         rows.append({"employer": "Example", "title": "Unknown", "deadline": "2026-11-20"})
         tracker = self.save("tracker.json", rows)
@@ -74,6 +97,8 @@ class CalendarOfferAuditTests(unittest.TestCase):
         self.assertEqual(len(self.event_uids(output.read_text(encoding="utf-8"))), 2)
 
     def test_malformed_url_skips_only_the_unidentified_row(self):
+        if self.zone_missing():
+            return
         rows = self.rows()
         rows[1]["url"] = "www.example.test/jobs/2"
         tracker = self.save("tracker.json", rows)
@@ -91,6 +116,8 @@ class CalendarOfferAuditTests(unittest.TestCase):
         self.assertEqual((count, len(self.event_uids(text))), (2, 2))
 
     def test_duplicate_calendar_uids_block_before_file_creation(self):
+        if self.zone_missing():
+            return
         rows = self.rows()
         rows.append(dict(rows[0]))
         tracker = self.save("tracker.json", rows)
