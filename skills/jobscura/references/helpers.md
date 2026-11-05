@@ -14,9 +14,9 @@ same review by hand and say that the helper did not run.
 | Need | Command | Key output |
 | --- | --- | --- |
 | Understand a posting | `python -B scripts/posting_intel.py analyze --input posting.html --url URL --employer NAME --observed-at ISO` (or `--capture DIR`) | ATS vendor and job ID, schema.org JobPosting fields, required and preferred items with line numbers, pay, remote/hybrid, sponsorship, employer AI-use stance, hidden and AI-directed instructions, scam signals, freshness; challenge and login interstitials require re-capture |
-| Check a draft's claims | `python -B scripts/grounding.py claims --draft draft.docx --evidence cv.docx notes.md` | Per-sentence ledger: `supported`, `present_in_evidence`, `found_elsewhere` (attribution risk), `not_found`; flags for unsupported entity combinations, authority escalation and unsupported superlatives; draft and evidence hashes |
+| Check a draft's claims | `python -B scripts/grounding.py claims --draft draft.docx --evidence cv.docx notes.md` | Per-sentence ledger: `supported`, `present_in_evidence`, `found_elsewhere` (attribution risk), `not_found`; proficiency atoms and review flags for direction mismatch, unsupported entity combinations, authority escalation and unsupported superlatives; draft and evidence hashes |
 | Map requirements to evidence | `python -B scripts/grounding.py coverage --posting posting.html --evidence cv.docx [--draft letter.docx]` | Each requirement marked `addressed`, `evidence_not_used`, `addressed_without_found_evidence` or `no_evidence_found`, plus supported terms the draft leaves out |
-| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx [--lang es]` | Blockers (tracked changes, comments, hidden or white text, macros, image-only or encrypted PDF), layout and contact warnings, glyph-corruption classes and ratios, spaced-capital heading warnings, metadata and parse preview; headings in en/es/fr/pt/de/it (all accepted unless `--lang` selects one) |
+| Check a file before upload | `python -B scripts/ats_lint.py Resume.docx [--lang es] [--as-of YYYY-MM-DD] [--forbid TERM]` | Blockers (tracked changes, comments, hidden or white text, macros, image-only or encrypted PDF), masked sensitive-identifier warnings, placeholder text and forbidden terms, neutral chronology notes, decomposed-accent and other glyph warnings, metadata and parse preview; headings in en/es/fr/pt/de/it (all accepted unless `--lang` selects one) |
 | Plan deadlines and checks | `python -B scripts/deadlines.py --tracker export.csv --context /abs/context.json [--as-of ISO] [--ics deadlines.ics]` | Days and hours remaining in the user's time zone, reminder windows now due (minus those already sent), status checks due, unresolved dates, morning digest. `--ics` writes a calendar file for active dated roles with stable IDs or URLs and lists rows without either in `calendar.skipped`. Each event has a 09:00 alarm on each future reminder window. Existing ID-bearing UIDs stay stable. |
 | Screen an employer's job board | `python -B scripts/board_feed.py --feed saved.json --company NAME [--board SLUG] [--previous last.json] [--tracker export.csv] [--context ctx.json] [--out this.json]` | Normalised postings from a saved Greenhouse, Lever, Ashby or SmartRecruiters response; title and location screening; tracked, location-variant and possible-repost flags; new, changed and disappeared since the previous run |
 | Check a tracker edit before saving | `python -B scripts/tracker_diff.py --before old.csv --after new.csv` | `blocked` for removed records, duplicate IDs or identities, a changed employer, requisition or URL, dropped columns, backwards application milestones or fewer unidentified rows; incomplete identities, reopened terminal states, changed terminal decisions, cleared values and repost candidates require review |
@@ -26,6 +26,20 @@ same review by hand and say that the helper did not run.
 | Check supplied application answers | `python -B skills/application-packet/scripts/application_packet.py check-answers --capture DIR --answers answers.json` | Read-only field constraints, unresolved required answers and count-rule confirmations; never generates, fills or submits |
 
 ## Reading the results
+
+- `sensitive_identifier_in_document` reports kinds and masked values only. Card and IBAN checks
+  use checksums; SSN-shaped values use invalidation rules; date-of-birth and passport checks
+  require nearby whole-word labels. These heuristics can miss private material: review the file.
+- `--forbid TERM` is repeatable for leftover names or other user-selected text. Placeholder
+  warnings are review prompts; brackets can be intentional. `--as-of` makes chronology review
+  reproducible; the default is today's date. Concurrent roles and gaps can be legitimate.
+- Posting scans fold a limited set of visual confusables inside mixed Latin/Greek/Cyrillic words,
+  report those words, decode variation-selector runs and inspect additional inline hiding styles.
+  Credential-file and command instructions are signals, while bare SSH, curl and AI job vocabulary
+  remain ordinary posting data. This is bounded heuristic coverage, not an injection guarantee.
+- Title comparison uses Unicode words with NFKC normalization and casefolding. No usable title
+  tokens means not comparable (`null`), rather than a measured zero similarity. The unused
+  `jobscura_common.shingles()` helper has no caller: board records currently lack description text.
 
 - Signals and statuses are prompts for review, each tied to an exact source line. A missing signal
   proves nothing. Never pass a helper's output to the employer.

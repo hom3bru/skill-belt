@@ -43,3 +43,35 @@ Consolidate the asks into one message. Several small, sequential asks erode good
 Record the outcome in writing. Recompute with `offer_compare.py` whenever a term changes. If the
 answer is no, help the user decide on the remaining terms; do not reopen the same ask. Acceptance
 is the user's own action.
+
+
+## Before the offer: stage handling
+
+- Expected-salary form field: inspect whether it accepts text, a range or a required
+  number and what currency, period and compensation components it means. Use the
+  user's chosen expectation with dated, relevant range evidence. If only a number
+  is accepted, ask the user to choose it; never invent current pay or a dummy value.
+- Recruiter screen: clarify the budgeted range, level and package before anchoring
+  an expectation. Offer wording based on the user's priorities and evidence;
+  sharing a target is the user's choice, not a commitment to accept.
+- Current-pay question: offer the choice to disclose truthfully, decline, or
+  redirect to expectations. Tell the user to check current local rules; do not
+  assert that a particular jurisdiction permits or forbids the question.
+- Mid-process alignment: revisit range and scope when responsibilities, level or
+  constraints change. Identify the mismatch early and ask for clarification without
+  implying there is an offer or disclosing the user's private walk-away point.
+
+## Review the response before deciding
+
+Classify the response as accepted, countered, refused, conditional or unclear,
+quoting the actual terms and unresolved conditions. Do not decide live: prepare a
+request for time to review and leave acceptance, rejection or a further counter
+to the user. A refusal is not a reason to repeat an unchanged ask.
+
+Use the documentation ladder: contract, offer letter, email, verbal statement.
+For each term, record its source, date and conditions; use this order to seek
+stronger written confirmation, not as a legal ruling that one document overrides
+another. Surface contradictions rather than silently selecting the most favorable
+version. Seek written confirmation of agreed changes and qualified review where
+needed. Recompute changed terms with the existing comparison workflow before the
+user decides. A draft acknowledgement is not an acceptance or a sent message.

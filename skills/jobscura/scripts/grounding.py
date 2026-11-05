@@ -55,6 +55,57 @@ STOP_ENTITIES = {"i", "the", "a", "an", "and", "in", "on", "at", "for", "to", "o
                  "november", "december", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
                  "present", "current", "today", "yours", "please", "also", "however", "additionally", "recently"}
 SCALE = {"k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "b": 1e9, "bn": 1e9, "billion": 1e9}
+PROFICIENCY = re.compile(r"\b(?:expert|advanced|fluent|native|proficient|mastery|(?:extensive|deep)\s+experience)\b", re.I)
+# Only explicit equivalents are grouped; a lower level never proves a higher one.
+LEVEL_EQUIVALENTS = {"deep experience": "extensive experience"}
+INCREASE = re.compile(r"\b(?:increase[ds]?|increasing|grew|grow|grown|growing|raise[ds]?|raising|boost(?:ed|ing)?)\b", re.I)
+DECREASE = re.compile(r"\b(?:decrease[ds]?|decreasing|reduce[ds]?|reducing|cut|cuts|cutting|lower(?:ed|ing)?|lower|drop(?:ped|ping)?|declin(?:e[ds]?|ing))\b", re.I)
+
+
+def proficiency_atoms(text):
+    """Bind each level to its adjacent skill phrase, never another clause's level."""
+    result = []
+    # Keep coordinated skills together, but stop inheritance at a new level
+    # or predicate ('expert in Kubernetes and used Python').
+    boundary = (r";|\b(?:but|while|whereas)\b|(?:,|\band\b)\s*(?="
+                + PROFICIENCY.pattern + r"|(?:I|we)\b|"
+                + SUPPORT.pattern + "|" + AUTHORSHIP.pattern + "|" + AUTHORITY.pattern + r")")
+    for clause in re.split(boundary, text, flags=re.I):
+        levels = list(PROFICIENCY.finditer(clause))
+        for index, match in enumerate(levels):
+            end = levels[index + 1].start() if index + 1 < len(levels) else len(clause)
+            after = clause[match.end():end]
+            before = clause[:match.start()]
+            if re.search(r"\b(?:not|never|no)(?:\s+\w+){0,2}\s*$", before, re.I):
+                continue  # An explicitly denied level cannot support a positive claim.
+            # Support both 'fluent in Spanish' and 'Spanish: fluent'.
+            skill = after if content_tokens(after) else before
+            level = " ".join(match.group(0).casefold().split())
+            for item in re.split(r",|\band\b", skill, flags=re.I):
+                tokens = content_tokens(item) - {"level", "speak", "speaker", "experience"}
+                if tokens:
+                    result.append({"kind": "proficiency", "value": match.group(0),
+                                   "key": LEVEL_EQUIVALENTS.get(level, level), "skill": tokens})
+    return result
+
+
+def numeric_directions(text, atom):
+    """Nearest explicit predicate before each matching number, within its clause."""
+    directions = []
+    for clause in re.split(r";|(?<!\d),|,(?!\d)|\b(?:and|but|while|whereas)\b", text, flags=re.I):
+        for match in NUMBER.finditer(clause):
+            values = numbers(match.group(0))
+            if not values:
+                continue
+            value = values[0]
+            if (value["kind"] != atom["kind"] or value["key"] != atom["key"]
+                    or (atom.get("currency") and value.get("currency")
+                        and atom["currency"] != value["currency"])):
+                continue
+            predicates = [(m.start(), direction) for pattern, direction in ((INCREASE, 1), (DECREASE, -1))
+                          for m in pattern.finditer(clause[:match.start()])]
+            directions.append(max(predicates)[1] if predicates else 0)
+    return directions
 
 
 # ------------------------------------------------------------------ atoms
@@ -106,7 +157,7 @@ def entities(text):
 
 
 def atoms(sentence):
-    result = numbers(sentence)
+    result = numbers(sentence) + proficiency_atoms(sentence)
     for match in MONTH_YEAR.finditer(sentence):
         result.append({"kind": "date", "value": match.group(0), "key": " ".join(match.group(0).casefold().replace(".", "").split())[:3]
                        + " " + match.group(0)[-4:]})
@@ -216,6 +267,9 @@ class Evidence:
                 ok = key in unit["dates"]
             elif kind == "credential":
                 ok = key in unit["credentials"]
+            elif kind == "proficiency":
+                ok = any(p["key"] == key and atom["skill"] and atom["skill"] <= p["skill"]
+                         for p in proficiency_atoms(unit["text"]))
             else:
                 phrase = " " + " ".join(re.findall(r"[a-z0-9&+#]+", key)) + " "
                 ok = phrase.strip() != "" and phrase in unit["lower"]
@@ -317,6 +371,10 @@ def claims(draft, evidence_paths):
         for atom in found_atoms:
             hits = evidence.containing(atom)
             supporting = [h for h in hits if len(context & h["tokens"]) >= needed]
+            if atom["kind"] == "proficiency":
+                # The skill and level are already bound in containing(); generic
+                # sentence context must not lend a level from a different skill.
+                supporting = hits
             if supporting:
                 status, where = "supported", max(supporting, key=lambda h: len(context & h["tokens"]))
             elif hits and atom["kind"] in {"entity", "credential", "year", "date"}:
@@ -330,6 +388,14 @@ def claims(draft, evidence_paths):
             if atom["kind"] == "superlative" and status != "supported":
                 entry["flags"].append({"kind": "unsupported_superlative", "value": atom["value"],
                                        "why": "Superlatives and exclusives need explicit support in context."})
+            if atom["kind"] in {"number", "percent"} and supporting:
+                draft_directions = numeric_directions(sentence, atom)
+                evidence_directions = [d for h in supporting for d in numeric_directions(h["text"], atom)]
+                if (len(set(draft_directions)) == 1 and draft_directions[0] != 0
+                        and evidence_directions and set(evidence_directions) == {-draft_directions[0]}):
+                    entry["flags"].append({"kind": "direction_mismatch", "value": atom["value"],
+                                           "evidence": location(where),
+                                           "why": "Matching numbers have opposite explicit directions; review the wording."})
             totals["atoms"] += 1
             totals[status] += 1
             entry["atoms"].append({"kind": atom["kind"], "value": atom["value"], "status": status,

@@ -89,3 +89,17 @@ out of employer-facing copy unless the question specifically asks for them. Save
 or edit through an available authorized tool when requested; otherwise provide the
 work directly without inventing persistence. Drafting does not authorize sending,
 submitting or contacting an employer.
+
+
+## Years of experience and self-rating fields
+
+For "years of X", derive the answer from dated records that actually establish X.
+Show the arithmetic privately: qualifying intervals, as-of date, excluded periods
+and the union of overlapping intervals. For example, January 2020 to January 2022
+plus January 2021 to January 2023 is three years, not four. Do not count a whole
+role when only part of it involved X, or assume full-time intensity from dates.
+For a required band or self-rating, read the field definitions and choose the
+lowest defensible band or rating supported by the evidence. Never default to the
+top level. Ask when dates, scope or the rating definitions do not settle it;
+leave the field unresolved rather than rounding up or inventing proficiency.
+Keep the working and unresolved questions out of employer-facing answers.

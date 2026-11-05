@@ -220,7 +220,7 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
                 candidate = {"record_id": tracked_role["record_id"], "title_similarity": score}
                 if variant:
                     variants.append(candidate)
-                elif score >= TITLE_MATCH:
+                elif score is not None and score >= TITLE_MATCH:
                     candidate.update(common.title_tail_review(record, tracked_role))
                     similar.append(candidate)
             if similar:

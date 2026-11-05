@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import stat
 import sys
+import unicodedata
 from xml.etree import ElementTree
 from zipfile import BadZipFile, ZipFile
 import zlib
@@ -161,8 +162,38 @@ HIDDEN_STYLE = re.compile(
     r"display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0(?:\.0+)?(?:px|pt|em|rem|%)?\s*(?:;|$|!)"
     r"|opacity\s*:\s*0(?:\.0+)?\s*(?:;|$|!)|(?:left|top|text-indent)\s*:\s*-\d{3,}"
     r"|(?<![-\w])color\s*:\s*(?:#fff(?:fff)?\b|white\b|rgba?\(\s*255\s*,\s*255\s*,\s*255)"
-    r"|clip\s*:\s*rect\(\s*0|height\s*:\s*0(?:px)?\s*;[^\"]*overflow\s*:\s*hidden", re.I)
+    r"|clip\s*:\s*rect\(\s*0|(?<![-\w])color\s*:\s*transparent\b"
+    r"|clip-path\s*:\s*(?:inset\(\s*100%\s*\)|circle\(\s*0(?:px)?\s*\))", re.I)
 SR_ONLY = re.compile(r"\b(?:sr-only|visually-hidden|screen-reader-text|screenreader)\b", re.I)
+
+
+def strip_css_comments(style):
+    """Scan each comment once, including an unterminated final comment."""
+    chunks, start = [], 0
+    while True:
+        opening = style.find("/*", start)
+        if opening < 0:
+            chunks.append(style[start:])
+            break
+        chunks.append(style[start:opening])
+        closing = style.find("*/", opening + 2)
+        if closing < 0:
+            break
+        start = closing + 2
+    return "".join(chunks)
+
+
+def hidden_inline_style(style):
+    style = strip_css_comments(style)
+    if HIDDEN_STYLE.search(style):
+        return True
+    # Exact declaration names avoid custom properties such as --overflow;
+    # exact values avoid treating hidden-visible or nonzero dimensions as zero.
+    declarations = [part.split(":", 1) for part in style.casefold().split(";") if ":" in part]
+    values = [(key.strip(), re.sub(r"\s*!important\s*$", "", value).strip()) for key, value in declarations]
+    return (any(key == "overflow" and value == "hidden" for key, value in values)
+            and any(key in {"height", "width"} and re.fullmatch(r"0(?:\.0+)?(?:px|pt|em|rem|%)?", value)
+                    for key, value in values))
 
 
 class HTMLText(HTMLParser):
@@ -204,7 +235,7 @@ class HTMLText(HTMLParser):
             reason = "hidden attribute"
         elif attrs.get("aria-hidden", "").casefold() == "true":
             reason = "aria-hidden"
-        elif HIDDEN_STYLE.search(attrs.get("style", "")):
+        elif hidden_inline_style(attrs.get("style", "")):
             reason = "inline style hides text"
         elif SR_ONLY.search(attrs.get("class", "")):
             reason = "screen-reader-only class"
@@ -428,7 +459,8 @@ def employer_key(value):
 
 
 def title_tokens(value):
-    return {t for t in re.findall(r"[a-z0-9+#]+", str(value or "").casefold()) if t not in SENIORITY_NOISE}
+    text = unicodedata.normalize("NFKC", str(value or "")).casefold()
+    return {t for t in re.findall(r"[^\W_]+(?:[+#]+)?", text) if t not in SENIORITY_NOISE}
 
 
 def jaccard(left, right):
@@ -441,6 +473,8 @@ def title_similarity(left, right):
     """Jaccard, or containment when two or more words are shared: 'Program Coordinator' and
     'Program Coordinator (Fixed term)' are the same role re-advertised with a qualifier."""
     a, b = title_tokens(left), title_tokens(right)
+    if not a or not b:
+        return None  # no usable tokens: not comparable, rather than a measured mismatch
     shared = len(a & b)
     if not shared:
         return 0.0

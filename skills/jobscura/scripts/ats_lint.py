@@ -12,6 +12,7 @@ guarantee. Never edits the document.
 from __future__ import annotations
 
 import argparse
+from datetime import date
 from pathlib import Path
 import re
 import zlib
@@ -184,6 +185,108 @@ def parse_preview(text, lang=None):
             "limits": "Heuristic preview of a simple rule-based parser; commercial systems differ."}
 
 
+def sensitive_identifiers(text):
+    """Detect on original text; checksums reduce accidental numeric matches."""
+    found = []
+    for m in re.finditer(r"(?<!\w)(?:[0-9][ -]?){12,18}[0-9](?!\w)", text):
+        digits = re.sub(r"\D", "", m.group())
+        doubled = [int(c) * (2 if i % 2 else 1) for i, c in enumerate(digits[::-1])]
+        if 13 <= len(digits) <= 19 and sum(n - 9 if n > 9 else n for n in doubled) % 10 == 0:
+            found.append((m.start(), m.end(), "payment_card"))
+    for m in re.finditer(r"(?<!\w)[A-Z]{2}[0-9]{2}(?: ?[A-Z0-9]){11,30}(?!\w)", text, re.I):
+        # A following uppercase word must not swallow a valid spaced IBAN.
+        for end in range(len(m.group()), 14, -1):
+            candidate = m.group()[:end]
+            if candidate.endswith(" ") or (m.start() + end < len(text) and text[m.start() + end].isalnum()):
+                continue
+            value = candidate.replace(" ", "").upper()
+            if not 15 <= len(value) <= 34:
+                continue
+            rotated = value[4:] + value[:4]
+            number = "".join(str(ord(c) - 55) if c.isalpha() else c for c in rotated)
+            if int(number) % 97 == 1:
+                found.append((m.start(), m.start() + end, "iban"))
+                break
+    for m in re.finditer(r"(?<!\w)([0-9]{3})([- ]?)([0-9]{2})\2([0-9]{4})(?!\w)", text):
+        area, _, group, serial = m.groups()
+        if area not in {"000", "666"} and not area.startswith("9") and group != "00" and serial != "0000" and len(set(area + group + serial)) > 1:
+            found.append((m.start(), m.end(), "ssn"))
+    # Match a short value grammar, not arbitrary words near a privacy label.
+    delimiter = r"[ \t]*(?:[:#=][ \t]*)?"
+    month = r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?"
+    dob_value = (r"(?:[0-9]{4}[-/.][0-9]{1,2}[-/.][0-9]{1,2}"
+                 r"|[0-9]{1,2}[-/.][0-9]{1,2}[-/.][0-9]{4}"
+                 r"|[0-9]{1,2}[ \t]+" + month + r"[ \t,]+[0-9]{4}"
+                 r"|" + month + r"[ \t]+[0-9]{1,2},?[ \t]+[0-9]{4})")
+    passport_value = r"(?=[A-Z0-9-]{5,20}(?![\w-]))(?=[A-Z0-9-]*[0-9])[A-Z0-9]+(?:-[A-Z0-9]+)*"
+    for kind, label, value in (
+            ("date_of_birth", r"\b(?:date[ \t]+of[ \t]+birth|dob)\b", dob_value),
+            ("passport", r"\bpassport(?:[ \t]+(?:number|no\.?))?\b", passport_value)):
+        for m in re.finditer(label + delimiter + r"(?P<value>" + value + r")(?![\w/-])", text, re.I):
+            found.append((m.start("value"), m.end("value"), kind))
+    return sorted(set(found))
+
+
+def mask_report(value, replacements=()):
+    """Sanitize every JSON string, including preview, filenames and metadata."""
+    if isinstance(value, str):
+        spans = sensitive_identifiers(value)
+        for start, end, _ in sorted(spans, reverse=True):
+            value = value[:start] + "[masked]" + value[end:]
+        for original in replacements:
+            value = value.replace(original, "[masked]")
+        return value
+    if isinstance(value, list):
+        return [mask_report(v, replacements) for v in value]
+    if isinstance(value, dict):
+        return {mask_report(k, replacements): mask_report(v, replacements) for k, v in value.items()}
+    return value
+
+
+def chronology_checks(preview, findings, as_of):
+    months = {name: i for i, name in enumerate(
+        ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
+
+    def month(token, end=False):
+        token = token.strip().lower()
+        if token in {"present", "current", "now", "today"}:
+            return as_of.year * 12 + as_of.month - 1
+        year = int(re.search(r"(?:19|20)\d{2}", token).group())
+        if "/" in token:
+            number = int(token.split("/")[0])
+        elif token[:3] in months:
+            number = months[token[:3]]
+        else:
+            number = 12 if end else 1
+        return year * 12 + number - 1
+
+    ranges = []
+    issues = []
+    for entry in preview["experience_entries"]:
+        parts = re.split(r"\s*(?:-|–|—|\bto\b|\buntil\b)\s*", entry["dates"], flags=re.I)
+        start, end = month(parts[0]), month(parts[1], True)
+        line = entry["line"]
+        if end < start:
+            issues.append({"kind": "end_before_start", "line": line})
+        if start > as_of.year * 12 + as_of.month - 1:
+            issues.append({"kind": "future_start", "line": line})
+        elif end >= start:
+            ranges.append((start, end, line))
+    # Compare against the union of preceding roles, avoiding spurious gaps inside long roles.
+    latest_end, latest_line = None, None
+    for start, end, line in sorted(ranges):
+        if latest_end is not None:
+            if start <= latest_end:
+                issues.append({"kind": "overlap", "lines": [latest_line, line]})
+            elif start - latest_end - 1 > 6:
+                issues.append({"kind": "gap", "lines": [latest_line, line], "months": start - latest_end - 1})
+        if latest_end is None or end > latest_end:
+            latest_end, latest_line = end, line
+    if issues:
+        findings.add("chronology", "info", "Review dated experience entries (gaps over 6 months). Concurrent roles and gaps can be legitimate; year-only dates use January through December. Do not add unsupported activity.",
+                     {"as_of": as_of.isoformat(), "gap_threshold_months": 6, "issues": issues})
+
+
 class Findings:
     def __init__(self):
         self.items = []
@@ -195,7 +298,16 @@ class Findings:
         self.items.append(item)
 
 
-def text_checks(text, findings, facts, lang=None):
+def text_checks(text, findings, facts, lang=None, forbid=()):
+    identifiers = sensitive_identifiers(text)
+    if identifiers:
+        findings.add("sensitive_identifier_in_document", "warning",
+                     "Sensitive identifiers may be unnecessary in an application document.",
+                     [{"kind": kind, "value": "[masked]"} for _, _, kind in identifiers])
+    placeholders = re.findall(r"\[[^\]\n]+\]|\{\{[^}\n]+\}\}|<insert\b[^>\n]*>|\bXX%|\$XX\b|\bTBD\b|\blorem\s+ipsum\b", text, re.I)
+    placeholders.extend(term for term in forbid if term and re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", text, re.I))
+    if placeholders:
+        findings.add("placeholder_text", "warning", "Review unfilled placeholders or forbidden terms.", placeholders)
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     facts["words"] = len(re.findall(r"\b\w+\b", text))
     facts["has_email"] = bool(EMAIL.search(text))
@@ -223,6 +335,7 @@ def text_checks(text, findings, facts, lang=None):
                          or 0x100000 <= ord(c) <= 0x10FFFD)
     counts = {"cid": len(cid), "replacement": text.count("\ufffd"),
               "private_use": sum(private(c) for c in text),
+              "decomposed_accents": len(re.findall(r"[^\W\d_][\u0300-\u036f]+", text)),
               "ligature": sum(0xFB00 <= ord(c) <= 0xFB06 for c in text)}
     # A CID placeholder represents one extracted glyph, not its seven-plus ASCII characters.
     visible = sum(not c.isspace() for c in remainder) + len(cid)
@@ -232,7 +345,9 @@ def text_checks(text, findings, facts, lang=None):
     if ratio >= 0.005:
         findings.add("garbled_glyphs", "blocker" if ratio >= 0.05 else "warning",
                      "Extracted text contains suspect glyphs: " + ", ".join(k for k, v in counts.items() if v) +
-                     ". Check the source document and its text export.", facts["garbled_glyphs"])
+                     ". Check the source document and its text export; normalize decomposed accents to NFC.", facts["garbled_glyphs"])
+    if counts["decomposed_accents"] and ratio < 0.005:
+        findings.add("garbled_glyphs", "info", "Decomposed accents were extracted; normalize to NFC for reliable text matching.", facts["garbled_glyphs"])
     odd = sorted({c for c in text if private(c)})
     if odd:
         findings.add("private_use_glyphs", "warning", "Private-use characters (often icon fonts or symbol bullets) may "
@@ -376,7 +491,14 @@ def lint_pdf(data, findings, facts):
     return ""
 
 
-def lint(path, lang=None):
+def lint(path, lang=None, as_of=None, forbid=()):
+    if isinstance(as_of, str):
+        require(bool(re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", as_of)),
+                "--as-of must be a valid YYYY-MM-DD date")
+    try:
+        as_of = date.fromisoformat(as_of) if isinstance(as_of, str) else (as_of or date.today())
+    except ValueError as exc:
+        raise ToolError("--as-of must be a valid YYYY-MM-DD date") from exc
     require(lang is None or lang in HEADING_SYNONYMS, "unsupported heading language")
     p = Path(path)
     data = common.read_input(p)
@@ -394,8 +516,9 @@ def lint(path, lang=None):
     else:
         raise ToolError("supported formats: .docx, .pdf, .txt, .md")
     if text:
-        text_checks(text, findings, facts, lang)
+        text_checks(text, findings, facts, lang, forbid)
         preview = parse_preview(text, lang)
+        chronology_checks(preview, findings, as_of)
         facts["parse_preview"] = preview
         if preview["sections"]:  # resume-like; letters and the headings check above cover the rest
             for warning in preview["warnings"]:
@@ -409,10 +532,15 @@ def lint(path, lang=None):
     items = sorted(findings.items, key=lambda f: order[f["severity"]])
     status = ("blocking_issues" if any(f["severity"] == "blocker" for f in items) else
               "warnings" if any(f["severity"] == "warning" for f in items) else "no_issues_found")
-    return {"schema_version": 1, "tool": "ats_lint", "tool_version": VERSION, "status": status, "findings": items,
+    result = {"schema_version": 1, "tool": "ats_lint", "tool_version": VERSION, "status": status, "findings": items,
             "facts": facts,
             "limits": "Structural heuristics only. Applicant-tracking systems differ; a clean result is not a "
                       "guarantee, and layout must still be checked visually in a renderer."}
+    # Redact after analysis. Excerpts collapse whitespace, so retain both spellings
+    # to mask unchecksummed values even when their label was outside the excerpt.
+    originals = {value for a, b, _ in sensitive_identifiers(text)
+                 for value in (text[a:b], " ".join(text[a:b].split()))}
+    return mask_report(result, sorted(originals, key=lambda value: (-len(value), value)))
 
 
 def main(argv=None):
@@ -420,10 +548,12 @@ def main(argv=None):
     parser.add_argument("--version", action="version", version=VERSION)
     parser.add_argument("document", help=".docx, .pdf, .txt or .md file")
     parser.add_argument("--out")
+    parser.add_argument("--as-of", help="chronology reference date (YYYY-MM-DD; default today)")
+    parser.add_argument("--forbid", action="append", default=[], help="term to flag; repeatable")
     parser.add_argument("--lang", choices=sorted(HEADING_SYNONYMS),
                         help="heading language; omit to accept all supported languages")
     args = parser.parse_args(argv)
-    return common.run_cli(lambda: common.emit(lint(args.document, args.lang), args.out))
+    return common.run_cli(lambda: common.emit(lint(args.document, args.lang, args.as_of, args.forbid), args.out))
 
 
 if __name__ == "__main__":

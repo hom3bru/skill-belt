@@ -138,7 +138,7 @@ def compare(before_path, after_path, overrides=None):
                 review.append({"kind": "location_variant", "record_id": rid, "related_to": other_id,
                                "title_similarity": similarity,
                                "note": "same role in another location; not a repost"})
-            elif similarity >= TITLE_MATCH:
+            elif similarity is not None and similarity >= TITLE_MATCH:
                 candidates.append({"record_id": rid, "related_to": other_id, "title_similarity": round(similarity, 2),
                                    "note": "different requisition/URL, similar title at the same employer: link as a "
                                            "possible repost; never merge or overwrite the earlier record",

@@ -54,3 +54,15 @@ exact upload-slot kind/filename checks, a source snapshot and a non-overwriting
 packet manifest. This supplements rather than replaces the factual, editorial and
 rendered layout checks above. A writing sample is not a cover letter; preserve
 the exact requested artifact kind and never relabel one to satisfy another slot.
+
+
+## Personal details and local conventions
+
+Follow the posting's requested language and country conventions when choosing
+presentation; do not infer nationality from language, name or location. Do not add
+a photo, date of birth, age, marital status or nationality unless the employer
+explicitly asks or the user chooses after being told the privacy and bias risks.
+If requested, surface the request and let the user decide what to disclose; check
+[integrity and safety](../../../references/integrity-and-safety.md) before sharing
+sensitive information. This is advisory presentation guidance, not a claim about
+any country's law. Do not treat a local custom as a mandatory disclosure rule.

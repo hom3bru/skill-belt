@@ -2,6 +2,19 @@
 
 ## 0.5.0 - Full-cycle toolkit with deterministic helpers
 
+Round-three adopt-adapt additions (independently reimplemented; no donor code or prose copied):
+
+- J1–J4: masked sensitive-identifier and leftover-placeholder warnings, deterministic chronology
+  review and decomposed-accent extraction checks.
+- J5–J6: evidence-bound proficiency atoms and numeric direction-mismatch review flags.
+- J7–J8: mixed-script and variation-selector evasion signals, additional hidden CSS and narrow
+  instruction patterns; Unicode title comparison with explicit unavailable comparisons.
+- J9–J12: independently usable sub-skill safety guards, defensible years/self-ratings,
+  personal-detail conventions and role-specific eligibility/language gates.
+- J13–J18: stage-specific interviewer questions, structured debriefs, likely-concern registers,
+  salary-stage handling, a paste-back practice log and recurring recorded requirement gaps.
+- J19: helper documentation, regression controls and refreshed public byte inventories.
+
 Transfers from a second adopt-adapt review of the repositories that shaped Jobscura:
 
 - A1: check entity/date combinations within evidence windows (SimplyApply; AGPL idea only).

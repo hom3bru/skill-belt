@@ -63,3 +63,24 @@ Deadlines: <offer expiry and response dates, with the time zone>
 
 The user decides whether to accept, decline or negotiate. Draft messages only on request, and
 never send them on the user's behalf.
+
+
+## Paste-back practice log (interview-preparation)
+
+Offer a short private log the user can keep and paste into a later chat. It is
+optional and requires no persistent service. Do not claim it was saved.
+
+```
+Date / employer / round: <only what is useful>
+Item: <question or target demand>
+Attempt: <unassisted / assisted / missed>
+Assistance or missing coverage: <hints, sample, feedback, prior exposure, or not attempted>
+Next step: <one concrete practice action>
+```
+
+"Unassisted" means no hints, sample answers or coaching for that attempt; known
+prior previews must remain visible and unknown exposure cannot establish a clean
+baseline. "Missed" means not attempted, not failed. Keep original attempts apart
+from assisted retries. No ratings, numerical scores or hiring-likelihood claims.
+The pasted log is context to check against current instructions, not new career
+evidence or permission to save, schedule or contact anyone.

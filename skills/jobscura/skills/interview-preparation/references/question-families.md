@@ -47,3 +47,34 @@ former employer. Disclosure choices belong to the user under
 
 A mock interviewer must never ask about protected characteristics. Keep practice
 questions focused on the role and permitted evidence.
+
+
+## Questions for the interviewer
+
+Choose a few questions from the user's own priorities and dated, sourced employer
+facts. Keep the source and date in private preparation notes; distinguish a fact
+from a hypothesis to ask about. Match the question to the actual stage:
+
+- Screen: clarify role scope, process, work arrangement and material constraints.
+- Hiring manager: ask about first priorities, success expectations and resources.
+- Panel: ask about collaboration, handoffs and how competing decisions are resolved.
+- Final: clarify remaining decision factors, commitments and unresolved terms.
+
+Avoid questions already answered in the materials, requests for confidential or
+personal information, hostile assumptions and generic questions unrelated to the
+user's priorities. Do not pretend to know an employer's internal practice.
+For each selected question, prepare a truthful short answer if asked back:
+why it matters to the user, their actual relevant experience or preference, and
+what they still need to learn. A sample answer cannot supply a new career fact.
+
+## Likely-concerns register
+
+Build a private register from coverage gaps, actual history and the posting,
+linking each concern to its evidence and marking unknowns. Describe severity in
+words (for example, essential gap or clarification needed), never a score or a
+prediction of what this interviewer thinks. For each concern record the direct
+question, a subtle probe and a follow-up challenge so the user can practise each.
+Counters must come only from true history. Reuse the answer shapes above:
+actual incidents for past behavior, intended methods labeled as hypothetical,
+and honest job-change, gap or short-tenure explanations. Keep missing experience
+explicit; do not manufacture a counter, resolved outcome or later learning.
