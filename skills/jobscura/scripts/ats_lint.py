@@ -22,11 +22,34 @@ from jobscura_common import W, ToolError, excerpt, require
 VERSION = "1.0.0"
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE = re.compile(r"(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)|\d{2,4})[\s.-]?\d{3,4}[\s.-]?\d{3,4}")
-STANDARD_HEADINGS = {
-    "experience": re.compile(r"^(?:work |professional |relevant |employment )?(?:experience|history|employment)\b", re.I),
-    "education": re.compile(r"^(?:education|academic|qualifications|training)\b", re.I),
-    "skills": re.compile(r"^(?:skills|technical skills|core skills|competenc|expertise|tools)\b", re.I),
+# Independently authored vocabulary; complete phrases keep prose out of sections.
+HEADING_SYNONYMS = {
+    "en": {"experience": ("experience", "work experience", "professional experience", "relevant experience", "employment experience", "history", "work history", "career history", "professional history", "employment history", "employment"),
+           "education": ("education", "academic", "qualifications", "training"),
+           "skills": ("skills", "technical skills", "core skills", "competencies", "expertise", "tools"),
+           "projects": ("projects",), "summary": ("summary", "profile", "objective"),
+           "certifications": ("certifications", "licenses"), "awards": ("awards",),
+           "publications": ("publications",), "volunteer": ("volunteer",),
+           "languages": ("languages",), "interests": ("interests",), "references": ("references",)},
+    "es": {"experience": ("experiencia", "experiencia laboral", "experiencia profesional"),
+           "education": ("educación", "formación", "formación académica"),
+           "skills": ("habilidades", "competencias", "aptitudes")},
+    "fr": {"experience": ("expérience", "expériences", "expérience professionnelle", "expériences professionnelles"),
+           "education": ("formation", "formations", "éducation"),
+           "skills": ("compétences", "compétences techniques")},
+    "pt": {"experience": ("experiência", "experiência profissional"),
+           "education": ("educação", "formação", "formação acadêmica", "formação académica"),
+           "skills": ("habilidades", "competências")},
+    "de": {"experience": ("berufserfahrung", "erfahrung", "beruflicher werdegang"),
+           "education": ("ausbildung", "bildung", "studium"),
+           "skills": ("fähigkeiten", "kenntnisse", "kompetenzen")},
+    "it": {"experience": ("esperienza", "esperienze", "esperienza professionale", "esperienze professionali"),
+           "education": ("istruzione", "formazione"),
+           "skills": ("competenze", "abilità")},
 }
+STANDARD_HEADINGS = {"experience", "education", "skills"}
+JOINER = re.compile(r"\s+(?:&|and|y|et|e|und)\s+", re.I)
+
 DATE_STYLES = {
     "Mon YYYY": re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.? (?:19|20)\d{2}\b"),
     "MM/YYYY": re.compile(r"\b(?:0?[1-9]|1[0-2])/(?:19|20)\d{2}\b"),
@@ -46,13 +69,6 @@ APP_TEMPLATE = "{http://schemas.openxmlformats.org/officeDocument/2006/extended-
 # What a simple rule-based resume parser would probably extract: contact block, section
 # titles, dated experience entries and education lines. Independent rules, inspired by the
 # documented approach of open-source parsers (profile block + section titles + field scoring).
-SECTION_WORDS = [("work history", "experience"), ("career history", "experience"), ("employment", "experience"),
-                 ("experience", "experience"), ("education", "education"), ("training", "education"),
-                 ("qualifications", "education"), ("skills", "skills"), ("competencies", "skills"),
-                 ("expertise", "skills"), ("projects", "projects"), ("summary", "summary"), ("profile", "summary"),
-                 ("objective", "summary"), ("certifications", "certifications"), ("licenses", "certifications"),
-                 ("awards", "awards"), ("publications", "publications"), ("volunteer", "volunteer"),
-                 ("languages", "languages"), ("interests", "interests"), ("references", "references")]
 DATE_TOKEN = (r"(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}"
               r"|(?:0?[1-9]|1[0-2])/(?:19|20)\d{2}|(?:19|20)\d{2})")
 DATE_RANGE = re.compile(DATE_TOKEN + r"\s*(?:-|–|—|to|until)\s*(?:" + DATE_TOKEN + r"|present|current|now|today)", re.I)
@@ -63,21 +79,33 @@ LINK = re.compile(r"(?:https?://|www\.)\S+|\b(?:linkedin\.com|github\.com)/\S+",
 PLACE = re.compile(r"\b[A-Z][a-zA-Z.'\- ]{1,40},\s*(?:[A-Z]{2}\b|[A-Z][a-zA-Z]+)")
 
 
-def section_of(line):
-    text = line.strip().rstrip(":").strip()
-    words = text.split()
-    if not words or len(words) > 5 or re.search(r"\d", text) or text.endswith((".", ",", ";")):
-        return None
-    styled = text.isupper() or line.strip().endswith(":") or all(w[0].isupper() for w in words if len(w) > 3 and w[0].isalpha())
-    lowered = text.casefold()
-    if styled:
-        for word, canonical in SECTION_WORDS:
-            if word in lowered:
-                return canonical
-    return None
+def heading_text(line):
+    text = " ".join(line.strip().rstrip(":").split())
+    letters = text.split()
+    # Only rejoin capitals, never ordinary prose or short initialisms.
+    if len(letters) >= 5 and all(len(c) == 1 and c.isalpha() and c.isupper() for c in letters):
+        return "".join(letters)
+    return text
 
 
-def name_score(line):
+def heading_sections(line, lang=None):
+    text = heading_text(line).casefold()
+    tables = HEADING_SYNONYMS.values() if lang is None else (HEADING_SYNONYMS[lang],)
+    lookup = {word: canonical for table in tables for canonical, words in table.items() for word in words}
+    if text in lookup:
+        return [lookup[text]]
+    parts = JOINER.split(text)
+    if len(parts) > 1 and all(part in lookup for part in parts):
+        return list(dict.fromkeys(lookup[part] for part in parts))
+    return []
+
+
+def section_of(line, lang=None):
+    sections = heading_sections(line, lang)
+    return sections[0] if sections else None
+
+
+def name_score(line, lang=None):
     text = line.strip()
     words = text.split()
     score = 0
@@ -89,27 +117,27 @@ def name_score(line):
         score += 1
     if "@" in text or re.search(r"\d|https?:|www\.", text):
         score -= 5
-    if section_of(text) or re.search(r"\b(resume|résumé|curriculum vitae|cv)\b", text, re.I):
+    if section_of(text, lang) or re.search(r"\b(resume|résumé|curriculum vitae|cv)\b", text, re.I):
         score -= 4
     if len(words) > 5:
         score -= 3
     return score
 
 
-def parse_preview(text):
+def parse_preview(text, lang=None):
     lines = [(n, l.strip()) for n, l in enumerate(text.splitlines(), 1) if l.strip()]
     sections, current, profile = [], None, []
     for number, line in lines:
-        canonical = section_of(line)
+        canonical = section_of(line, lang)
         if canonical:
-            current = {"title": line.rstrip(":"), "as": canonical, "line": number, "lines": []}
+            current = {"title": heading_text(line), "as": canonical, "line": number, "lines": []}
             sections.append(current)
         elif current is None:
             profile.append((number, line))
         else:
             current["lines"].append((number, line))
     head = profile[:8]
-    scored = sorted(((name_score(l), n, l) for n, l in head), key=lambda x: (-x[0], x[1]))
+    scored = sorted(((name_score(l, lang), n, l) for n, l in head), key=lambda x: (-x[0], x[1]))
     name = scored[0] if scored and scored[0][0] > 0 else None
     first = lambda pattern, pool: next((m.group(0) for _, l in pool for m in [pattern.search(l)] if m), None)
     contact = {"email": first(EMAIL, head), "phone": first(PHONE, head),
@@ -155,12 +183,12 @@ class Findings:
         self.items.append(item)
 
 
-def text_checks(text, findings, facts):
+def text_checks(text, findings, facts, lang=None):
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     facts["words"] = len(re.findall(r"\b\w+\b", text))
     facts["has_email"] = bool(EMAIL.search(text))
     facts["has_phone"] = bool(PHONE.search(text))
-    found = {name for name, pattern in STANDARD_HEADINGS.items() if any(pattern.match(line) and len(line) <= 40 for line in lines)}
+    found = {name for line in lines for name in heading_sections(line, lang) if name in STANDARD_HEADINGS}
     facts["standard_sections"] = sorted(found)
     missing = sorted(set(STANDARD_HEADINGS) - found)
     if missing:
@@ -172,7 +200,28 @@ def text_checks(text, findings, facts):
     if len(styles) > 1:
         findings.add("mixed_date_formats", "info", "Several date formats are used; one consistent style parses more reliably.",
                      sorted(styles))
-    odd = sorted({c for c in text if 0xE000 <= ord(c) <= 0xF8FF})
+    spaced = [line for line in lines if heading_text(line) != line.rstrip(":").strip()
+              and section_of(line, lang) and re.fullmatch(r"(?:[^\W\d_]\s+){4,}[^\W\d_]:?", line)]
+    if spaced:
+        findings.add("letter_spaced_headings", "warning",
+                     "Some parsers read letter-spaced headings as separate letters.", spaced)
+    cid = re.findall(r"\(cid:\d+\)", text)
+    remainder = re.sub(r"\(cid:\d+\)", "", text)
+    private = lambda c: (0xE000 <= ord(c) <= 0xF8FF or 0xF0000 <= ord(c) <= 0xFFFFD
+                         or 0x100000 <= ord(c) <= 0x10FFFD)
+    counts = {"cid": len(cid), "replacement": text.count("\ufffd"),
+              "private_use": sum(private(c) for c in text),
+              "ligature": sum(0xFB00 <= ord(c) <= 0xFB06 for c in text)}
+    # A CID placeholder represents one extracted glyph, not its seven-plus ASCII characters.
+    visible = sum(not c.isspace() for c in remainder) + len(cid)
+    ratio = sum(counts.values()) / visible if visible else 0.0
+    facts["garbled_glyphs"] = {"classes": {k: v for k, v in counts.items() if v},
+                               "visible_characters": visible, "ratio": ratio}
+    if ratio >= 0.005:
+        findings.add("garbled_glyphs", "blocker" if ratio >= 0.05 else "warning",
+                     "Extracted text contains suspect glyphs: " + ", ".join(k for k, v in counts.items() if v) +
+                     ". Check the source document and its text export.", facts["garbled_glyphs"])
+    odd = sorted({c for c in text if private(c)})
     if odd:
         findings.add("private_use_glyphs", "warning", "Private-use characters (often icon fonts or symbol bullets) may "
                      "extract as garbage.", [f"U+{ord(c):04X}" for c in odd[:10]])
@@ -315,7 +364,8 @@ def lint_pdf(data, findings, facts):
     return ""
 
 
-def lint(path):
+def lint(path, lang=None):
+    require(lang is None or lang in HEADING_SYNONYMS, "unsupported heading language")
     p = Path(path)
     data = common.read_input(p)
     suffix = p.suffix.casefold()
@@ -332,8 +382,8 @@ def lint(path):
     else:
         raise ToolError("supported formats: .docx, .pdf, .txt, .md")
     if text:
-        text_checks(text, findings, facts)
-        preview = parse_preview(text)
+        text_checks(text, findings, facts, lang)
+        preview = parse_preview(text, lang)
         facts["parse_preview"] = preview
         if preview["sections"]:  # resume-like; letters and the headings check above cover the rest
             for warning in preview["warnings"]:
@@ -358,8 +408,10 @@ def main(argv=None):
     parser.add_argument("--version", action="version", version=VERSION)
     parser.add_argument("document", help=".docx, .pdf, .txt or .md file")
     parser.add_argument("--out")
+    parser.add_argument("--lang", choices=sorted(HEADING_SYNONYMS),
+                        help="heading language; omit to accept all supported languages")
     args = parser.parse_args(argv)
-    return common.run_cli(lambda: common.emit(lint(args.document), args.out))
+    return common.run_cli(lambda: common.emit(lint(args.document, args.lang), args.out))
 
 
 if __name__ == "__main__":
