@@ -30,13 +30,21 @@ same review by hand and say that the helper did not run.
 - `sensitive_identifier_in_document` reports kinds and masked values only. Card and IBAN checks
   use checksums; SSN-shaped values use invalidation rules; date-of-birth and passport checks
   require nearby whole-word labels. These heuristics can miss private material: review the file.
+  SSNs need separated groups or an explicit SSN label; phone-shaped card candidates are excluded.
+  Masking also covers underscore-separated filenames and input errors.
 - `--forbid TERM` is repeatable for leftover names or other user-selected text. Placeholder
   warnings are review prompts; brackets can be intentional. `--as-of` makes chronology review
   reproducible; the default is today's date. Concurrent roles and gaps can be legitimate.
+  Shared boundary months/years are handovers, not definite overlaps. Composable accents produce
+  separate informational `decomposed_accents` advice and never increase the corruption ratio;
+  combining sequences already in NFC do not need that advice.
 - Posting scans fold a limited set of visual confusables inside mixed Latin/Greek/Cyrillic words,
   report those words, decode variation-selector runs and inspect additional inline hiding styles.
   Credential-file and command instructions are signals, while bare SSH, curl and AI job vocabulary
   remain ordinary posting data. This is bounded heuristic coverage, not an injection guarantee.
+  Bare reader commands to open a secret configuration file, private-key reads and requests to
+  disclose secrets remain signals; ordinary configuration duties and public-key handling do not.
+  Confusables are folded once per text unit; ASCII text skips Unicode script analysis.
 - Title comparison uses Unicode words with NFKC normalization and casefolding. No usable title
   tokens means not comparable (`null`), rather than a measured zero similarity. The unused
   `jobscura_common.shingles()` helper has no caller: board records currently lack description text.

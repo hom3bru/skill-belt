@@ -185,15 +185,29 @@ def strip_css_comments(style):
 
 def hidden_inline_style(style):
     style = strip_css_comments(style)
+    pairs = []
+    for part in style.casefold().split(";"):
+        if ":" not in part:
+            continue
+        key, value = part.split(":", 1)
+        value = value.strip()
+        if value.endswith("!important"):
+            value = value[:-len("!important")].rstrip()
+        pairs.append((key.strip(), value))
+    painted = (any(key in {"background", "background-image"} and "gradient(" in value for key, value in pairs)
+               and any(key in {"background-clip", "-webkit-background-clip"} and value == "text" for key, value in pairs))
+    if painted:
+        # A gradient clipped to text paints the glyphs even with a transparent
+        # foreground. Custom properties and border images do not paint glyphs.
+        style = ";".join(key + ":" + value for key, value in pairs
+                         if not (key == "color" and value == "transparent"))
     if HIDDEN_STYLE.search(style):
         return True
     # Exact declaration names avoid custom properties such as --overflow;
     # exact values avoid treating hidden-visible or nonzero dimensions as zero.
-    declarations = [part.split(":", 1) for part in style.casefold().split(";") if ":" in part]
-    values = [(key.strip(), re.sub(r"\s*!important\s*$", "", value).strip()) for key, value in declarations]
-    return (any(key == "overflow" and value == "hidden" for key, value in values)
+    return (any(key == "overflow" and value == "hidden" for key, value in pairs)
             and any(key in {"height", "width"} and re.fullmatch(r"0(?:\.0+)?(?:px|pt|em|rem|%)?", value)
-                    for key, value in values))
+                    for key, value in pairs))
 
 
 class HTMLText(HTMLParser):

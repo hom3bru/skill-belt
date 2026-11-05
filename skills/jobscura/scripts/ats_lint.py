@@ -15,6 +15,7 @@ import argparse
 from datetime import date
 from pathlib import Path
 import re
+import unicodedata
 import zlib
 
 import jobscura_common as common
@@ -51,8 +52,11 @@ HEADING_SYNONYMS = {
 STANDARD_HEADINGS = {"experience", "education", "skills"}
 JOINER = re.compile(r"\s+(?:&|and|y|et|e|und)\s+", re.I)
 
+MONTH = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|"
+         r"Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)")
+
 DATE_STYLES = {
-    "Mon YYYY": re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.? (?:19|20)\d{2}\b"),
+    "Mon YYYY": re.compile(r"\b" + MONTH + r"\.? (?:19|20)\d{2}\b", re.I),
     "MM/YYYY": re.compile(r"\b(?:0?[1-9]|1[0-2])/(?:19|20)\d{2}\b"),
     "YYYY-MM": re.compile(r"\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])\b"),
 }
@@ -70,9 +74,12 @@ APP_TEMPLATE = "{http://schemas.openxmlformats.org/officeDocument/2006/extended-
 # What a simple rule-based resume parser would probably extract: contact block, section
 # titles, dated experience entries and education lines. Independent rules, inspired by the
 # documented approach of open-source parsers (profile block + section titles + field scoring).
-DATE_TOKEN = (r"(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(?:19|20)\d{2}"
+DATE_TOKEN = (r"(?:" + MONTH + r"\.?\s+(?:19|20)\d{2}"
               r"|(?:0?[1-9]|1[0-2])/(?:19|20)\d{2}|(?:19|20)\d{2})")
-DATE_RANGE = re.compile(DATE_TOKEN + r"\s*(?:-|–|—|to|until)\s*(?:" + DATE_TOKEN + r"|present|current|now|today)", re.I)
+DATE_RANGE = re.compile(r"(?<![A-Za-z0-9])(?P<start>" + DATE_TOKEN +
+                        r")\s*(?:-|–|—|to|until)\s*(?P<end>" + DATE_TOKEN +
+                        r"|present|current|now|today)(?![A-Za-z0-9])", re.I)
+
 INSTITUTION = re.compile(r"\b(university|college|institute|school|academy|polytechnic|conservatoire)\b", re.I)
 DEGREE = re.compile(r"\b(bachelor\w*|master\w*|ph\.?\s?d|doctorate|diploma|certificate|associate|mba|b\.?sc|m\.?sc|b\.?a|m\.?a|"
                     r"gcse|a-levels?)\b", re.I)
@@ -189,6 +196,9 @@ def sensitive_identifiers(text):
     """Detect on original text; checksums reduce accidental numeric matches."""
     found = []
     for m in re.finditer(r"(?<!\w)(?:[0-9][ -]?){12,18}[0-9](?!\w)", text):
+        # A checksum alone cannot distinguish an international mobile from a card.
+        if (m.start() > 0 and text[m.start() - 1] == "+") or PHONE.fullmatch(m.group()):
+            continue
         digits = re.sub(r"\D", "", m.group())
         doubled = [int(c) * (2 if i % 2 else 1) for i, c in enumerate(digits[::-1])]
         if 13 <= len(digits) <= 19 and sum(n - 9 if n > 9 else n for n in doubled) % 10 == 0:
@@ -207,10 +217,16 @@ def sensitive_identifiers(text):
             if int(number) % 97 == 1:
                 found.append((m.start(), m.start() + end, "iban"))
                 break
-    for m in re.finditer(r"(?<!\w)([0-9]{3})([- ]?)([0-9]{2})\2([0-9]{4})(?!\w)", text):
+    for m in re.finditer(r"(?<!\w)([0-9]{3})([- ])([0-9]{2})\2([0-9]{4})(?!\w)", text):
         area, _, group, serial = m.groups()
         if area not in {"000", "666"} and not area.startswith("9") and group != "00" and serial != "0000" and len(set(area + group + serial)) > 1:
             found.append((m.start(), m.end(), "ssn"))
+    for m in re.finditer(r"\b(?:ssn|social[ \t]+security(?:[ \t]+number)?)[ \t]*[:#=]?[ \t]*(?P<value>[0-9]{9})(?!\w)", text, re.I):
+        digits = m.group("value")
+        # Reuse exactly the separated SSN validation, retaining original offsets.
+        shaped = digits[:3] + "-" + digits[3:5] + "-" + digits[5:]
+        if sensitive_identifiers(shaped):
+            found.append((m.start("value"), m.end("value"), "ssn"))
     # Match a short value grammar, not arbitrary words near a privacy label.
     delimiter = r"[ \t]*(?:[:#=][ \t]*)?"
     month = r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?"
@@ -230,7 +246,7 @@ def sensitive_identifiers(text):
 def mask_report(value, replacements=()):
     """Sanitize every JSON string, including preview, filenames and metadata."""
     if isinstance(value, str):
-        spans = sensitive_identifiers(value)
+        spans = sensitive_identifiers(value.replace("_", " "))
         for start, end, _ in sorted(spans, reverse=True):
             value = value[:start] + "[masked]" + value[end:]
         for original in replacements:
@@ -263,27 +279,33 @@ def chronology_checks(preview, findings, as_of):
     ranges = []
     issues = []
     for entry in preview["experience_entries"]:
-        parts = re.split(r"\s*(?:-|–|—|\bto\b|\buntil\b)\s*", entry["dates"], flags=re.I)
-        start, end = month(parts[0]), month(parts[1], True)
+        match = DATE_RANGE.fullmatch(entry["dates"])
+        if not match:  # Preview callers may supply an entry without two endpoints.
+            continue
+        start_token, end_token = match.group("start", "end")
+        start, end = month(start_token), month(end_token, True)
         line = entry["line"]
-        if end < start:
-            issues.append({"kind": "end_before_start", "line": line})
         if start > as_of.year * 12 + as_of.month - 1:
             issues.append({"kind": "future_start", "line": line})
-        elif end >= start:
-            ranges.append((start, end, line))
+        if end < start and end_token.casefold() not in {"present", "current", "now", "today"}:
+            issues.append({"kind": "end_before_start", "line": line})
+        if start <= as_of.year * 12 + as_of.month - 1 and end >= start:
+            ranges.append((start, end, line, bool(re.fullmatch(r"[0-9]{4}", start_token)),
+                           bool(re.fullmatch(r"[0-9]{4}", end_token))))
     # Compare against the union of preceding roles, avoiding spurious gaps inside long roles.
-    latest_end, latest_line = None, None
-    for start, end, line in sorted(ranges):
+    latest_end, latest_line, latest_year_only = None, None, False
+    for start, end, line, start_year_only, end_year_only in sorted(ranges):
         if latest_end is not None:
-            if start <= latest_end:
+            handover = (start == latest_end or
+                        (start // 12 == latest_end // 12 and (start_year_only or latest_year_only)))
+            if start < latest_end and not handover:
                 issues.append({"kind": "overlap", "lines": [latest_line, line]})
             elif start - latest_end - 1 > 6:
                 issues.append({"kind": "gap", "lines": [latest_line, line], "months": start - latest_end - 1})
         if latest_end is None or end > latest_end:
-            latest_end, latest_line = end, line
+            latest_end, latest_line, latest_year_only = end, line, end_year_only
     if issues:
-        findings.add("chronology", "info", "Review dated experience entries (gaps over 6 months). Concurrent roles and gaps can be legitimate; year-only dates use January through December. Do not add unsupported activity.",
+        findings.add("chronology", "info", "Review dated experience entries (gaps over 6 months). Concurrent roles and gaps can be legitimate; year-only dates use January through December and shared boundary months/years are not treated as overlaps. Do not add unsupported activity.",
                      {"as_of": as_of.isoformat(), "gap_threshold_months": 6, "issues": issues})
 
 
@@ -304,7 +326,16 @@ def text_checks(text, findings, facts, lang=None, forbid=()):
         findings.add("sensitive_identifier_in_document", "warning",
                      "Sensitive identifiers may be unnecessary in an application document.",
                      [{"kind": kind, "value": "[masked]"} for _, _, kind in identifiers])
-    placeholders = re.findall(r"\[[^\]\n]+\]|\{\{[^}\n]+\}\}|<insert\b[^>\n]*>|\bXX%|\$XX\b|\bTBD\b|\blorem\s+ipsum\b", text, re.I)
+    placeholder_pattern = re.compile(r"\[[^\]\n]+\]|\{\{[^}\n]*\}\}|<insert\b[^>\n]*>|\bXX%|\$XX\b|\bTBD\b|\blorem\s+ipsum\b", re.I)
+    placeholders = []
+    for match in placeholder_pattern.finditer(text):
+        value = match.group()
+        if value.startswith("[") and (re.fullmatch(r"\[\d+\]", value) or
+                                       re.match(r"\s*\(", text[match.end():])):
+            continue  # Markdown link labels and numbered citations are filled content.
+        if value.startswith("{{") and not value[2:-2].strip():
+            continue
+        placeholders.append(value)
     placeholders.extend(term for term in forbid if term and re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", text, re.I))
     if placeholders:
         findings.add("placeholder_text", "warning", "Review unfilled placeholders or forbidden terms.", placeholders)
@@ -335,8 +366,15 @@ def text_checks(text, findings, facts, lang=None, forbid=()):
                          or 0x100000 <= ord(c) <= 0x10FFFD)
     counts = {"cid": len(cid), "replacement": text.count("\ufffd"),
               "private_use": sum(private(c) for c in text),
-              "decomposed_accents": len(re.findall(r"[^\W\d_][\u0300-\u036f]+", text)),
               "ligature": sum(0xFB00 <= ord(c) <= 0xFB06 for c in text)}
+    accents = sum(unicodedata.normalize("NFC", m.group()) != m.group()
+                  for m in re.finditer(r"[^\W\d_][\u0300-\u036f]+", text)
+                  if m.group()[0].isalpha())
+    facts["decomposed_accents"] = accents
+    if accents:
+        findings.add("decomposed_accents", "info",
+                     "Some extracted accents can be composed; normalize to NFC for reliable text matching.",
+                     {"count": accents})
     # A CID placeholder represents one extracted glyph, not its seven-plus ASCII characters.
     visible = sum(not c.isspace() for c in remainder) + len(cid)
     ratio = sum(counts.values()) / visible if visible else 0.0
@@ -345,9 +383,7 @@ def text_checks(text, findings, facts, lang=None, forbid=()):
     if ratio >= 0.005:
         findings.add("garbled_glyphs", "blocker" if ratio >= 0.05 else "warning",
                      "Extracted text contains suspect glyphs: " + ", ".join(k for k, v in counts.items() if v) +
-                     ". Check the source document and its text export; normalize decomposed accents to NFC.", facts["garbled_glyphs"])
-    if counts["decomposed_accents"] and ratio < 0.005:
-        findings.add("garbled_glyphs", "info", "Decomposed accents were extracted; normalize to NFC for reliable text matching.", facts["garbled_glyphs"])
+                     ". Check the source document and its text export.", facts["garbled_glyphs"])
     odd = sorted({c for c in text if private(c)})
     if odd:
         findings.add("private_use_glyphs", "warning", "Private-use characters (often icon fonts or symbol bullets) may "
@@ -501,7 +537,13 @@ def lint(path, lang=None, as_of=None, forbid=()):
         raise ToolError("--as-of must be a valid YYYY-MM-DD date") from exc
     require(lang is None or lang in HEADING_SYNONYMS, "unsupported heading language")
     p = Path(path)
-    data = common.read_input(p)
+    try:
+        data = common.read_input(p)
+    except ToolError as exc:
+        raise ToolError(mask_report(str(exc))) from None
+    except OSError as exc:
+        message = f"{type(exc).__name__}: {exc.strerror or 'file error'} ({p.name})"
+        raise ToolError(mask_report(message)) from None
     suffix = p.suffix.casefold()
     findings, facts = Findings(), {"file": p.name, "bytes": len(data), "format": suffix.lstrip(".")}
     if suffix == ".docx":

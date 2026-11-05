@@ -53,13 +53,13 @@ class Round3ATS(unittest.TestCase):
         self.assertEqual(chronology["evidence"]["as_of"], "2026-11-05")
 
     def test_identifier_separators_and_excerpt_context(self):
-        for value in ("4111111111111111", "4111-1111-1111-1111", "123 45 6789", "123456789",
+        for value in ("4111111111111111", "4111-1111-1111-1111", "123 45 6789", "SSN: 123456789",
                       "GB82WEST12345698765432", "GB82 WEST 1234 5698 7654 32"):
             with self.subTest(value=value):
                 # Put the identifier before the excerpt boundary and its label after it.
                 result = self.report("Experience\n" + value + " " + "Engineer " * 30 + "2020 - 2024\nEducation\nUniversity " + value)
                 self.assertIn("sensitive_identifier_in_document", {f["id"] for f in result["findings"]})
-                self.assertNotIn(value, json.dumps(result))
+                self.assertNotIn(value.removeprefix("SSN: "), json.dumps(result))
         result = self.report("IBAN: GB82 WEST 1234 5698 7654 32 USD")
         self.assertNotIn("GB82 WEST 1234 5698 7654 32", json.dumps(result))
 
@@ -97,9 +97,11 @@ class Round3ATS(unittest.TestCase):
 
     def test_decomposed_accents_and_nfc_control(self):
         result = self.report("Mu\u0308ller Gene\u0300ve")
-        self.assertEqual(result["facts"]["garbled_glyphs"]["classes"]["decomposed_accents"], 2)
-        self.assertIn("NFC", next(f["message"] for f in result["findings"] if f["id"] == "garbled_glyphs"))
-        self.assertNotIn("decomposed_accents", self.report("Müller Genève")["facts"]["garbled_glyphs"]["classes"])
+        self.assertEqual(result["facts"]["decomposed_accents"], 2)
+        self.assertIn("NFC", next(f["message"] for f in result["findings"] if f["id"] == "decomposed_accents"))
+        self.assertEqual(self.report("Müller Genève")["facts"]["decomposed_accents"], 0)
+        self.assertNotEqual(result["status"], "blocking_issues")
+        self.assertEqual(next(f["severity"] for f in result["findings"] if f["id"] == "decomposed_accents"), "info")
 
     def test_cli_options_and_invalid_date(self):
         with tempfile.TemporaryDirectory() as directory:

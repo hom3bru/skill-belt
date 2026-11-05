@@ -62,35 +62,71 @@ INCREASE = re.compile(r"\b(?:increase[ds]?|increasing|grew|grow|grown|growing|ra
 DECREASE = re.compile(r"\b(?:decrease[ds]?|decreasing|reduce[ds]?|reducing|cut|cuts|cutting|lower(?:ed|ing)?|lower|drop(?:ped|ping)?|declin(?:e[ds]?|ing))\b", re.I)
 
 
+def skill_tokens(text):
+    # Go is a skill name here, although ordinary two-letter words are omitted
+    # by the shared content tokenizer. Keep this exception local to levels.
+    return (content_tokens(text) | ({"go"} if re.search(r"\bGo\b", text) else set())) - {
+        "level", "speak", "speaker", "experience", "skill", "develop", "languag"}
+
+
 def proficiency_atoms(text):
-    """Bind each level to its adjacent skill phrase, never another clause's level."""
+    """Bind levels within list items; inherit only across bare skill names."""
     result = []
-    # Keep coordinated skills together, but stop inheritance at a new level
-    # or predicate ('expert in Kubernetes and used Python').
-    boundary = (r";|\b(?:but|while|whereas)\b|(?:,|\band\b)\s*(?="
-                + PROFICIENCY.pattern + r"|(?:I|we)\b|"
-                + SUPPORT.pattern + "|" + AUTHORSHIP.pattern + "|" + AUTHORITY.pattern + r")")
-    for clause in re.split(boundary, text, flags=re.I):
-        levels = list(PROFICIENCY.finditer(clause))
+    inherited = None
+    for index, item in enumerate(re.split(r"([,;]|\b(?:and|but|while|whereas)\b)", text, flags=re.I)):
+        if index % 2:
+            if item.casefold() not in {",", "and"}:
+                inherited = None
+            continue
+        levels = list(PROFICIENCY.finditer(item))
+        if not levels:
+            bare = item.strip(" .")
+            if (inherited and re.fullmatch(r"[A-Z][\w+#.-]*(?:\s+[A-Z][\w+#.-]*){0,3}", bare)
+                    and not (SUPPORT.match(bare) or AUTHORSHIP.match(bare) or AUTHORITY.match(bare))):
+                result.append({**inherited, "skill": skill_tokens(bare)})
+            else:
+                inherited = None
+            continue
+        inherited = None
         for index, match in enumerate(levels):
-            end = levels[index + 1].start() if index + 1 < len(levels) else len(clause)
-            after = clause[match.end():end]
-            before = clause[:match.start()]
+            end = levels[index + 1].start() if index + 1 < len(levels) else len(item)
+            before, after = item[:match.start()], item[match.end():end]
             if re.search(r"\b(?:not|never|no)(?:\s+\w+){0,2}\s*$", before, re.I):
-                continue  # An explicitly denied level cannot support a positive claim.
-            # Support both 'fluent in Spanish' and 'Spanish: fluent'.
-            skill = after if content_tokens(after) else before
+                continue
             level = " ".join(match.group(0).casefold().split())
-            for item in re.split(r",|\band\b", skill, flags=re.I):
-                tokens = content_tokens(item) - {"level", "speak", "speaker", "experience"}
-                if tokens:
-                    result.append({"kind": "proficiency", "value": match.group(0),
-                                   "key": LEVEL_EQUIVALENTS.get(level, level), "skill": tokens})
+            # Hyphenated adjectives and career movement are not self-ratings.
+            if (before.endswith("-") and not before.endswith(" -")) or after.startswith("-"):
+                continue
+            if level == "expert" and re.match(r"\s+witness\b", after, re.I):
+                continue
+            preposed = bool(re.search(r"(?:\(|:|\s-\s)\s*$", before))
+            if preposed:
+                skill = re.sub(r"(?:\(|:|\s-\s)\s*$", "", before)
+            elif not skill_tokens(after.strip(" ).")):
+                skill = before
+            else:
+                if level == "advanced" and re.match(r"\s+to\b", after, re.I):
+                    continue
+                if (level == "native" and not re.match(r"\s+(?:in|speaker\s+of)\b", after, re.I)
+                        and not re.match(r"\s+[A-Z][\w-]*(?:\s+[A-Z][\w-]*)?\s+speaker\b", after)):
+                    continue
+                skill = re.sub(r"^\s*(?:in|with|of|at)\s+", "", after, flags=re.I)
+            # A following participle describes another action, not part of a
+            # skill's name (e.g. 'expert in Python, building dashboards').
+            skill = re.sub(r"^\s*(?:languages|skills)\s*:\s*", "", skill, flags=re.I)
+            skill = re.split(r":|\s+(?:using|building|developing|creating|working|having)\b", skill, maxsplit=1, flags=re.I)[0]
+            tokens = skill_tokens(skill)
+            if tokens:
+                atom = {"kind": "proficiency", "value": match.group(0),
+                        "key": LEVEL_EQUIVALENTS.get(level, level), "skill": tokens}
+                result.append(atom)
+                if not preposed:
+                    inherited = atom
     return result
 
 
 def numeric_directions(text, atom):
-    """Nearest explicit predicate before each matching number, within its clause."""
+    """Directions only for direct affirmative predicates governing a number."""
     directions = []
     for clause in re.split(r";|(?<!\d),|,(?!\d)|\b(?:and|but|while|whereas)\b", text, flags=re.I):
         for match in NUMBER.finditer(clause):
@@ -102,9 +138,23 @@ def numeric_directions(text, atom):
                     or (atom.get("currency") and value.get("currency")
                         and atom["currency"] != value["currency"])):
                 continue
-            predicates = [(m.start(), direction) for pattern, direction in ((INCREASE, 1), (DECREASE, -1))
+            prefix = clause[:match.start()]
+            predicates = [(m.start(), m.end(), direction) for pattern, direction in ((INCREASE, 1), (DECREASE, -1))
                           for m in pattern.finditer(clause[:match.start()])]
-            directions.append(max(predicates)[1] if predicates else 0)
+            direction = 0
+            if predicates:
+                start, end, candidate = max(predicates)
+                before, object_text = prefix[:start], prefix[end:]
+                # Relative clauses, goals and prevention do not establish that
+                # the nearby number measures this verb's object. Negation is
+                # also neutral rather than an inferred opposite direction.
+                uncertain = re.search(r"\b(?:who|which|that|whose|to|from|not|never|no|without)\b|n['’]t\b",
+                                      before, re.I)
+                interrupted = re.search(r"\b(?:who|which|that|whose|to|from|not|never|without)\b",
+                                        object_text, re.I)
+                if not uncertain and not interrupted:
+                    direction = candidate
+            directions.append(direction)
     return directions
 
 

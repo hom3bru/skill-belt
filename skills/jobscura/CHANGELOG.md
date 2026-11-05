@@ -2,6 +2,18 @@
 
 ## 0.5.0 - Full-cycle toolkit with deterministic helpers
 
+Round-three review corrections:
+
+- Bind language and skill levels to their own list items; distinguish proficiency from ordinary
+  adjectives and career movement, retain Go, and avoid direction claims from unrelated or negated verbs.
+- Keep composable accent advice informational and outside the corruption ratio; preserve phone
+  numbers, require SSN shape or labels, and mask filename identifiers even in input errors.
+- Parse collapsed date ranges safely; treat shared boundary months/years as handovers, match real
+  month names, and report future starts once. Ignore filled links, numeric citations and empty braces.
+- Distinguish technical duties, public keys, system-design headings, F# pipes, engineering units,
+  emoji presentation and visible gradient text from instruction signals. Retain narrow credential
+  requests, handle curly apostrophes, and fold confusables once per unit with an ASCII fast path.
+
 Round-three adopt-adapt additions (independently reimplemented; no donor code or prose copied):
 
 - J1–J4: masked sensitive-identifier and leftover-placeholder warnings, deterministic chronology
