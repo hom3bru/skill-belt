@@ -18,6 +18,12 @@ Fixes from an independent Codex audit:
 - R9. Out-of-range feed timestamps produce blocked JSON errors.
 - R10. Offer comparisons reject cliffs beyond the vesting term and identify the affected offer.
 
+Follow-up review fixes:
+
+- Preserve applicant-payment signals when the instruction and its object span sentence boundaries.
+- Skip and report malformed URL-only calendar rows while exporting reminders for valid rows.
+- Restore the explicit header-mapping block when neither tracker export contains record IDs.
+
 Fixes:
 
 - Link guards no longer reject paths whose *parent folders* are operating-system aliases

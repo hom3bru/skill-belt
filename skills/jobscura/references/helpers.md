@@ -48,9 +48,10 @@ same review by hand and say that the helper did not run.
   the blocking problem `unidentified_rows_decreased`. Backwards applied/interview/offer milestones
   produce `application_history_regressed`. Terminal reopenings and changed terminal decisions produce
   `status_reopened` and `terminal_status_changed` review items. Resolve these before treating the
-  comparison as complete.
+  comparison as complete. If neither export has a recognized record ID, the command blocks and asks
+  for `--map record_id=Header` before comparing.
 - Calendar UIDs use the existing employer/requisition/record-ID/deadline identity when an ID exists.
-  Otherwise they use employer, normalized URL and deadline. Rows without an ID or URL are skipped
+  Otherwise they use employer, normalized URL and deadline. Rows without an ID or usable URL are skipped
   with their row, employer, title and reason in `calendar.skipped`. Duplicate UIDs block export before
   a calendar file is written. Import the generated file into the user's calendar to schedule reminders.
 - Tracker exports for `deadlines.py`, `board_feed.py`, `tracker_diff.py` and the packet helper are read-only snapshots of the one
