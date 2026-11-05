@@ -166,11 +166,6 @@ class Evidence:
                 unit["credentials"] = {m.group(0).casefold().replace(".", "").replace(" ", "") for m in CREDENTIALS.finditer(unit["text"])}
                 unit["authority"] = bool(AUTHORITY.search(unit["text"]))
                 unit["support"] = bool(SUPPORT.search(unit["text"]))
-                # Use-level wording leaves authority unconfirmed; it does not
-                # establish a supporting role (an existing ledger distinction).
-                unit["supporting_role"] = any(m.group(0).casefold() not in
-                                              {"used", "worked with", "worked in", "worked on"}
-                                              for m in SUPPORT.finditer(unit["text"]))
                 self.units.append(unit)
         require(self.units, "evidence files contain no readable text")
 
@@ -330,10 +325,10 @@ def claims(draft, evidence_paths):
             elif related is None or score == 0:
                 entry["flags"].append({"kind": "authority_unverified", "value": AUTHORITY.search(sentence).group(0),
                                        "why": "No related evidence sentence was found for this leadership/ownership claim."})
-            elif related["supporting_role"] and not related["authority"]:
+            elif related["support"] and not related["authority"]:
                 entry["flags"].append({"kind": "authority_escalation", "value": AUTHORITY.search(sentence).group(0),
                                        "evidence": location(related),
-                                       "why": "The closest evidence describes a supporting role; the draft claims leadership or ownership."})
+                                       "why": "The closest evidence describes support or use-level work; the draft claims leadership or ownership."})
             elif not related["authority"]:
                 entry["flags"].append({"kind": "authority_unconfirmed", "value": AUTHORITY.search(sentence).group(0),
                                        "evidence": location(related),

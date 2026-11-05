@@ -108,7 +108,8 @@ class AuditSafetyTests(unittest.TestCase):
         cases = [("Led the annual festival.", None),
                  ("Supported the annual festival.", "authority_escalation"),
                  ("Maintained unrelated databases.", "authority_unverified"),
-                 ("Worked on the annual festival.", "authority_unconfirmed")]
+                 ("Worked on the annual festival.", "authority_escalation"),
+                 ("The annual festival drew 5,000 visitors.", "authority_unconfirmed")]
         for text, expected in cases:
             with self.subTest(evidence=text):
                 evidence.write_text(text, encoding="utf-8")
