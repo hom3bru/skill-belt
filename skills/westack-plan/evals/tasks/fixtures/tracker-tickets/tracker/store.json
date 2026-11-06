@@ -1,0 +1,8 @@
+{
+  "_token": "tracker-store-7e2",
+  "project": "SRCH",
+  "issues": [
+    {"key": "SRCH-1", "title": "Results page shows 20 results per page", "body": "", "blocked_by": [], "status": "closed"},
+    {"key": "SRCH-2", "title": "The search box keeps the last query", "body": "", "blocked_by": [], "status": "open"}
+  ]
+}

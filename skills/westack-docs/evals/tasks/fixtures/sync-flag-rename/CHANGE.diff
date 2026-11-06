@@ -1,0 +1,26 @@
+# change-sync-0c8
+diff --git a/report/__main__.py b/report/__main__.py
+--- a/report/__main__.py
++++ b/report/__main__.py
+@@ -6,17 +6,17 @@ import sys
+
+
+-def _fmt(row):
++def _format_row(row):
+     return [row["week"], "%.2f" % row["total"]]
+
+
+ def main(argv=None):
+     parser = argparse.ArgumentParser(prog="python -m report")
+-    parser.add_argument("--out", required=True, help="path of the CSV to write")
++    parser.add_argument("--output", required=True, help="path of the CSV to write")
+     args = parser.parse_args(argv)
+     rows = [{"week": "2026-W44", "total": 1250.0}]
+-    with open(args.out, "w", newline="", encoding="utf-8") as handle:
++    with open(args.output, "w", newline="", encoding="utf-8") as handle:
+         writer = csv.writer(handle)
+         writer.writerow(["week", "total"])
+         for row in rows:
+-            writer.writerow(_fmt(row))
++            writer.writerow(_format_row(row))
+     return 0

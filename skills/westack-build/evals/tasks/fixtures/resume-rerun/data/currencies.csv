@@ -1,0 +1,4 @@
+code,symbol,position,decimals
+USD,$,prefix,2
+EUR,€,suffix,2
+GBP,£,prefix,2

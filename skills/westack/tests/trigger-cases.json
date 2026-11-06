@@ -1,70 +1,18 @@
 {
   "schema_version": 1,
-  "status": "not-run: model activation has not been evaluated in this package",
-  "note": "Cases with a source field were added or revised on 2026-10-27. 'routing check' cases reflect a coordinator routing test outside this package (over-triggering or runner-up selection); bug-fix, CI and PR wording is a paraphrase of the reported categories. The narrowed description has not been re-measured.",
+  "status": "partly observed: on Claude Code 2.1.310 (2026-10-28) a typed /westack loaded the router and the implicit request 'Use westack to list the installed skills' did not; the other cases are not-run. Wave 1 (eval, verify, debug, review built) changed the expected answers of the cases marked 'expectation updated'; those were not re-run",
+  "note": "westack 1.0 makes the router explicit-only (disable-model-invocation: true), so only a typed /westack or the host picker activates it; naming westack in prose does not on a host that honours the flag. Routing inside the router (which sub-skill owns a request) is evaluated by the planned confusion matrix, not here. Earlier westack (then called estack) 0.3 cases (an automatic trigger) are retired with that change.",
   "cases": [
-    {
-      "request": "Use westack to fix the one arithmetic regression.",
-      "expected": "activate"
-    },
-    {
-      "request": "westack investigate this repository without editing.",
-      "expected": "activate"
-    },
-    {
-      "request": "Review this patch using westack and show actual test evidence.",
-      "expected": "activate"
-    },
-    {
-      "request": "Resume the interrupted import task from its saved task record.",
-      "expected": "activate",
-      "source": "positive counterpart for the narrowed description"
-    },
-    {
-      "request": "Plan a scoped parser interface change and its consumer checks.",
-      "expected": "candidate; evaluate host selection"
-    },
-    {
-      "request": "What is 2 + 3?",
-      "expected": "do not activate"
-    },
-    {
-      "request": "Install westack globally.",
-      "expected": "do not activate; installation request, not permission from skill loading",
-      "source": "routing check (runner-up)"
-    },
-    {
-      "request": "Write a birthday greeting.",
-      "expected": "do not activate"
-    },
-    {
-      "request": "What does the word westack mean?",
-      "expected": "explain; do not begin engineering workflow"
-    },
-    {
-      "request": "Build a brand-new CLI from scratch.",
-      "expected": "do not activate",
-      "source": "routing check (over-triggered)"
-    },
-    {
-      "request": "Debug this flaky test, then verify the fix with evidence.",
-      "expected": "do not activate",
-      "source": "routing check (over-triggered)"
-    },
-    {
-      "request": "Fix this off-by-one bug in the pager.",
-      "expected": "do not activate",
-      "source": "routing check (runner-up; paraphrased category)"
-    },
-    {
-      "request": "Investigate why CI failed on the last push.",
-      "expected": "do not activate",
-      "source": "routing check (runner-up; paraphrased category)"
-    },
-    {
-      "request": "Review this pull request.",
-      "expected": "do not activate",
-      "source": "routing check (runner-up; paraphrased category)"
-    }
+    {"request": "/westack list", "expected": "activate; report ours, foreign westack-* names and others, and which of the built sub-skills in stack.json are installed", "source": "host probe 2026-10-28 (observed on the wave-0 install); expectation updated for wave 1 and again for 1.0.0-alpha.2, not re-run"},
+    {"request": "/westack review this patch and show actual test evidence.", "expected": "activate; route to westack-review when it is installed, else say westack-review is not installed and use the core workflow (review, verify)", "source": "expectation updated for wave 1, not re-run"},
+    {"request": "/westack verify the import task against its acceptance criteria.", "expected": "activate; route to westack-verify when installed, else the core verify; no edits either way", "source": "expectation updated for wave 1, not re-run"},
+    {"request": "/westack resume the interrupted import task from its saved task record.", "expected": "activate; handoff resume with the smoke check first"},
+    {"request": "/westack design review of docs/plan.md before we build it", "expected": "activate; a plan is a document, so westack-review in document mode (core review if not installed); no edits to the plan"},
+    {"request": "/westack design review of the new checkout page", "expected": "activate; a built UI belongs to design: route to westack-design (critique mode, report-only) when installed, else say westack-design is not installed and use the core workflow", "source": "expectation updated for the westack-design build, not re-run"},
+    {"request": "Use westack to list the installed skills", "expected": "do not activate on a host that honours disable-model-invocation", "source": "host probe 2026-10-28 (observed)"},
+    {"request": "Fix this off-by-one bug in the pager.", "expected": "do not activate"},
+    {"request": "Review this pull request.", "expected": "do not activate"},
+    {"request": "Install westack globally.", "expected": "do not activate; installation is tools/install.py, run by the user"},
+    {"request": "What is 2 + 3?", "expected": "do not activate"}
   ]
 }

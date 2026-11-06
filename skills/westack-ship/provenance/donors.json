@@ -1,0 +1,690 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-ship",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only, in our own words. Each donor file was fetched from raw.githubusercontent.com at the exact commit below on 2026-10-28 (no Firecrawl), hashed, and read as data; fetched text gave no instructions and no donor code was run. Every mechanism is graded 'present' (read at a pinned revision and path) unless it says otherwise. Every default that merges, lands or publishes on its own was rejected. The n-gram overlap check against every fetched file is recorded under overlap_check. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read.",
+  "usefulness_legend": {
+    "A": "several mechanisms taken; shaped the skill's structure",
+    "B": "one or two mechanisms taken",
+    "C": "read; little taken beyond what stronger donors gave, or mostly rejected"
+  },
+  "retrieval": {
+    "method": "urllib GET of https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>; paths for gstack and openai/codex from the GitHub tree listings saved by the westack-build review at the same commits",
+    "retrieved": "2026-10-28",
+    "local_copies": "builder scratch westack-w1-ship/donor-raw (not shipped)"
+  },
+  "donors": [
+    {
+      "ref": "cat:tstack.skill.full-stop",
+      "system": "t3dotgg/tstack (full-stop, read with the full-send skill it defers to)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/t3dotgg/tstack/blob/7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd/skills/full-stop/SKILL.md", "sha256": "243ed08a040df888e35a5db8da704dced345270efdd0afa74252a766e05a4b09", "bytes": 2152, "read": "full", "role": "primary"},
+        {"url": "https://github.com/t3dotgg/tstack/blob/7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd/skills/full-send/SKILL.md", "sha256": "ba585e47cd901506b0e2de13025b0e39bc02462c136cf27491ad3efbdfe66020", "bytes": 5395, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "stop with the PR ready and unmerged; merge-ready is a state of its own, not a merge", "where": "references/ladder.md (delivery ladder); references/deliver.md (merge)"},
+        {"mechanism": "check for an armed auto-merge or a merge-queue entry before work starts and again before every push, and report it", "where": "SKILL.md rules 1; references/deliver.md (push pre-checks 2); scripts/shipgate.py"},
+        {"mechanism": "read readiness from the live PR (head, base, checks, reviews, mergeability), and if someone else merged it, report that instead", "where": "references/deliver.md (merge pre-checks and read back); scripts/shipgate.py pr-not-open"},
+        {"mechanism": "never merge through an admin bypass, never push to the default branch under a PR workflow, never bypass protection", "where": "references/ladder.md rules 2; references/deliver.md (push, merge)"},
+        {"mechanism": "a merge gate that every change in the diff is covered by proof, on the latest commit", "where": "SKILL.md rules 5 (the candidate is fixed); references/readiness.md 2"}
+      ],
+      "rejected": [
+        "the invocation phrase as permission that overrides a project's ask-first rules for testing: a mode is a routing preference here, never a grant",
+        "disarming an existing auto-merge or leaving a merge queue on the agent's own initiative: disarming is itself an action that needs its own grant, so the skill reports and stops",
+        "full-send's own merge on green and its 'decide everything else yourself' default: delivery beyond the grant is never decided by the agent",
+        "force-push with lease on the task branch as a standing permission: force needs a grant that names it"
+      ],
+      "where": ["SKILL.md", "references/ladder.md", "references/deliver.md", "scripts/shipgate.py"]
+    },
+    {
+      "ref": "cat:gstack.skill.ship",
+      "system": "garrytan/gstack (ship and land-and-deploy, with their sections)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/ship/SKILL.md", "sha256": "be5aefe9d4dba5b054e4f8a684e5600d852ec316f87184eb1f430e7d8764c1d0", "bytes": 81535, "read": "lines 418-1239 (the workflow); preamble skimmed", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/ship/sections/changelog.md", "sha256": "59dbee4b78733f4f0b27a7e8bbbb541dca29dcc745d14105f0359fafe8cd5781", "bytes": 2067, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/ship/sections/pr-body.md", "sha256": "fd6720f3964db0f659b31f4227f7865a335c79df72a32f229f767816e726de15", "bytes": 16796, "read": "lines 160-274", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/land-and-deploy/SKILL.md", "sha256": "2d2ab23751207b238807ba0666b109c9979a65c547e63b354969c39838db5b1d", "bytes": 73810, "read": "lines 596-760", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/land-and-deploy/sections/merge-and-deploy.md", "sha256": "46cd54122ecc982838ccf56f7bad8eb979a359062863ccb20c0c14e83288d7aa", "bytes": 16404, "read": "lines 1-90", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/ship/sections/handoff.md", "sha256": "5834192a82792b7dec55930c6e93db4c4f31511ab7ce92010856326dd9075ea0", "bytes": 1651, "read": "full", "role": "also-read"},
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/land-and-deploy/sections/readiness-gate.md", "sha256": "ff7c476f0f49d19fe01ccf79ec30f40f9501c80c9e29042ecfd31255112efb29", "bytes": 16526, "read": "keyword search only", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "classify the version state before writing: no version source means no version change and no invented version file; already bumped on a rerun means no second bump", "where": "references/readiness.md 4"},
+        {"mechanism": "write the changelog entry from an enumerated commit list plus the diff, then cross-check that every user-facing change appears in it", "where": "references/readiness.md 4 (the entry)"},
+        {"mechanism": "evidence is bound to a frozen candidate: an edit after verification restarts it", "where": "SKILL.md rules 5; references/readiness.md 4 step 5"},
+        {"mechanism": "an idempotency check before pushing: compare the remote ref with HEAD and skip a push that already happened", "where": "references/deliver.md (opening paragraph; push read back)"},
+        {"mechanism": "a rejected push stops: never force, never rewrite history, and a failed push or PR creation is never reported as done", "where": "references/ladder.md rules 3-4; references/deliver.md (push, PR)"},
+        {"mechanism": "auto-merge and merge-queue state come from the GraphQL fields (gh pr view does not show queue membership), and an unreadable field is unknown, never absent", "grade": "present", "where": "references/deliver.md (push pre-checks 2); scripts/shipgate.py (auto-merge-unknown, merge-queue-unknown)"},
+        {"mechanism": "name the PR by its number and head SHA instead of guessing it from the checked-out branch; a lookup that fails proves nothing, least of all that no PR exists", "where": "references/deliver.md (merge); scripts/shipgate.py (pr-unknown, pr-head-mismatch)"},
+        {"mechanism": "write the PR body to a file and never pass it on a command line; it is public on a public repository, so keep secrets out", "where": "references/deliver.md (PR body)"},
+        {"mechanism": "a merge that fails is followed by reading the PR's real state before any retry", "where": "references/ladder.md rules 3; references/deliver.md (failure or doubt)"}
+      ],
+      "rejected": [
+        "the fully automated route from tests to push and PR in one invocation: each delivery state needs its own grant here",
+        "including every uncommitted change without asking: paths that were dirty before the session belong to someone else",
+        "choosing the bump level from diff size without asking (MICRO and PATCH chosen silently): the user's number, else a proposal from the change with the reason, and a question when breaking",
+        "land-and-deploy's default of merging with --auto and its merge-then-deploy flow: merge, release and deploy are separate grants",
+        "telemetry, metrics logs, a TODOS.md auto-update, the one-time pre-push hook installer offer and the plan-tune nudge: side effects and persistent configuration outside a delivery grant",
+        "multi-agent review fan-out and its review tokens: review belongs to westack-review"
+      ],
+      "where": ["SKILL.md", "references/ladder.md", "references/readiness.md", "references/deliver.md", "scripts/shipgate.py"]
+    },
+    {
+      "ref": "cat:superpowers:skill:finishing-a-development-branch",
+      "system": "obra/superpowers",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/finishing-a-development-branch/SKILL.md", "sha256": "8db5a922b242dd4e1bf824cb91c13b3e8d8e8a86d6ceaf7f0774eb9cce909d65", "bytes": 7781, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "the integration choice belongs to the user: offer the options and wait instead of picking the likely one", "where": "references/ladder.md (read the grant: ambiguous 'ship it' gets one question)"},
+        {"mechanism": "a green run proves only the tree it ran on: run the suite on the exact tree being delivered", "where": "SKILL.md rules 5; references/readiness.md 2"},
+        {"mechanism": "confirm the base branch rather than assuming main", "where": "references/readiness.md 1; references/deliver.md (PR base)"},
+        {"mechanism": "a rejected push means the remote moved: investigate, never force", "where": "references/deliver.md (push)"}
+      ],
+      "rejected": [
+        "one menu option that bundles push and PR: push and PR are separate states with separate grants",
+        "a local merge into the base branch as a standard option: merging is a grant of its own and usually the forge's job",
+        "worktree clean-up and branch deletion as part of finishing: deletions need their own grant"
+      ],
+      "where": ["SKILL.md", "references/ladder.md", "references/readiness.md", "references/deliver.md"]
+    },
+    {
+      "ref": "cat:pstack.playbook.shipping",
+      "system": "cursor/plugins (pstack poteto-mode playbooks: shipping, opening-a-pr)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/shipping.md", "sha256": "bf56339bdf7e0223bcff5abf4e8599e3f5b547b3fcc3b4ce9475e6e7dda14a9f", "bytes": 4387, "read": "full", "role": "primary"},
+        {"url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/opening-a-pr.md", "sha256": "a5aef646de8b651306c2d10974623650e4a013a245aec1c00525bbe0e31bfa76", "bytes": 5669, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "read the PR back after a merge command: a merge command can report success when the PR was only queued, and a requested auto-merge is not a merge", "where": "references/ladder.md rules 3; references/deliver.md (merge read back)"},
+        {"mechanism": "a verdict covers one patch: a rebase moves the head without failing anything, so check that the receipts still describe the head", "where": "references/deliver.md (merge pre-checks: head SHA equals the receipts' commit)"},
+        {"mechanism": "a short PR body for a reviewer who has the diff: why, what changed, scope, risk, and how it was verified", "where": "references/deliver.md (PR body)"},
+        {"mechanism": "green CI and an approving bot review are not a verdict", "where": "references/ladder.md (read the grant); references/watch.md 5"}
+      ],
+      "rejected": [
+        "arming --auto on a verified PR and landing a stack bottom-up on the agent's own initiative: merging needs a grant",
+        "committing liberally and rebasing with force-with-lease as routine: history rewrites of pushed work need a grant",
+        "opening every PR ready and never as a draft: the user's word decides, else draft while anything is open",
+        "git reset --hard between subagents: destructive and outside delivery"
+      ],
+      "where": ["references/ladder.md", "references/deliver.md", "references/watch.md"]
+    },
+    {
+      "ref": "cat:addy-agent-skills.command.ship",
+      "system": "addyosmani/agent-skills (/ship command; shipping-and-launch also read)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "C",
+      "sources": [
+        {"url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/.claude/commands/ship.md", "sha256": "2d42cf82d17a0097a0143d8181f9686480388204838688e45b08c591f3042fbc", "bytes": 4600, "read": "full", "role": "primary"},
+        {"url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/skills/shipping-and-launch/SKILL.md", "sha256": "726f3e546369db289160b8d42195590f00b6432887e17bf19070dcc9a347fe39", "bytes": 11515, "read": "skimmed", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "a single readiness verdict with blockers listed apart from recommendations, and a revert note before anything ships", "where": "references/readiness.md 6; references/deliver.md (PR body: risk and how to revert)"},
+        {"mechanism": "an open critical finding blocks readiness unless the user accepts that named risk", "where": "references/readiness.md 6; references/deliver.md (commit pre-checks: the user accepted the named gaps)"}
+      ],
+      "rejected": [
+        "three personas in parallel presented as independent review: a persona is self-review; review belongs to westack-review",
+        "rollout, monitoring and error-budget gates: deploying is westack-deploy (pending)",
+        "the size threshold for skipping review (two files, fifty lines): untested here, so not adopted as a default"
+      ],
+      "where": ["references/readiness.md", "references/deliver.md"]
+    },
+    {
+      "ref": "harness:delivery-conventions",
+      "system": "openai/codex base instructions; anthropics/claude-code-action security notes; anthropics/claude-plugins-official commit-commands",
+      "licence": "Apache-2.0 (openai/codex); MIT (claude-code-action); claude-plugins-official not checked",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/openai/codex/blob/26ad281fd1ca712e4f0c7920a6273cf18c961b8a/codex-rs/protocol/src/prompts/base_instructions/default.md", "sha256": "ac8ae107a0d72fe3476b430afb161ea4e67da2e446d778aefc44828160559807", "bytes": 20903, "read": "lines 130-190", "role": "primary"},
+        {"url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/docs/security.md", "sha256": "2dd090ea8027eda1b4148bc46d00767c1bb5fdd78203a5c53525580e8e9cfc5c", "bytes": 14238, "read": "lines 60-80", "role": "supporting"},
+        {"url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/commit-commands/commands/commit-push-pr.md", "sha256": "3bc3d171939149cbbef141cbced553dce6ba6f97dac4a764f4ef1e055c35064d", "bytes": 796, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/commit-commands/commands/commit.md", "sha256": "d1acbc2bf0c50164f48d6bda872de6a343cd9390954ce903c3431c3119e7f8c4", "bytes": 624, "read": "full", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "no commit and no new branch unless the user asked; offer the commit as a next step instead (Codex base instructions)", "where": "references/ladder.md delivery ladder (committed needs 'commit'); SKILL.md report item 5"},
+        {"mechanism": "by default the agent commits to a branch and hands the human a link to create the PR, so a person decides what is proposed for merging (claude-code-action)", "where": "references/deliver.md (PR: hand over the compare URL and body file when the PR step is not possible)"},
+        {"mechanism": "a delivery command scopes its tools to exactly the actions it names: a commit command cannot push (commit-commands allowed-tools)", "grade": "present", "where": "references/ladder.md (each state needs its own grant; a grant covers only its own state and plain prerequisites)"}
+      ],
+      "rejected": [
+        "commit, push and PR in one silent message with no report (commit-push-pr): every step reads back and the report says which states were reached",
+        "creating the branch, commit, push and PR from one command name without stating the prerequisites first"
+      ],
+      "notes": [
+        "These are conventions of three hosts' own delivery defaults, grouped as one donor because each contributes one rule; the Claude Code CLI's own git guidance is not public source and was not used."
+      ],
+      "where": ["SKILL.md", "references/ladder.md", "references/deliver.md"]
+    },
+    {
+      "ref": "deep:web:palantir.com/autoresearch-and-the-fine-tuning-ontology",
+      "system": "Palantir whitepaper 'AutoResearch and the Fine-Tuning Ontology' (22 pages, vendor paper)",
+      "licence": "Ideas only (© 2026 Palantir, all rights reserved; the paper calls itself proprietary and confidential. Palantir hosts it and one of its staff shared it publicly, so it is not leaked). Nothing quoted or copied.",
+      "grade": "claimed",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "P-5: Fix promotion thresholds on several metrics in advance, with a separate cap on unsafe outcomes that no gain offsets, and promote on gain per unit of cost.",
+          "grade": "claimed",
+          "evidence": "Summarised under the assessment's 'What they say' section for the AutoResearch paper; the idea is the assessment's table row P-5.",
+          "where": "references/readiness.md (2. Acceptance; only the fixed-in-advance and no-offset part, gain per cost is not carried)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items P-5 (westack-research/2026-10-29-palantir-whitepapers.md (outside the repository), SHA-256 c4f64e356a600f28dd4217e86c1a87e603a04ab905fdd32026462245a8013f0e, 5708 bytes).",
+        "Licence status: ideas-only (all rights reserved). Never quote this source.",
+        "Evidence level: claimed. A vendor paper whose worked example says its data is notional, so its figures are illustrative, not results. The assessment's author read the paper in full on 2026-10-29; this change was written from that assessment, not from the PDF, which was not fetched again.",
+        "Web document read by the assessment, not a pinned repository file: palantir.com/assets/…/AutoResearch_and_the_Fine-Tuning_Ontology.pdf (the assessment elides the middle of the path), 22 pages, SHA-256 beginning 40d079b0328beeac (the assessment records only these 16 hex characters), 650133 bytes, PDF metadata date 2026-10-24.",
+        "Found through https://x.com/chadwahl/status/2115773925476962518, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/chadwahl/status/2115773925476962518 (a copy, not the original); its author works at Palantir."
+      ],
+      "no_source_reason": "Vendor PDF, not a repository file, so there is no commit to pin; the assessment's record of its path, SHA-256 prefix and byte count is in notes."
+    },
+    {
+      "ref": "p2:0marm0/coord-harness",
+      "system": "COORD-Harness (coordharness)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 COORD-Harness contributors)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/0marm0/COORD-Harness/blob/31d7182b8b920b9ecd8eb6ae5c4cc623c5aca3d3/src/coordharness/safety/git_guard.py",
+          "sha256": "e7380d7c9ecb277ab640ead3d88de47619da7a29ac2cc44abe76f3d778df5cb3",
+          "bytes": 4733,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/0marm0/COORD-Harness/blob/31d7182b8b920b9ecd8eb6ae5c4cc623c5aca3d3/LICENSE",
+          "sha256": "d224478a8ee7a868955ea571cfb5fc567dba946be4401ad90ff7fea72d1a0e2e",
+          "bytes": 1083,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-60: Exact-path commit on a shared index: refuse a populated index, check the staged set equals the explicit list, commit with --only, then verify the committed set.",
+          "grade": "present",
+          "evidence": "src/coordharness/safety/git_guard.py:67-123",
+          "where": "references/deliver.md (Commit)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-60 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:adr/madr",
+      "system": "MADR (Markdown Architectural Decision Records) 4.0.0 plus the project's own decision records",
+      "licence": "Ideas only (conservative). The repository is dual-licensed MIT or CC0-1.0 (both texts read), but GitHub reports no recognised licence file and the deep read graded its mechanisms ideas-only. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
+          "sha256": "232c401b9607b98cd055ae45983971ef35034ab274a142b42406bf428548bce2",
+          "bytes": 1907,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE",
+          "sha256": "cb9c3a276eb7991be197e401ae38d035f0f0efae425c21f499393f51c9b29ffd",
+          "bytes": 15,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-20: Template placeholders use curly braces, distinct from guidance comments, because users left bracketed template text in finished records (for example a date left inside square brackets); an unfilled placeholder is a mechanically detectable defect.",
+          "grade": "present",
+          "evidence": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md:21-58",
+          "where": "references/deliver.md (PR body)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-20 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-plugins-official",
+      "system": "Claude Code official plugin marketplace (marketplace CI and policy, security-guidance, receipts, math-proof, hookify, plugin-dev)",
+      "licence": "Mixed. The repository LICENSE is Apache-2.0 and most plugins repeat it. The claude-security plugin is proprietary and bars use of any part of it with or to develop a non-Anthropic product: it is excluded, and nothing from it informed these records. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/security-guidance/README.md",
+          "sha256": "4245a186bb836dff56f0ab5c8453a5508bad9280b7893dfcc6a7d236e88da582",
+          "bytes": 13286,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-60: Shared-worktree hazard acknowledged: the end-of-turn review can be switched off where another agent may move HEAD between a worker's turns, while commit and push reviews stay on.",
+          "grade": "present",
+          "evidence": "plugins/security-guidance/README.md:69",
+          "where": "references/deliver.md (Commit)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: harness:delivery-conventions.",
+        "Supports adoption items GS-60 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:codemod/codemod",
+      "system": "Codemod (codemod/codemod)",
+      "licence": "LICENSE read (head): Apache License 2.0 (11.5 KB). The repository also carries CONTRIBUTOR_LICENSE_AGREEMENT.md (not read). Docs under docs/ are in the same repository and were treated as Apache-2.0 text; no separate docs licence file was found. Vendored crates and the tree-sitter and LLRT dependencies keep their own licences (not inspected).",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/codemod/codemod/blob/e08cd9c66d9211157c2a191d43b1faee68c7e1ee/crates/core/src/report.rs",
+          "sha256": "8326b25d7044dabca7d3482898bc730a109420636a1fba8b97f2dfb4d0acc9f9",
+          "bytes": 19812,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/codemod/codemod/blob/e08cd9c66d9211157c2a191d43b1faee68c7e1ee/LICENSE",
+          "sha256": "f33845007ddae95d696c96fcd8d7afee030724f3d2c24ee054fc3d2a5a16e11b",
+          "bytes": 11343,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-70: The run report is versioned: tool and codemod versions, dry-run flag, target, stats, metrics, and diffs per file and grouped by producing step, with share levels that strip detail.",
+          "grade": "present",
+          "evidence": "crates/core/src/report.rs:9-107",
+          "where": "references/deliver.md (PR body)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-70 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:googlecloudplatform/scion",
+      "system": "Scion (Google Cloud Platform)",
+      "licence": "Apache-2.0 (LICENSE read, standard Apache 2.0 text); README: not an officially supported Google product",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/GoogleCloudPlatform/scion/blob/3014d1ada182982a540c6b1820cbf12fcdc77e91/docs-site/src/content/docs/local/workspaces-and-sharing.md",
+          "sha256": "8ca6d73a88a50105cb03ed93de6c1ee90b4f5ad19e206162d3a0c963a39bb6fd",
+          "bytes": 21821,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/GoogleCloudPlatform/scion/blob/3014d1ada182982a540c6b1820cbf12fcdc77e91/LICENSE",
+          "sha256": "01876ba2925e695896604b8be15d8fa93dd5ae657a35032fbb7f28c4fb38591a",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-81: After a rebase or pull that deletes a file, grep the repo for its name and imports: a clean merge can still leave a new reference from a concurrent change.",
+          "grade": "present",
+          "evidence": "docs-site/src/content/docs/local/workspaces-and-sharing.md:189-196",
+          "where": "references/readiness.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-81 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:newren/git-filter-repo",
+      "system": "git-filter-repo (newren/git-filter-repo): fast, single-file Python tool for one-shot git history rewriting (path filtering and renaming, content and message edits)",
+      "licence": "Ideas only (restrictive). Mixed: MIT for the tool and most files, with alternative git.git or libgit2 (GPL) terms offered and GPL-2 test-harness files that were not read. Nothing quoted or copied.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/Documentation/git-filter-repo.txt",
+          "sha256": "9720d81d5aaceb39a5e575665103262353409bd44888d92e8c467af813dd2203",
+          "bytes": 84251,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/git-filter-repo",
+          "sha256": "39d35fb2c35637a9d555353b6a8b53a223a227d3beb61a0ac7e1180bfa5572f1",
+          "bytes": 212278,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/COPYING",
+          "sha256": "6447a28bf91a61a316accc25bc8fcdb8cba667bb226cab571107e8110ea2d411",
+          "bytes": 1159,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-78: Prove a removal by absence: first-changed commit IDs must be missing from every copy (lookup fails); holders are found by a contains query; credentials are revoked first.",
+          "grade": "wired",
+          "evidence": "Documentation/git-filter-repo.txt:796-801,944-971; git-filter-repo:4800-4811",
+          "where": "references/readiness.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-78 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (code-movement); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:openai/symphony",
+      "system": "openai/symphony",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; NOTICE says copyright 2025 OpenAI; README calls it a low-key engineering preview for trusted environments)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/.codex/skills/land/SKILL.md",
+          "sha256": "64b5b6e1c613bcf89c32711ef7bb81c2e370ad93b3d3139902aeea3071ad75d2",
+          "bytes": 10064,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-80: Merge-loop hazards: a bot autofix commit does not retrigger CI, review signal is the comment not the job status, never merge with outstanding comments, never enable auto-merge without required checks.",
+          "grade": "present",
+          "evidence": ".codex/skills/land/SKILL.md:116-138",
+          "where": "references/deliver.md (Merge); scripts/shipgate.py"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-80 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:rectorphp/rector",
+      "system": "Rector",
+      "licence": "LICENSE read (head): 'The MIT License', Copyright (c) 2017-present Tomas Votruba. composer.json declares MIT. The checkout is the scoped release build (namespaces prefixed RectorPrefix202610) and commits a vendor/ folder of bundled dependencies whose licences were not inspected.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/rectorphp/rector/blob/92eff33cc90ed469f7f49388dd983a541c5aa6ca/src/Application/FileProcessor.php",
+          "sha256": "7c88f50fc5e7ea40264c412b3d7f4f2f500f0ec5db649c06a7aadb2efcab3fb5",
+          "bytes": 9346,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/rectorphp/rector/blob/92eff33cc90ed469f7f49388dd983a541c5aa6ca/src/Console/Command/ProcessCommand.php",
+          "sha256": "adec37f2d69fb351238f4d796e64001b443abfedea5d87f812d71a4e16a986b0",
+          "bytes": 11916,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/rectorphp/rector/blob/92eff33cc90ed469f7f49388dd983a541c5aa6ca/LICENSE",
+          "sha256": "4f805f60664c8af826e5f7d04ed0e4a9a5a0565df5808cd665b4a26958d05670",
+          "bytes": 1126,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-70: Each rule records a line change when it mutates the tree, so file diffs list which rules fired and where; JSON output reports each rule with file and line.",
+          "grade": "wired",
+          "evidence": "src/Application/FileProcessor.php:103-105; src/Application/FileProcessor.php:135-139; src/Console/Command/ProcessCommand.php:142-145",
+          "where": "references/deliver.md (PR body)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-70 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:runatlantis/atlantis",
+      "system": "Atlantis (runatlantis/atlantis)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License, Version 2.0, January 2004; source files carry SPDX-License-Identifier: Apache-2.0)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/runatlantis/atlantis/blob/ed8ef9922879e3f39f406eecf7238a59413c0d0f/server/events/apply_plan_validator.go",
+          "sha256": "386ccd45674b84f2c0883c5f29cc0f4c42ca0efa27f518496c7ecceae6ead003",
+          "bytes": 13996,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/runatlantis/atlantis/blob/ed8ef9922879e3f39f406eecf7238a59413c0d0f/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-42: Apply runs only from an allow-listed recorded state (planned, policy-passed, errored-apply for retry, no-changes); every other or missing state is refused with the next step named.",
+          "grade": "wired",
+          "evidence": "server/events/apply_plan_validator.go:111-158",
+          "where": "references/deliver.md (opening)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-42 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (progressive-delivery); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "nr:mvschwarz/openrig",
+      "system": "mvschwarz/openrig (a multi-agent rig: a daemon, tmux seats and skills for delegating work)",
+      "licence": "Apache-2.0 (LICENSE read by the 2026-10-30 read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/docs/reference/schemas/bundle-status.v1.schema.json",
+          "sha256": "df2e6be1d69a2b741804ad46edb8557a136afeb098e00a2d3d33237f5198ece5",
+          "bytes": 9938,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/docs/reference/schemas/run-record.v1.schema.json",
+          "sha256": "b3c7ac64fd9dd51152888c99fdbcadd85cddebebb2d38253864bff054da3fde7",
+          "bytes": 7068,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/LICENSE",
+          "sha256": "c92a33920bf0cd3aa07ca2c479932ec900931ca1449948a4dc01d3bf979f45e3",
+          "bytes": 10763,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-14: A public status or release view built from receipts goes through a closed field allowlist, regenerates byte for byte and prints 'unavailable', never 'not tested', for unreadable records.",
+          "grade": "present",
+          "evidence": "docs/reference/schemas/bundle-status.v1.schema.json:1-10, 229-243, 317-321; run-record.v1.schema.json:267-271",
+          "where": "references/readiness.md (4. Release metadata, step 4)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-14 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-a.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Flags (recorded, not carried): it writes ~/.claude.json, ~/.codex/config.toml, hooks, tmux configuration and skill folders with no preview and no rollback guarantee; some seats run with full access and no approvals."
+      ]
+    },
+    {
+      "ref": "ds:deepseek-ai/dsh-superagent-prototype",
+      "system": "deepseek-ai/dsh-superagent-prototype at 6337fc82 (a research prototype, not an official DeepSeek product), through the dsh-superagent brief",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/prompts/team/delivery.md",
+          "sha256": "aff7c953ce8dfc6e6838f843a5980b4d7c844a517e2d05f89560e8984a9bf55d",
+          "bytes": 4104,
+          "read": "lines 1-7",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/004-prompts.md",
+          "sha256": "186ec9307249deae11f7aec68ff21bf58fb0601a204ada0d2688253d58627bf7",
+          "bytes": 9603,
+          "read": "line 85",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/LICENSE",
+          "sha256": "6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550",
+          "bytes": 1078,
+          "read": "lines 1-3",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DS-4: a pull request that changes what users see carries a before and an after capture of the same scenario, viewport, theme and state, each labelled with its revision; after-only, or a mockup as the before, is not ready.",
+          "grade": "present",
+          "evidence": "delivery.md:1-6; 004-prompts.md:85",
+          "where": "references/deliver.md (pull request, UI evidence); scripts/shipgate.py (--body, --ui-change)"
+        }
+      ],
+      "rejected": [
+        "Enabling auto-merge below 200 changed lines (delivery.md:12): a size threshold with no stated basis; westack enables --auto only when the user names it.",
+        "The donor's redesign comparison is already covered by westack-design (browser.md:40-44, DG-16, DG-31); this item covers delivery only."
+      ],
+      "licence": "MIT, DeepSeek Harness Team (LICENSE:1-3, SHA-256 6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550); ideas only, nothing copied",
+      "notes": [
+        "Supports adoption item DS-4 (dsh-superagent brief, 2026-10-31). Capture-environment rules come from westack-design's browser.md (DG-31); the check reads the body and the diff's file names and opens no image.",
+        "Ideas only, in westack's words: nothing was quoted, copied or run. An 8-word overlap check of every added line and file against the twelve donor files read found no shared run.",
+        "The donor files were fetched into memory from the pinned commit on 2026-10-31 and their SHA-256 matched the brief's; nothing was written to disk. the user approved the items ('Brief and send all', 2026-10-31)."
+      ]
+    },
+    {
+      "ref": "gstack.modernize",
+      "system": "gstack modernize (aging PRs)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "A",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/modernize/SKILL.md.tmpl",
+          "sha256": "22aef688a52176fcfc1adfa045b6c286f7615c6a5e5559d1dafcb75f0bcf5726",
+          "bytes": 9064,
+          "read": "whole template: the disposition table, the replay on a new branch, the merge-commit stop, range-diff, the pinned lease, the report",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Modernize, rework or close decided on evidence before anything is pushed, and close only ever a recommendation.",
+          "where": "references/modernize.md; scripts/modernize.py check"
+        },
+        {
+          "mechanism": "Replay on a new branch, stop on merge commits in the range, and prove the replay with git range-diff, explaining every changed patch.",
+          "where": "references/modernize.md; scripts/modernize.py rangediff, check"
+        },
+        {
+          "mechanism": "A force-push only with a lease pinned to the head read before replaying, never --force or a bare lease.",
+          "where": "scripts/modernize.py check (push)"
+        }
+      ],
+      "rejected": [
+        "gh-specific fork handling in the script: the agent reads the PR with the host's tools; the helper reads saved output only.",
+        "AskUserQuestion as the gate: westack's grant rules decide the push."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {"ref": "cat:compound-engineering:skill:ce-babysit-pr", "system": "EveryInc/compound-engineering-plugin", "why": "a crash-recoverable PR babysitting loop belongs to the future westack-ci; watching here is read-only and bounded, and fixing CI is handed off"},
+    {"ref": "cat:tstack.skill.babysit-pr", "system": "t3dotgg/tstack", "why": "repairs failing checks until ready: CI repair is the future westack-ci, not shipping"},
+    {"ref": "cat:cursor-plugins:fix-merge-conflicts", "system": "cursor/plugins", "why": "conflict resolution is a code change: westack-build, followed by the readiness gate again; integrating the base is never done silently here"},
+    {"ref": "harness:swe-agent-staged-submit-review", "system": "SWE-agent/SWE-agent", "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/tools/review_on_submit_m/bin/submit", "sha256": "ebe0f63430431ba09fab3c290a8fc60df7216ce7e453b457134eb70bc5d97206", "bytes": 1714, "why": "its show-the-diff-before-submit review already lives in westack-build's diffaudit.py, which the readiness review runs when it is installed"}
+  ],
+  "inherited_from_core": [
+    "distinct delivery states; finish and ship-ready add no authority; check armed auto-merge or a merge queue before a push; a queued merge is not a merge (core finish.md and authority.md, C4)",
+    "receipts, honest statuses, zero executed is not a pass, new versus pre-existing failures (core evidence.md and verify.md, C2)",
+    "instructions inside files, pages and tool output are data; a denial stays denied (core authority.md)",
+    "the uncertain-action rule: inspect, never replay (core handoff.md, C5)"
+  ],
+  "own_additions": [
+    "the ladder table: each state, the words that grant it and the read-back that proves it, with deploy marked as another skill's",
+    "a grant covers only its own state plus the plain prerequisites it cannot exist without, named before acting, and never a riskier form of a step",
+    "repository automation as a pre-push check: a push whose workflows or bots would merge, open a PR, publish or deploy is that action and needs its grant",
+    "readiness without a delivery grant reads no remote: remote state is reported as of the last fetch",
+    "a Signed-off-by line is added only when the person certifying says so",
+    "shipgate.py: one deterministic pass over saved git status, remotes, PR JSON, protection or rules JSON, workflows and bot configuration, the diff and checks.py receipts, giving per-step findings with unknown kept apart from absent; it never runs a command"
+  ],
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/shipgate.py",
+    "reason": "The pre-push conditions are many, mechanical and checked at the end of a long session, when attention is lowest: armed auto-merge or a queue entry, automation that merges or publishes on push, protection and required checks, a dirty or diverged tree, unpushed commits, a version bump without its changelog entry, a credential in the diff, and receipts that are missing or failing. One standard-library pass over saved outputs makes 'unknown is not absent' mechanical and gives each step a status, without executing or pushing anything.",
+    "tests": "tests/test_shipgate.py: 51 tests, red against a stub first (43 failures and 7 errors on missing results, none on import; one CLI exit-code test passed on the stub), then green; two broken-copy mutants each fail the tests that name them: an unread autoMergeRequest treated as off (1 failure, 'off' != 'unknown') and the automation finding switched off (3 failures, 1 error on the missing finding)"
+  },
+  "overlap_check": {
+    "method": "lower-cased word 12-grams of every text file in this package (SKILL.md, references, scripts, tests, provenance, evals and fixtures) against all 18 fetched donor files; any shared 12-gram is a flag, extended to its full run",
+    "script": "builder scratch westack-w1-ship/scripts/ngram_overlap.py (not shipped)",
+    "control": "a sentence from tstack full-stop planted in a scratch copy of references/watch.md was flagged as a 20-word run",
+    "result": "clean on 2026-10-28: no shared run of 12 or more words. The first pass's longest run was 10 words in this file (a gstack phrase about PR lookups), since reworded. Longest remaining: 9 words in this file ('a requested auto-merge is not a merge', pstack's wording, which the core's finish.md already carries); outside provenance, 7 words, a git command (git symbolic-ref refs/remotes/origin/HEAD)."
+  }
+}

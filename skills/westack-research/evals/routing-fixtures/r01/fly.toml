@@ -1,0 +1,6 @@
+app = "notes-api"
+primary_region = "iad"
+
+[mounts]
+  source = "data"
+  destination = "/data"

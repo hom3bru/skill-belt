@@ -1,0 +1,29 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run FMT-41 and FMT-42 as parallel workers",
+  "fan_out": "two tickets from two teams",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "workers": [
+    {
+      "id": "w1",
+      "brief": "briefs/w1.md",
+      "handle": "agent-74f"
+    },
+    {
+      "id": "w2",
+      "brief": "briefs/w2.md",
+      "handle": "agent-74g"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+diff --git a/profile/views.py b/profile/views.py
+index 1a2b3c4..5d6e7f8 100644
+--- a/profile/views.py
++++ b/profile/views.py
+@@ -8,1 +8,8 @@ def profile(user, viewer_tz):
+     return render("profile.html", name=user.name)
++
++
++def last_login_text(user, viewer_tz):
++    if user.last_login is None:
++        return "Last login: never"
++    local = user.last_login.astimezone(ZoneInfo(viewer_tz))
++    return "Last login: " + local.strftime("%Y-%m-%d %H:%M")

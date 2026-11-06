@@ -1,0 +1,31 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-deploy",
+  "reviewed": "2026-11-04",
+  "policy": "Donor files were read at their pinned commit in the local mirror (tools/mirrors.py), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gstack.deploy).",
+  "usefulness_legend": {"strong": "shaped the skill's structure or its numbers", "useful": "added a rule or a check", "minor": "a detail"},
+  "donors": [
+    {
+      "ref": "gstack.deploy",
+      "system": "gstack setup-deploy and land-and-deploy (deploy half)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/setup-deploy/SKILL.md.tmpl", "sha256": "7d3dd15dec7f0d1b2d432ba074ba761a34c396ce5fae7402b01fca86afcf6b74", "bytes": 10745, "read": "steps 1-4: platform detection from fly.toml, render.yaml, vercel.json, netlify.toml, Procfile, railway files and workflows; per-platform URL and health check", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/land-and-deploy/SKILL.md.tmpl", "sha256": "bc378718111d059ef7ab03a527b89ea4c7f4061e8a7a7bce6f23b178fe8bb9a0", "bytes": 21300, "read": "steps 6-7 (lines 241-330): deploy strategies, bounded waits, status failure as unknown, no automatic revert, canary read-back", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "Platform detection from the project's own files, each with the file that says so, and asking when nothing or several match.", "where": "scripts/deploycheck.py detect; references/deploy.md"},
+        {"mechanism": "A generic reachable URL cannot certify a new deployment: the read-back must show this revision.", "where": "scripts/deploycheck.py readback, validate; SKILL.md rule 1"},
+        {"mechanism": "Bounded waits of twenty minutes with the user asked before waiting again, and a status query that fails treated as unknown, never success.", "where": "references/deploy.md; scripts/deploycheck.py validate (wait_grant)"},
+        {"mechanism": "A failed deploy is reported and the user chooses: no automatic revert, and rollback monitoring never triggers a second revert.", "where": "SKILL.md rule 2; scripts/deploycheck.py validate (rollback grant)"}
+      ],
+      "rejected": [
+        "Merging the PR as part of deploying: merge and release are westack-ship's, each under its own grant.",
+        "Writing a deploy configuration section into CLAUDE.md: the detection runs each time; persisting it would be an instruction-file edit.",
+        "gstack's ci-gate, pr-wait and canary binaries: the agent reads CI and the target itself; the helper runs no command."
+      ]
+    }
+  ]
+}

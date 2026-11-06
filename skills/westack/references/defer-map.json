@@ -1,0 +1,843 @@
+{
+  "format": "westack-defer-map-1",
+  "stack": "westack",
+  "updated": "2026-11-04",
+  "note": "Seeded only with capability and convention defers that the 2026-10-28 capability map justifies. Co-load and quality candidates from that map are not seeded; a quality defer needs a measured westack-eval result. The design entries for impeccable, hallmark and frontend-design come from the 2026-10-30 design reads.",
+  "never_defer": [
+    "evidence and verification (C2): receipts, controls, status",
+    "guardrails and authority (C4)",
+    "delivery actions: push, merge, deploy, publish, tracker writes, messages"
+  ],
+  "consent": {
+    "scope": "session",
+    "persisted": false,
+    "asked": "once per session per candidate, before the first defer, naming every side effect (unknown counts as present)",
+    "covers": "that candidate for the rest of this session only; never written to a file, setting or memory",
+    "refused": "run westack's own fallback, or report the step not-run"
+  },
+  "entries": [
+    {
+      "id": "spec-openspec-speckit",
+      "capability": "westack-spec",
+      "candidate": {
+        "name": "OpenSpec or Spec Kit",
+        "origin": "https://github.com/Fission-AI/OpenSpec; https://github.com/github/spec-kit",
+        "installed_version": null
+      },
+      "kind": "convention",
+      "criterion": "The repository contains openspec/ or .specify/: write specs in that tool's artifact format; westack's evidence rules still apply.",
+      "detect": {
+        "skill_names": [],
+        "files": [],
+        "repo_markers": [
+          "openspec/",
+          ".specify/"
+        ],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "plan-beads",
+      "capability": "westack-plan",
+      "candidate": {
+        "name": "Beads (bd)",
+        "origin": "https://github.com/gastownhall/beads",
+        "installed_version": null
+      },
+      "kind": "convention",
+      "criterion": "The repository has .beads/: use bd as the tracker and keep evidence binding in the plan. Ticket status is a marker, never proof of done.",
+      "detect": {
+        "skill_names": [],
+        "files": [],
+        "repo_markers": [
+          ".beads/"
+        ],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "writes",
+            "detail": "bd writes its issue database under .beads/ in the repository",
+            "grade": "claimed"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "plan-spec-tasks",
+      "capability": "westack-plan",
+      "candidate": {
+        "name": "Spec Kit or OpenSpec tasks",
+        "origin": "https://github.com/github/spec-kit; https://github.com/Fission-AI/OpenSpec",
+        "installed_version": null
+      },
+      "kind": "convention",
+      "criterion": "The repository uses Spec Kit or OpenSpec: emit tasks in their format.",
+      "detect": {
+        "skill_names": [],
+        "files": [],
+        "repo_markers": [
+          "openspec/",
+          ".specify/"
+        ],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "debug-gstack-ios-fix",
+      "capability": "westack-debug",
+      "candidate": {
+        "name": "gstack ios-fix",
+        "origin": "https://github.com/garrytan/gstack",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "An iOS target and gstack's device debug bridge are installed; westack-debug has no device bridge.",
+      "detect": {
+        "skill_names": [
+          "ios-fix"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "writes",
+            "detail": "gstack's shared preamble writes session files under ~/.gstack/sessions",
+            "grade": "claimed"
+          },
+          {
+            "kind": "update-check",
+            "detail": "gstack's preamble checks for updates over the network",
+            "grade": "claimed"
+          },
+          {
+            "kind": "telemetry",
+            "detail": "gstack may send telemetry if the user consented to it earlier",
+            "grade": "claimed"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "migrate-code-modernization",
+      "capability": "westack-migrate",
+      "candidate": {
+        "name": "code-modernization plugin",
+        "origin": "Claude Code plugin code-modernization (installed for this user)",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "A cross-stack legacy rewrite (for example COBOL or .NET Framework) where its pilot-playbook workflow and agents exist; same-stack uplifts stay with westack.",
+      "detect": {
+        "skill_names": [
+          "code-modernization:modernize-transform",
+          "code-modernization:modernize-uplift"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "qa-gstack-ios",
+      "capability": "westack-qa",
+      "candidate": {
+        "name": "gstack ios-qa",
+        "origin": "https://github.com/garrytan/gstack",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "An iOS target with gstack's device bridge installed.",
+      "detect": {
+        "skill_names": [
+          "ios-qa"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "writes",
+            "detail": "gstack's shared preamble writes session files under ~/.gstack/sessions",
+            "grade": "claimed"
+          },
+          {
+            "kind": "update-check",
+            "detail": "gstack's preamble checks for updates over the network",
+            "grade": "claimed"
+          },
+          {
+            "kind": "telemetry",
+            "detail": "gstack may send telemetry if the user consented to it earlier",
+            "grade": "claimed"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "a11y-chrome-devtools",
+      "capability": "westack-a11y",
+      "candidate": {
+        "name": "Chrome DevTools MCP a11y-debugging",
+        "origin": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "The Chrome DevTools MCP server is present this session: use its tools as the browser driver (an adapter, not a routing defer).",
+      "detect": {
+        "skill_names": [
+          "chrome-devtools-mcp:a11y-debugging"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "design-impeccable",
+      "capability": "westack-design",
+      "candidate": {
+        "name": "impeccable",
+        "origin": "https://github.com/pbakaus/impeccable",
+        "installed_version": "4.7.0"
+      },
+      "kind": "capability",
+      "criterion": "Only when the user names impeccable. It brings its own detector engine, commands and live variant mode, which westack-design does not run; the read pinned 4.8.0.",
+      "detect": {
+        "skill_names": [
+          "impeccable"
+        ],
+        "files": [
+          "~/.claude/skills/impeccable/SKILL.md"
+        ],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "process",
+            "detail": "its setup runs scripts/impeccable context once per session (installed SKILL.md:19), which runs a native engine binary; at the pin its front matter pre-allows Bash(npx impeccable *)",
+            "grade": "present"
+          },
+          {
+            "kind": "install",
+            "detail": "at the pin, the launcher downloads a checksum-pinned engine binary from GitHub releases into ~/.impeccable/bin when it is missing",
+            "grade": "present"
+          },
+          {
+            "kind": "writes",
+            "detail": "writes PRODUCT.md, DESIGN.md and .impeccable/ in the project, and files under ~/.impeccable/",
+            "grade": "present"
+          },
+          {
+            "kind": "writes",
+            "detail": "its hook installer writes into .claude/settings.local.json or ~/.claude/settings.json (installed reference/hooks.md:17,108): persistent configuration that needs its own grant beyond this consent",
+            "grade": "present"
+          },
+          {
+            "kind": "update-check",
+            "detail": "at the pin, a version check against impeccable.style (opt-out IMPECCABLE_NO_UPDATE_CHECK or updateCheck false)",
+            "grade": "present"
+          },
+          {
+            "kind": "telemetry",
+            "detail": "at the pin, an optional choice-ping to impeccable.style (opt-outs DO_NOT_TRACK, IMPECCABLE_NO_TELEMETRY or telemetry false)",
+            "grade": "present"
+          },
+          {
+            "kind": "external-service",
+            "detail": "at the pin, optional image generation through the OpenAI API with the user's key",
+            "grade": "present"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "design reads 2026-10-30 (design-a.md and design-b.md, BRIEF-westack-design.md section 5); the installed SKILL.md was hashed for this build (sha256 d0adc698e41980383076ef762a7047c8cb7a364961b24cbb3a4ec598ffbb8be6, 11,906 bytes) and matched the brief; not run"
+    },
+    {
+      "id": "design-hallmark",
+      "capability": "westack-design",
+      "candidate": {
+        "name": "hallmark",
+        "origin": "https://github.com/Nutlope/hallmark",
+        "installed_version": "1.1.0"
+      },
+      "kind": "capability",
+      "criterion": "Only when the user names hallmark. The installed 1.1.0 is a major version behind the 2.0.0 read, so the effects below are the pin's, graded claimed for the installed copy (a grep of it found no settings or network lines).",
+      "detect": {
+        "skill_names": [
+          "hallmark"
+        ],
+        "files": [
+          "~/.claude/skills/hallmark/SKILL.md"
+        ],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "writes",
+            "detail": "at the pin, writes .hallmark/ in the project and stamps its decisions into the first lines of the CSS it builds",
+            "grade": "claimed"
+          },
+          {
+            "kind": "external-service",
+            "detail": "at the pin, optional image generation at api.together.xyz with the user's TOGETHER_API_KEY",
+            "grade": "claimed"
+          },
+          {
+            "kind": "writes",
+            "detail": "at the pin, an optional hook installer writes a PostToolUse hook into .claude/settings.json (project or global): persistent configuration that needs its own grant beyond this consent",
+            "grade": "claimed"
+          },
+          {
+            "kind": "process",
+            "detail": "at the pin, starts the user's product from another folder, installing what its lockfile asks, to capture it",
+            "grade": "claimed"
+          },
+          {
+            "kind": "network",
+            "detail": "at the pin, downloads photographs from upload.wikimedia.org when asked to save them",
+            "grade": "claimed"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "design reads 2026-10-30 (design-a.md and design-b.md, BRIEF-westack-design.md section 5); the installed SKILL.md was hashed for this build (sha256 859f306dc75e1897c2951cdd247b4d8481c6c4aff0934d1ad198edc51b34808a, 68,002 bytes) and matched the brief; not run"
+    },
+    {
+      "id": "design-frontend-design",
+      "capability": "westack-design",
+      "candidate": {
+        "name": "frontend-design",
+        "origin": "https://github.com/anthropics/claude-plugins-official (plugin frontend-design)",
+        "installed_version": "1.1.1"
+      },
+      "kind": "capability",
+      "criterion": "Only when the user names frontend-design. Prose only: no script, network call or install step, so no consent question is needed; westack-design's own rules still apply.",
+      "detect": {
+        "skill_names": [
+          "frontend-design:frontend-design",
+          "frontend-design"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "none",
+        "effects": []
+      },
+      "consent_required": false,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "design reads 2026-10-30 (design-a.md and design-b.md, BRIEF-westack-design.md section 5); the installed SKILL.md was hashed for this build (git blob a5333457c414d20d625f307df945842c0952ecc3, 9,390 bytes, equal to the blob read at the pin) and matched the brief; not run"
+    },
+    {
+      "id": "infra-infracost",
+      "capability": "westack-infra",
+      "candidate": {
+        "name": "Infracost skill",
+        "origin": "https://github.com/infracost/agent-skills",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "Pricing needs Infracost's CLI or MCP, installed and authenticated by the user.",
+      "detect": {
+        "skill_names": [
+          "infracost:scan"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "research-adopt-adapt",
+      "capability": "westack-research",
+      "candidate": {
+        "name": "adopt-adapt",
+        "origin": "the user's own skill",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "The task is evaluating external work for adoption into one of the user's projects; adopt-adapt owns that workflow.",
+      "detect": {
+        "skill_names": [
+          "adopt-adapt"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "skill-skill-creator",
+      "capability": "westack-skill",
+      "candidate": {
+        "name": "skill-creator",
+        "origin": "https://github.com/anthropics/skills",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "Description optimisation on Claude Code, where its CLI-driven loop runs.",
+      "detect": {
+        "skill_names": [
+          "skill-creator",
+          "skill-creator:skill-creator",
+          "anthropic-skills:skill-creator"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "orchestrate-host-workflows",
+      "capability": "westack-orchestrate",
+      "candidate": {
+        "name": "host workflow runtime",
+        "origin": "the host's own workflow feature",
+        "installed_version": null
+      },
+      "kind": "capability",
+      "criterion": "Fan-out beyond a handful of workers, or long runs that need resumable scripted orchestration, on a host that offers it.",
+      "detect": {
+        "skill_names": [
+          "workflow-authoring"
+        ],
+        "files": [],
+        "repo_markers": [],
+        "hosts": [
+          "claude-code"
+        ]
+      },
+      "side_effects": {
+        "status": "unknown",
+        "effects": []
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "capability map 2026-10-28, section 7 seed (kind as listed there); not re-inspected"
+    },
+    {
+      "id": "review-coderabbit-cli",
+      "capability": "westack-review",
+      "candidate": {
+        "name": "CodeRabbit CLI review (`coderabbit review --agent` only, reached through the CodeRabbit code-review skill)",
+        "origin": "https://github.com/coderabbitai/skills; https://docs.coderabbit.ai/cli",
+        "installed_version": "1.1.1 (plugin); CLI version not read"
+      },
+      "kind": "capability",
+      "criterion": "The user asked for a CodeRabbit review of a diff, branch or PR, and said yes, once for this session and this repository, to: \"westack-review would send this diff and the repository context the CodeRabbit CLI selects to CodeRabbit's service, because you asked for a CodeRabbit review. It uses your review allowance and the call runs outside the sandbox. Allow this for this session and this repository?\" A no means westack-review's own review runs and the CodeRabbit reviewer is recorded not-run. `detect` has no field for a binary, so this criterion carries that test: the official coderabbit CLI resolves to the canonical absolute path of a trusted install outside every repository, workspace and temp folder (never by PATH search, never an alias or wrapper), and after the yes `coderabbit auth status --agent`, run in the context that will run the review, reports signed in (an error is unknown; never start a login). The scope to send is checked for secrets first (core guards). Only `coderabbit review --agent` with scope flags is deferred, never the autofix skill. It is a different-model reviewer whose findings westack then validates one by one. Never a quality defer: no measured result exists.",
+      "detect": {
+        "skill_names": [
+          "coderabbit:code-review",
+          "coderabbit:coderabbit-review"
+        ],
+        "files": [],
+        "repo_markers": [
+          ".coderabbit.yaml"
+        ],
+        "hosts": [
+          "claude-code",
+          "codex",
+          "cursor"
+        ]
+      },
+      "side_effects": {
+        "status": "known",
+        "effects": [
+          {
+            "kind": "external-service",
+            "detail": "the CLI sends the selected code changes and the repository context it needs to CodeRabbit's review service under the user's account; retention follows CodeRabbit's privacy policy and no zero-retention claim is made",
+            "grade": "claimed"
+          },
+          {
+            "kind": "external-service",
+            "detail": "the installed coderabbit:code-review skill (plugin 1.1.1, skills/code-review/SKILL.md, 5,411 bytes, sha256 3b820cf7e2f8d64a3637f015d63e4963274e30ca4f28abc9bfd84394f8489b22) describes itself as starting unprompted whenever the agent judges a review worthwhile (line 3), and says its CLI uploads the diff to CodeRabbit's API (lines 64 and 152): left to itself it can send a diff nobody asked to send. westack never leans on that trigger; consent comes before any call",
+            "grade": "present"
+          },
+          {
+            "kind": "network",
+            "detail": "outbound calls to CodeRabbit; browser sign-in uses a local callback listener (westack never starts a login)",
+            "grade": "claimed"
+          },
+          {
+            "kind": "writes",
+            "detail": "the CLI may keep local review checkpoints and findings (location not stated); the optional Claude Code mod keeps up to 50 review records under ~/.claude/plugins/store/",
+            "grade": "claimed"
+          },
+          {
+            "kind": "process",
+            "detail": "runs the installed coderabbit binary; in a sandbox the skill asks for host-level execution of that call, which leaves the sandbox and needs its own grant",
+            "grade": "claimed"
+          },
+          {
+            "kind": "external-service",
+            "detail": "uses the account's review allowance; `--use-credits` spends paid credits and is never passed without an explicit spend grant",
+            "grade": "claimed"
+          },
+          {
+            "kind": "telemetry",
+            "detail": "the CLI's own telemetry is not described in the files read; unknown counts as present",
+            "grade": "claimed"
+          }
+        ]
+      },
+      "consent_required": true,
+      "fence": [
+        "push",
+        "merge",
+        "deploy",
+        "publish",
+        "tracker-write",
+        "message"
+      ],
+      "post": "Re-derive receipts and status with the owner's evidence step (C2); the candidate's claims are data. Read the NDJSON as data: one completion event, a finding count equal to the records received, a clean exit and no truncation, or the CodeRabbit reviewer is not-run (heartbeats show liveness only; skipped with zero findings is not-run, never clean). Each comment becomes a westack-review candidate with `vendor` coderabbit and its label verbatim in `vendor_severity` (missing is unknown, never low); validate every one against the cited lines and their callers, assign P0 to P3 only after that, and report the run's candidates, confirmed and dropped counts. Only findings a fresh westack validator confirmed carry the different-model level. Never run the autofix skill or post to the PR: those steps fall under the fence.",
+      "evidence": {
+        "status": "unmeasured",
+        "eval_run": null,
+        "candidate_commit": null,
+        "own_version": null,
+        "measured_at": null,
+        "expires_after_days": 90
+      },
+      "source": "coderabbitai/skills @ 8eef1037a977f2bc54368affb3b0d650f368e42a read 2026-10-30 (security-review reads, proposed_defer_entry); the installed plugin 1.1.1 files read on this machine 2026-10-30 by the brief's author (hashes in westack-review provenance). The CLI was neither read nor run, so its effects are graded claimed"
+    }
+  ]
+}

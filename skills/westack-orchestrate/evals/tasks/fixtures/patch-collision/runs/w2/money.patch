@@ -1,0 +1,21 @@
+patch-w2-5f2
+--- a/src/fmt/money.py
++++ b/src/fmt/money.py
+@@ -1,4 +1,4 @@
+ # money-src-5k1
+ def fmt(amount):
+     """An amount for display."""
+-    return str(amount)
++    return str(int(amount + 0.5))
+--- /dev/null
++++ b/tests/test_money_dashboard.py
+@@ -0,0 +1,9 @@
++import unittest
++
++from src.fmt import money
++
++
++class DashboardTests(unittest.TestCase):
++    def test_whole_units_rounded_half_up(self):
++        self.assertEqual(money.fmt(3), "3")
++        self.assertEqual(money.fmt(1234.5), "1235")

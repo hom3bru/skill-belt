@@ -1,0 +1,16 @@
+{
+  "format": "westack-retro-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-retro, westack-review, westack-perf and westack-health from this repository. The user's real population also holds standup and stakeholder-update skills from installed plugins (engineering standup, product-management stakeholder-update); keep them in.",
+  "cases": [
+    {"id": "r01", "split": "dev", "expect": "westack-retro", "prompt": "Run a retro on the last week of commits in this repo."},
+    {"id": "r02", "split": "dev", "expect": "westack-retro", "prompt": "How did this sprint compare to the last one? Use the git history."},
+    {"id": "r03", "split": "held-out", "expect": "westack-retro", "prompt": "What did I work on across all my projects this week?"},
+    {"id": "r04", "split": "dev", "expect": "westack-retro", "prompt": "Give the team a 30-day retrospective: what shipped, hotspots, who did what."},
+    {"id": "n01", "split": "dev", "expect": "westack-review", "prompt": "Review the diff on this branch before I merge.", "near_miss_of": "westack-retro (one change, not a window)"},
+    {"id": "n02", "split": "held-out", "expect": "westack-perf", "prompt": "Did last week's changes make the build slower? Measure it.", "near_miss_of": "westack-retro (speed, measured)"},
+    {"id": "n03", "split": "dev", "expect": "westack-health", "prompt": "Score the codebase's health: type errors, lint and test pass rate.", "near_miss_of": "westack-retro (tool scores now, not a window of work)"},
+    {"id": "n04", "split": "dev", "expect": "NONE", "prompt": "What is a sprint retrospective?", "near_miss_of": "westack-retro (a question, no window)"}
+  ]
+}

@@ -1,0 +1,6 @@
+# golden invoice, generated 2026-08-20 by tests/make_golden.py (gld-gold-1b9)
+paper      4 x   12.50
+toner      1 x   50.00
+net    100.00
+VAT    20.00
+total  120.00

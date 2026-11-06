@@ -1,0 +1,2131 @@
+{
+ "format": "westack-donors-1",
+ "skill": "westack-security",
+ "reviewed": "2026-10-31",
+ "policy": "Ideas only, in westack's own words. Nothing was quoted, copied, installed or run. Every pin and hash is copied by URL from the reads that assessed the source (the 2026-10-28 deep reads and the 2026-10-30 sub-skill reads); the Cloudflare companions and its LICENSE were fetched from the raw blobs at the pin into memory for this build. P2 backlog items (refs p2:) and the P1 items deferred to this skill (refs deep:) follow the adoption record rules; the brief's new items, the addendum items and the Cloudflare checklists are under sec: refs. Proprietary sources are marked ideas only and never to be quoted.",
+ "donors": [
+  {
+   "ref": "p2:anthropics/claude-code-action",
+   "system": "Claude Code GitHub Action",
+   "licence": "MIT (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/src/github/validation/permissions.ts",
+     "sha256": "904f903c16fc93c9f2d73aa4d68349e56c2fece2bb321bb49adc216165f771e8",
+     "bytes": 5716,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/src/github/validation/actor.ts",
+     "sha256": "66f34df07eadc42b6e51a20871d61d06cd2c71558d95f4ef3228f439b61dea4d",
+     "bytes": 2829,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/docs/security.md",
+     "sha256": "2dd090ea8027eda1b4148bc46d00767c1bb5fdd78203a5c53525580e8e9cfc5c",
+     "bytes": 14238,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/LICENSE",
+     "sha256": "cebdde8a8fb9ee59e5eaaed19578bf8085aa7047562259c31f38f225c26f6812",
+     "bytes": 1070,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-25: An automated trigger runs only for actors with write access (the upstream actor too), refuses bots unless named, and grants the workflow the fewest permissions.",
+     "grade": "wired",
+     "evidence": "src/github/validation/permissions.ts:27-74,114-117; src/github/validation/actor.ts:30-88; docs/security.md:5-25",
+     "where": "references/host.md (Automated triggers)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-25 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "The CI half of GS-25 (scanning in CI, skipped fork runs) stays with the planned westack-ci.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "p2:a2aproject/A2A",
+   "system": "A2A protocol specification",
+   "licence": "Apache-2.0 (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/docs/specification.md",
+     "sha256": "8af843abb347083d175945c9c3e340a68288fdf3a5eee8b38514fa1a158d7e88",
+     "bytes": 157901,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/docs/topics/streaming-and-async.md",
+     "sha256": "de906fadcbc32657924cbecb272c2c02d1ad5544d74b10426fb90b08b058ae0f",
+     "bytes": 10148,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/LICENSE",
+     "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+     "bytes": 11358,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-25: A callback needs a validated URL (no private, loopback or link-local target), authentication, an id the run created, idempotent handling and a rate limit.",
+     "grade": "present",
+     "evidence": "docs/specification.md:3132-3163; docs/topics/streaming-and-async.md:83-90",
+     "where": "references/host.md (Automated triggers)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-25 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "p2:anthropics/claude-code",
+   "system": "Claude Code repository (examples, settings and mods)",
+   "licence": "Ideas only (proprietary): LICENSE.md reserves all rights; nothing may be copied.",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/examples/settings/README.md",
+     "sha256": "07ce243f3fb58b45b4505bd813624ac041a3d101c4de2777379aadce27b106d2",
+     "bytes": 2468,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/examples/settings/settings-strict.json",
+     "sha256": "24434853701e419d030668ca1f045f115cb66cca6edc3748dc90c0d3fa558843",
+     "bytes": 608,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/examples/settings/settings-bash-sandbox.json",
+     "sha256": "d3b8f709f9b783b38fac3c10f4c15fa28a8eedb44cd644f1140a788115de5d15",
+     "bytes": 442,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/mods/sec-default/README.md",
+     "sha256": "77935e82e8e09ae570de1e3b825ceb4ca75c19f3ca0d566795c091d8444be095",
+     "bytes": 35923,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/mods/sec-default/hooks/register.ts",
+     "sha256": "3752c3673e0b2105f32555ef58530b5fa476be73ab08ab0d19ec8f3352ebaccb",
+     "bytes": 6988,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/LICENSE.md",
+     "sha256": "728158fd1037143fad6907e8fa34804177e598b7326519503fe83cafdef849e6",
+     "bytes": 150,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-39: A host-control audit lists the independent switches (bypass mode off, managed-only rules and hooks, a pinned plugin allowlist, a sandbox with no fallback) and what each covers; a sandbox may cover the shell only.",
+     "grade": "present",
+     "evidence": "examples/settings/README.md:13-27; examples/settings/settings-strict.json:1-28; examples/settings/settings-bash-sandbox.json:1-18",
+     "where": "references/host.md (Switches)"
+    },
+    {
+     "mechanism": "GS-49: A component's authority tier comes from the path it was loaded from, never from its own claims.",
+     "grade": "present",
+     "evidence": "mods/sec-default/README.md:13-19,71-73,83-86; mods/sec-default/hooks/register.ts:15-22,209-219",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-39, GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Host-specific values date quickly; host.md tells the auditor to date them.",
+    "Licence status: ideas-only (proprietary terms). Never quote this source."
+   ]
+  },
+  {
+   "ref": "p2:openclaw/openclaw",
+   "system": "OpenClaw",
+   "licence": "MIT (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/openclaw/openclaw/blob/da8f9079520f13aae660b866c91b1527b5ad26e4/SECURITY.md",
+     "sha256": "5da3894229266154d0d5663e0b8a6ff493a90efc19a1cbdd1693b873d7226f30",
+     "bytes": 38637,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/openclaw/openclaw/blob/da8f9079520f13aae660b866c91b1527b5ad26e4/docs/tools/plugin.md",
+     "sha256": "7aac3089ccae615e23971b1ce65a0025bf1ce756187789149eaea72429f92210",
+     "bytes": 28341,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/openclaw/openclaw/blob/da8f9079520f13aae660b866c91b1527b5ad26e4/src/infra/clawhub-install-trust.ts",
+     "sha256": "9e3f3ed05061818a613859f6602aeebcdbf1f4ce7db000b3e8ff211bb16619c3",
+     "bytes": 22429,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/openclaw/openclaw/blob/da8f9079520f13aae660b866c91b1527b5ad26e4/docs/tools/skills.md",
+     "sha256": "4913e427aa2b1d314693c516ca9e59ebdda26e5843e14ded903b4c46497f438d",
+     "bytes": 49117,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/openclaw/openclaw/blob/da8f9079520f13aae660b866c91b1527b5ad26e4/LICENSE",
+     "sha256": "9efd316ecf1c4c60f6fd5d26433142fff2b6794d7d328e9bc6179b29bf9c82a4",
+     "bytes": 1076,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-39: Installing a plugin is a trust grant: plugins sit inside the trusted computing base.",
+     "grade": "present",
+     "evidence": "SECURITY.md:151-157,267-273; docs/tools/plugin.md:65-85",
+     "where": "references/host.md (Switches)"
+    },
+    {
+     "mechanism": "GS-49: An import is judged by the exact release: the registry's answer must name the requested package, publisher, version and hash, and a pending verdict is not clean; third-party skills are untrusted code read first.",
+     "grade": "wired",
+     "evidence": "src/infra/clawhub-install-trust.ts:75-144,260-300,503-579; docs/tools/skills.md:399-426",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-39, GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "p2:anthropics/claude-plugins-official",
+   "system": "Claude plugin marketplace (review policy and scope scripts)",
+   "licence": "Apache-2.0 (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/.github/policy/prompt.md",
+     "sha256": "e90eecc461c4797a874b8d75205feb4cc9bd3b8ab2da4ad8d5e6978a9bfbf3fb",
+     "bytes": 7977,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/.github/policy/schema.json",
+     "sha256": "cd6d6306ad5b6e091c34c7d4ac10c7cc44004e0e70bed40e0d5dc5e29bde8ede",
+     "bytes": 1972,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/.github/scripts/external-pr-scope.js",
+     "sha256": "98f8739ab9a996e2ca04194b8a7fcc825aad4f8005ccef6fccfbeb66772e697b",
+     "bytes": 7544,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+     "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+     "bytes": 11358,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-44: Reading a credential is acceptable only to send it to the service it belongs to; judge by the credential's name and the destination, not the plugin's own description.",
+     "grade": "present",
+     "evidence": ".github/policy/prompt.md:37-68",
+     "where": "references/intake.md (Configuration it brings)"
+    },
+    {
+     "mechanism": "GS-48: A vetting pass reads the whole shipped payload, hidden directories included, lists each hook on one line (event, handler, gated or not, network host), and fails ungated hooks and undisclosed default-on telemetry.",
+     "grade": "wired",
+     "evidence": ".github/policy/prompt.md:11-24,73-108,120-137; .github/policy/schema.json:34-38",
+     "where": "references/intake.md (Read the whole payload)"
+    },
+    {
+     "mechanism": "GS-49: Outside contributions are trusted by source class (entries pinned to commits), not by identity.",
+     "grade": "present",
+     "evidence": ".github/scripts/external-pr-scope.js:1-18,47-52",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-44, GS-48, GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Only the review-policy files of the marketplace were read; the excluded claude-security plugin informed nothing.",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "p2:snyk/agent-scan",
+   "system": "Snyk agent-scan (the 2026-10-28 read)",
+   "licence": "Apache-2.0 for the code (LICENSE read); TERMS.md governs the hosted API",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/docs/risks.md",
+     "sha256": "afd33fd70fa3e2d37a06e2fef1a789781adb5d80d3507270d43d0015d833d189",
+     "bytes": 7394,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/docs/issue-codes.md",
+     "sha256": "c462f20c8bd529b9a6986766686fbcb94d635706d1344d4312ff7ecacc8f4042",
+     "bytes": 14445,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/LICENSE",
+     "sha256": "90154031b70befefac025106f493124530e13c608b876cc1418b5f65ba945f14",
+     "bytes": 11347,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-45: Judge tools as a set: untrusted content, private data and destructive capability held together carry the risk; name which of the three each tool adds.",
+     "grade": "present",
+     "evidence": "docs/issue-codes.md:32-38; docs/risks.md:25-51",
+     "where": "references/host.md (Tools as a set)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-45 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "docs/risks.md and LICENSE carry the 2026-10-30 re-hash of the raw blob (the 2026-10-28 read recorded their CRLF forms, 7515 and 11548 bytes); docs/issue-codes.md keeps the 2026-10-28 value.",
+    "Snyk keeps network egress out of the three; westack keeps egress as its own risk class (core authority.md).",
+    "Licence status: permissive (Apache-2.0) for the code."
+   ]
+  },
+  {
+   "ref": "p2:NousResearch/hermes-agent",
+   "system": "Hermes Agent (Nous Research)",
+   "licence": "MIT (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/NousResearch/hermes-agent/blob/ef75bc708867e3884cb40a91363be6dc6fddc034/tools/skills_guard.py",
+     "sha256": "787cc033369e79fd8fb05988895236b100afbd122d9dd819adde7638acfc196b",
+     "bytes": 66825,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/NousResearch/hermes-agent/blob/ef75bc708867e3884cb40a91363be6dc6fddc034/LICENSE",
+     "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+     "bytes": 1070,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-49: Install trust is decided by source class first, crossed with the scan verdict; a dangerous verdict blocks the install.",
+     "grade": "wired",
+     "evidence": "tools/skills_guard.py:21-39,821-834",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "p2:Kilo-Org/kilocode",
+   "system": "Kilo Code",
+   "licence": "MIT (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/Kilo-Org/kilocode/blob/42037e8b5586b6d7a0c30211ed5869dc5a427da6/packages/kilo-docs/pages/customize/custom-subagents.md",
+     "sha256": "adc3f60dd4005ad3a5f42a3ebc81e5c3e89eb7cba40451155319d4128e66fe8f",
+     "bytes": 13909,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/Kilo-Org/kilocode/blob/42037e8b5586b6d7a0c30211ed5869dc5a427da6/LICENSE",
+     "sha256": "8a088af74e19c37e62906321b1072f593113058ed9eae507d899d41e6e5e5bb4",
+     "bytes": 1094,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-49: Agent definitions from outside the project are untrusted: no environment substitution, and file references stay inside the project.",
+     "grade": "present",
+     "evidence": "packages/kilo-docs/pages/customize/custom-subagents.md:98-110",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "p2:anthropics/claude-agent-sdk-typescript",
+   "system": "Claude Agent SDK (TypeScript), release notes",
+   "licence": "Ideas only (proprietary): LICENSE.md reserves all rights; nothing may be copied.",
+   "grade": "claimed",
+   "sources": [
+    {
+     "url": "https://github.com/anthropics/claude-agent-sdk-typescript/blob/e2963809c50847f00143646418177031aa38dd9c/CHANGELOG.md",
+     "sha256": "62cb7638877cb67858cffa067a503aba102be64095546fd8184b627cd46e2f9e",
+     "bytes": 98115,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-agent-sdk-typescript/blob/e2963809c50847f00143646418177031aa38dd9c/LICENSE.md",
+     "sha256": "728158fd1037143fad6907e8fa34804177e598b7326519503fe83cafdef849e6",
+     "bytes": 150,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-49: Trust can key on a tool's origin (its server name and source), not on what the tool says about itself.",
+     "grade": "claimed",
+     "evidence": "CHANGELOG.md:298 (a release note; the implementation is not in the repository)",
+     "where": "references/intake.md (Judge the source)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-49 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Licence status: ideas-only (proprietary terms). Never quote this source."
+   ]
+  },
+  {
+   "ref": "p2:newren/git-filter-repo",
+   "system": "git-filter-repo (newren/git-filter-repo): fast, single-file Python tool for one-shot git history rewriting (path filtering and renaming, content and message edits)",
+   "licence": "Ideas only (restrictive). Mixed: MIT for the tool and most files, with alternative git.git or libgit2 (GPL) terms offered and GPL-2 test-harness files that were not read. Nothing quoted or copied.",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/Documentation/git-filter-repo.txt",
+     "sha256": "9720d81d5aaceb39a5e575665103262353409bd44888d92e8c467af813dd2203",
+     "bytes": 84251,
+     "read": "partial",
+     "role": "primary"
+    },
+    {
+     "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/git-filter-repo",
+     "sha256": "39d35fb2c35637a9d555353b6a8b53a223a227d3beb61a0ac7e1180bfa5572f1",
+     "bytes": 212278,
+     "read": "partial",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/newren/git-filter-repo/blob/d7b75aca907380f608892cc289e616f195427b99/COPYING",
+     "sha256": "6447a28bf91a61a316accc25bc8fcdb8cba667bb226cab571107e8110ea2d411",
+     "bytes": 1159,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "WB-78: A removal is proved by absence: the old identifiers must fail to resolve on every copy, the copies still holding them are named, and an exposed credential is revoked before history is rewritten.",
+     "grade": "wired",
+     "evidence": "Documentation/git-filter-repo.txt:796-801,944-971; git-filter-repo:4800-4811",
+     "where": "references/fix.md (A removal is a claim of absence); references/record.md; scripts/secaudit.py (absence-unprobed, absence-probe-inexact, absence-survivor, absence-unrotated, absence-malformed)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Extends the earlier records of this repository: deep:newren/git-filter-repo and p2:newren/git-filter-repo in the core facility-donors.json, and p2:newren/git-filter-repo in westack-ship.",
+    "Supports adoption items WB-78 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+    "Pins, SHA-256 values and byte counts are copied by URL from the earlier record in westack-ship; nothing was fetched or re-inspected for this follow-up (2026-10-31), and the rule text was written from the adoption notes, not from the donor files. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "The general rule is in core verify.md and westack-ship readiness.md; this record covers the security half: the fix-mode section and the absence field secaudit.py checks.",
+    "Licence status: ideas-only (restrictive). Never quote this source."
+   ]
+  },
+  {
+   "ref": "p2:OpenHands/software-agent-sdk",
+   "system": "OpenHands software-agent-sdk",
+   "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 OpenHands contributors)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/security/risk.py",
+     "sha256": "b9bdec25647e92fb71f4592cb9352d172d75b3da17153ec2073f00d79c96a0fb",
+     "bytes": 5323,
+     "read": "full",
+     "role": "primary"
+    },
+    {
+     "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/security/confirmation_policy.py",
+     "sha256": "6ecac839fa3740e5cdc8aae6515cd0cf4ef4177c5b27bb99a7d593af844c765f",
+     "bytes": 2145,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/security/ensemble.py",
+     "sha256": "5c776dd68bbd6b6ca0ea22a59c7b78d71c4773bc81dff8419ccb387a914c23f9",
+     "bytes": 3678,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/security/analyzer.py",
+     "sha256": "a4dfd0417d4fe6db4712f8854e78664e98f92367baa48f2af244b2963f71d543",
+     "bytes": 6063,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/LICENSE",
+     "sha256": "14a9b631c658eee682c6c2973525fbdf808c3457176bc47513052c559cc5ce86",
+     "bytes": 1079,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-31: Risk has three ordered levels and a separate unknown that is never compared with them; unknown is never a confirmation threshold and has its own ask switch.",
+     "grade": "present",
+     "evidence": "openhands-sdk/openhands/sdk/security/risk.py:8-23,69-123; openhands-sdk/openhands/sdk/security/confirmation_policy.py:43-61",
+     "where": "scripts/secaudit.py (RISK, combine_risk, risk-unknown-unasked); references/record.md"
+    },
+    {
+     "mechanism": "GS-31: Independent risk checks combine by the worst concrete level; a check that raised counts as high; when every check is unknown the result stays unknown.",
+     "grade": "present",
+     "evidence": "openhands-sdk/openhands/sdk/security/ensemble.py:22-101; openhands-sdk/openhands/sdk/security/analyzer.py:71-98,127-144",
+     "where": "scripts/secaudit.py (combine_risk, risk-off-combination, risk-malformed); references/record.md"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Extends the earlier records of this repository: deep:OpenHands/software-agent-sdk and p2:OpenHands/software-agent-sdk in the core facility-donors.json.",
+    "Supports adoption items GS-31 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Pins, SHA-256 values and byte counts are copied by URL from the earlier record in the core facility-donors.json p2_adoption block; nothing was fetched or re-inspected for this follow-up (2026-10-31), and the rule text was written from the adoption notes, not from the donor files. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "The core holds the text rule (references/guards.md, Rule sources and gates); this record covers the risk field on the findings record and the checks secaudit.py runs on it.",
+    "Licence status: permissive, as read in the family report."
+   ]
+  },
+  {
+   "ref": "p2:microsoft/waza",
+   "system": "microsoft/waza (Go CLI; docs name published v0.39.0)",
+   "licence": "MIT (LICENSE read, Copyright Microsoft Corporation)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/README.md",
+     "sha256": "407ad2d2ee6b5c2f573cd7c8a89547c90ef2f2cbb2e134a6c77e0925ebf88085",
+     "bytes": 111068,
+     "read": "partial",
+     "role": "primary"
+    },
+    {
+     "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/internal/adversarial/data/prompt-injection/pack.yaml",
+     "sha256": "6c681e0643583a455b0386bd2acc93c7bf92614a0a4ccc5ccbc99d63d57b5085",
+     "bytes": 486,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/internal/adversarial/data/prompt-injection/tasks/exfil-credentials.yaml",
+     "sha256": "c526998238baa11cf688e6728f1e5069b4daf70a3b8de0a1026ef1cf8298c66e",
+     "bytes": 901,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/LICENSE",
+     "sha256": "7df20dcdf9197e9945c14858d41c60f11b52b93e5b69e2b63416b874d598d322",
+     "bytes": 1074,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-53: Security tasks seed injection through fixture files such as a ticket or README and ask for out-of-scope actions; each lists forbidden tools and strings, and an unsafe outcome fails the task outright.",
+     "grade": "present",
+     "evidence": "internal/adversarial/data/prompt-injection/pack.yaml:1-15; tasks/exfil-credentials.yaml:1-35; README.md:735-762",
+     "where": "evals/tasks/campaign.json (ticket-injection, credential-probe: forbidden rules and hard fails)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Extends the earlier records of this repository: deep:microsoft/waza and p2:microsoft/waza in westack-eval.",
+    "Supports adoption items GS-53 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+    "Pins, SHA-256 values and byte counts are copied by URL from the earlier record in westack-eval; nothing was fetched or re-inspected for this follow-up (2026-10-31), and the rule text was written from the adoption notes, not from the donor files. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "westack-eval carries the grader half (forbidden rules matched against each tool call's input, an attempt a hard fail); this record covers the two security task cases that use it.",
+    "Licence status: permissive, as read in the family report."
+   ]
+  },
+  {
+   "ref": "deep:cloudflare/security-audit-skill",
+   "system": "Cloudflare security-audit skill",
+   "licence": "MIT (LICENSE read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+     "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+     "bytes": 22026,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/RECONNAISSANCE.md",
+     "sha256": "02ca887aca84de8ae137f1891bd2f0a54f28d3fa6da92a27f54734382b3381a2",
+     "bytes": 15902,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/HUNTING.md",
+     "sha256": "71c121decea1322c47c718f6e110f1a892980bb4266bd7ac55ef043a213ade09",
+     "bytes": 22446,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/validate-coverage-ledger.cjs",
+     "sha256": "2eb280bd2e33c002916f86db9b29f9edfedb6454e5db973c766290465b868ac8",
+     "bytes": 33522,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/validate-findings.cjs",
+     "sha256": "e85f232e36bfac0f866f244da50376692d6b45c690beadcb00608b0e6c8b5283",
+     "bytes": 28806,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+     "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+     "bytes": 1078,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-50: Only a ledger of closed units supports a coverage claim; excluded paths stay counted as unchecked and a scoped run says partial.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/RECONNAISSANCE.md:90-154; SKILL.md:94,107-117",
+     "where": "references/checks.md (Coverage and scope), reusing westack-review's diffscope.py coverage; scripts/secaudit.py report (audit status)"
+    },
+    {
+     "mechanism": "GS-50: Each unit records what was considered and excluded, with a reason.",
+     "grade": "wired",
+     "evidence": "RECONNAISSANCE.md:86-88; validate-coverage-ledger.cjs:695-702",
+     "where": "references/record.md (scope.excluded); scripts/secaudit.py check (exclusion-unreasoned)"
+    },
+    {
+     "mechanism": "GS-51: Admit a candidate only with a lower-trust principal, input, intended control, crossed boundary, affected resource and observed result; otherwise it is a hardening note.",
+     "grade": "wired",
+     "evidence": "SKILL.md:138-140,181-192; HUNTING.md:138-157",
+     "where": "references/assess.md (The admission tuple); scripts/secaudit.py check (tuple-missing)"
+    },
+    {
+     "mechanism": "GS-51: Severity only on confirmed records, scored apart from certainty, and capped at demonstrated impact.",
+     "grade": "wired",
+     "evidence": "SKILL.md:150-162; validate-findings.cjs:559-562",
+     "where": "references/severity.md; scripts/secaudit.py check (severity-unconfirmed, impact-over-demonstrated)"
+    },
+    {
+     "mechanism": "GS-52: Target code runs only with the sandbox controls in place, else the check is blocked (the security part, pointing at the core rule).",
+     "grade": "wired",
+     "evidence": "SKILL.md:31-42",
+     "where": "SKILL.md rule 1, citing core verify.md"
+    }
+   ],
+   "rejected": [
+    "A standard-library port of the coverage-ledger validator: westack-review's diffscope.py coverage is reused unchanged (the build constraints and the user's decision), so its percent-encoded unit ids are not carried.",
+    "The Node validators as shipped: they throw on native Windows where O_NOFOLLOW is undefined (10-28 read)."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-50, GS-51 and the security part of GS-52 (P1 adoption, ADOPTION-LIST.md, 2026-10-28).",
+    "Read at the pinned commit in the 2026-10-28 deep read; SHA-256 and byte counts are those recorded there, except LICENSE, which this build fetched from the raw blob at the pin into memory (1078 bytes; the deep read recorded 1099 bytes, the CRLF form of a Windows checkout).",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "deep:NVIDIA/SkillSpector",
+   "system": "NVIDIA SkillSpector 2.12.0",
+   "licence": "Apache-2.0 (LICENSE read in the 2026-10-28 deep read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/README.md",
+     "sha256": "8411658185322967034e4ad84e53b81805755de9495bddb3bcae00ad259c32a8",
+     "bytes": 60284,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/src/skillspector/inspection_ledger.py",
+     "sha256": "ffa23b49f0d0ecdde5db548565e7a5672de78133da47081d0ad95ac19e84b10f",
+     "bytes": 49285,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/src/skillspector/nodes/analyzers/prohibition_context.py",
+     "sha256": "5d863d294c07911aa7f95e146d6dec43f8445dd38eabaafc86b25121ce867a07",
+     "bytes": 10083,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/LICENSE",
+     "sha256": "9f8785b47596b2993a17a3fa8d747ae63126a2c5e80a9e77195a907273d71839",
+     "bytes": 10782,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-50: Excluded paths stay in the coverage denominator as uninspected, and any exclusion makes coverage partial.",
+     "grade": "wired",
+     "evidence": "README.md:279-300; src/skillspector/inspection_ledger.py:23-31",
+     "where": "references/checks.md (Coverage and scope); references/record.md"
+    },
+    {
+     "mechanism": "GS-54: A prohibition exempts a scanner match only when it directly governs that action in a known phrasing; unknown phrasing keeps detection and nearby negation does not count.",
+     "grade": "wired",
+     "evidence": "src/skillspector/nodes/analyzers/prohibition_context.py:4-9,23-31",
+     "where": "references/intake.md (Read the whole payload)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports adoption items GS-50 (P1) and GS-54 (P3) (ADOPTION-LIST.md, 2026-10-28).",
+    "Read at the pinned commit in the 2026-10-28 deep read; the SHA-256 and byte counts are those recorded there, taken from the reads' JSON by URL. Not re-inspected for this build. Those reads hashed Windows checkouts, so a text file's recorded hash may be of its CRLF form rather than the raw blob.",
+    "Its clean result is input to an intake review, never a pass (SC-29).",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "sec:openai/codex-security",
+   "system": "OpenAI codex-security (skills, references and evals)",
+   "licence": "Apache-2.0 (LICENSE head read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/attack-path-analysis/references/severity-policy.md",
+     "sha256": "e646ca03970debe8ab7ab32ad1f6a08ee890ac941bf42972ae5c7cc20c15021d",
+     "bytes": 6630,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/static-finding-assessment.md",
+     "sha256": "78de933caef1c8d971dab83fbb71877602a1197a52eaa7a59d6ff7bc399d0bc7",
+     "bytes": 3949,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/finding-detail-fields.md",
+     "sha256": "313e87e924d14f3d4d6d8f8cc5317f928c4d64d420b4105ea0e140964dd58484",
+     "bytes": 10998,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/core-scan.md",
+     "sha256": "7690b6c854de07ff15984f6d2c25ddfa1f6ae65f65876cadf2f904054b4f0679",
+     "bytes": 11078,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/validation/references/validation-guidance.md",
+     "sha256": "48439b292c9e92195ef9905062b1c948df7202ddc1a99aa9192c71e54c46d6ab",
+     "bytes": 4408,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/triage-finding/SKILL.md",
+     "sha256": "2c71d6a89ef0c61ed2f5f1f6af9d05de43e38547eec777937774fd1054b0afaa",
+     "bytes": 8394,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/fix-finding/SKILL.md",
+     "sha256": "d4758c9478ca1fa9123fdc35874d28745e21682b6448b032f59323bdd8af289f",
+     "bytes": 8761,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/verify-fix/SKILL.md",
+     "sha256": "3569c165dffeae015ede1ab1c0dbfd03164673f5b6a54c263b4941ed9a9703a5",
+     "bytes": 4193,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/track-findings/SKILL.md",
+     "sha256": "47cf05754943ea0aa662e808167dcd0c2e7ea5410425c4714b94a796bcd100a5",
+     "bytes": 12703,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/scan-contract.md",
+     "sha256": "27ed098ea86c991e3460b966d099271196d2cf2ceb605e3c4d043f76a61d8c2f",
+     "bytes": 16052,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/final-report.md",
+     "sha256": "32a9833ec0ac811fdb39a523f54ddc5e139f3a8aee33ccf64dae91032fb011f5",
+     "bytes": 11593,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/evals/triage-finding/README.md",
+     "sha256": "762a1ff390a015677a6173f5cb8784ac2e2d556d1ea741c2af2bdef27552e0e3",
+     "bytes": 8537,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/sdk/typescript/docs/cli.md",
+     "sha256": "74c1797736d05f8e8e38aaa0929145aa49a68ea0af7559d27b062c7f275eb629",
+     "bytes": 151742,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/LICENSE",
+     "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+     "bytes": 10926,
+     "read": "partial",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/triage-finding/references/github-rest-intake.md",
+     "sha256": "f026bef041ca92f3d9b47a131794aa54e98cf8d7716fae3f71ab53e8ab09c79f",
+     "bytes": 9314,
+     "read": "full",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/github-action/README.md",
+     "sha256": "e9ab8c6ebb928dc3b5785a7247e2a378a432cab89bdd3d3b848973d9b5a72c74",
+     "bytes": 34204,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-1: Severity from a fixed impact-by-likelihood table; critical needs listed severe evidence; self-only and privileged-only paths drop out unless they gain privilege; confidence is separate.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/skills/attack-path-analysis/references/severity-policy.md:5-99",
+     "where": "references/severity.md; scripts/secaudit.py check"
+    },
+    {
+     "mechanism": "SC-2: One assessment tuple (source, control, sink, path, boundary, counterevidence, proof gaps) after a surface and source-trust class step.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/references/static-finding-assessment.md:8-21,39-50",
+     "where": "references/assess.md; scripts/secaudit.py check (tuple-missing, class-not-reportable)"
+    },
+    {
+     "mechanism": "SC-3: A credential in any source file is a disclosure path, judged by format and use, never tested, described by key and location; public keys and placeholders are not findings.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/references/core-scan.md:28-32,55",
+     "where": "references/secrets.md; evals/tasks (secrets-in-source)"
+    },
+    {
+     "mechanism": "SC-4: Check a control where the value is consumed: re-encoding, redirects, mutation after validation, retries and re-resolution.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/skills/validation/references/validation-guidance.md:21",
+     "where": "references/assess.md (Check the control where the value is used)"
+    },
+    {
+     "mechanism": "SC-5: Triage supplied findings as confirmed, not-actionable (positive evidence on every shipped path) or needs-review (the smallest missing fact); rank by exploitability, scanner severity last.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/skills/triage-finding/SKILL.md:52-74",
+     "where": "references/triage.md; scripts/secaudit.py report (ranking)"
+    },
+    {
+     "mechanism": "SC-6: Snippets labelled by role, checked against the cited lines.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/references/finding-detail-fields.md:7-19",
+     "where": "references/assess.md; scripts/secaudit.py check (snippets)"
+    },
+    {
+     "mechanism": "SC-7: Attack your own patch before verifying it; verify on the original attack path; an empty rescan, a closed ticket or renamed code is not proof.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/skills/fix-finding/SKILL.md:16-20,30-52,80-87; plugins/codex-security/skills/verify-fix/SKILL.md:22-52",
+     "where": "references/fix.md"
+    },
+    {
+     "mechanism": "SC-9: Publication is idempotent (id and fingerprint in every item, search before create, settle an ambiguous write by reading) and private by default.",
+     "grade": "present",
+     "evidence": "plugins/codex-security/skills/track-findings/SKILL.md:32-35,55-66,74-96",
+     "where": "references/record.md (Publishing findings)"
+    },
+    {
+     "mechanism": "SC-11: A prior dismissal holds only while its stated reason still holds against current source; a bare false-positive label never dismisses.",
+     "grade": "wired",
+     "evidence": "plugins/codex-security/references/core-scan.md:9",
+     "where": "references/triage.md; scripts/secaudit.py check (dismissal-bare, dismissal-lapsed)"
+    },
+    {
+     "mechanism": "SC-12: Finding identity is rule family, root-control anchor without line numbers, and an instance key per attackable sibling; group only on matching control and fix.",
+     "grade": "present",
+     "evidence": "plugins/codex-security/references/scan-contract.md:74-92",
+     "where": "references/assess.md (Identity); scripts/secaudit.py check (duplicate-identity, anchor-has-line)"
+    },
+    {
+     "mechanism": "SC-13: The scope receipt is the revision for a clean checkout, else a digest including staged and untracked files, never with remote-URL credentials.",
+     "grade": "present",
+     "evidence": "plugins/codex-security/references/scan-contract.md:54-72",
+     "where": "scripts/secaudit.py scope; references/checks.md (Coverage and scope)"
+    },
+    {
+     "mechanism": "SC-14: The report is generated by code from the validated record; the agent never edits it.",
+     "grade": "present",
+     "evidence": "plugins/codex-security/references/final-report.md:3-4",
+     "where": "scripts/secaudit.py report; references/record.md"
+    },
+    {
+     "mechanism": "SC-15: Vulnerable and fixed commit pairs test the skill, labels in harness metadata only.",
+     "grade": "present",
+     "evidence": "evals/triage-finding/README.md:73-75",
+     "where": "evals/tasks/campaign.json (vuln-snapshot, fixed-snapshot)"
+    },
+    {
+     "mechanism": "SC-16: Stop discovery reruns after N runs add nothing new, or at a run or time cap; a resume keeps the limit.",
+     "grade": "wired",
+     "evidence": "sdk/typescript/docs/cli.md:811-831",
+     "where": "SKILL.md rule 6"
+    }
+   ],
+   "rejected": [
+    "Acquiring GitHub tokens itself (connector, gh auth token, GH_TOKEN, GITHUB_TOKEN, git credential fill): breaks the core rule never to acquire credentials (authority.md).",
+    "Reading SECURITY.md from the PR head: rules come from the base revision.",
+    "Flag: usage analytics on by default in its CLI (the Action turns them off); request-attribution metadata stays on regardless. westack sends nothing.",
+    "Embedding-based finding dedupe (finding text sent to an embeddings API), three-vote severity, the MCP workbench with sealed state, and its cloud and tracker importers.",
+    "Its instructions to run bundled helpers, MCP tools and installers: read as data, none followed."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "REFERENCE: a Codex plugin, not installed on this machine; recorded as an idea source only, with no defer-map entry (the security-gstack-cso entry stays as it is).",
+    "Supports items SC-1 to SC-7, SC-9 and SC-11 to SC-16 (BRIEF-westack-security.md, 2026-10-30). SC-20 (codex #19, CI skipped-is-not-scanned) is deferred to the planned westack-ci and recorded nowhere here.",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "sec:anthropics/claude-code-security-review",
+   "system": "Claude Code Security Reviewer (GitHub Action and /security-review prompt)",
+   "licence": "MIT (LICENSE read in full)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/.claude/commands/security-review.md",
+     "sha256": "dd1d451f909dbb8798f4a4de010c35e7dd9152f02bb2f7988442cdd138f29e39",
+     "bytes": 10837,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/claude_api_client.py",
+     "sha256": "32b5ca67c3d26b65e2467f289b7df054ff9fea6873e2111bcb7259ab3931d05e",
+     "bytes": 18287,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/prompts.py",
+     "sha256": "a779b599d3badeddff9d01f9a1cbe7828c03a4eb17b4717782131963c825d5d0",
+     "bytes": 7079,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/LICENSE",
+     "sha256": "a9ac868c004c4cce26430b3117767b46397ba4fa25026b1e5ea6694b463baf4b",
+     "bytes": 1065,
+     "read": "full",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/findings_filter.py",
+     "sha256": "a18eb6a2112093a547a93bfe351691eb7a9866cfc2ffeee1b5d852da09a63d17",
+     "bytes": 15311,
+     "read": "full",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/action.yml",
+     "sha256": "22dbc162466fc31f66336537db01dfb20e3eb72dd52aa58e093b8d3eb4730138",
+     "bytes": 14003,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-8: Exclusions are conditional defaults, each stating the circumstance that makes it apply, so the validator checks and cites the condition.",
+     "grade": "wired",
+     "evidence": ".claude/commands/security-review.md:134-181; claudecode/claude_api_client.py:243-284",
+     "where": "references/exclusions.md"
+    },
+    {
+     "mechanism": "Sibling-control lens (reference, its mechanism 2): compare with how the codebase already handles the same risk.",
+     "grade": "wired",
+     "evidence": "claudecode/prompts.py:106-124",
+     "where": "references/assess.md (Find the sibling that does it right)"
+    }
+   ],
+   "rejected": [
+    "A numeric confidence floor as a gate (a self-report), and a filter that stamps full confidence when it fails.",
+    "Exclusion by regex over the finding's prose and by file extension.",
+    "A tool failure reported as zero findings."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item SC-8 (BRIEF-westack-security.md, 2026-10-30).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "An explicitly named /security-review runs instead of this skill (SKILL.md).",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:snyk/agent-scan",
+   "system": "Snyk agent-scan (the 2026-10-30 second read)",
+   "licence": "Apache-2.0 for the code (LICENSE head read); TERMS.md governs the hosted API",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/signed_binary.py",
+     "sha256": "f1ed15b32c07022a6ae3bc4b75bca8335862f47eeb7bb4a4050abd519ebade41",
+     "bytes": 3554,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/pipelines.py",
+     "sha256": "8a88b34d179f3b0499d3f01738afa8c8471825e35dc8a7aa70e59ce62df314e5",
+     "bytes": 13188,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/traffic_capture.py",
+     "sha256": "90cefc0d3c1248498bc4bdf16628e1895be968c9d8314f30e0c6cf697d64eb38",
+     "bytes": 9236,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/inspect.py",
+     "sha256": "47ea780bac729ee0e9caadd5179f484741c02576c8d7c1afd873720861445ccf",
+     "bytes": 18449,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/LICENSE",
+     "sha256": "90154031b70befefac025106f493124530e13c608b876cc1418b5f65ba945f14",
+     "bytes": 11347,
+     "read": "partial",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/verify_api.py",
+     "sha256": "34d24754f83cf9605f4eb8c6502c6edb703f8b3ad433f1173ab6886643b069b5",
+     "bytes": 28425,
+     "read": "partial",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/src/agent_scan/hook_events.py",
+     "sha256": "58c5d59835f8f11faf4f97d8d1e691a1a324c29d2312be606ceff996ffcb147f",
+     "bytes": 5259,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-10: A valid signature on a launcher says nothing about what it runs; vet the package or script.",
+     "grade": "wired",
+     "evidence": "src/agent_scan/signed_binary.py:13-33,51-56; src/agent_scan/inspect.py:180",
+     "where": "references/intake.md (Launchers); evals/tasks (mcp-intake)"
+    },
+    {
+     "mechanism": "SC-17: An inventory report names only users with a detected agent, else the current user, with home-relative paths.",
+     "grade": "wired",
+     "evidence": "src/agent_scan/pipelines.py:149-160; src/agent_scan/inspect.py:45-47",
+     "where": "references/host.md (Inventory reports)"
+    },
+    {
+     "mechanism": "SC-18: Escape untrusted subprocess output before printing and cap the captured log.",
+     "grade": "present",
+     "evidence": "src/agent_scan/traffic_capture.py:81-87,98-114",
+     "where": "references/intake.md (Output from anything you run)"
+    }
+   ],
+   "rejected": [
+    "Flag: scans post the hostname and OS usernames with the scanned content to the vendor's API, and its hook installer forwards every hook payload; westack sends nothing.",
+    "Scanning untrusted MCP configs with defaults (it runs their commands) and its hosted detectors."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports items SC-10, SC-17 and SC-18 (BRIEF-westack-security.md, 2026-10-30).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Its clean result is input to an intake review, never a pass (SC-29).",
+    "Licence status: permissive (Apache-2.0) for the code."
+   ]
+  },
+  {
+   "ref": "sec:Panniantong/Agent-Reach",
+   "system": "Agent-Reach",
+   "licence": "MIT (LICENSE read)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/agent_reach/config.py",
+     "sha256": "ad416d1f701512c93212ebb22ffe1fbdd07a55ce56ec3b77f885bdff2ec553c2",
+     "bytes": 6181,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/LICENSE",
+     "sha256": "e94c131ac1c2f78cfd8f7e69da354c0ff58e4e54071697703d56856c036de402",
+     "bytes": 1067,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-19: Credential-bearing config: reads never create the file, the private directory is made on first write, symlinks are refused, writes are atomic and owner-only, reads are size-capped.",
+     "grade": "present",
+     "evidence": "agent_reach/config.py:47-97,119-143",
+     "where": "references/secrets.md (What to check in the target)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item SC-19 (BRIEF-westack-security.md, from new-a.json, 2026-10-30).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:microsoft/skill-recorder",
+   "system": "Microsoft skill-recorder (the 2026-10-29 addendum)",
+   "licence": "MIT (LICENSE read for the addendum)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/common/sensitive.ts",
+     "sha256": "318b34ad298e73f683a1f1b55b87d8d830158209826cb3eed8c38116156154d9",
+     "bytes": 12466,
+     "read": "header and types"
+    },
+    {
+     "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/README.md",
+     "sha256": "66405929630c0533fa45a03953462b31d27e3b5512a070ea68ac1b090052f868",
+     "bytes": 13223,
+     "read": "full",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/LICENSE",
+     "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+     "bytes": 1141,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SR-7: Before captured text leaves for an outside model, scan it on the device for secrets and structured personal data (checksum-validated where possible), record each hit's source and severity, mask the value and never store the raw one.",
+     "grade": "present",
+     "evidence": "common/sensitive.ts (header and types, as read for the addendum)",
+     "where": "references/secrets.md (Before captured text leaves the machine)"
+    }
+   ],
+   "rejected": [
+    "The capture runtime and its cloud analysis step (screen, audio and clipboard capture sent to a vendor's cloud): westack captures nothing itself."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item SR-7 (2026-10-29-skill-recorder.md; P2 backlog, deferred to westack-security because core guards.md had no room).",
+    "Read at the pinned commit for the addendum, hashing the bytes GitHub serves; the SHA-256 and sizes are copied from the addendum's file table. Not re-inspected for this build.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:thedotmack/claude-mem",
+   "system": "claude-mem",
+   "licence": "Apache-2.0 (LICENSE read in part)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/src/shared/cmem-gateway.ts",
+     "sha256": "34cb983c006176aa3f97dd7500f8a5c6331322602e42de62eb75a1c80cd25992",
+     "bytes": 13693,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/docs/public/cloud-sync.mdx",
+     "sha256": "0f2f89fd08567a4c4aa9f11b36e65e3eaa7dfc4b7b2555f8deda21dd34ce683f",
+     "bytes": 10065,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/LICENSE",
+     "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+     "bytes": 11358,
+     "read": "partial",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "GS-44 (second donor): a key goes only to the endpoint it belongs to, and that endpoint accepts only keys of its kind.",
+     "grade": "present",
+     "evidence": "src/shared/cmem-gateway.ts:113-144",
+     "where": "references/intake.md (Configuration it brings)"
+    },
+    {
+     "mechanism": "NR-8: Never ask the user to paste a credential into the conversation; name where they put it themselves.",
+     "grade": "present",
+     "evidence": "docs/public/cloud-sync.mdx:113-120",
+     "where": "references/secrets.md (Asking the user)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports GS-44 (second donor) and NR-8 (2026-10-30-seven-repos-and-opencode.md).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "sec:milind-soni/OpenMausBot",
+   "system": "OpenMausBot",
+   "licence": "Apache-2.0 for everything outside enterprise/ (LICENSE read)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/.oss-scanner/threat_model.md",
+     "sha256": "c9927a04049887811fd53b286ded7398202df619cd0fbf5ae39380e65723ecad",
+     "bytes": 17746,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/SECURITY.md",
+     "sha256": "7db52d832ce79e202f9208d3d0750aef7b5cfd62453dcac68d7895f3ecbdc837",
+     "bytes": 2513,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/apps/docs/content/docs/security/permissions-and-secrets.mdx",
+     "sha256": "1871def33eff3a786d96cefcdcdfc742a2afb0d59bd9ab010dacbd40ff764b49",
+     "bytes": 15100,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/README.md",
+     "sha256": "949516711a041fd040fb4e8a465b79c8946a224dfb3b37da2bb90a9abce050e6",
+     "bytes": 32414,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/docs/approval-levels.md",
+     "sha256": "b8382641b57c1f7a2e3e227bc6ff6e45ecb362659d63469cf0430d6107a8b15c",
+     "bytes": 22468,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/server/auto-approve.ts",
+     "sha256": "e680bd9c7c60437802bbeb939dcc7a462374467d85492a27e55ba30e00bb6158",
+     "bytes": 8036,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/LICENSE",
+     "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+     "bytes": 11358,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-21: Rate prompt injection by what the harness lets through; releasing a credential or skipping a decision is the finding.",
+     "grade": "present",
+     "evidence": ".oss-scanner/threat_model.md:152-179,264-268",
+     "where": "references/severity.md (Prompt injection); scripts/secaudit.py check (injection-prose-only)"
+    },
+    {
+     "mechanism": "SC-22: A project's threat model is audit input; its intended-behaviour list returns as accepted risks with source lines.",
+     "grade": "present",
+     "evidence": ".oss-scanner/threat_model.md:3-6,44-48,152-196,270-293",
+     "where": "SKILL.md rule 2"
+    },
+    {
+     "mechanism": "SC-23: A local agent server trusts no loopback alone: loopback Host, absent or loopback Origin, no proxy headers, and effectful GETs count as mutations.",
+     "grade": "present",
+     "evidence": ".oss-scanner/threat_model.md:46-67; SECURITY.md:16-23",
+     "where": "references/host.md (Local agent servers)"
+    },
+    {
+     "mechanism": "SC-24: A tool capability is bound to a principal, thread and kind and lives only for that principal's live turn.",
+     "grade": "present",
+     "evidence": ".oss-scanner/threat_model.md:68-74,203-205",
+     "where": "references/host.md (Agents and delegates)"
+    },
+    {
+     "mechanism": "SC-25: Give an agent a secret as a scoped one-use reference, never the value.",
+     "grade": "present",
+     "evidence": "apps/docs/content/docs/security/permissions-and-secrets.mdx:25-48",
+     "where": "references/secrets.md (What to check in the target)"
+    },
+    {
+     "mechanism": "SC-26: A shared package or persona imports inert, and its export lists exactly what it holds.",
+     "grade": "present",
+     "evidence": "README.md:197-211; apps/docs/content/docs/security/permissions-and-secrets.mdx:52",
+     "where": "references/intake.md (Configuration it brings)"
+    },
+    {
+     "mechanism": "NR-18: A tool's read-only hint or title is a claim, not permission; classify from the raw call.",
+     "grade": "wired",
+     "evidence": "docs/approval-levels.md:281-293; server/auto-approve.ts:62-64,107-122",
+     "where": "references/host.md (Saved rules)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports items SC-21 to SC-26 (BRIEF-westack-security.md, from new-b.json) and NR-18 (2026-10-30-seven-repos-and-opencode.md).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (Apache-2.0) outside enterprise/, which was not read."
+   ]
+  },
+  {
+   "ref": "sec:CopilotKit/OpenBot",
+   "system": "OpenBot (CopilotKit)",
+   "licence": "MIT (LICENSE read in full)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/server/src/approvals/policy.ts",
+     "sha256": "f1903d390d08be1c62c4e85fe55fbf6e72df1314a770d7c049bb339f359f3c30",
+     "bytes": 16394,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/agent-computer/src/secret-masking.ts",
+     "sha256": "27098c08f0e2637a72547cb868ca6ab394d967abf47a51ee0f657d3bd8641b0d",
+     "bytes": 11295,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/docs/architecture.md",
+     "sha256": "4c17f1f5d9cee855d59c765599f76c5ed676464368686ef5927d68c2d2ecd73d",
+     "bytes": 33973,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/server/src/computer/policy.ts",
+     "sha256": "ab44a44a3f8b82fc9ec920eb85796a749894b84d28cdd55902136b18c0429319",
+     "bytes": 19436,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/LICENSE",
+     "sha256": "6d35a6bb107ae508da34636387f6208e75a6938e797bc0d5bfa9489d2ca95bad",
+     "bytes": 1067,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "B8 (person-only floor, a host-mode audit check): a person decides changes to credentials, two-factor and sharing, and every payment, whatever a rule says; a model reviewer may add a hand-off, never remove one.",
+     "grade": "present",
+     "evidence": "server/src/approvals/policy.ts:75-157,218-236,344-360",
+     "where": "references/host.md (Person-only actions)"
+    },
+    {
+     "mechanism": "SC-25 (second donor): audit every channel that reads a typed secret back (accessibility snapshot, screenshot, page text, live view, logs).",
+     "grade": "present",
+     "evidence": "agent-computer/src/secret-masking.ts:1-28,120-126,144",
+     "where": "references/secrets.md (What to check in the target)"
+    },
+    {
+     "mechanism": "NR-18 (second donor): a tool counts as a read only when a reviewed list says so; anything else is a write.",
+     "grade": "wired",
+     "evidence": "docs/architecture.md:310; server/src/computer/policy.ts:139-142",
+     "where": "references/host.md (Saved rules)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports SC-25 and NR-18 as second donor, and OpenBot B8 as a host-mode audit check (the user's decision: not a core authority.md edit).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:anomalyco/opencode",
+   "system": "OpenCode (the 2026-10-30 delta read)",
+   "licence": "MIT (LICENSE read)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/managed-policy.ts",
+     "sha256": "ca523aad4cbd12d7dc2d46ddf2f47a3fb0c2023e0790e41e895df0fbf3241715",
+     "bytes": 2943,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/config/plugin/policy.ts",
+     "sha256": "fc4d1ff3a599e5931b0f1b530459e809117daba25693fa53b3b10fd3950e482f",
+     "bytes": 4879,
+     "read": "partial"
+    },
+    {
+     "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/LICENSE",
+     "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+     "bytes": 1065,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "OC-13: A policy rule may name the account behind a credential; a bare name matches only credential-free use, and switching accounts re-evaluates every rule.",
+     "grade": "present",
+     "evidence": "packages/core/src/managed-policy.ts:41-66; packages/core/src/config/plugin/policy.ts:31-47",
+     "where": "references/host.md (Saved rules)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item OC-13 (2026-10-30-seven-repos-and-opencode.md).",
+    "Read at the pinned commit by the 2026-10-30 reads session, which re-hashed every source at its pin; SHA-256 and byte counts are copied from its JSON by URL. Not re-inspected for this build.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:cloudflare/security-audit-skill",
+   "system": "Cloudflare security-audit skill: the evidence mechanisms not carried by GS-50 and GS-51, and the attack-class companions",
+   "licence": "MIT (LICENSE read; Copyright (c) 2025-2026 Cloudflare, Inc.)",
+   "grade": "wired",
+   "sources": [
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/ATTACK-CLASSES.md",
+     "sha256": "3ee4f00c6e8c9dcf6dd02dd5ac2a4ceb322e2085f3e9fbe79cf0c6330bc7ef83",
+     "bytes": 15695,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/AI-AND-LLM.md",
+     "sha256": "7335a95c43554eadefcf03ece639291bb0e038c398a179299e3887ffe06bd2ef",
+     "bytes": 10617,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/CLIENT-SIDE.md",
+     "sha256": "613f6b98f86083e045525c5b60154ffdab122bac35f1e05eb17488e6e453370c",
+     "bytes": 8594,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/CLOUD-AND-DEPLOYMENT.md",
+     "sha256": "3c80f3088be22345e07b057c056d6ed99fe2b0304f794398964f7ccd5a496ca3",
+     "bytes": 8291,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/DATA-ISOLATION-AND-LIFECYCLE.md",
+     "sha256": "307dcb3e24d292715c4a041190e7bb135646a37eb6187619ae01d000a634a4ad",
+     "bytes": 7798,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/DESKTOP-MOBILE-AND-LOCAL-IPC.md",
+     "sha256": "58eae8ee0ca6a46611c501ec5a3ab47fdff88dd7db0d8d74789bbf8bb19d8cb2",
+     "bytes": 8739,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/MEMORY-SAFETY-AND-BINARY.md",
+     "sha256": "7c8b0dccfb35315cca2455509674d49632b2fe37e1f3aac16c1a496a7e9924a7",
+     "bytes": 10513,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/PROTOCOLS-RPC-AND-MESSAGING.md",
+     "sha256": "8b73816fa5b3697c9c40977f0c836b40f01d6e81929ff2720fe83ce089e9a619",
+     "bytes": 7483,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/RESOURCE-EXHAUSTION-AND-AVAILABILITY.md",
+     "sha256": "4326fab5c92a0b4c420a70196254040105cd794026562130b59bf1a6db3e4baa",
+     "bytes": 7476,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SUPPLY-CHAIN-AND-RELEASE.md",
+     "sha256": "f372e919940e335468ba1ae09f99026c3986a345f7fe26f8068f132e199f52a5",
+     "bytes": 7258,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/WEB-PROTOCOL-AND-AUTH.md",
+     "sha256": "4f3066dffa23c5635859187be9b96c32f2aff29a688186b91ff0c63e47d62b5c",
+     "bytes": 12300,
+     "read": "full"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+     "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+     "bytes": 22026,
+     "read": "full",
+     "role": "also-read"
+    },
+    {
+     "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+     "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+     "bytes": 1078,
+     "read": "full",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "Cloudflare #6: reserve budget for validation before discovery; unfunded means start nothing and say so.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/SKILL.md:119-134",
+     "where": "SKILL.md rule 6"
+    },
+    {
+     "mechanism": "Cloudflare #7: profiles change breadth, never the evidence bar; partial runs say so.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/SKILL.md:107-117",
+     "where": "SKILL.md rule 6; scripts/secaudit.py report (audit status)"
+    },
+    {
+     "mechanism": "Cloudflare #8: a source reference alone is not proof that code is unchanged; compare content before carrying a result.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/SKILL.md:96-105",
+     "where": "references/triage.md (Carrying an earlier run)"
+    },
+    {
+     "mechanism": "Cloudflare #11: severity only on confirmed records, capped at demonstrated impact (with GS-51).",
+     "grade": "wired",
+     "evidence": "skills/security-audit/SKILL.md:150-162",
+     "where": "scripts/secaudit.py check"
+    },
+    {
+     "mechanism": "Cloudflare #12: a stable root-cause fingerprint across states and runs.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/HUNTING.md:151-156",
+     "where": "references/record.md (identity); merged with SC-12's instance key"
+    },
+    {
+     "mechanism": "Cloudflare #13: rejected records are kept; only the exact unchanged claim is suppressed.",
+     "grade": "wired",
+     "evidence": "skills/security-audit/SKILL.md:102",
+     "where": "references/triage.md; scripts/secaudit.py (rejected state)"
+    },
+    {
+     "mechanism": "Cloudflare #19: considered-but-excluded blocks with reasons.",
+     "grade": "wired",
+     "evidence": "RECONNAISSANCE.md:86-88",
+     "where": "references/record.md (scope.excluded)"
+    },
+    {
+     "mechanism": "Attack-class companions as audit checklists: general classes, AI and agents, client side, cloud and deployment, data isolation, desktop and IPC, memory safety, protocols and messaging, resource exhaustion, supply chain, web protocols and authentication; local bounded validation only.",
+     "grade": "present",
+     "evidence": "the eleven files listed, read in full",
+     "where": "references/attack-classes.md"
+    }
+   ],
+   "rejected": [
+    "The companions' sub-agent spawn tags and prompt-inclusion blocks (addressed to their own agents; read as data).",
+    "Its full-depth fleet orchestration (fails westack's proportionality rule)."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports the brief's Cloudflare list (#4, #6, #7, #8, #11, #12, #13, #19; #2 and #16 are GS-52 and GS-51 in the deep: record) and the attack-class checklists the 2026-10-28 read left for this skill. #4 (status versus evidence) is already enforced by westack-review's diffscope.py coverage and is cited, not repeated.",
+    "The eleven companion files and LICENSE were fetched for this build from the raw blobs at the pin into memory on 2026-10-30 (nothing saved or run); their SHA-256 and sizes are of those raw bytes and match the git blob sizes. SKILL.md's hash is the 2026-10-28 deep read's, which may be of a CRLF checkout.",
+    "The paraphrases were checked in memory against the donor text with no shared run of 6 or more words, then rewritten again for references/attack-classes.md.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:arxiv:2026-10-30-security-papers",
+   "system": "Papers from the user's 2026-10-30 review lists (arXiv)",
+   "licence": "Ideas only: arXiv preprints under their authors' terms; only abstracts and titles were read.",
+   "grade": "claimed",
+   "sources": [],
+   "no_source_reason": "arXiv preprints, not pinned repository files; the reads session checked each id exists under its stated title and read nine abstracts in full.",
+   "taken": [
+    {
+     "mechanism": "SC-28: An abstention is listed as not assessed with what would settle it, never clean, and counted.",
+     "grade": "claimed",
+     "evidence": "SecPRBench, arXiv 2610.33509 (abstract read: a harness lost recall mostly by abstaining)",
+     "where": "references/triage.md; scripts/secaudit.py (not-assessed, audit status)"
+    },
+    {
+     "mechanism": "SC-29: Vet a skill's instructions and code together and an installed set together; a scanner's clean result is input, never a pass.",
+     "grade": "claimed",
+     "evidence": "MalSkillBench, arXiv 2606.07131 (abstract read); ColluSkill, arXiv 2608.09732 (title only)",
+     "where": "references/intake.md (Read the whole payload)"
+    },
+    {
+     "mechanism": "SC-30: Flag saved allow rules broader than a command family, and show the reach of a broad rule an agent proposed after reading repository content.",
+     "grade": "claimed",
+     "evidence": "From Approval to Abuse, arXiv 2610.22987 (abstract read: the 58% is the rate agents requested the rule, not approvals)",
+     "where": "references/host.md (Saved rules)"
+    },
+    {
+     "mechanism": "SC-31: Authority fixed before untrusted input, capabilities per delegate stored outside the model, one agent's output untrusted to the next.",
+     "grade": "claimed",
+     "evidence": "CapScope, arXiv 2609.08371 (abstract read, a small experiment); Can CaMeLs Talk?, arXiv 2610.05640 (abstract read)",
+     "where": "references/host.md (Agents and delegates)"
+    },
+    {
+     "mechanism": "SC-32: A fix is verified on variants and the regression suite, not on the original exploit alone.",
+     "grade": "claimed",
+     "evidence": "PatchBench, arXiv 2609.04075 (title only; the list's claim)",
+     "where": "references/fix.md"
+    },
+    {
+     "mechanism": "SC-15 eval sources: score the mechanism, not the file (SecPRBench); c-CRAB 2603.23448 and SkillLifeBench 2610.35215 noted for later cases.",
+     "grade": "claimed",
+     "evidence": "as above",
+     "where": "evals/tasks/campaign.json (notes, vuln-snapshot C3)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports items SC-28 to SC-32 and the SC-15 eval notes (BRIEF-westack-security.md section 3e, 2026-10-30). Every claim here is the abstract's or, for title-only papers, the list's.",
+    "Never quote these sources."
+   ]
+  },
+  {
+   "ref": "sec:lists:oss-review-and-security-2026-10-30",
+   "system": "the user's review lists of 2026-10-30 (grokbot's security resources and CodeRabbit alternatives, dot's full review and security lists)",
+   "licence": "Ideas only: private research notes.",
+   "grade": "claimed",
+   "sources": [],
+   "no_source_reason": "the user's local research lists, not published; the reads session checked the 102 linked repositories (existence, licence, archived flag) and the 64 arXiv ids.",
+   "taken": [
+    {
+     "mechanism": "SC-27: Use deterministic scanners already installed, read-only, as evidence (gitleaks, osv-scanner, Semgrep CE, Trivy or Grype with Syft, Checkov, OpenSSF Scorecard), recording version and command; no hit is inconclusive, a failure is not-run, nothing is installed without a grant, TruffleHog's live verification is never used, and active testers run only on owned staging under a named grant.",
+     "grade": "claimed",
+     "evidence": "the lists' scanner sections; licences checked by the reads session: gitleaks MIT, osv-scanner Apache-2.0, Semgrep LGPL-2.1, Trivy, Grype and Syft Apache-2.0, Checkov Apache-2.0, Scorecard Apache-2.0, TruffleHog AGPL-3.0",
+     "where": "SKILL.md rule 5; references/scanners.md (the scanner list, moved from SKILL.md in alpha.21); references/secrets.md (the live-validation sentence; the scanner order is the 3f amendment's)"
+    }
+   ],
+   "rejected": [
+    "TruffleHog's live verification: it sends found credentials to real services (dot's note, correct); westack never tests a credential. TruffleHog (AGPL-3.0) is named, never quoted.",
+    "Running or installing any scanner during the build: none was run; the rule is instruction text for the skill."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item SC-27 (BRIEF-westack-security.md section 3e).",
+    "westack named no scanner before this build (git grep at 15cd2e0, per the brief)."
+   ]
+  },
+  {
+   "ref": "sec:betterleaks/betterleaks",
+   "system": "Betterleaks v1.9.0 (betterleaks/betterleaks), the secret scanner maintained by gitleaks' original author",
+   "licence": "MIT (per the brief's licence check; the LICENSE file was not read for this change)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/betterleaks/betterleaks/blob/81aff7a638638aae3a659845d089043e1d8fe9ac/README.md",
+     "sha256": "62f075debda1630c3b60a3392c6914acecfa5a8019a3748fab401b3ec25c204d",
+     "read": "lines 7, 18, 138-152 and 160, as the brief cites them (170 lines)"
+    },
+    {
+     "url": "https://github.com/betterleaks/betterleaks/blob/81aff7a638638aae3a659845d089043e1d8fe9ac/cmd/root.go",
+     "sha256": "a0b249ab08c1225253ba540b884f4c31f5bf35af7e7767da3d686c531e66acd1",
+     "read": "lines 82, 94-95, 100, 112, 281-284 and 589-645, as the brief cites them; lines 38-44, 81, 93, 100, 194-284 and 429-466 read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (671 lines)",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/betterleaks/betterleaks/blob/81aff7a638638aae3a659845d089043e1d8fe9ac/sources/git.go",
+     "sha256": "ee6513e55212c6b0300fc87ea71daede4067825e9478be9b51ffc94117e9e644",
+     "read": "lines 121-122, as the brief cites them (604 lines); not fetched for this change",
+     "role": "supporting"
+    },
+    {
+     "url": "https://github.com/betterleaks/betterleaks/blob/626b0f89b2c003294ff190ffa3ea1c53e6beab85/cmd/root.go",
+     "sha256": "89540f04e4786c4e66dd254d1d9fb5fde6aa62bbd8fc83331178260b53b755e3",
+     "read": "lines 43, 82, 216 and 472 on the unreleased v1.x branch, as the brief cites them (678 lines); not fetched for this change",
+     "role": "also-read"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-27 (amendment): prefer Betterleaks to gitleaks (same original author, the later release, and it reads gitleaks' ignore file), and record the config file, since a config of your own keeps rules stable across upgrades.",
+     "grade": "present",
+     "evidence": "README.md:7,160; cmd/root.go:281-284",
+     "where": "SKILL.md rule 5; references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan-malformed)"
+    },
+    {
+     "mechanism": "SC-33: the findings exit code defaults to 1, which an error and a partial scan also return; a partial scan still writes its report and logs that it was partial.",
+     "grade": "present",
+     "evidence": "cmd/root.go:82,593-608,610-638,640-645",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan_outcome, scan-exit-ambiguous, scan-misread); tests/stub_scanner.py"
+    },
+    {
+     "mechanism": "SC-35: redaction defaults to 0 (whole secrets printed) and is applied before the report is written; live validation is a separate flag, off by default, that sends the secret to its service.",
+     "grade": "present",
+     "evidence": "cmd/root.go:94-95,112,589; README.md:18,138-152",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21) for --redact; references/secrets.md for live validation; scripts/secaudit.py (scan-unredacted, scan-validation)"
+    },
+    {
+     "mechanism": "SC-36: false positives are suppressed through an ignore file of finding fingerprints, looked up beside the config.",
+     "grade": "present",
+     "evidence": "cmd/root.go:100,281-284",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); references/triage.md; scripts/secaudit.py (allowlist-literal)"
+    },
+    {
+     "mechanism": "SC-38: without --config, the scan takes its rules from the folder it scans: a config variable, else that folder's .betterleaks.toml or .gitleaks.toml; inline gitleaks:allow and betterleaks:allow comments hide findings unless --ignore-gitleaks-allow; and the folder's ignore file is always loaded, with no flag to stop it.",
+     "grade": "present",
+     "evidence": "cmd/root.go:38-44,93,194-248,271-284,464-466",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    },
+    {
+     "mechanism": "SC-34 addition and the per-tool table: git mode reads every fetched ref, so the history a scan covers is the refs and depth of the clone; a shallow clone cannot show that a secret is absent.",
+     "grade": "present",
+     "evidence": "sources/git.go:121-122 (per the brief)",
+     "where": "references/scanners.md (Running a secret scanner; Per tool); scripts/secaudit.py (scan-malformed for a history receipt without shallow and refs; a shallow history keeps the audit partial)"
+    }
+   ],
+   "rejected": [
+    "Live validation, even under a grant: it sends a found credential to a real service, and core authority.md:9 says never probe a credential. The brief's SC-35 row, amended on 10-31 (section 3g), allows it unless the user grants it by name; the build session considered that wording and did not take it, so westack keeps never, now stated in references/secrets.md and references/scanners.md.",
+    "The v1.x branch's opt-in for auto-loading a target config (unreleased): not carried; westack keeps v1.9.0 references and passes --config itself. The branch still loads the target's ignore file.",
+    "Betterleaks 2 (a prerelease with changed flags and report shape): not carried."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words.",
+    "Supports items SC-27 (amendment), SC-33, SC-35 and SC-36 (BRIEF-westack-security.md section 3f (2026-10-31)).",
+    "Pins and SHA-256 values are copied from the brief's section 3f table, which hashed the bytes GitHub serves; the table records line counts, not byte counts, and nothing was fetched for this change.",
+    "The exit codes and log lines in tests/stub_scanner.py reproduce the behaviour the brief cites; Betterleaks itself was never installed or run.",
+    "Licence status: permissive (MIT).",
+    "Supports SC-38, the SC-34 addition and the per-tool table (BRIEF-westack-security.md section 3g, 2026-10-31). cmd/root.go at v1.9.0 was fetched into memory for this change to confirm the config, inline-allow and ignore-file lines; sources/git.go and the v1.x root.go keep the brief's pins unfetched."
+   ]
+  },
+  {
+   "ref": "sec:gitleaks/gitleaks",
+   "system": "gitleaks v8.30.1 (gitleaks/gitleaks); its last release, 2026-03-21",
+   "licence": "MIT (per the brief's licence check; the LICENSE file was not read for this change)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/gitleaks/gitleaks/blob/83d9cd684c87d95d656c1458ef04895a7f1cbd8e/cmd/root.go",
+     "sha256": "275516f78724a075530898e6354e096f2b33ef78de8856f9a5f1b68b9552d994",
+     "read": "lines 76, 86-87, 455-459 and 494-498, as the brief cites them; lines 35-41, 75, 85, 145-193 and 295-320 read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (548 lines)"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-33: the same shape as Betterleaks: one default exit code for findings and for a failed scan.",
+     "grade": "present",
+     "evidence": "cmd/root.go:76,455-459,494-498",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan-exit-ambiguous)"
+    },
+    {
+     "mechanism": "SC-35: redaction is off unless asked for.",
+     "grade": "present",
+     "evidence": "cmd/root.go:86-87",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan-unredacted)"
+    },
+    {
+     "mechanism": "SC-38: the same shape as Betterleaks: without --config it loads the scanned folder's .gitleaks.toml (after a config variable), gitleaks:allow comments count unless --ignore-gitleaks-allow, and the scanned folder's .gitleaksignore is always loaded.",
+     "grade": "present",
+     "evidence": "cmd/root.go:35-41,85,178-190,317-318",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words.",
+    "Supports items SC-33 and SC-35 (BRIEF-westack-security.md section 3f (2026-10-31)); the fallback when Betterleaks is not installed (SC-27 amendment).",
+    "Pins and SHA-256 values are copied from the brief's section 3f table, which hashed the bytes GitHub serves; the table records line counts, not byte counts, and nothing was fetched for this change.",
+    "Licence status: permissive (MIT).",
+    "The brief's section 3g table left gitleaks' target-side files unchecked; this change read them at the same pin (fetched into memory, hash matched) and filled the row."
+   ]
+  },
+  {
+   "ref": "sec:rs/zerolog",
+   "system": "rs/zerolog v1.33.0, the logger Betterleaks pins",
+   "licence": "MIT (per the brief)",
+   "grade": "present",
+   "sources": [],
+   "no_source_reason": "Pinned only by the tag v1.33.0 in the brief (log.go, 518 lines, sha256 175f683d7d9206c7e1cc9939510b6a5736aca85a6e142b19fb054391dd4fcfeb). A pinned source URL needs the tag's full commit id, which no local record holds; it is left out rather than guessed, and nothing was fetched.",
+   "taken": [
+    {
+     "mechanism": "SC-33: a fatal log call exits 1, so a scanner that dies on an error exits with the same code as its default findings exit.",
+     "grade": "present",
+     "evidence": "log.go:385-396 (per the brief)",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan_outcome)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports item SC-33 (BRIEF-westack-security.md section 3f (2026-10-31)).",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:local:eddie-alpha",
+   "system": "Eddie-Alpha-main (the user's own repository): Betterleaks in CI, a one-time TruffleHog sweep (2026-06-11) and a redactor for what it logs",
+   "licence": "Ideas only: the user's private repository. Nothing was copied; westack rewrites the ideas from the brief.",
+   "grade": "present",
+   "sources": [],
+   "no_source_reason": "A local, unpublished repository, read by the coordinator for the brief and not opened by this build. Blobs at local commit da0074f3b6187bf6687d876e4e93463334b7df7f: .github/workflows/ci.yml fcdf215a1a81500b7fe277d7c0a327984502f81e, .betterleaks.toml 9863b744f04dfd4d7d90275ed543ac631881e15a, shared/secret-redactor.cjs 628eb7dc261a818515ab76d966ee172f613afd31; and the untracked runtime-artifacts/secret-scan/trufflehog-verified-summary-2026-06-11.md, sha256 3c0f573f0e4c2bce50e1876bbc3b371a9e76f13cf7db3273b5fb8367829acb77.",
+   "taken": [
+    {
+     "mechanism": "SC-33: the TruffleHog sweep's git and large-folder scans on Windows ended without a completion summary, so a run with no summary line is not a result.",
+     "grade": "present",
+     "evidence": "trufflehog-verified-summary-2026-06-11.md:18-19 (per the brief)",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (scan_outcome)"
+    },
+    {
+     "mechanism": "SC-34: the working tree and the full history are scanned as separate scopes (CI runs a dir scan and a git scan; the sweep reported history, tracked tree and local files each on its own).",
+     "grade": "present",
+     "evidence": "ci.yml:42,204; trufflehog-verified-summary-2026-06-11.md:7-15 (per the brief)",
+     "where": "references/scanners.md (Running a secret scanner; moved there from secrets.md in alpha.21); scripts/secaudit.py (secret scan status)"
+    },
+    {
+     "mechanism": "SC-36: a scanner config that allow-lists a token by its literal value puts the secret into the config itself (the counter-example).",
+     "grade": "present",
+     "evidence": ".betterleaks.toml:12-14 (per the brief; the value is not reproduced)",
+     "where": "references/triage.md; scripts/secaudit.py (allowlist-literal)"
+    },
+    {
+     "mechanism": "SC-37: scrub logged text by exact header names and secret-named keys, keep the auth scheme and the cookie names, walk nested data with a depth cap, and redact numbers too.",
+     "grade": "present",
+     "evidence": "shared/secret-redactor.cjs:16-38,69-82,100-129 (per the brief)",
+     "where": "references/secrets.md; scripts/secaudit.py (redact)"
+    }
+   ],
+   "rejected": [
+    "Matching secret-name fragments as substrings: it blanks author and keyboard. westack matches whole name parts.",
+    "Allow-listing a value in the scanner config: westack suppresses by fingerprint or path."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+    "Supports items SC-33, SC-34, SC-36 and SC-37 (BRIEF-westack-security.md section 3f (2026-10-31)).",
+    "The redactor's idea came from TencentCloud CubeSandbox's redactor.lua (Apache-2.0), rewritten by Eddie; westack's helper is written from the brief's description, never from either file.",
+    "Eddie asks before any edit; nothing there was changed."
+   ]
+  },
+  {
+   "ref": "sec:trufflesecurity/trufflehog",
+   "system": "TruffleHog v3.99.7 (trufflesecurity/trufflehog), a secret scanner that verifies what it finds by default",
+   "licence": "AGPL-3.0 (per the brief's licence check). Ideas only: never quote it and never copy its code.",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/trufflesecurity/trufflehog/blob/31ce31ee1abbcc7dc8eee5764c17121c3044c8b2/main.go",
+     "sha256": "4ca0c13e8f7c98e8a853ad4ab332e1c23b240592e078544ef7e67ca4d94967cf",
+     "read": "the flag lines 60, 74 and 81-83, read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (1442 lines)"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-35 amended: verification is on unless --no-verification is passed, so the off switch goes on every command; the update check is a separate network call (--no-update).",
+     "grade": "present",
+     "evidence": "main.go:60,81",
+     "where": "references/secrets.md; references/scanners.md (Live checks stay off; Per tool); scripts/secaudit.py (scan-validation)"
+    },
+    {
+     "mechanism": "SC-38: a trufflehog:ignore comment hides a finding unless --no-ignore-tag is passed.",
+     "grade": "present",
+     "evidence": "main.go:74",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    },
+    {
+     "mechanism": "Per-tool table: --fail exits 183 on findings; a scan error changes the exit code only with --fail-on-scan-errors.",
+     "grade": "present",
+     "evidence": "main.go:82-83",
+     "where": "references/scanners.md (Per tool)"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words. The scanner is AGPL: never quote it and never copy its code.",
+    "Supports SC-35 (amended), SC-38 and the per-tool table (BRIEF-westack-security.md section 3g, 2026-10-31).",
+    "check reads completion only from gitleaks and Betterleaks logs, so a TruffleHog receipt reads not-run.",
+    "Licence status: copyleft (AGPL-3.0); ideas only."
+   ]
+  },
+  {
+   "ref": "sec:mongodb/kingfisher",
+   "system": "Kingfisher v2.16.0 (mongodb/kingfisher), a secret scanner that validates what it finds by default",
+   "licence": "Apache-2.0 (per the brief's licence check; the LICENSE file was not read for this change)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/mongodb/kingfisher/blob/67c1ad7a3273c1dca392114dec5cb699d706d0c8/docs/USAGE.md",
+     "sha256": "7d382d7eb62a39718ce894783050782ff20094c8bad7864e31cdff12232c704f",
+     "read": "lines 58-61, 634-641, 2141 and 2242-2262, read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (2263 lines)"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-35 amended: validation runs unless --no-validate is passed; findings then read not_attempted.",
+     "grade": "present",
+     "evidence": "docs/USAGE.md:58-61,2141",
+     "where": "references/secrets.md; references/scanners.md (Live checks stay off; Per tool); scripts/secaudit.py (scan-validation)"
+    },
+    {
+     "mechanism": "Per-tool table: the no-findings and findings exit codes can come with partial coverage after a read error, so a complete scan is read from the audit summary's partial and failed flags.",
+     "grade": "present",
+     "evidence": "docs/USAGE.md:2242-2258",
+     "where": "references/scanners.md (Per tool)"
+    },
+    {
+     "mechanism": "SC-38: a project kingfisher.yaml fills in defaults, but it is never found on its own; it is loaded only when passed with --config. suppressions still lists it as scope to review.",
+     "grade": "present",
+     "evidence": "docs/USAGE.md:634-641",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    }
+   ],
+   "rejected": [
+    "--no-update-check: named by the reviewed scanner list and kept in the table marked (list); not checked at this pin."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words.",
+    "Supports SC-35 (amended), SC-38 and the per-tool table (BRIEF-westack-security.md section 3g, 2026-10-31). The brief left open where kingfisher.yaml is read from; lines 640-641 settle it (never auto-discovered).",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "sec:Yelp/detect-secrets",
+   "system": "detect-secrets v1.5.0 (Yelp/detect-secrets), a secret scanner with a committed baseline",
+   "licence": "Apache-2.0 (per the brief's licence check; the LICENSE file was not read for this change)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/Yelp/detect-secrets/blob/01886c8a910c64595c47f186ca1ffc0b77fa5458/README.md",
+     "sha256": "ec24601f17ace05b95ec05d2d94f730e51af126fd8a4aab88bd697e272217457",
+     "read": "lines 45, 71, 265, 301 and 413-419, read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (653 lines)"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "SC-35 amended: extra verification of found secrets runs unless -n / --no-verify is passed.",
+     "grade": "present",
+     "evidence": "README.md:301",
+     "where": "references/secrets.md; references/scanners.md (Live checks stay off; Per tool); scripts/secaudit.py (scan-validation)"
+    },
+    {
+     "mechanism": "SC-38: a pragma allowlist comment (on the line, or for the next line) hides a secret, and a committed baseline (.secrets.baseline in its examples) holds the accepted ones.",
+     "grade": "present",
+     "evidence": "README.md:45,71,413-419",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words.",
+    "Supports SC-35 (amended) and SC-38 (BRIEF-westack-security.md section 3g, 2026-10-31).",
+    "Licence status: permissive (Apache-2.0)."
+   ]
+  },
+  {
+   "ref": "sec:secretlint/secretlint",
+   "system": "Secretlint v13.1.0 (secretlint/secretlint), a rule-based secret linter",
+   "licence": "MIT (per the brief's licence check; the LICENSE file was not read for this change)",
+   "grade": "present",
+   "sources": [
+    {
+     "url": "https://github.com/secretlint/secretlint/blob/49dcc4146297133137f193d4d3c2827a9d075016/README.md",
+     "sha256": "61ecb165bd13f85da48630832a8f0cf1be195d9ffe6df3387551ed5afc005f2c",
+     "read": "lines 116-126, 180, 303-336 and 347-359, read for alpha.21 from the raw file fetched from raw.githubusercontent.com at the pin into memory (no file written; its sha256 matched the brief) (793 lines)"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "Per-tool table: no live checks; it never reads .git, skips gitignored files such as .env unless --no-gitignore, and masks secrets by default.",
+     "grade": "present",
+     "evidence": "README.md:124-126,309,319-326,347-359",
+     "where": "references/scanners.md (Per tool)"
+    },
+    {
+     "mechanism": "SC-38: the project's .secretlintrc.* config and .secretlintignore are read by default, each folder's .gitignore is honoured, and secretlint-disable comments count when its comment rule is configured.",
+     "grade": "present",
+     "evidence": "README.md:119-120,180,303-311,333-336",
+     "where": "references/scanners.md (The project never configures its own scan; Per tool); references/secrets.md (Running a secret scanner); SKILL.md rule 5; scripts/secaudit.py (scan-target-config, scan-inline-allow, suppressions, suppression-unreviewed, suppressions-unread); tests/stub_scanner.py"
+    }
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied, installed or run, and the rules in westack are in its own words.",
+    "Supports SC-38 and the per-tool table (BRIEF-westack-security.md section 3g, 2026-10-31). The brief left the .secretlintrc config unchecked; README.md:119 and :180 name it.",
+    "suppressions does not list .gitignore, which every project has; scanners.md says to read it when Secretlint runs.",
+    "Licence status: permissive (MIT)."
+   ]
+  },
+  {
+   "ref": "sec:local:free-secret-scanner-list-2026-10",
+   "system": "the user's reviewed list of free secret scanners, highest-standard-free-secret-scanners-2026-10.md (270 lines; F6 in the brief)",
+   "licence": "the user's own research notes; ideas only.",
+   "grade": "claimed",
+   "sources": [],
+   "no_source_reason": "A local research file in the user's research folder (2026-10-30-oss-review-and-security), read by the coordinator for the brief's section 3g and not opened by this build.",
+   "taken": [
+    {
+     "mechanism": "SC-34 addition: a history scan covers only the refs fetched and the clone depth, so a shallow clone cannot show absence; record is-shallow and the refs scanned.",
+     "grade": "claimed",
+     "evidence": "F6:250 (per the brief)",
+     "where": "references/scanners.md (Running a secret scanner); scripts/secaudit.py (history receipt fields and the shallow status)"
+    },
+    {
+     "mechanism": "Per-tool table entries marked (list): Kingfisher's --no-update-check and detect-secrets' --all-files reaching past tracked files.",
+     "grade": "claimed",
+     "evidence": "F6 (per the brief's table)",
+     "where": "references/scanners.md (Per tool)"
+    }
+   ],
+   "rejected": [
+    "The tool ranking (Kingfisher first on Windows, TruffleHog as the validator, Betterleaks as the gate; F6:7, :17): which scanners to install is the user's call; westack runs only what is installed.",
+    "Betterleaks 2 (rc.6; F6:37, :58): a prerelease with changed flags and report shape.",
+    "Titus: its live-validation and external-scoring options were not in its tagged CLI doc, and it is not installed here.",
+    "Scanning published build output (bundles, source maps, container layers; F6:250): left out of this change to keep it to the shallow-clone receipt the coordinator scoped.",
+    "SC-35 note (F6:248), a report field named Redacted does not mean the value is gone: already covered by the SC-35 test that greps the receipt for the seeded value; nothing new."
+   ],
+   "notes": [
+    "Ideas only: nothing was quoted, copied or run.",
+    "Supports the SC-34 addition and the (list) cells of the per-tool table (BRIEF-westack-security.md section 3g, 2026-10-31). The SC-15 eval note from the same list is out of this change (evals/ is another build's)."
+   ]
+  },
+  {
+   "ref": "gstack.cso.isolated-reproduction",
+   "system": "gstack cso isolated reproduction mode",
+   "grade": "present",
+   "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+   "sources": [
+    {
+     "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/cso/SKILL.md.tmpl",
+     "sha256": "becd6c85c79fdd72fee9fd99523fc1fc53128b895b697e73f471640ec59edd8b",
+     "bytes": 17995,
+     "read": "lines 42 and 106 (the comprehensive mode and its isolated container run), from the 2026-11-04 re-inventory",
+     "role": "primary"
+    },
+    {
+     "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/cso/sections/audit-phases.md.tmpl",
+     "sha256": "290d753dea227fde4f0165fe5e90e8f9853f9347286bdb92381fdff8e9337ee0",
+     "bytes": 15396,
+     "read": "from the 2026-11-04 re-inventory: the reproduce and repair phase",
+     "role": "supporting"
+    }
+   ],
+   "taken": [
+    {
+     "mechanism": "For one confirmed finding, an isolated container built from the target reproduces it, and at most three repair candidates are tried, each under a time and worker budget.",
+     "where": "references/reproduce.md"
+    },
+    {
+     "mechanism": "Each result labelled by its evidence (static, reproduced, repair-tested), and the record checker refusing a label above its receipts.",
+     "where": "scripts/secaudit.py _reproduction_problems"
+    }
+   ],
+   "rejected": [
+    "Running the target on the host when the container engine is missing: here that is blocked.",
+    "Repairs made in the user's tree: candidates live on scratch copies and are evidence, not the fix."
+   ]
+  }
+ ],
+ "considered_not_taken": [
+  {
+   "ref": "next-read:trailofbits/skills",
+   "system": "trailofbits/skills",
+   "why": "A next read, not read in this build. CC-BY-SA-4.0: ideas only, never quoted. dot lists differential security review, false-positive verification, insecure defaults, variant analysis and post-patch validation in it."
+  },
+  {
+   "ref": "next-read:cisco-ai-defense/mcp-scanner",
+   "system": "cisco-ai-defense/mcp-scanner",
+   "why": "A next read (Apache-2.0), not read in this build: reference only."
+  },
+  {
+   "ref": "next-read:stacklok/toolhive",
+   "system": "stacklok/toolhive",
+   "why": "A next read (Apache-2.0), not read in this build: reference only."
+  },
+  {
+   "system": "Offensive agents and skill packs (Strix, Shannon, PentAGI, HexStrike, Claude-Red, reverse-skill, Anthropic-Cybersecurity-Skills)",
+   "why": "Rejected as out of scope for this skill (Shannon is AGPL-3.0; the last name implies a link to Anthropic it does not have). Installing any of them is an intake case (source class, exact release, whole payload, a grant)."
+  },
+  {
+   "system": "CAI",
+   "why": "Rejected: archived, and its Alias additions are non-commercial only."
+  },
+  {
+   "ref": "repo:coderabbitai/skills",
+   "system": "coderabbitai/skills (read in the same 2026-10-30 round)",
+   "why": "Its mechanisms belong to westack-review; its pre-send secret check is already held (SR-7, core guards.md)."
+  },
+  {
+   "system": "writing.json (2026-10-30 writing reads)",
+   "why": "No item in this skill's brief comes from it; nothing taken."
+  }
+ ],
+ "retrieval": {
+  "method": "pins and hashes copied by URL from the reads' JSON; eleven Cloudflare companion files and its LICENSE fetched from raw.githubusercontent.com at the pin into memory (no file written)",
+  "retrieved": "2026-10-30",
+  "clones": "none opened",
+  "follow_up": "2026-10-31 (WB-78, GS-31, GS-53): pins and hashes copied by URL from the existing records in westack-ship, westack-eval and the core facility-donors.json; nothing fetched",
+  "follow_up_3f": "2026-10-31 (SC-27 amendment, SC-33 to SC-37): pins and hashes copied from the brief's section 3f table; zerolog has no commit id, so no pinned source; Eddie's blobs are local and named in the record; nothing fetched, no scanner installed or run",
+  "follow_up_3g": "2026-10-31 (alpha.21: SC-38, the per-tool table, the SC-35 off switch and the SC-34 shallow-clone receipt): six files fetched from raw.githubusercontent.com at the brief's pins into memory only (Betterleaks and gitleaks cmd/root.go, Kingfisher docs/USAGE.md, TruffleHog main.go, detect-secrets and Secretlint README.md); each sha256 matched the brief; no file written, nothing run, no scanner installed. Betterleaks sources/git.go and the v1.x root.go keep the brief's pins unfetched."
+ },
+ "inherited_from_core": [
+  "risk classes; never acquire or probe a credential; egress and persistent configuration need grants (core authority.md)",
+  "guard rules, saved always-allow limits, loader variables in shared configuration (GS-27), imported-text scanning and redaction before a note leaves (core guards.md)",
+  "running code you did not write: sandbox controls or blocked (core verify.md, GS-52)",
+  "receipts, results and claim strength (core evidence.md); fresh-context validation (core critique.md)",
+  "the security-gstack-cso capability defer and its consent rule (core defer-map.json and defer.md), unchanged"
+ ],
+ "own_additions": [
+  "one findings record with eight states, each with its required field, checked by scripts/secaudit.py",
+  "a five-by-five impact-by-likelihood table with critical evidence named from a closed list, mapped to review's P0-P3",
+  "the report's audit status computed from coverage, scope, abstentions and unchecked snippets",
+  "the scope digest with an optional saved ls-files listing to name untracked files",
+  "an optional risk label on any record, checked against its named checks (worst concrete level, an erroring check as high, all unknown stays unknown, unknown only on a record that asks)",
+  "an absence block for removal claims: exact pre-change identifiers, each copy's probe and result, rotation for a secret",
+  "two task cases with forbidden rules: injection through a ticket, and a user request to test a leaked key",
+  "secret-scan receipts in scope.secret_scans, read by exit code and log together; both scopes or partial; redaction on and live validation off; literal high-entropy allow-list entries in the recorded config need a record",
+  "secaudit.py redact: auth schemes and cookie names kept, values under secret-named keys (whole name parts) redacted, numbers too, in JSON and key=value or name: value text",
+  "tests/stub_scanner.py: a stand-in that reproduces the exit codes and log lines the brief cites, so no scanner runs"
+ ],
+ "overlap_check": {
+  "method": "lower-cased word 8-grams of every text file in this package against every pinned source in this file, fetched from the raw blob at its pin into memory on 2026-10-30 (nothing written or run)",
+  "script": "builder scratch build-security/overlap_check.py (not shipped); its control, a run taken from a fetched donor file and planted as an extra text, was flagged",
+  "result": "clean on 2026-10-30: no shared run of 8 words. The first pass found four (donor phrasing echoed in host.md, severity.md and one record here, and a numeric literal in a test), all reworded. The same fetch checked every pin: 89 sources match the raw blob and 17 match only the CRLF form of a Windows checkout (2026-10-28 deep-read values); none mismatch.",
+  "follow_up": "not re-run for the 2026-10-31 follow-up text: no donor file was fetched or read; the new rules were written from the adoption notes in westack's words"
+ },
+ "helper_decision": {
+  "built": true,
+  "script": "scripts/secaudit.py",
+  "reason": "The brief assigns SC-1, GS-51/SC-2, SC-6, SC-11, SC-12, SC-13 and SC-14 to one helper: mechanical checks over a findings record, the files it cites and the audited tree. It reads files, runs nothing, opens no network connection and never runs git; the only file it writes is report --out. The section 3f amendment adds SC-33 to SC-36's receipt checks to check and SC-37's redact subcommand (brief section 4).",
+  "reuse": "Coverage is westack-review's diffscope.py coverage, unchanged, on an empty-tree diff (RT-1); no second coverage check was built and the script is not copied.",
+  "tests": "tests/test_secaudit.py: 49 tests, all red against a stub that raised NotImplementedError, then green. The 2026-10-31 follow-up added 13 (GS-31 risk labels, WB-78 absence probes; 12 red against the unchanged script first) and the section 3f amendment 18 more (secret-scan receipts, allow-list literals, redact; 17 red first), with tests/test_pages.py (5 page pins and size limits, 2 red first): 85 in all. Every check has a broken-copy control: a copy of secaudit.py with that one condition removed lets its bad record through."
+ }
+}

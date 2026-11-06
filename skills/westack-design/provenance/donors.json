@@ -1,0 +1,1405 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-design",
+  "reviewed": "2026-10-31",
+  "policy": "Ideas only, in our own words. The ten repository donors were read at their pinned commits by the 2026-10-30 design reads (design-a, design-b and the design items of new-a and new-b); their hashes are those recorded there and were not re-fetched. emilkowalski/skills was fetched for this build into memory at a pinned commit. The P3 adoption item SS-77 and the source lists behind DG-25 to DG-32 have no pinnable source and say why. The 2026-10-31 follow-up (DG-33 to DG-36) adds three repository donors and three files considered and not taken, from the brief's design-inspiration section; their 12-hex commits were resolved to full ids and every file re-hashed in memory, matching the brief.",
+  "retrieval": {
+    "method": "pins and hashes from the reads' JSON (format westack-deep-read-1); one file of emilkowalski/skills fetched into memory through raw.githubusercontent.com at a commit resolved through the GitHub API, hashed in memory",
+    "retrieved": "2026-10-30",
+    "clones": "none opened (the deep-read clones under the user's deep-reads folder and D: were not touched)"
+  },
+  "donors": [
+    {
+      "ref": "repo:pbakaus/impeccable",
+      "system": "Impeccable (pbakaus/impeccable), a design skill with a Rust detector engine",
+      "licence": "Apache License 2.0 (LICENSE read: standard Apache-2.0 text, appendix line 179 'Copyright 2025 Paul Bakaus'). NOTICE.md (read) is not an Apache NOTICE: it credits ehmo/platform-design-skills (MIT) as the source of skill/reference/ios.md and android.md.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/SKILL.src.md",
+          "sha256": "a2c627ba2fbfb0697921ff663b9ea9dbff6584e0fb23977a7185026d07131264",
+          "bytes": 12459,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/reference/new-work.md",
+          "sha256": "e10eea2f3c6bf670b60268ae4a52c914c1535ef87cdea6d88ccb436d2f709e45",
+          "bytes": 64190,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/reference/critique.md",
+          "sha256": "f2ece6380e378ab644d0508adf10e213eb2d6e241e3d7339727fb8e61cd2d39b",
+          "bytes": 48194,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/reference/hooks.md",
+          "sha256": "837ca533bb62bf83394b7bda31f4bbf54f150bf5a7e177c63acd4f1e253ecc34",
+          "bytes": 15012,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/crates/foundation/src/rules/text.rs",
+          "sha256": "07cf0c96c1b5ac27d8e567cf66b8fd22fb4f031f58f2fc250df15a2142f74f4f",
+          "bytes": 19160,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/agents/impeccable-finish-reviewer.md",
+          "sha256": "6d88d17c0c6f4c149564f67b5d885c9fa0bdcee3e404ffc989b8037cce043ea1",
+          "bytes": 15753,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/reference/craft-floor.md",
+          "sha256": "086e731940b72db13d9693b575db377a7b102729a56da5c79a21461635695c87",
+          "bytes": 7166,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/skill/reference/document.md",
+          "sha256": "f3d7d23d24affdc29fe38f3bcd9770f1304a959a7d49bffe8faaa2a4c2eb6647",
+          "bytes": 27400,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/LICENSE",
+          "sha256": "02bb8c3b4e70190e3986c0404ad2fd8d639b4f534252d82379cc1b502b6d1812",
+          "bytes": 10766,
+          "read": "partial",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/pbakaus/impeccable/blob/df3a4abe7d0840d5f60324812c432e00b66a4e75/AGENTS.md",
+          "sha256": "ca0795fac9d679b725f598c33869629efd3c5d4658209031c674b48c746e6de4",
+          "bytes": 17745,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-3: a reviewer validates the capture set first and returns recapture, with no findings, for a blank, wrong or missing capture; captures count only after motion settles, full pages from the top, each opened once (I-2, I-3).",
+          "grade": "present",
+          "evidence": "skill/agents/impeccable-finish-reviewer.md:19-49; skill/reference/new-work.md:140-152",
+          "where": "references/critique.md (1); scripts/designcheck.py report (recapture-with-findings)"
+        },
+        {
+          "mechanism": "DG-5: judgment and detector evidence are two passes, the judgment written first, and the report opens with a method line or a DEGRADED banner (I-4).",
+          "grade": "present",
+          "evidence": "skill/reference/critique.md:5-17,31-55,126-131",
+          "where": "references/critique.md (3); scripts/designcheck.py report (first-line, banner-missing, detector-first)"
+        },
+        {
+          "mechanism": "DG-7: heuristics scored as integers with n/a allowed where a mode cannot apply, the maximum renormalised and the maximum and n/a set recorded so trends never mix denominators (I-12); westack uses 0 to 3, not the donor's 0 to 4.",
+          "grade": "present",
+          "evidence": "skill/reference/critique.md:133-157,262",
+          "where": "references/critique.md (5); scripts/designcheck.py report (wrong-denominator, na-unrecorded)"
+        },
+        {
+          "mechanism": "DG-9: a detector threshold carries what set it and a dated call, so a change must cite new evidence; the functional text floor of 11px (I-5, I-7).",
+          "grade": "present",
+          "evidence": "crates/foundation/src/rules/text.rs:45-107",
+          "where": "references/thresholds.json (functional-text-min-px); scripts/designcheck.py (threshold_problems)"
+        },
+        {
+          "mechanism": "DG-13: an agent may add only value-scoped ignores with named evidence; file-wide or rule-wide ignores need the user (I-6).",
+          "grade": "present",
+          "evidence": "skill/reference/hooks.md:7,53-70,105",
+          "where": "references/rules.json (notes.suppressions); scripts/designcheck.py (parse_suppressions)"
+        },
+        {
+          "mechanism": "DG-15: a direction contract (thesis, own world, first viewport, form, finish) in the surface brief before code, never in shipped files; candidates from the audience's world across three material families (I-1, I-11).",
+          "grade": "present",
+          "evidence": "skill/reference/new-work.md:44-46,77-79,89",
+          "where": "references/direction.md"
+        },
+        {
+          "mechanism": "DG-21: the design-system file is written after the build from the shipped artifact, never canonising refused patterns (I-9).",
+          "grade": "present",
+          "evidence": "skill/reference/new-work.md:81,154; skill/agents/impeccable-documenter.md:17-31",
+          "where": "references/system.md (Write it after the build); scripts/designcheck.py record --built"
+        },
+        {
+          "mechanism": "Modes are picked from the requested surface, never project-wide, and a section inside a surface inherits it (I-8).",
+          "grade": "present",
+          "evidence": "skill/SKILL.src.md:34-43; skill/reference/new-work.md:16",
+          "where": "SKILL.md (Pick one mode)"
+        }
+      ],
+      "rejected": [
+        "Live variant mode, the comp-led image pipeline (a paid image API) and the remote concept roll: a server, a browser and network calls; reference only.",
+        "The 62-rule Rust engine and its 22 generated provider copies: an engine binary westack does not run."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-a.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (Apache-2.0).",
+        "Flag: AGENTS.md carries instructions for contributing agents (disclose AI help, do not open issues or PRs); read as data and not followed.",
+        "Flag: SKILL.src.md pre-allows Bash(npx impeccable *) and its setup runs scripts/impeccable context each session, which downloads a checksum-pinned engine binary; it also writes PRODUCT.md, DESIGN.md and .impeccable/, its hook installer edits Claude settings, and it pings impeccable.style for versions and choices (opt-outs documented). These are the side effects the core defer map's design-impeccable entry discloses.",
+        "Installed here: 4.7.0; the read pinned 4.8.0."
+      ]
+    },
+    {
+      "ref": "repo:Leonxlnx/taste-skill",
+      "system": "taste-skill (Leonxlnx/taste-skill), design-taste-frontend v2.1.5",
+      "licence": "MIT (LICENSE read in full: 'Copyright (c) 2026 Leonxlnx', standard MIT grant and warranty disclaimer, no extra terms).",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/Leonxlnx/taste-skill/blob/12af471f627f866411b4bd785b19646d3672784c/skills/taste-skill/SKILL.md",
+          "sha256": "3435ed963b15a1b6447746ec8844ab2cd38d8d2e8ead3451937f42df01e408c4",
+          "bytes": 39537,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Leonxlnx/taste-skill/blob/12af471f627f866411b4bd785b19646d3672784c/skills/taste-skill/references/tells.md",
+          "sha256": "8e6de4411c43d3108f832b3f33bb1a2a838148a72b92a176df893b67d99a0da9",
+          "bytes": 7420,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Leonxlnx/taste-skill/blob/12af471f627f866411b4bd785b19646d3672784c/skills/taste-skill/scripts/lib/rules.mjs",
+          "sha256": "8244aa9f53e77a59a562410310414e6b1a0f0cf002ce8f5aa792740b7f0149bf",
+          "bytes": 37298,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Leonxlnx/taste-skill/blob/12af471f627f866411b4bd785b19646d3672784c/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-6: a substance floor beside every ban check: real pictures, full content, no near-empty screens, one dominant element; a tidy thin page passes the bans (T-3).",
+          "grade": "wired",
+          "evidence": "skills/taste-skill/SKILL.md:34-38,268-274; skills/taste-skill/references/tells.md:109-115",
+          "where": "references/critique.md (4); references/rules.json (substance-thin-section, substance-placeholder-copy)"
+        },
+        {
+          "mechanism": "DG-9, DG-10: colour-family bands for cream, terracotta and violet as data; a dated tell registry with status and basis that never names replacement fonts or colours (T-5).",
+          "grade": "wired",
+          "evidence": "skills/taste-skill/scripts/lib/rules.mjs:7-15; skills/taste-skill/references/tells.md:1-22,64-82",
+          "where": "references/thresholds.json (band-cream, band-terracotta, band-violet); references/rules.json (notes.registry)"
+        },
+        {
+          "mechanism": "DG-15: inventory what only this client has, write claims with proof, and test the idea sentence against a competitor (T-1).",
+          "grade": "wired",
+          "evidence": "skills/taste-skill/SKILL.md:76-106,160-186",
+          "where": "references/direction.md"
+        }
+      ],
+      "rejected": [
+        "Owner-taste bans stated as universal (no gradients, no resting shadows, no monospace): the author labels them taste; westack keeps them out of the defaults.",
+        "The 877 KB research library, the scroll-scene engine and the image search across six public APIs: data assets and network egress."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-a.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT).",
+        "Flag: the author's study used model judges viewing stills, and the skill scored below its no-skill baseline in 4 of 5 rounds (author-reported). Its numbers support 'bans are not quality', not 'these bans work'.",
+        "Not installed on this machine (design-a.md:218), so the core defer map has no entry for it."
+      ]
+    },
+    {
+      "ref": "repo:Nutlope/hallmark",
+      "system": "Hallmark (Nutlope/hallmark) v2.0.0, a design skill with a tiered rule table and a render tier",
+      "licence": "MIT (root LICENSE and skills/hallmark/LICENSE read: 'Copyright (c) 2026 Hallmark contributors', standard MIT grant, no extra terms). README adds that photos.json lists Wikimedia Commons photographs and holds no image files, each keeping its own licence (CC0, public domain, CC BY, CC BY-SA).",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/references/gates.md",
+          "sha256": "63ad234a1acab5e081dfe8ecf2331518a43cbf42760dc5c6ababfb24d7b3e50c",
+          "bytes": 39061,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/scripts/sloplint.mjs",
+          "sha256": "530b8d5a5ad0bb19b3e06a74600523bef3f3397de47e43de045e7862d73ca11e",
+          "bytes": 231704,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/references/redesign.md",
+          "sha256": "cd3fc1dd10af22bb0374b41340fbab8f2b3be997ea5b63716da3d44ba0bb0552",
+          "bytes": 12231,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/references/craft.md",
+          "sha256": "1b7b40f81f0fe1c04dce133696182ca1229d16162f8f3203603f24a0f585c41c",
+          "bytes": 19279,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/references/brand-truth.md",
+          "sha256": "01c17c45d3b213f80ef28c93548d1b99aa2afad75ed8b236811ba56169c3f068",
+          "bytes": 3685,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/scripts/sloplint-render.mjs",
+          "sha256": "3af79afa100a9804f248ade24d5128cea4fde1ef6d1a279f1dd935bfe6dc41cd",
+          "bytes": 99164,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Nutlope/hallmark/blob/4f6a46c6dc325d40ab268c93e25c7b96676ebccd/skills/hallmark/LICENSE",
+          "sha256": "06088a8b94598626f27612dea42300154bf7be967c85d9d3eee4490cb056af7d",
+          "bytes": 1078,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-8: Floor never waivable, Reflex waivable on the record with guard evidence code re-checks, Finish answered without blocking; boilerplate or copied reasons rejected (H-1).",
+          "grade": "wired",
+          "evidence": "skills/hallmark/references/gates.md:5-32; skills/hallmark/scripts/sloplint.mjs:872-987",
+          "where": "references/rules.json (tiers); scripts/designcheck.py waivers and rules --waivers"
+        },
+        {
+          "mechanism": "DG-16: inventory every link, form, field, handler, test hook and script before a redesign; afterwards a missing item fails unless recorded as dropped; full, restyle and polish never blend (H-3).",
+          "grade": "present",
+          "evidence": "skills/hallmark/references/redesign.md:5-14,29-42,71-88",
+          "where": "references/direction.md (Redesign); scripts/designcheck.py inventory"
+        },
+        {
+          "mechanism": "DG-17: no invented metric, testimonial, logo wall or case count; a missing fact becomes a labelled slot; a form that posts nowhere never prints success (H-4).",
+          "grade": "present",
+          "evidence": "skills/hallmark/references/gates.md:124,134,225; skills/hallmark/references/craft.md:92-100",
+          "where": "references/mode-rules.md (honest pages); references/rules.json (honesty-*)"
+        },
+        {
+          "mechanism": "DG-19: never theme a real brand from memory; take colours from the brand's own CSS under network rules, recording the source (H-10).",
+          "grade": "present",
+          "evidence": "skills/hallmark/references/brand-truth.md:1-40",
+          "where": "references/direction.md (Real brands)"
+        },
+        {
+          "mechanism": "DG-24: render-tier checks: contrast against the pixels behind text, focus by pressing Tab, text lost between 1440 and 375, captures refused after a font failed (H-7).",
+          "grade": "wired",
+          "evidence": "skills/hallmark/scripts/sloplint-render.mjs:6,119-125,149-168,191-232",
+          "where": "references/browser.md (DG-24); scripts/designcheck.py (runtime not-run list)"
+        }
+      ],
+      "rejected": [
+        "The 50-theme catalogue, the 90-clause gate table and the 450-word page budget: too large, or a landing-page house rule.",
+        "Together AI image generation and the edit-time hook installer: a vendor API with a paid key, and a settings change needing its own grant."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-a.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT).",
+        "Flag: the skill text and package metadata carry a 'Powered by Together AI' mention; not copied.",
+        "Installed here: 1.1.0, a major version behind the read's pin (2.0.0), so the pinned mechanisms are not in the installed copy; the core defer map's design-hallmark entry grades the pin's side effects claimed for that copy."
+      ]
+    },
+    {
+      "ref": "repo:nextlevelbuilder/ui-ux-pro-max-skill",
+      "system": "UI UX Pro Max (nextlevelbuilder/ui-ux-pro-max-skill)",
+      "licence": "LICENSE (read): plain MIT, Copyright (c) 2024 Next Level Builder. A separate file .claude/skills/ui-styling/LICENSE.txt is Apache-2.0 text while that skill's front matter says MIT; the bundled canvas-fonts carry OFL texts. Nothing was taken from ui-styling or the fonts.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/9a3f14f7423037ccb8feeb4fee7482291b9c820e/stack/scripts/design-audit.mjs",
+          "sha256": "70621fd1962486fef2214fc9574b6c2ece1cd87ee61b5b4b797abf179c6af856",
+          "bytes": 11310,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/9a3f14f7423037ccb8feeb4fee7482291b9c820e/stack/.claude/agents/design-review.md",
+          "sha256": "63e9d3bc54ff4720c19fde087fcc2e499b2fdc7342f3d36b1e70a6f9c0d58d0f",
+          "bytes": 4567,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/9a3f14f7423037ccb8feeb4fee7482291b9c820e/.claude/skills/ui-ux-pro-max/scripts/validate_data.py",
+          "sha256": "a599aa256049cf30954d1f164721b99e453eb7e4cb8241bcab2d5573e6cf58b8",
+          "bytes": 52230,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/9a3f14f7423037ccb8feeb4fee7482291b9c820e/.claude/skills/brand/scripts/sync-brand-to-tokens.cjs",
+          "sha256": "c774f2fff9646ccee994aea0f00608a076b2c880756558f5a437ed9b45c10fd4",
+          "bytes": 15233,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/9a3f14f7423037ccb8feeb4fee7482291b9c820e/LICENSE",
+          "sha256": "738f69dfa83db5c347c678fb9d90e560877059f0de93a327c39001bff92dc014",
+          "bytes": 1075,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-4: review a built UI by observation, exercising states and widths; a finding without a screenshot, console line or measurement is dropped; an unreachable page means the visual phases are not-run.",
+          "grade": "wired",
+          "evidence": "stack/.claude/agents/design-review.md:17-27,29-64,90-95",
+          "where": "references/critique.md (2); scripts/designcheck.py report (no-evidence)"
+        },
+        {
+          "mechanism": "DG-11: flag hardcoded colours and lengths even on lines that also use var(), the donor's own regression; before writing tokens, scan by directory as well as name for an existing token source and stop unless replacement is authorised.",
+          "grade": "wired",
+          "evidence": "design-system/scripts/validate-tokens.cjs:57-93; .claude/skills/brand/scripts/sync-brand-to-tokens.cjs:19-66,340-363",
+          "where": "scripts/designcheck.py tokens (and --writing)"
+        },
+        {
+          "mechanism": "DG-14: colours recorded as paired on-X roles, every pair checked: text 4.5:1, ring 3:1, muted text never stronger than primary text.",
+          "grade": "present",
+          "evidence": ".claude/skills/ui-ux-pro-max/scripts/validate_data.py:75-84,387-414",
+          "where": "scripts/designcheck.py contrast; references/system.md"
+        },
+        {
+          "mechanism": "DG-23: page predicates with thresholds at six widths (overflow beyond 1px, images without size or alt, tap targets under 44px at 480px or less, h1 count, lang, viewport meta); its focus test accepts any shadow, so westack seeds outline:none with a resting shadow.",
+          "grade": "wired",
+          "evidence": "stack/scripts/design-audit.mjs:17,25-33,58-133",
+          "where": "references/browser.md (DG-23); references/thresholds.json"
+        }
+      ],
+      "rejected": [
+        "The BM25 style database (79 styles, 192 palettes): keyword lists and opinion; only the contrast-checked pairs are measurable.",
+        "The reviewer's 'Ship' verdict: westack never emits an approval.",
+        "WCAG 2.2 outcome checks (focus not obscured, drag alternatives, 24px targets, consistent help, redundant entry, accessible authentication): deferred to the planned westack-a11y."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT).",
+        "Flag: stack/.mcp.json starts three MCP servers with npx -y ...@latest and stack/.claude/settings.json sets enableAllProjectMcpServers; read as data, none run.",
+        "The design-system validator's path is read as given in design-b.md; its exact repository path was not re-checked."
+      ]
+    },
+    {
+      "ref": "repo:google-labs-code/design.md",
+      "system": "DESIGN.md format and linter (google-labs-code/design.md)",
+      "licence": "LICENSE (read, first lines): Apache License 2.0; source files carry 'Copyright 2026 Google LLC' Apache headers. Ideas only, nothing copied.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/packages/cli/src/linter/linter/rules/contrast-ratio.ts",
+          "sha256": "d4bea8658f6bfe2b1336957f8f218c2a784c89cb78d3366394bd26a0d5fd72f7",
+          "bytes": 2265,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/packages/cli/src/linter/model/handler.ts",
+          "sha256": "bdaadcf22e708a60e0f363eb88c7ffcc09d15069407a34f113b60c316ffe1ead",
+          "bytes": 17265,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/docs/spec.md",
+          "sha256": "9894f2021da2fa3b0a17bc87625813957981bf684587eafbe255e6a360875d03",
+          "bytes": 16574,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/packages/cli/src/linter/linter/rules/unknown-key.ts",
+          "sha256": "e1946af4049056a492695df604e334046b913ab05d0bd2f59c9be295075ea5d8",
+          "bytes": 2491,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/packages/cli/src/linter/linter/rules/omitted.ts",
+          "sha256": "0b39b3c5c90f3f5a378f0a9b74e8eb002327d9f8ec2bd102b6004e67b3a7d0a9",
+          "bytes": 2744,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/packages/cli/src/linter/linter/rules/broken-ref.ts",
+          "sha256": "264e8ce1d42ef2f825dabf80e8b5f202d0913fe1318e9c546196b4228975b04c",
+          "bytes": 1923,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/README.md",
+          "sha256": "c73779bfe3bdbec5c6ad0e01259e6835b6f64762a304fae8227bf01434733504",
+          "bytes": 13313,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google-labs-code/design.md/blob/6e5da5382f41edbba9d73b2c62f33f32e9971f15/LICENSE",
+          "sha256": "1bdd03995456d191707e379eb06ceac20cf30d520bec90c97c2b6d220906c66e",
+          "bytes": 11360,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-14: contrast resolves each state variant against its base component and composites alpha or marks it unresolved; the donor's linter skips variants that set only a background and exits 0 on a contrast warning, which westack makes blocking.",
+          "grade": "wired",
+          "evidence": "packages/cli/src/linter/linter/rules/contrast-ratio.ts:19-44; packages/cli/src/linter/model/handler.ts:161-196",
+          "where": "scripts/designcheck.py contrast (component_props)"
+        },
+        {
+          "mechanism": "DG-20: one plain-text record of normative tokens and prose sections in a fixed order, each key defined once; a key within edit distance 2 of a known one is named; token-like data under an ignored key is flagged; an absent section needs a declared reason; references resolve with a depth cap; derived files are regenerated and compared.",
+          "grade": "wired",
+          "evidence": "docs/spec.md:4-22,127-155,406-418; packages/cli/src/linter/linter/rules/unknown-key.ts:21-60; packages/cli/src/linter/linter/rules/omitted.ts:21-70; packages/cli/src/linter/linter/rules/broken-ref.ts:22-45; README.md:279-301",
+          "where": "references/system.md; scripts/designcheck.py record"
+        }
+      ],
+      "rejected": [
+        "YAML front matter and the Node CLI (npx @google/design.md): the helper is standard-library only, so the record keeps its tokens in JSON.",
+        "The orphaned-token rule: it exempts one design system's colour families."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (Apache-2.0).",
+        "Flag: the README tells an agent to run npx @google/design.md; read as data and not followed.",
+        "packages/cli/src/linter/linter/rules/token-like-ignored.ts is cited by the read to a line past its end; it is read here as 'to the end of the file' and not relied on beyond that.",
+        "Spec versus code, by the read: the spec rejects a duplicate key, the code turns it into a warning that exits 0; westack treats it as a finding."
+      ]
+    },
+    {
+      "ref": "repo:ibelick/ui-skills",
+      "system": "UI Skills (ibelick/ui-skills): improve-ui, create-design-md and the canvas skills",
+      "licence": "LICENSE (read): plain MIT, Copyright (c) 2026 Julien Thibeaut. The registry lists many third-party skills that keep their own licences; none of those were read.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ibelick/ui-skills/blob/3823f1573f6fb564a091a062594b95066dbd974c/skills/improve-ui/SKILL.md",
+          "sha256": "fa2ac808f6d9dab7bb3620880b014d2c18e227e5b006102856038096e573e69a",
+          "bytes": 7830,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ibelick/ui-skills/blob/3823f1573f6fb564a091a062594b95066dbd974c/skills/create-design-md/SKILL.md",
+          "sha256": "adba4fa94a9ca0291811ac26405e8fe15c1a6375743a80971c6f895bb837eeed",
+          "bytes": 16208,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ibelick/ui-skills/blob/3823f1573f6fb564a091a062594b95066dbd974c/skills/component-canvas/SKILL.md",
+          "sha256": "ef2d4b55a2ab83b5e00f0e7f13d7e5efd84a2743dac701d1854fafd9d09418ea",
+          "bytes": 8900,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ibelick/ui-skills/blob/3823f1573f6fb564a091a062594b95066dbd974c/LICENSE",
+          "sha256": "c615621c4cc1676ccde194e7a01b6469ba477780251bd71e007fc473a49c2c2b",
+          "bytes": 1072,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-1: a design finding stands only with a binding design decision for that property, the runtime path from owner to surface and one determined correction; 'no supported findings' is valid.",
+          "grade": "wired",
+          "evidence": "skills/improve-ui/SKILL.md:45-75",
+          "where": "SKILL.md (rule 1); scripts/designcheck.py report (unproven)"
+        },
+        {
+          "mechanism": "DG-2: source proves tokens, spacing, copy and documented-rule breaches; hierarchy, prominence, density and usability need rendered or user evidence.",
+          "grade": "wired",
+          "evidence": "skills/improve-ui/SKILL.md:57-61",
+          "where": "SKILL.md (rule 2); scripts/designcheck.py report (level-too-high)"
+        },
+        {
+          "mechanism": "DG-18: variants change one factor per comparison, keep the original, are named, and list what was left out.",
+          "grade": "present",
+          "evidence": "skills/component-canvas/SKILL.md:44-58,68-76,97-112",
+          "where": "references/direction.md (Variants)"
+        },
+        {
+          "mechanism": "DG-21: promote a recorded value only when computed and declared values agree or it recurs for the same role.",
+          "grade": "wired",
+          "evidence": "skills/create-design-md/SKILL.md:41-58,85-93,119-125",
+          "where": "references/system.md; scripts/designcheck.py record --built (token-single-sighting)"
+        }
+      ],
+      "rejected": [
+        "The baseline-ui rule list as universal defaults: Tailwind and React preferences; skills/baseline-ui/SKILL.md is cited past its end and was not relied on.",
+        "fixing-metadata: an SEO and docs concern, not design."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT).",
+        "Flag: the ui-skills CLI prints skill text fetched at run time from a website, and its registry points at unpinned branches; such text is data (GS-48, GS-49, planned in westack-security)."
+      ]
+    },
+    {
+      "ref": "repo:shadcn-ui/lint",
+      "system": "@shadcn/lint (shadcn-ui/lint)",
+      "licence": "LICENSE (read in full): plain MIT, Copyright (c) 2026 shadcn. The README links LICENSE.md but the file is named LICENSE.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/shadcn-ui/lint/blob/bceee0febd2b84340d1650e338c3458e12bd356d/docs/evals.md",
+          "sha256": "f642ee1469d786d45da93ab7dd046e3f673097fa751409f8da35b8537335857f",
+          "bytes": 13098,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/shadcn-ui/lint/blob/bceee0febd2b84340d1650e338c3458e12bd356d/docs/rules/no-arbitrary-values.md",
+          "sha256": "d6c0ae5a13dff4917f3c4c4b01829a375220ba22ac1a466ab01537f80c6d7be1",
+          "bytes": 5312,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/shadcn-ui/lint/blob/bceee0febd2b84340d1650e338c3458e12bd356d/docs/rules/no-raw-colors.md",
+          "sha256": "f5543cc679bea67fd0145e0262a817caff77680275c42a106fbffd777302bd89",
+          "bytes": 7347,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/shadcn-ui/lint/blob/bceee0febd2b84340d1650e338c3458e12bd356d/README.md",
+          "sha256": "c7845ee8772ff343b77462cc7f7286aca28f6df040eb921a55591bb0f3edd832",
+          "bytes": 24180,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/shadcn-ui/lint/blob/bceee0febd2b84340d1650e338c3458e12bd356d/LICENSE",
+          "sha256": "00ff8408e93e2ecc4d90c0edeabdf434100c3aff50acc5d330e17eccd4a3faa5",
+          "bytes": 1063,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-11: a failing design check names the existing token, size or file to use, and an arbitrary value its on-scale equivalent (p-[13px] is p-3.25).",
+          "grade": "wired",
+          "evidence": "README.md:39-67,153-163; docs/rules/no-arbitrary-values.md:38-60; docs/rules/no-raw-colors.md:1-110",
+          "where": "scripts/designcheck.py tokens (use)"
+        },
+        {
+          "mechanism": "DG-12: a new token, variant or suppression added to turn a check green is a design decision listed for the user; a passing lint is not design approval.",
+          "grade": "wired",
+          "evidence": "docs/evals.md:129-142,177-196",
+          "where": "SKILL.md (rule 5); scripts/designcheck.py record --baseline and tokens --baseline (proposals)"
+        }
+      ],
+      "rejected": [
+        "The ESLint and Oxlint plugin and its Tailwind oracle: linting loads the project's Tailwind config and plugins, which runs the project's JavaScript; designcheck.py never does.",
+        "Temptation-task evaluations (each green labelled fix-in-API, within-system, new-token or workaround): deferred to westack-eval cases."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT).",
+        "Flag: the README tells an agent to read SETUP.md from the main branch and install the package; read as data and not followed.",
+        "docs/design-systems.md is cited by the read to a line past its end; not relied on beyond the end of the file."
+      ]
+    },
+    {
+      "ref": "repo:anthropics/skills",
+      "system": "Anthropic's frontend-design skill (anthropics/skills, plugin 1.1.1)",
+      "licence": "skills/frontend-design/LICENSE.txt (read, head and tail): Apache License 2.0 terms; SKILL.md front matter says 'Complete terms in LICENSE.txt'. The anthropics/skills repository has no root LICENSE file (the GitHub API reports none); its README says many skills in the repo are Apache 2.0 and the docx, pdf, pptx and xlsx skills are source-available. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/SKILL.md",
+          "sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+          "bytes": 9390,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/LICENSE.txt",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+          "bytes": 10174,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-10: template tells as patterns (cream with terracotta, one radius and shadow on every card, uppercase eyebrows, one-word headline accents, spaced em-dash labels, arrows in buttons, purple-to-blue gradients), flagged only when the brief did not ask for that look.",
+          "grade": "present",
+          "evidence": "skills/frontend-design/SKILL.md:25-45",
+          "where": "references/rules.json (tell-*); scripts/designcheck.py rules --brief"
+        },
+        {
+          "mechanism": "DG-15: write a design plan, then a plan for a similar brief; any part that repeats is a default to revise.",
+          "grade": "present",
+          "evidence": "skills/frontend-design/SKILL.md:47-59",
+          "where": "references/direction.md"
+        }
+      ],
+      "rejected": [
+        "Its copy rules (outcome-named actions, one name per action, errors with cause and fix): UI copy belongs to westack-docs (WD-16) and is not duplicated here.",
+        "The persona framing: prompt style, not a checkable rule."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (design-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: the skill folder carries Apache-2.0 text (LICENSE.txt); the repository has no root licence file GitHub detects. Ideas only.",
+        "Flag: the skill names #D97757 as Anthropic's own accent; on anyone else's page it is a tell.",
+        "The installed SKILL.md git blob a5333457c414d20d625f307df945842c0952ecc3 (9,390 bytes) equals the blob read at the pin (design-b.md:229), so the core defer map's design-frontend-design entry records no side effects."
+      ]
+    },
+    {
+      "ref": "repo:thedotmack/claude-mem",
+      "system": "claude-mem's design-is skill (thedotmack/claude-mem)",
+      "licence": "Apache-2.0 (LICENSE read in part: the Apache License 2.0 text, appendix placeholder unfilled; NOTICE: 'Copyright 2026 Alex Newman'; docs/license.md and docs/ip-boundary.md say the public repo is the open core and hosted cloud, team sync and enterprise features are reserved)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/plugin/skills/design-is/SKILL.md",
+          "sha256": "1d6529372738c64a74e2ad1b3a8521fe354d166ca9909d448aa2ac1094fc8627",
+          "bytes": 18817,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-7: scores are 0 to 3 integers with written anchors; when unsure take the lower; score the worst instance, not the mean.",
+          "grade": "present",
+          "evidence": "plugin/skills/design-is/SKILL.md:143-174",
+          "where": "references/critique.md (5); scripts/designcheck.py report (unsure-not-lower, not-worst-instance)"
+        },
+        {
+          "mechanism": "DG-16: a redesign names what to keep and what to discard, each with evidence.",
+          "grade": "present",
+          "evidence": "plugin/skills/design-is/SKILL.md:182-289",
+          "where": "references/direction.md (Redesign); scripts/designcheck.py inventory --dropped"
+        }
+      ],
+      "rejected": [
+        "Its telemetry design and the rest of claude-mem: adopt-adapt and westack-security material, not design."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (new-a.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (Apache-2.0)."
+      ]
+    },
+    {
+      "ref": "repo:CopilotKit/OpenBot",
+      "system": "OpenBot's screen-layout and data-access skills (CopilotKit/OpenBot)",
+      "licence": "MIT (LICENSE read in full): Copyright (c) 2026 CopilotKit, the standard MIT text with no additions. The product needs a CopilotKit Intelligence project and licence (README.md:69; free Developer plan, managed or self-hosted), which is a separate commercial service, not covered by this licence. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/.claude/skills/openbot-screen-layout/SKILL.md",
+          "sha256": "4fed1c08bb06432e4b35635ea0d7518df12d1eb4c585d73c4a7712b73e9187db",
+          "bytes": 18439,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/.claude/skills/openbot-data-access/SKILL.md",
+          "sha256": "39aac85348d617e55df287f974b08093b081d9d99172371f45c38f84c584f0b5",
+          "bytes": 19372,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/LICENSE",
+          "sha256": "6d35a6bb107ae508da34636387f6208e75a6938e797bc0d5bfa9489d2ca95bad",
+          "bytes": 1067,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-22: screens compose one set of frame components and take spacing from the frame; never hardcode a pixel value derived from a token, measure the drawn element; data views branch pending, error, empty, rows, since an empty sentence shown while loading is false.",
+          "grade": "present",
+          "evidence": ".claude/skills/openbot-screen-layout/SKILL.md:22-40,189-199,231; .claude/skills/openbot-data-access/SKILL.md:179-200",
+          "where": "references/system.md (Frames); references/rules.json (frame-derived-px, frame-false-empty)"
+        }
+      ],
+      "rejected": [
+        "Its copy rules: westack-docs (WD-16).",
+        "Row-kind rules (switch, chevron, dialog): a product convention, not a general design rule."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 design reads (new-b.json); the SHA-256 and byte counts are those recorded there and were not re-fetched for this build. Only the cited files and the licence are listed.",
+        "Licence status: permissive (MIT)."
+      ]
+    },
+    {
+      "ref": "motion:emilkowalski/skills",
+      "system": "Emil Kowalski's design-engineering skills (emilkowalski/skills), review-animations standards",
+      "licence": "MIT (LICENSE read: Copyright (c) 2026 Emil Kowalski)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/emilkowalski/skills/blob/a81dbca07f2217b7103e510c0f13f8d5b017afc9/skills/review-animations/STANDARDS.md",
+          "sha256": "e7d3605034acda54ca13e43aec9e64d65b53de20f75b11b8d694e373012fbe07",
+          "bytes": 9801,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/emilkowalski/skills/blob/a81dbca07f2217b7103e510c0f13f8d5b017afc9/LICENSE",
+          "sha256": "4ff5bdb7887ec1435c9cab0e8d1a7caee704d894d65c2a008ccc68b1cc2f260b",
+          "bytes": 1070,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-25: review prompts for motion: frequency decides whether an action animates, transitions retarget while keyframes restart, popovers grow from their trigger, and hover motion belongs to fine pointers because touch fires hovers on tap; animate transform and opacity only.",
+          "grade": "present",
+          "evidence": "skills/review-animations/STANDARDS.md:5-16,77-87,110-128,160-169",
+          "where": "references/motion.md (Craft prompts, default 4); references/rules.json (motion-hover-box, motion-per-frame-layout sources)"
+        }
+      ],
+      "rejected": [
+        "Its durations and curves (UI under 300ms, named cubic-beziers): taste, carried as a project's choice, not a westack threshold.",
+        "Its view that reduced motion keeps gentler animation: westack's default sends movement straight to its end state and lets only opacity or colour changes stay."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Fetched for this build on 2026-10-30, as the brief asked: the default branch resolved to commit a81dbca07f2217b7103e510c0f13f8d5b017afc9 through the GitHub API; LICENSE was read first, then the one file needed, each into memory through raw.githubusercontent.com at that commit, hashed in memory; nothing was written to disk and nothing was run.",
+        "Licence status: permissive (MIT)."
+      ]
+    },
+    {
+      "ref": "adoption:web:anthropic.com/engineering (SS-77)",
+      "system": "Anthropic engineering posts on agents (harness design for long-running apps: making subjective quality gradable)",
+      "licence": "Ideas only (no licence). Vendor copyright; web pages read as data by the 2026-10-28 deep read; nothing quoted or copied.",
+      "grade": "present",
+      "sources": [],
+      "no_source_reason": "A web page with no repository or commit to pin; the 2026-10-28 deep read (member m0166) read it on 2026-10-29 and recorded no hash.",
+      "taken": [
+        {
+          "mechanism": "SS-77 (P3, ADOPTION-LIST.md:914): score subjective quality on a few named criteria weighted toward what the model usually gets wrong, with two anchor examples each, and re-check the anchors against a person when the model changes.",
+          "grade": "present",
+          "evidence": "harness-design-long-running-apps: Frontend design: making subjective quality gradable",
+          "where": "references/critique.md (5); scripts/designcheck.py report (anchors-missing, anchors-unchecked)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Applied with DG-7 as the brief asks. SS-77 is a P3 adoption item and is not in the P2 backlog, so this record is not a p2: record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "lists:design-physics-2026-10-30",
+      "system": "the user's design and web-physics source lists (F1 to F4, by grokbot and dot) and the papers they cite, through the brief's digest",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "Local research lists, not repositories: the brief's section 'Added from the user's design and physics lists' and its digest (lists-design-physics-digest.md) were read; the lists' own files and the papers were not re-read for this build.",
+      "taken": [
+        {
+          "mechanism": "DG-25: four motion defaults (hover never changes a target's box, reduced motion goes to the end state with a pause control past 5 seconds, one motion owner per property, no per-frame layout work) and the rest as the project's recorded policy.",
+          "grade": "claimed",
+          "evidence": "F2:182-183 (31 of 76 hovers shifted), F2:84,141 and F4:31,239 (reduced motion), F4:26,171,316 (per-frame work), F2:209 (offscreen)",
+          "where": "references/motion.md; references/rules.json (motion-*, policy-*); scripts/designcheck.py rules --record, record (motion)"
+        },
+        {
+          "mechanism": "DG-26: motion evidence is recorded motion under real input; stills at set times do not show it.",
+          "grade": "claimed",
+          "evidence": "F4:254",
+          "where": "references/browser.md (DG-26); scripts/designcheck.py report (motion-from-stills)"
+        },
+        {
+          "mechanism": "DG-27: numeric design facts come from the render engine, never a model reading a screenshot (Pattern over Pixels, arXiv 2608.03691, abstract read by the brief's author: 21.2% and 7.9% accuracy).",
+          "grade": "claimed",
+          "evidence": "arXiv 2608.03691 abstract",
+          "where": "SKILL.md (rule 2); references/critique.md (2); scripts/designcheck.py report (numeric-from-screenshot)"
+        },
+        {
+          "mechanism": "DG-28: calibrate every detector on a real human page beside a seeded template page and record the false positives on the human control.",
+          "grade": "claimed",
+          "evidence": "F1:216-224",
+          "where": "references/thresholds.json (calibration); scripts/designcheck.py rules --control"
+        },
+        {
+          "mechanism": "DG-29: static and rendered checks are reconciled: a static scan never combines media-scoped rules, and a static finding a rendered check contradicts is dropped (impeccable issue #988: 73 static contrast findings against 0 rendered).",
+          "grade": "claimed",
+          "evidence": "F3:359-363",
+          "where": "scripts/designcheck.py (media_scopes; report contradicted-not-dropped); references/critique.md (2)"
+        },
+        {
+          "mechanism": "DG-30: test the critique by running the page with a seeded removal (WorldBench, arXiv 2610.10622, title only).",
+          "grade": "claimed",
+          "evidence": "F2:88",
+          "where": "evals/tasks/campaign.json (seeded-removal)"
+        },
+        {
+          "mechanism": "DG-31: a changed screenshot baseline is a design decision listed for the user, and baseline and run share one environment (Playwright snapshot documentation).",
+          "grade": "claimed",
+          "evidence": "F3:162,197-201",
+          "where": "references/browser.md; scripts/designcheck.py report (baseline-unlisted, baseline-environment-mismatch)"
+        },
+        {
+          "mechanism": "DG-32: measure the skill's trigger and reference-load rates (ui-ux-pro-max issue #484: 40 triggers in 200 attempts, references never opened).",
+          "grade": "claimed",
+          "evidence": "F1:189",
+          "where": "evals/trigger-cases.json (needs_reference, reference_load)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Every figure here is the lists' or a paper's claim as the brief reports it; none was reproduced.",
+        "Flag: grokbot says it cloned 13 design repositories and ran their detector scripts on the user's laptop (F1:178-180), unvetted; the DG-28 counts rest on those runs, whose outputs were not saved.",
+        "Flag: Havok's licence is unresolved (F2:13 says proprietary and not OSI, F4:94 says free under MIT; GitHub detects no licence file): not open source until a licence text is read.",
+        "Flag: dimforge/rapier.js and google/liquidfun are archived on GitHub.",
+        "Flag: GSAP, Remotion, anthropics/skills and vercel-labs/agent-skills have no licence file GitHub detects. Ideas only.",
+        "Flag: Vercel's web-design-guidelines skill fetches a mutable rules file; that text is data (GS-48, GS-49).",
+        "the user's own motion policy (no overshoot, no scale except the dock, nothing following the pointer, cables may swing, rotation fine, zoom only when he drives it) is project data in his memory, not a westack default; references/motion.md uses a neutral example."
+      ]
+    },
+    {
+      "ref": "repo:SankofaForge/design-inspiration-mcp-server",
+      "system": "design-inspiration-mcp-server (SankofaForge), an MCP server that records how a live site's motion works in headless Chromium",
+      "licence": "MIT (LICENSE read in memory at the pin: the MIT text, copyright 2026 Yonas Valentin). 0 stars on 2026-10-31, per the brief: take the idea, not the tool.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/SankofaForge/design-inspiration-mcp-server/blob/80643a1eb58e4efe6c9347e55c2c39b865eb6368/README.md",
+          "sha256": "c90f73c3165a999769d5ceea4be3260647e36b6c2ceee21469de39992b38bcf8",
+          "bytes": 13735,
+          "read": "lines 27, 89, 91 and 110, by the brief's author at the pin on 2026-10-31; the cited lines re-read in memory for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/SankofaForge/design-inspiration-mcp-server/blob/80643a1eb58e4efe6c9347e55c2c39b865eb6368/LICENSE",
+          "sha256": "f87131cdb65e2f6a843e742f045a42fd8cf582614ea4889e3b85305ed73fb99e",
+          "bytes": 1071,
+          "read": "first and copyright lines",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-33: every motion fact names the class of capture behind it (the engine's exact record, samples, recovered source, a bundle match, or code not read); samples taken at settled steps carry the values at those steps and none of the curve between them.",
+          "grade": "present",
+          "evidence": "README.md:89",
+          "where": "references/browser.md (Capture class); references/motion.md (Evidence); scripts/designcheck.py report (capture-class-missing, level-above-capture, lowered)"
+        },
+        {
+          "mechanism": "DG-34: the runtime evidence that settles what a moving reference is: rules tied to scrolling, the shaders' source and the uniform values written to them, and the animation list, rather than its appearance.",
+          "grade": "present",
+          "evidence": "README.md:27",
+          "where": "references/motion.md (References)"
+        },
+        {
+          "mechanism": "DG-35: reimplement from the evidence; recovered source, shaders and assets come in only under their own licence, with their provenance recorded.",
+          "grade": "present",
+          "evidence": "README.md:91",
+          "where": "references/direction.md (References)"
+        }
+      ],
+      "rejected": [
+        "The server itself (headless capture, pointer and scroll drives, page bundles and recovered sources saved to a temp folder, an optional software WebGL switch): not installed or run; westack's browser checks run only through the host's own tools under a grant.",
+        "Its own evidence-class labels: westack names five classes in its words and maps each to a claim level."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Fetched for this build on 2026-10-31 into memory only: the brief's 12-hex commit resolved to the full id through the GitHub commits API, then the file and LICENSE read through raw.githubusercontent.com at that commit and hashed in memory; the file's SHA-256 equals the brief's. Nothing was written to disk, installed or run.",
+        "Flag: the tool saves page bundles and recovered sources to a temp folder and can switch on software WebGL (README:89); its URL check does not resolve DNS, so keeping captures to public addresses is left to the capture service (README:110). Nothing was installed or run."
+      ]
+    },
+    {
+      "ref": "repo:raphaelbleier/design-inspiration-skills",
+      "system": "design-inspiration-skills (raphaelbleier), agent skills built from studies of award-winning sites",
+      "licence": "MIT (LICENSE read in memory at the pin: the MIT text, copyright 2026 Raphael Bleier). 1 star on 2026-10-31, per the brief.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/raphaelbleier/design-inspiration-skills/blob/9a216f956fac1f39a69c2d9faaffd37de06c9031/README.md",
+          "sha256": "798ff59c0ac13a01fd7699ae83d1127ac7a0aaf5a04509eff5a9fd98c8265dac",
+          "bytes": 19146,
+          "read": "lines 28-29, 96-101 and 103-108, by the brief's author at the pin on 2026-10-31; the cited lines re-read in memory for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/raphaelbleier/design-inspiration-skills/blob/9a216f956fac1f39a69c2d9faaffd37de06c9031/LICENSE",
+          "sha256": "f5d99a29275800322f8c37f2c96677811dd612120b325ffedaa4efe322306d3f",
+          "bytes": 1071,
+          "read": "first and copyright lines",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-35: a reference records why it works, not only what it looks like; a direction picks one to three studies and applies their principles; borrowed work is a clean-room rebuild (no original code, images, fonts or copy) that credits and links its creators.",
+          "grade": "present",
+          "evidence": "README.md:28-29, 96-101, 103-108",
+          "where": "references/direction.md (References); scripts/designcheck.py record (references-count, reference-incomplete)"
+        }
+      ],
+      "rejected": [
+        "Its study library, rebuild files and generated images: content, not mechanism, and not read.",
+        "Taking a study's easing as a starting value: not carried for room; references/motion.md already makes durations and curves the project's choice, recorded with their basis."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Fetched for this build on 2026-10-31 into memory only: the brief's 12-hex commit resolved to the full id through the GitHub commits API, then the file and LICENSE read through raw.githubusercontent.com at that commit and hashed in memory; the file's SHA-256 equals the brief's. Nothing was written to disk, installed or run."
+      ]
+    },
+    {
+      "ref": "repo:INSANE0777/Awwwards-mcp",
+      "system": "Awwwards-mcp (INSANE0777), an MCP server over Awwwards listings with runtime motion capture and flow comparison",
+      "licence": "MIT (LICENSE read in memory at the pin: the MIT text, copyright 2026 Afjal). 379 stars on 2026-10-31, per the brief.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/INSANE0777/Awwwards-mcp/blob/8df9092c5f9fb725a5a152271d58d86b8c1e2e6d/README.md",
+          "sha256": "d8741deae0457cb1e0d7f7314a68d90f68639ba560f4330dc20c68208b306410",
+          "bytes": 52330,
+          "read": "lines 39, 54, 63 and 73-74, by the brief's author at the pin on 2026-10-31; the cited lines re-read in memory for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/INSANE0777/Awwwards-mcp/blob/8df9092c5f9fb725a5a152271d58d86b8c1e2e6d/LICENSE",
+          "sha256": "36df4a3ad6474244b53ec82b839d9dbf5168c3e2c7593b4c1d6b28f2a85625ce",
+          "bytes": 1062,
+          "read": "first and copyright lines",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-34: a runtime fingerprint of a site's motion (render engines, how much of its scroll animation is scrubbed, its scroll model) as the evidence for what kind of motion it is.",
+          "grade": "present",
+          "evidence": "README.md:54",
+          "where": "references/motion.md (References)"
+        },
+        {
+          "mechanism": "DG-35: a brief built from references states the project goal they serve.",
+          "grade": "present",
+          "evidence": "README.md:39",
+          "where": "references/direction.md (References: goal); scripts/designcheck.py record"
+        },
+        {
+          "mechanism": "DG-36: put a build and its reference through the same short script of scroll, click and wait steps in two fresh headless browsers, compare path, scroll change, skeleton and text hashes and element count after each step, and call them the same only when both runs are complete.",
+          "grade": "present",
+          "evidence": "README.md:63",
+          "where": "references/browser.md (DG-36); scripts/designcheck.py report (blocked-without-step, comparison-incomplete)"
+        }
+      ],
+      "rejected": [
+        "Its unknown verdict for a truncated or failed run: westack's runtime statuses have no unknown, so an early stop is blocked at the step where it stopped (browser.md, In the report).",
+        "A brief of two to five sites: westack's direction takes at most three references (the raphaelbleier record).",
+        "The server, its Awwwards scraper (robots-compliant paths at one request a second, a 7-day cache, README:356, :371) and its winners poll and watch list (README:73-74): not installed or run; a design-inspiration monitor is not a westack job."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Fetched for this build on 2026-10-31 into memory only: the brief's 12-hex commit resolved to the full id through the GitHub commits API, then the file and LICENSE read through raw.githubusercontent.com at that commit and hashed in memory; the file's SHA-256 equals the brief's. Nothing was written to disk, installed or run.",
+        "Media rights on the sites it lists stay with their creators (F5:9, the list's note)."
+      ]
+    },
+    {
+      "ref": "lists:design-inspiration-2026-10-31",
+      "system": "the user's design-inspiration deep dive (F5: design-inspiration-monitoring-deep-dive.md, 164 lines) through the brief's section 'Added from the design-inspiration deep dive (2026-10-31)'",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "A local research list, not a repository: the brief's section was read; F5 itself was not re-read for this build.",
+      "taken": [
+        {
+          "mechanism": "DG-34: no capture tool settles a reference's physics from its appearance, so its kind comes from runtime evidence.",
+          "grade": "claimed",
+          "evidence": "F5:56 (the list's own synthesis)",
+          "where": "references/motion.md (References)"
+        },
+        {
+          "mechanism": "DG-35: the reference record's field set, and the warning that designers criticise derivative copying.",
+          "grade": "claimed",
+          "evidence": "F5:58 (field set); F5:44 (anecdotal; the launch thread was not read)",
+          "where": "references/direction.md (References); scripts/designcheck.py record"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Not read: design-inspiration-monitoring-tools.md beside F5 (the user did not name it).",
+        "DG-37 (a repository's licence is its licence file) is in the same section and belongs to westack-research; it is not recorded here."
+      ]
+    },
+    {
+      "ref": "repo:scottstts/Threejs-Awesome-Graphics-Agent-Skills",
+      "system": "Threejs-Awesome-Graphics-Agent-Skills (scottstts), agent skills for Three.js graphics with a visual-validation protocol and capture scripts",
+      "licence": "Mixed: GitHub detects MIT from the licence file, but package.json declares \"MIT AND GPL-3.0-only\" and GPL-3.0 material ships inside some skills. Ideas only; no code, text or assets copied (a DG-37 case: the licence is what the files carry). 952 stars on 2026-10-31, per the brief.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/README.md",
+          "sha256": "4fe1b7e0dc9620ff15789682f856bb0f4e4cccca491b7845b8db926f20e312b7",
+          "read": "lines 27-34, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/package.json",
+          "sha256": "7faef5bb9d6682bd7dc95763d907e690dd237fdd88b79d581d98709f7d807e27",
+          "read": "the licence field, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/scripts/validate-pack.mjs",
+          "sha256": "3e246bc35145328facc6226846653a8e446fb4392d502c51fa62aa5460b07a0b",
+          "read": "lines 189-191, 263-277, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/scripts/capture-examples.mjs",
+          "sha256": "847a86a1159710f61b0223f96d8070023952fd4aa808ae75180337032f4c358d",
+          "read": "lines 89-91, 105-109, 192-196, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/scripts/render-example-thumbnails.mjs",
+          "sha256": "1c08ef3c23c40b57c360a32dc4510d5db2db67f9e300105ab79c93642abced12",
+          "read": "lines 58-63, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-skill-router/SKILL.md",
+          "sha256": "ccac8662be14f4b23d89459a57f3e781d1ea2bb6266841623ec6fe11c567bf43",
+          "read": "lines 65-73, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-visual-validation/SKILL.md",
+          "sha256": "e5532e7fcc0bf704a761444513d758c6bb036d7dde7035cc439e011b02fba2e8",
+          "read": "lines 25-33, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-visual-validation/references/graphics-validation-protocol.md",
+          "sha256": "dff7a713ddfb1d103447a6f8bb334680abb610dbe3c13b47258b7148a35dd58a",
+          "read": "lines 36-60, 259-279, 372-406, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-bloom/references/hdr-bloom-system.md",
+          "sha256": "9af4c9b0af762bd4756123a0e00ff04c1dcdc6bf889cd497957a6f99d773ce6b",
+          "read": "lines 186-187, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-procedural-animation/references/procedural-motion-and-docking-systems.md",
+          "sha256": "92635c4b734e31f70d593aec6e647f82140447c899a5f722f16f99a17493fa28",
+          "read": "lines 314-333, 341, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-exposure-color-grading/references/scene-referred-color-pipeline.md",
+          "sha256": "f859a8d47743526ae723b14f8efebbf0851865c3ac7018ce622708a3d0b2eed2",
+          "read": "lines 63-72, by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/scottstts/Threejs-Awesome-Graphics-Agent-Skills/blob/53eb5a24097425d82532ec33697ad472750132a4/skills/threejs-temporal-surfaces/SKILL.md",
+          "sha256": "95b601aed2e559e9b943b57224fbfe83c547a62d58bd6a57efa66de8e5a731c9",
+          "read": "line 43 (the reader cited 42; the brief corrected it), by the reads session's reader and re-read by the brief's author at the pin on 2026-10-31; hash from the brief, not re-fetched for this build",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-38: the page must still read with its effects removed; reject a result whose only readable edge or silhouette comes from a glow or blur.",
+          "grade": "present",
+          "evidence": "README.md:27-34; threejs-skill-router/SKILL.md:65-73; graphics-validation-protocol.md:259-279; hdr-bloom-system.md:186-187",
+          "where": "references/rendering.md (DG-38); scripts/designcheck.py report (effects-not-removed)"
+        },
+        {
+          "mechanism": "DG-39: smooth toward a target with an exponential response scaled by the frame's elapsed time, clamped; springs where velocity or inertia is part of the motion; separate rates toward light and toward dark.",
+          "grade": "present",
+          "evidence": "procedural-motion-and-docking-systems.md:314-333, :341; scene-referred-color-pipeline.md:63-72; threejs-temporal-surfaces/SKILL.md:43",
+          "where": "references/rendering.md (DG-39); references/motion.md; references/rules.json (motion-per-frame-lerp)"
+        },
+        {
+          "mechanism": "DG-40: write a visual contract of observable invariants before tuning, and record who signed off which captures.",
+          "grade": "present",
+          "evidence": "graphics-validation-protocol.md:36-60, :372-384, :386-406; threejs-visual-validation/SKILL.md:25-33",
+          "where": "references/direction.md (Invariants); references/system.md (Promises and sign-off); scripts/designcheck.py record (invariant-unobservable, invariant-incomplete, signoff-incomplete)"
+        },
+        {
+          "mechanism": "DG-41: a capture waits for the page's ready signal and the run fails on runtime errors; westack also blocks the capture when the wait times out, where the donor's capture script swallows the timeout and captures anyway.",
+          "grade": "present",
+          "evidence": "capture-examples.mjs:89-91, :105-109, :192-196; render-example-thumbnails.mjs:58-63",
+          "where": "references/rendering.md (DG-41); scripts/designcheck.py report (capture-not-ready, capture-console-errors, readiness-status)"
+        },
+        {
+          "mechanism": "DG-42 (core): a reference page nothing links to is a package error. westack requires a link or a named path, where the donor's check is a substring test.",
+          "grade": "present",
+          "evidence": "validate-pack.mjs:263-267",
+          "where": "skills/westack/scripts/skillmeta.py check_package (the core; recorded here because the item came through this brief)"
+        }
+      ],
+      "rejected": [
+        "validate-pack.mjs's other gates: at least 80 lines and a code fence in every reference (:269-277) and a 220-line SKILL.md cap (:189-191). westack's caps are words, set by its own tests.",
+        "The donor's capture flow as it stands: its wait swallows a timeout and captures anyway (capture-examples.mjs:105-109). westack takes the opposite rule (DG-41).",
+        "A static lead for DG-38 in rules.json (the brief's option): whether a shadow is the only edge depends on the rendered background, so the check stays runtime-only.",
+        "The pack's skills, examples, shaders, installer and quality kit: content and code under mixed licences, not mechanism, and not used."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Pins and hashes are the brief's (BRIEF-westack-design.md, section 'Added from the Three.js graphics skills (2026-10-31)'); the files were not re-fetched for this build, so their bytes are not recorded.",
+        "Flags, read as data: .claude/CLAUDE.md and .codex/AGENTS.md instruct the maintainer's agents and were not followed; the geometry skill tells an agent to copy its quality kit into the user's project and run selftest.js; 22 of 51 trace-manifest sources are 'MIT by project rule', meaning no licence was observed; the installer writes about 83 MB per agent target, and --force deletes a same-named untracked skill folder. Nothing was installed or run.",
+        "The reader's optional honesty-fake-progress rule (progress and live indicators driven by real state, beside DG-17) is not carried in this build: the brief marks it optional and did not re-read its lines."
+      ]
+    },
+    {
+      "ref": "repo:elvarofficial/teardown",
+      "system": "teardown (elvarofficial), a Claude Code skill that builds a machine simulator as one offline page and records its tour to video",
+      "licence": "MIT: the LICENSE file at the pin names elvarofficial and whaleyxbt, and GitHub reports MIT. Ideas only; no code, text or assets copied. 346 stars, pushed 2026-10-31, per the brief.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/elvarofficial/teardown/blob/a91262ac1109051e014662d42ecb0b7bc1f113b1/SKILL.md",
+          "sha256": "9395e463e8ff733c4cadafe8dafeceb72fd462a2a1fc89a58c17d3b756b5929b",
+          "bytes": 11672,
+          "read": "lines 56-57, 69-85, 101-117 and 144, by the brief's author at the pin on 2026-10-31; hash from the brief, matched by this build against that author's saved copy (no fetch), which this build used only for the 8-word overlap check",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/elvarofficial/teardown/blob/a91262ac1109051e014662d42ecb0b7bc1f113b1/LICENSE",
+          "sha256": "489451d9c7bd0c07b21c7f094f24d290d52c757bf71fc988ec880aa673fb3820",
+          "bytes": 1099,
+          "read": "full, by the brief's author at the pin on 2026-10-31; hash from the brief, matched against that author's saved copy",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DG-43: a recorded animation draws each frame from its time alone (seeded randomness, no wall clock, no state carried between frames; parts that move by their own rules are simulated once at load and then read), so capture can ask for any moment in any order.",
+          "grade": "present",
+          "evidence": "SKILL.md:69-85 (the render-by-time contract), :82, :83",
+          "where": "references/rendering.md (DG-43); references/motion.md (Evidence); scripts/designcheck.py (listed not run)"
+        },
+        {
+          "mechanism": "DG-44: every number on screen comes from the one state that draws it, never typed in, and one value is checked by hand.",
+          "grade": "present",
+          "evidence": "SKILL.md:56, :57, :113",
+          "where": "references/direction.md (Honest pages); references/rendering.md (DG-44); scripts/designcheck.py (listed not run)"
+        },
+        {
+          "mechanism": "DG-45: the final review reads frames cut from the finished, encoded output, never only the live render.",
+          "grade": "present",
+          "evidence": "SKILL.md:101-109, :103, :109",
+          "where": "references/rendering.md (DG-45); references/critique.md (1, a link); scripts/designcheck.py report (capture-not-delivered)"
+        },
+        {
+          "mechanism": "DG-46: text on screen holds 1 s for a short phrase plus 0.25 s for each word beyond three. A heuristic with no study cited, so its basis is taste.",
+          "grade": "present",
+          "evidence": "SKILL.md:117; the review rules are credited to claude-motion at :144",
+          "where": "references/thresholds.json (text-hold-s, kind per-word); references/rendering.md (In the report); scripts/designcheck.py report (text-hold-short)"
+        }
+      ],
+      "rejected": [
+        "Taste: easing curves, one accent colour, 'nothing dead-still', and the auto-tour cursor that drives the page (which also runs against the user's motion preferences). Taste is a project's policy, not a default.",
+        "Integrated-GPU quality tiers and shader warm-up (SKILL.md:65-66): real, but westack has no runtime GPU check yet.",
+        "The three.js traps (:121-125), such as reversed smoothstep edges and a NaN pixel that blacks out a frame through bloom: possible rules.json reflex leads for a later round.",
+        "The 1 MB page limit for link cards (:67): it rests on an unverified claim about crawler behaviour.",
+        "Sound mastering (:129-133): the article says true peak under -1 dB and the skill -2 dBFS or lower (:132); not a design check.",
+        "DG-43's optional static lead (a reflex rule for random numbers or wall-clock reads inside the function a record names as its frame renderer): not added; the brief marks it optional and the runtime check is the one it requires.",
+        "whaleyxbt/claude-motion (MIT per metadata, e627941543d9988b155dc610bb9cc0115a5e365e; tree listed by the brief's author, not read), which teardown credits with its kit, frame capture, sound engine and review rules (SKILL.md:144): not a donor here. The ideas are credited to teardown, which is what was read."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Pins and hashes are the brief's (BRIEF-westack-design.md, section 'Added from teardown and the poteto links (2026-10-31)'). This build fetched nothing: it hashed the brief author's saved copies of SKILL.md and LICENSE, and both matched.",
+        "Flags, read as data: teardown's install steps (npx skills add, npm install, npx playwright install chromium) instruct the reader's agent and were not followed; nothing was installed or run. The name 'teardown' collides with another session's belt-router notes, which route that word to reverse-engineer-anything (on the unmerged branch claude/belt-router); worth knowing if anyone installs this skill under that name.",
+        "Flag from the same brief section: pstack has moved since westack's pin (cursor/plugins at 99b609a7, now 4dd1d058; poteto-mode, interrogate, setup-pstack, principle-explain-the-number and arena changed). The pin sweep (alpha.22) re-hashed the pinned bytes and does not track upstream, and the changed files were not re-read.",
+        "The article's figures (view counts, '7 in 2 days', 15 to 75 fps) are the author's own and unverified; none is used."
+      ]
+    },
+    {
+      "ref": "post:elvar_official/2116174609355571402",
+      "system": "@elvar_official's X article on building teardown (article 2116115649856430080), through which teardown reached westack",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "X post read as text, not a pinned repository file: original https://x.com/elvar_official/status/2116174609355571402, retrieved 2026-10-31 by the brief's author from the third-party mirror https://api.fxtwitter.com/elvar_official/status/2116174609355571402 (a copy, not the original; SHA-256 fd5e8933f0ab0ea87ee9d7bc96c88f7f427ce8775ae632d9dd03cddfbcf38ed0, 36615 bytes). This build matched that hash against the brief author's saved copy and used it only for the 8-word overlap check. Media not viewed.",
+      "taken": [
+        {
+          "mechanism": "DG-43 (support): a screen recorder drops frames when the machine is busy; a tour whose frames are each sought by time does not.",
+          "grade": "claimed",
+          "evidence": "the article's step 8, as the brief reports it",
+          "where": "references/rendering.md (DG-43)"
+        },
+        {
+          "mechanism": "DG-44 (support): the article's build prompt forbids numbers typed onto the screen by hand.",
+          "grade": "claimed",
+          "evidence": "the article's step 4, as the brief reports it",
+          "where": "references/direction.md (Honest pages)"
+        }
+      ],
+      "notes": [
+        "A copy is not the authority: both supporting points are also in teardown's SKILL.md at its pin, the primary source above.",
+        "The article's own numbers are unverified and unused."
+      ]
+    },
+    {
+      "ref": "gstack.design-shotgun",
+      "system": "gstack design-shotgun (the key-free path only)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/design-shotgun/SKILL.md.tmpl",
+          "sha256": "3278fd8f16569a1a20919fec2d0758bce0bcfa2f6616cf1fed24d5ab33917c70",
+          "bytes": 12858,
+          "read": "searched for the variant count, board, feedback and fallback paths",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/scripts/resolvers/design.ts",
+          "sha256": "7c04343da12642e5424158a5cd473dfa696b9cc043ffb3a87369002e8ff5d818",
+          "bytes": 113859,
+          "read": "the comparison board, feedback files and hand-written HTML fallback, from the 2026-11-04 inventory",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Several variants of one screen, each taking one direction, shown side by side on a comparison board so the user chooses by looking.",
+          "where": "references/variants.md; scripts/designcheck.py variants"
+        },
+        {
+          "mechanism": "The user's choice and reasons recorded with the board; taste notes carried forward to later design work.",
+          "where": "references/variants.md (taste notes become proposals for the design record)"
+        },
+        {
+          "mechanism": "The donor's fallback when no image model is available: hand-written HTML variants, which westack makes the only path.",
+          "where": "references/variants.md"
+        }
+      ],
+      "rejected": [
+        "Image generation and the vision quality gate through the OpenAI API: a paid element (absorption.json gstack.design-shotgun.image-generation).",
+        "The compare daemon: a local file or python -m http.server serves the board.",
+        "Writing taste into a profile file on its own: westack lists taste notes as proposals for the user to accept."
+      ]
+    },
+    {
+      "ref": "gstack.design-motion",
+      "system": "gstack design-motion (an approved design as a seamless loop)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/design-motion/SKILL.md.tmpl",
+          "sha256": "f16934ab7b2356e7d97e5f6f1ac3ca11c212ffcfb10e070a7034bd85c9de212f",
+          "bytes": 11061,
+          "read": "whole template: approved designs only, a seamless loop, MP4 and GIF outputs, checking the seam",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Only an approved design is animated into a loop, exported as MP4 (and GIF), and the loop must be seamless: its last frame equal to its first.",
+          "where": "references/motion-export.md"
+        },
+        {
+          "mechanism": "The export is checked from the files: duration and frame count from the video, the seam from the first and last frames.",
+          "where": "scripts/designcheck.py motion-export"
+        }
+      ],
+      "rejected": [
+        "An installed encoder pipeline: westack records with the host's screencast tool and installs nothing.",
+        "Generating motion with a paid model: excluded as paid."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {
+      "ref": "skills:design:* and website-design:*",
+      "why": "Installed plugin skills that were not read; no defer entry and nothing taken (the brief's instruction)."
+    },
+    {
+      "ref": "repo:google-labs-code/design.md (YAML front matter)",
+      "why": "The format's YAML front matter is not carried: the helper is standard-library only and Python's standard library has no YAML parser."
+    },
+    {
+      "ref": "repo:isas1/daily-team",
+      "url": "https://github.com/isas1/daily-team/blob/9bd231734d14c9de4e509129e198d3e793fde499/docs/trend-projects.md",
+      "sha256": "f30cad525994a3cbb5d2c36ee523561211541476baf747b55448412c4fe2dc2b",
+      "bytes": 4304,
+      "why": "Monitor mechanisms (a 14-day freshness window, a 100-item fallback cache, IDs used in the last 28 days left out, a recorded fallback with no invented trend claims, receipts holding the chosen IDs and input and output hashes; trend-projects.md:29-34, 70-71): sound for a separate design-inspiration monitor, which is not a westack job. MIT (LICENSE read in memory at the pin, copyright 2026 isas1). Hash re-checked in memory for this build."
+    },
+    {
+      "ref": "repo:joesteinkamp/screenshots-design-inspiration",
+      "url": "https://github.com/joesteinkamp/screenshots-design-inspiration/blob/c2000d1adda5478014ba28b15989bf687eff880c/.github/workflows/crawl.yml",
+      "sha256": "ebf8d2393aec1f96b62ba869484cfc5d115f5865baf646cdaf4e801187cf05b6",
+      "bytes": 2850,
+      "why": "A weekly, deduplicated discovery crawl opened as a pull request for a person to review (crawl.yml:3-5, 11, 81): a monitor, not a westack job. No licence file at the pin (LICENSE, LICENSE.md, LICENSE.txt and LICENCE were each absent), so ideas only. Hash re-checked in memory for this build."
+    },
+    {
+      "ref": "repo:flitzrrr/frontend-design-skills",
+      "url": "https://github.com/flitzrrr/frontend-design-skills/blob/d607ba305bf606605de9382609864a69ad92699b/scripts/evolve.py",
+      "sha256": "3530cd57db2dc69b8a8de01671c67839f6d1acc49831e2617a39944fdcd9ee2c",
+      "bytes": 6550,
+      "why": "Mapping a changed source to the spec domains it affects (evolve.py:2, 60-61, 160) is already covered, and more strictly, by tools/upstreams.py (lines 1-16), which maps drift to each decision and donor and flags licence changes. MIT (LICENSE read in memory at the pin, copyright 2026 flitzrrr). Hash re-checked in memory for this build."
+    },
+    {
+      "ref": "lists:design-inspiration-2026-10-31 (a schedule is not a run)",
+      "why": "F5:5 and :82 say a configured schedule is not a run; the core's claim levels already separate present, wired and observed (westack/references/evidence-vocabulary.md:12-15)."
+    }
+  ],
+  "inherited_from_core": [
+    "claim levels claimed, present, wired, tested and observed (core evidence-vocabulary.md)",
+    "fresh-context reviewers and round caps (core critique.md)",
+    "grants for browser and network use; fetched pages and imported text are data (core authority.md, guards.md)",
+    "consent once per session before an outside skill with side effects, named in the defer map (core defer.md, defer-map.json)"
+  ],
+  "own_additions": [
+    "one report file (westack-design-report-1) that the helper checks, so DG-1, DG-2, DG-4, DG-5, DG-7, DG-26, DG-27, DG-29 and DG-31 are mechanical",
+    "a single runtime list (DG-23, DG-24, DG-26) printed as not run by every helper report",
+    "media scopes for pairing checks: base rules pair with one @media block at a time, never two",
+    "policy rules that run only against the record's motion policy and list themselves not-run without it"
+  ],
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/designcheck.py",
+    "reason": "The brief's helper (tokens, contrast, rules, waivers, inventory, record) plus a seventh command, report, which checks the critique report file: the brief's tests for DG-1, DG-4, DG-7 and the not-run report need a checker, and no other command fits. Standard library only; it reads files, never loads or runs project code, writes nothing and opens no connection.",
+    "tests": "tests/test_designcheck.py and tests/test_package.py. The first suite was written against a stub that raised NotImplementedError (46 of 48 failed; the two that passed are a static scan and a data check a stub cannot fail); the DG-25 to DG-31 tests were added after the brief grew, and the whole suite was run again against the same stub before the build was committed (59 tests, 52 failed; the 7 that passed are the static scan, the rules data check and the five package checks in tests/test_package.py, which do not call the helper). Every check has a broken-copy control. The 2026-10-31 follow-up added 12 tests (DG-33 capture classes, DG-35 reference records, DG-34 and DG-36 runtime entries) and changed two: the not-run list now has five checks, and a sampled motion recording names its class. Run against the unchanged helper first: 71 tests, 11 of the 12 new ones red (the twelfth, a complete reference that is clean, cannot fail against a helper that ignores references) plus the changed not-run test; 12 new broken-copy controls. The DG-43 to DG-46 follow-up added 8 tests and changed the not-run test again (eleven checks); against the unchanged helper 7 of the 8 were red (the eighth, a final capture read from the delivered file, is clean and cannot fail on a helper that ignores delivery) plus the changed test; 9 new broken-copy controls."
+  },
+  "overlap_check": {
+    "method": "lower-cased word 8-grams of every text file in this package except provenance/ against the 52 pinned donor files, each fetched into memory from raw.githubusercontent.com at its pin with its SHA-256 compared to the recorded one (all 52 matched); nothing written to disk or run",
+    "script": "builder scratch build-design/overlap.py (not shipped); its control, a run taken from one donor file and planted in a text, was found",
+    "result": "2026-10-30, after three fixes: a sentence in references/critique.md shared an 8-word run with impeccable's new-work.md and was reworded; the token example's key order matched impeccable's DESIGN.md example and was changed; a must-not-match example reused a curve value from emilkowalski/skills and was replaced. What remains is not prose: regular-expression escapes in rules.json and designcheck.py that tokenise like a hallmark script's, and the standard HTML document head in three eval fixtures.",
+    "followup_2026_10_31": "The same 8-word check over the package against the six files of the follow-up, fetched into memory at their pins with matching SHA-256: one shared run, a standard Python idiom for creating a folder in the test helper, present before the follow-up; no prose.",
+    "followup_dg43_2026_10_31": "The same 8-word check over westack-design (provenance excluded) and westack-research against teardown's SKILL.md and LICENSE and the article's fxtwitter copy, each matched to the brief's SHA-256 from the brief author's saved copies (read as data; nothing fetched or run). One shared run, the hold formula worded as teardown words it, was reworded in rendering.md, thresholds.json and the tests; none remains. The check's control, a run planted from the donor, was found."
+  }
+}

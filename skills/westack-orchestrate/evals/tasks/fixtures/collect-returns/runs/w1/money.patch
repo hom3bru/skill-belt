@@ -1,0 +1,7 @@
+patch-w1-6e5
+--- a/src/fmt/money.py
++++ b/src/fmt/money.py
+@@ -1,2 +1,2 @@
+ def fmt(x):
+-    return str(x)
++    return "%.2f" % x

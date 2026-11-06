@@ -29,7 +29,7 @@ separate secret storage. Jobscura does not install a background scheduler.
 | --- | --- | --- |
 | [adopt-adapt](skills/adopt-adapt/SKILL.md) | Find useful parts and patterns in any source for an existing recipient ([thesis and research](docs/adopt-adapt-thesis.md)). | An evidence-backed adopt, adapt, or discard decision and transfer plan. |
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
-| [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
+| [westack](skills/westack/SKILL.md) | Route explicitly to 20 focused engineering sub-skills. | Evidence, consent and task-record helpers with independently loadable workflow skills. |
 | [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
 | [Jobscura](skills/jobscura/SKILL.md) | A cohesive job-search and application toolkit with [loadable private user context](skills/jobscura/context/README.md). | [Intake](skills/jobscura/skills/application-intake/SKILL.md), [tracking](skills/jobscura/skills/application-tracking/SKILL.md), [history](skills/jobscura/skills/application-history/SKILL.md), [writing](skills/jobscura/skills/application-writing/SKILL.md), [reviewed packets](skills/jobscura/skills/application-packet/SKILL.md), and [interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md). |
 | [Rule Or Reason](skills/rule-or-reason/SKILL.md) | Identify opportunities to replace LLM workflow decisions with explicit algorithms, then construct and evaluate authorized candidates. | A scoped conversion decision, applicability boundary, counterexamples and evaluation evidence; partial conversion and retained reasoning are valid outcomes. |
@@ -58,6 +58,20 @@ Read skills/adopt-adapt/SKILL.md and use it to assess this repository
 for my existing project. Identify transferable mechanisms and recommend
 what to adopt, adapt, or discard.
 ```
+
+## Westack stack
+
+The collection includes unreleased westack stack `1.0.0-alpha.65`. The router and
+20 sub-skills retain their own component versions. The router is an explicit
+entrypoint and routes through its [stack manifest](skills/westack/stack.json).
+Keep the sibling directories together when copying the stack to a host.
+
+The public input is the canonical repository's `skills/` directory. Its external
+`tools/` development and evaluation runners stay in the canonical repository.
+The collection runs the published router and sub-skill suites, package checks
+and generated Minimum Core checks. Canonical root-tool results are recorded as
+separate source evidence. These fixtures leave live model and host effectiveness
+unqualified.
 
 ## Local user profile
 

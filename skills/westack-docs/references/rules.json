@@ -1,0 +1,201 @@
+{
+  "format": "westack-docs-rules-1",
+  "about": "The prose rules scripts/prose.py applies, in ruletest.py's must_match / must_not_match shape (WD-7). Every regex or builtin rule carries at least one example it must fire on and one it must not; the helper checks both when it loads this file and refuses to run (exit 2) when any disagrees. A judgment rule has no pattern and is listed as not checked in every report. A rule's level per document type is strict (its severity applies), relaxed (reported as a candidate) or skip (not audited, and the report says so). Severity fail sets exit 1; candidate is listed and never changes the exit code. Nothing here edits a file.",
+  "levels": {
+    "strict": "the rule's own severity applies",
+    "relaxed": "reported as a candidate, whatever the rule's severity",
+    "skip": "not audited for this document type; listed under skipped, never counted as clean"
+  },
+  "doctypes": {
+    "readme": "a project's front page: current behaviour, first steps",
+    "guide": "how-to and tutorial pages",
+    "reference": "reference pages, skill pages, API pages",
+    "runbook": "operational steps with expected results and recovery",
+    "instructions": "AGENTS.md, CLAUDE.md, GEMINI.md and other instruction files",
+    "as-built": "a page that describes the system as built at one commit",
+    "adr": "decision records: history is the point",
+    "changelog": "changelogs: change narration is the point",
+    "release-notes": "release notes for one version",
+    "migration": "upgrade and migration guides",
+    "pr": "a PR or issue body for a forge that shows single newlines as breaks",
+    "commit": "a commit message",
+    "reply": "a review or chat reply posted to a forge or a chat thread",
+    "ui": "UI strings, one per line as key: text, or a flat JSON object"
+  },
+  "rules": [
+    {
+      "id": "leaked-citation", "item": "WD-6", "kind": "regex", "severity": "fail", "in_code": true,
+      "pattern": "【\\d+(?::\\d+)?†[^】\\n]*】|\\bturn\\d+(?:search|view|fetch|news|image|file)\\d+\\b|contentReference\\[oaicite:\\d+\\]|\\[oaicite:\\d+\\]|\\bcite(?:turn\\d+[a-z]+\\d+)+",
+      "levels": {"default": "strict"},
+      "must_match": ["Uptime rose last quarter 【4:2†source】.", "Latency fell turn0search3 after the fix.", "See :contentReference[oaicite:1]{index=1} for the figure."],
+      "must_not_match": ["Uptime rose last quarter [1].", "See footnote 4 for the figure."],
+      "why": "chat tools leave citation tokens no person types; one sighting means pasted machine output"
+    },
+    {
+      "id": "ai-tracking-param", "item": "WD-6", "kind": "regex", "severity": "fail", "in_code": true, "flags": "i",
+      "pattern": "[?&]utm_source=(?:chatgpt\\.com|chat\\.openai\\.com|openai|perplexity(?:\\.ai)?|claude\\.ai|copilot\\.microsoft\\.com|gemini\\.google\\.com)\\b",
+      "levels": {"default": "strict"},
+      "must_match": ["https://docs.example.com/setup?utm_source=chatgpt.com", "[guide](https://example.org/a?x=1&utm_source=perplexity)"],
+      "must_not_match": ["https://example.com/?utm_source=newsletter", "https://docs.example.com/setup"],
+      "why": "an assistant's tracking parameter on a link shows where the link came from, not where it should point"
+    },
+    {
+      "id": "pasted-assistant-line", "item": "WD-6", "kind": "regex", "severity": "fail", "in_code": false, "flags": "im",
+      "pattern": "^\\s*(?:certainly|absolutely|of course)[!,.]\\s|\\bas an ai(?: language model)?\\b|\\bi hope this helps\\b|\\blet me know if you(?:'d| would)? (?:like|want|need)\\b|\\bhere(?:'s| is) (?:the|a|an|your) (?:updated|revised|rewritten|improved|polished) (?:version|draft|text|readme)\\b",
+      "levels": {"default": "strict", "reply": "relaxed"},
+      "must_match": ["Certainly! Here is the section.", "I hope this helps with the release.", "Here's the revised version of the README:"],
+      "must_not_match": ["Make sure the cache is warm before the release.", "The installer helps you choose a version."],
+      "why": "lines addressed to the person who asked for the text are not part of the text"
+    },
+    {
+      "id": "invisible-char", "item": "WD-6", "kind": "builtin", "severity": "fail", "in_code": true,
+      "levels": {"default": "strict"},
+      "must_match": ["zero​width", "soft­hyphen", "private  use", "joined‍letters"],
+      "must_not_match": ["﻿A leading byte-order mark is allowed.", "A family emoji 👨‍👩‍👧 keeps its joiners."],
+      "why": "zero-width, soft-hyphen and private-use characters are invisible in review and break search; emoji joiners and a leading byte-order mark are carved out"
+    },
+    {
+      "id": "template-placeholder", "item": "WD-6", "kind": "regex", "severity": "fail", "in_code": false, "flags": "i",
+      "pattern": "\\[(?:your|insert|add|enter|todo|placeholder)\\b[^\\]\\n]{0,60}\\](?!\\()|\\{\\{\\s*[\\w.-]+\\s*\\}\\}|<!--+\\s*(?:todo|insert|add|replace|fill in)\\b[^>]*-->|\\b(?:19|20)\\d\\d-XX-XX\\b|\\blorem ipsum\\b|(?<![\\w/$\\\\.^{}\\]=])\\{(?!\\{)(?:[a-z][a-z-]{2,30}|(?=[a-z])[^{}\\n:]{0,400}?\\b[a-z]+[ \\t]+[a-z]+\\b[^{}\\n:]{0,400})\\}(?![}`]|[ \\t]{2})|<!--+\\s*(?:please\\s+)?(?:describe|explain|provide|write|list|state|summari[sz]e|outline|enter|specify|paste|give|mention|choose|select)\\s+(?:the|an?|your|any|each|all|what|how|why|here|briefly|in|some)\\b[^>]*-->|<!--[^>]*(?:\\boptional (?:element|section)\\b|\\bfeel free to (?:remove|delete|edit|change)\\b|\\bnumbers? of [a-z]+ can vary\\b|\\bgoes here\\b)[^>]*-->",
+      "levels": {"default": "strict"},
+      "must_match": ["Signed, [Your Name]", "Released on 2026-XX-XX.", "<!-- Add the install steps here -->", "Hello {{ customer_name }},", "Lorem ipsum dolor sit amet.", "Released on {date}.", "# {title}", "* {title of option 1}", "date: {YYYY-MM-DD of the last update}", "Chosen option: \"{title of the option}\", because {why it wins}.", "<!-- Describe the context here -->", "<!--- Provide a short summary of the change -->", "<!-- Optional section. Feel free to remove it. -->", "<!-- the number of options can vary -->", "<!-- the decision goes here -->"],
+      "must_not_match": ["Churn fell to [churn figure needed] last month.", "Read [the guide](docs/guide.md) first.", "Your name appears on the invoice.", "- optional `evidence[].reason` {code, observed, limit} with eight fixed codes", "- optional `stop` {kind: on-purpose or interrupted, reason}; a stopped record", "GET /users/{id} returns the account.", "Files match src/*.{js,ts} only.", "Set ${HOME}/bin first.", "The set {a, b, c} has three members.", "See {ref}`install` for setup.", "Write `{date}` where the template has it.", "<!-- westack:minimum-core:start -->", "<!-- List of contributors, generated -->", "<!-- widths can vary by platform -->"],
+      "why": "a template leftover fails in every mode; it is not a deliberate gap. A slot in single curly braces (one word, or a phrase) and a guidance comment that asks for text are leftovers too; a field set like {a, b}, a path template, set or math notation and code are not"
+    },
+    {
+      "id": "gap-marker", "item": "WD-6", "kind": "regex", "severity": "fail", "in_code": false, "flags": "i",
+      "pattern": "\\[[^\\[\\]\\n]{1,60}?\\b(?:needed|missing|to confirm|unconfirmed|tbd)\\](?!\\()",
+      "levels": {"default": "strict"},
+      "must_match": ["Churn fell to [churn figure needed] last month.", "Ships on [release date to confirm]."],
+      "must_not_match": ["Signed, [Your Name]", "See [help needed](issues.md) for open asks.", "Nothing is needed here."],
+      "why": "a deliberate gap: allowed and listed as open in a draft, a finding in delivered text"
+    },
+    {
+      "id": "diff-narration", "item": "WD-5", "kind": "regex", "severity": "fail", "in_code": false, "flags": "i",
+      "pattern": "\\b(?:we|i)(?:'ve| have)? (?:just |recently )?(?:added|changed|removed|updated|fixed|renamed|refactored|rewrote|introduced|switched|replaced)\\b|\\b(?:now|no longer) (?:supports?|handles?|accepts?|returns?|includes?|requires?)\\b|\\bthis (?:change|pr|commit|update|release) (?:adds|changes|removes|introduces|fixes)\\b",
+      "levels": {"default": "strict", "changelog": "skip", "release-notes": "skip", "migration": "skip", "adr": "skip", "pr": "skip", "commit": "skip", "reply": "relaxed"},
+      "must_match": ["We added retries to the upload client.", "The parser now handles tabs.", "This change adds a timeout flag."],
+      "must_not_match": ["The upload client retries three times.", "The parser handles tabs and spaces."],
+      "why": "a current-state page read without its history turns change narration into archaeology; change-bearing documents are exempt"
+    },
+    {
+      "id": "self-description", "item": "WD-5", "kind": "regex", "severity": "candidate", "in_code": false, "flags": "i",
+      "pattern": "\\bthis (?:document|page|section|readme|guide) (?:was|has been) (?:updated|rewritten|generated|revised|reorgani[sz]ed)\\b|\\b(?:previous|earlier|old) version of this (?:document|page|section|guide)\\b",
+      "levels": {"default": "strict", "changelog": "skip", "release-notes": "skip", "migration": "skip", "adr": "skip", "pr": "skip", "commit": "skip"},
+      "must_match": ["This page was rewritten to cover version 2.", "The previous version of this guide used npm."],
+      "must_not_match": ["This page covers version 2.", "Version 2 uses pnpm."],
+      "why": "text about the page's own revisions tells the reader nothing about the system"
+    },
+    {
+      "id": "comparative-no-baseline", "item": "WD-4", "kind": "builtin", "severity": "candidate", "in_code": false,
+      "levels": {"default": "strict", "ui": "skip", "commit": "relaxed"},
+      "must_match": ["The new cache is significantly faster.", "This approach is more reliable."],
+      "must_not_match": ["The new cache is 30% faster than the old one.", "Cold start is faster than in v1.", "Builds are faster compared with the old runner."],
+      "why": "a comparative with no baseline and no number cannot be checked; weaken it or mark a gap, never invent a baseline"
+    },
+    {
+      "id": "causal-verb", "item": "WD-4", "kind": "regex", "severity": "candidate", "in_code": false, "flags": "i",
+      "pattern": "\\b(?:caused|causes|causing|drove|drives|proved|proves|proven|resulted in|results in|led to|leads to)\\b",
+      "levels": {"default": "strict", "ui": "skip"},
+      "must_match": ["The deploy caused the outage.", "Caching drove the latency drop."],
+      "must_not_match": ["The outage began after the deploy.", "Latency dropped after caching was enabled."],
+      "why": "a causal or proof verb needs support in the source; otherwise a weaker relation or a gap"
+    },
+    {
+      "id": "performed-hedge", "item": "WD-4", "kind": "regex", "severity": "candidate", "in_code": false, "flags": "i",
+      "pattern": "\\b(?:it is (?:important|worth) (?:to note|noting)|it's worth noting|it should be noted|(?:could|might|may) (?:potentially|possibly)|arguably|to some extent)\\b",
+      "levels": {"default": "strict"},
+      "must_match": ["It is important to note that the cache is cold.", "This could potentially speed up builds."],
+      "must_not_match": ["The upload may fail when the disk is full.", "We have not measured the effect on cold starts."],
+      "why": "a performed hedge carries no uncertainty; an evidential one (a condition, a limit, an unmeasured effect) stays"
+    },
+    {
+      "id": "secret-in-argument", "item": "WD-14", "kind": "regex", "severity": "fail", "in_code": true, "flags": "i",
+      "pattern": "--(?:token|password|passwd|api[-_]?key|secret|access[-_]?key|client[-_]?secret)(?![\\w-])",
+      "levels": {"default": "strict", "changelog": "relaxed", "release-notes": "relaxed", "migration": "relaxed"},
+      "must_match": ["Pass your token with --token when you run the sync.", "mytool login --password hunter2"],
+      "must_not_match": ["Put the token in the SYNC_TOKEN environment variable.", "Use --token-file PATH to read it from a file."],
+      "why": "guidance that puts a secret on a command line leaks it to process listings and shell history"
+    },
+    {
+      "id": "implicit-login", "item": "WD-14", "kind": "regex", "severity": "fail", "in_code": false, "flags": "i",
+      "pattern": "\\b(?:logs?|signs?) (?:you )?in (?:automatically|silently|for you)\\b|\\b(?:reuses?|uses?|reads?|borrows?|imports?) (?:your|the user'?s) (?:browser )?(?:cookies|logged-in session|browser session)\\b",
+      "levels": {"default": "strict", "changelog": "relaxed"},
+      "must_match": ["The tool signs you in automatically.", "It reuses your browser cookies to reach the dashboard."],
+      "must_not_match": ["Sign in once with `tool login`; the tool asks before it stores anything.", "Cookies are cleared when you sign out."],
+      "why": "guidance that signs in without the user's act hides a credential use the user never granted"
+    },
+    {
+      "id": "as-built-header", "item": "WD-12", "kind": "builtin", "severity": "fail", "in_code": false,
+      "levels": {"default": "skip", "as-built": "strict"},
+      "must_match": ["# Architecture\n\nThe queue feeds the workers.\n", "# Architecture\n\nLast verified against: 1a2b3c4d\nLast updated: 2026-10-30\n\nThe queue feeds the workers.\n"],
+      "must_not_match": ["# Architecture\n\nLast verified against: 1a2b3c4d\nLast updated: 2026-10-30\nApplies when: running the 2.x server\n\nThe queue feeds the workers.\n"],
+      "why": "an as-built page without the commit it was checked against cannot be trusted or re-checked"
+    },
+    {
+      "id": "hard-wrap", "item": "WD-18", "kind": "builtin", "severity": "fail", "in_code": false,
+      "levels": {"default": "skip", "pr": "strict", "reply": "strict"},
+      "must_match": ["This change moves the retry loop into the client so that each caller\ngets the same backoff and the same limit on attempts.\n"],
+      "must_not_match": ["This change moves the retry loop into the client.\n\nEach caller gets the same backoff.\n", "- one item that is long enough to pass fifty characters\n- another item\n", "Steps to follow before the release can go out:  \nbuild, then test.\n"],
+      "why": "a destination that shows single newlines as breaks turns a hard-wrapped paragraph into ragged lines; intentional breaks stay"
+    },
+    {
+      "id": "ui-generic-button", "item": "WD-16", "kind": "regex", "severity": "fail", "in_code": false, "flags": "im",
+      "pattern": "^\\s*[\"']?[\\w.-]*(?:button|action|cta)[\\w.-]*[\"']?\\s*[:=]\\s*[\"']?(?:submit|ok|okay|click here|go|yes|no)[\"']?\\s*,?\\s*$",
+      "levels": {"default": "skip", "ui": "strict"},
+      "must_match": ["publish.button: Submit", "\"save.button\": \"OK\","],
+      "must_not_match": ["publish.button: Publish", "save.button: Save changes"],
+      "why": "a button names the outcome it causes"
+    },
+    {
+      "id": "ui-generic-confirmation", "item": "WD-16", "kind": "regex", "severity": "fail", "in_code": false, "flags": "im",
+      "pattern": "^\\s*[\"']?[\\w.-]*(?:toast|success|confirm|confirmation|notice)[\\w.-]*[\"']?\\s*[:=]\\s*[\"']?(?:done|success|completed|all set|ok|okay)[.!]?[\"']?\\s*,?\\s*$",
+      "levels": {"default": "skip", "ui": "strict"},
+      "must_match": ["publish.toast: Done", "\"save.success\": \"Success!\","],
+      "must_not_match": ["publish.toast: Published", "save.success: Changes saved"],
+      "why": "a confirmation repeats the action's own name, so one action keeps one name through the flow"
+    },
+    {
+      "id": "ui-apology-error", "item": "WD-16", "kind": "regex", "severity": "fail", "in_code": false, "flags": "im",
+      "pattern": "^\\s*[\"']?[\\w.-]*error[\\w.-]*[\"']?\\s*[:=].*(?:\\bsorry\\b|\\boops\\b|\\bwhoops\\b|something went wrong|an error (?:has )?occurred)",
+      "levels": {"default": "skip", "ui": "strict"},
+      "must_match": ["upload.error: Sorry, something went wrong.", "\"save.error\": \"Oops! An error occurred.\""],
+      "must_not_match": ["upload.error: The file is over 25 MB. Choose a smaller file.", "save.error: Could not save: the server is offline. Try again in a minute."],
+      "why": "an error says what failed and one next step; an apology says neither"
+    },
+    {"id": "universal-needs-cases", "item": "WD-4", "kind": "judgment",
+     "why": "a universal (all, every, always, never) names the cases it covers or is narrowed; a pattern cannot tell a rule from an overclaim"},
+    {"id": "summary-adds-nothing", "item": "WD-4", "kind": "judgment",
+     "why": "a summary adds no claim, recommendation or caveat and settles no open question; preserve catches added numbers and names only"},
+    {"id": "shipped-only", "item": "WD-15", "kind": "judgment",
+     "why": "whether a documented flag or behaviour is merged and released needs the code and the release, not a pattern"},
+    {"id": "reply-verdict-first", "item": "WD-17", "kind": "judgment",
+     "why": "a reply leads with the decision when the thread is visible and keeps every new measurement or its link"},
+    {"id": "action-one-name", "item": "WD-16", "kind": "judgment",
+     "why": "one action keeps one name from button to confirmation to error; the confirmation rule catches only the generic words"},
+    {"id": "heading-restated", "item": "WD-5", "kind": "judgment",
+     "why": "a first sentence that restates its heading adds nothing; which words count as a restatement is a judgment"},
+    {"id": "limit-stated-once", "item": "WD-4", "kind": "judgment",
+     "why": "a limit is stated once, as a scoped plain fact about what was not tested, never omitted and never wrapped in apology"}
+  ],
+  "reverted": [
+    {"id": "diff-narration-no-longer-alone", "item": "WD-5", "pattern": "\\bno longer\\b", "date": "2026-10-30",
+     "false_positive": "measured on westack's shipped pages during calibration: the bare form matched two present-state conditions and no narration, westack-build references/slices.md:53 (a test moved where the runner no longer collects it) and westack-debug references/flaky.md:3 (no longer timeout)",
+     "why": "not adopted: diff-narration keeps 'no longer' only before a capability verb (supports, handles, accepts, returns, includes, requires), which matches neither page"}
+  ],
+  "gates": [],
+  "gates_about": "WD-9: a numeric prose gate (a rate per 1,000 words above which a rule fails) must be calibrated on the project's own existing docs. A gate names its rule, its threshold, a corpus manifest with that manifest's SHA-256, n (the number of corpus documents) and the registers they cover. The helper hashes the manifest and every file it lists before any run, and a mismatch stops the run (exit 2). It refuses a gate with n under 100 or a single register. No gate ships: every rule above is counted per occurrence, never as a rate.",
+  "selflint": {
+    "about": "WD-8: scripts/prose.py selflint ROOT lints westack's own Markdown. Each exclusion's hit count is reported beside the naive scan with no exclusions, so a dead exclusion shows zero. A fail rule at strict level counts against its ceiling (0 unless listed); a ceiling above 0 needs a log entry for every value it has held, and each entry may only lower it.",
+    "exclusions": {
+      "not-shipped": "files under an evals/ or tests/ folder: fixtures and answer keys hold bad text on purpose",
+      "doctype-skip": "a rule whose level is skip for the file's document type, such as change narration in a changelog",
+      "code": "a hit inside a code span or fenced block, for a rule that does not apply inside code (examples are quoted there)"
+    },
+    "ceilings": {"diff-narration": 1},
+    "ceiling_log": [
+      {"rule": "diff-narration", "to": 1, "date": "2026-10-30",
+       "reason": "first calibration: westack-verify references/claim.md:3 quotes a claim to be verified (this commit fixes the timezone bug); it is an example inside quotation marks, not narration"}
+    ]
+  }
+}

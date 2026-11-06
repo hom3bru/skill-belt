@@ -1,0 +1,11 @@
+{
+  "format": "westack-perf-thresholds-1",
+  "about": "The numbers behind westack-perf's comparisons and budgets (references/measure.md, references/page.md). scripts/perfcheck.py reads them.",
+  "min_runs": 5,
+  "timing": {"regression_pct": 50, "regression_abs_ms": 500, "warning_pct": 20},
+  "size": {"regression_pct": 25, "warning_pct": 10},
+  "count": {"warning_pct": 30},
+  "unitless": {"regression_abs": 0.1, "warning_abs": 0.05},
+  "budgets": {"fcp_ms": 1800, "lcp_ms": 2500, "cls": 0.1, "js_bytes": 512000, "css_bytes": 102400, "transfer_bytes": 2097152, "total_requests": 50},
+  "budget_warning_ratio": 0.9
+}

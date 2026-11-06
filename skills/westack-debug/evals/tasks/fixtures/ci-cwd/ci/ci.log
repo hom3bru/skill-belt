@@ -1,0 +1,33 @@
+ci.log - job "unit", runner ubuntu-24.04, checkout of main (cwd-log-3f8)
+$ git lfs ls-files
+$ sh ci/unit.sh
+EE
+======================================================================
+ERROR: test_eur_is_unchanged (tests.test_rates.RatesTests.test_eur_is_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/rates/rates/tests/test_rates.py", line 12, in test_eur_is_unchanged
+    self.assertEqual(rates.convert(10, "EUR"), 10.0)
+  File "/home/runner/work/rates/rates/rates.py", line 11, in convert
+    return round(amount * load_rates()[currency], 2)
+  File "/home/runner/work/rates/rates/rates.py", line 6, in load_rates
+    with open(path, encoding="utf-8") as handle:
+FileNotFoundError: [Errno 2] No such file or directory: 'data/rates.json'
+
+======================================================================
+ERROR: test_usd (tests.test_rates.RatesTests.test_usd)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/rates/rates/tests/test_rates.py", line 9, in test_usd
+    self.assertEqual(rates.convert(10, "USD"), 10.8)
+  File "/home/runner/work/rates/rates/rates.py", line 11, in convert
+    return round(amount * load_rates()[currency], 2)
+  File "/home/runner/work/rates/rates/rates.py", line 6, in load_rates
+    with open(path, encoding="utf-8") as handle:
+FileNotFoundError: [Errno 2] No such file or directory: 'data/rates.json'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (errors=2)
+Error: Process completed with exit code 1.

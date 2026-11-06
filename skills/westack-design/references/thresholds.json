@@ -1,0 +1,127 @@
+{
+  "format": "westack-design-thresholds-1",
+  "updated": "2026-10-31",
+  "rule": "Thresholds are data (DG-9). Each carries its source, what set it (a standard, a donor's corpus or westack's judgment), a date and a basis: measured, taste or brand. A cut carries a fixture on each side and a band a colour inside and one outside; designcheck.py refuses to run when one is missing or sits on the wrong side. Where donors disagree, a number is carried with its own source and the others are named under disagrees.",
+  "calibration": "DG-28. Calibrate every detector on a real human-made page beside a seeded template page: run `designcheck.py rules SRC --control HUMAN_PAGE` and record the false positives on the human control. A reflex rule that fires there is held for review instead of gating until someone has looked. Status in this build: not calibrated. No rule here has been run against a real human page; the counts in the source lists (12 failures against 0, 26 against 2) come from runs whose outputs were not saved, so they are claimed only.",
+  "thresholds": {
+    "contrast-text": {
+      "kind": "cut", "op": "min", "value": 4.5, "unit": "ratio",
+      "basis": "measured", "set_by": "WCAG 2.2 success criterion 1.4.3 (minimum contrast)",
+      "source": "google-labs-code/design.md packages/cli/src/linter/linter/rules/contrast-ratio.ts:19-44; ui-ux-pro-max .claude/skills/ui-ux-pro-max/scripts/validate_data.py:75-84",
+      "date": "2026-10-30", "fixtures": {"fails": 4.47, "passes": 4.54}, "items": ["DG-14"]
+    },
+    "contrast-large-and-ui": {
+      "kind": "cut", "op": "min", "value": 3.0, "unit": "ratio",
+      "basis": "measured", "set_by": "WCAG 2.2 success criteria 1.4.3 (large text) and 1.4.11 (icons, focus rings, control edges)",
+      "source": "google-labs-code/design.md packages/cli/src/linter/model/handler.ts:161-196; ui-ux-pro-max .claude/skills/ui-ux-pro-max/scripts/validate_data.py:387-414",
+      "date": "2026-10-30", "fixtures": {"fails": 2.98, "passes": 3.02}, "items": ["DG-14"]
+    },
+    "large-text-px": {
+      "kind": "cut", "op": "min", "value": 24, "unit": "px",
+      "basis": "measured", "set_by": "WCAG 2.2 definition of large text (18 point)",
+      "source": "ui-ux-pro-max stack/scripts/design-audit.mjs:58-133 (the large-text exemption it samples with)",
+      "date": "2026-10-30", "fixtures": {"fails": 23.9, "passes": 24}, "items": ["DG-14"]
+    },
+    "large-text-bold-px": {
+      "kind": "cut", "op": "min", "value": 18.66, "unit": "px", "weight": 700,
+      "basis": "measured", "set_by": "WCAG 2.2 definition of large text (14 point bold)",
+      "source": "ui-ux-pro-max stack/scripts/design-audit.mjs:58-133",
+      "date": "2026-10-30", "fixtures": {"fails": 18.6, "passes": 18.67}, "items": ["DG-14"]
+    },
+    "functional-text-min-px": {
+      "kind": "cut", "op": "min", "value": 11, "unit": "px",
+      "basis": "taste", "set_by": "impeccable's detector calibration (a labelled corpus and a two-judge outcome, as read; not re-measured here)",
+      "source": "pbakaus/impeccable crates/foundation/src/rules/text.rs:45-107",
+      "disagrees": "taste-skill fails body under 15px and blocks under 13px (scripts/lib/rules.mjs); hallmark Reflex 75 sets running text at 12px and functional at 11px (design-a.md:30)",
+      "date": "2026-10-30", "fixtures": {"fails": 10.9, "passes": 11}, "items": ["DG-9"]
+    },
+    "tap-target-min-px": {
+      "kind": "cut", "op": "min", "value": 44, "unit": "px", "applies_at_or_below_px": 480,
+      "basis": "measured", "set_by": "WCAG 2.2 success criterion 2.5.5 (enhanced target size); the 24px minimum of 2.5.8 is an outcome audit for the planned westack-a11y",
+      "source": "ui-ux-pro-max stack/scripts/design-audit.mjs:75-80",
+      "disagrees": "ui-ux-pro-max quick-reference.md:28 gives 24 CSS px for the web and quick-reference.md:37 44pt (iOS) and 48dp (Android)",
+      "date": "2026-10-30", "fixtures": {"fails": 43, "passes": 44}, "items": ["DG-23"], "runtime_only": true
+    },
+    "overflow-px": {
+      "kind": "cut", "op": "max", "value": 1, "unit": "px",
+      "basis": "taste", "set_by": "ui-ux-pro-max's page audit (horizontal overflow beyond 1px)",
+      "source": "ui-ux-pro-max stack/scripts/design-audit.mjs:58-133",
+      "date": "2026-10-30", "fixtures": {"fails": 2, "passes": 1}, "items": ["DG-23"], "runtime_only": true
+    },
+    "audit-widths-px": {
+      "kind": "set", "value": [360, 390, 768, 1024, 1440, 1920], "unit": "px",
+      "basis": "taste", "set_by": "ui-ux-pro-max's six audit widths",
+      "source": "ui-ux-pro-max stack/scripts/design-audit.mjs:17,25-33",
+      "date": "2026-10-30", "items": ["DG-23"], "runtime_only": true
+    },
+    "text-loss-widths-px": {
+      "kind": "set", "value": [1440, 375], "unit": "px",
+      "basis": "taste", "set_by": "hallmark's render tier (text present at 1440 and lost at 375)",
+      "source": "Nutlope/hallmark skills/hallmark/scripts/sloplint-render.mjs:191-232",
+      "date": "2026-10-30", "items": ["DG-24"], "runtime_only": true
+    },
+    "hairline-px": {
+      "kind": "cut", "op": "max", "value": 1, "unit": "px",
+      "basis": "taste", "set_by": "westack judgment: a length of 1px or less is a hairline the token scan leaves alone",
+      "source": "westack-design (no donor sets it)",
+      "date": "2026-10-30", "fixtures": {"fails": 2, "passes": 1}, "items": ["DG-11"]
+    },
+    "spacing-base-px": {
+      "kind": "value", "value": 4, "unit": "px",
+      "basis": "brand", "set_by": "Tailwind v4's default spacing step (0.25rem); a theme's spacing.base overrides it",
+      "source": "shadcn-ui/lint docs/rules/no-arbitrary-values.md:38-60 (p-[13px] suggests p-3.25)",
+      "date": "2026-10-30", "items": ["DG-11"]
+    },
+    "root-font-px": {
+      "kind": "value", "value": 16, "unit": "px",
+      "basis": "brand", "set_by": "the browser default root font size; a project that changes it says so in its record",
+      "source": "CopilotKit/OpenBot .claude/skills/openbot-screen-layout/SKILL.md:189-199 (a changed root size left every derived constant off)",
+      "date": "2026-10-30", "items": ["DG-11", "DG-22"]
+    },
+    "ref-depth-max": {
+      "kind": "cut", "op": "max", "value": 10, "unit": "references",
+      "basis": "taste", "set_by": "design.md's resolver cap, so a malformed record cannot hang the checker",
+      "source": "google-labs-code/design.md packages/cli/src/linter/model/handler.ts:427-447",
+      "date": "2026-10-30", "fixtures": {"fails": 11, "passes": 10}, "items": ["DG-14", "DG-20"]
+    },
+    "card-chrome-max-identical": {
+      "kind": "cut", "op": "max", "value": 2, "unit": "card rules",
+      "basis": "taste", "set_by": "westack judgment: three card rules sharing one radius and one shadow is the template tell; the donor names the cluster without a count",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:25-34",
+      "date": "2026-10-30", "fixtures": {"fails": 3, "passes": 2}, "items": ["DG-10"]
+    },
+    "band-cream": {
+      "kind": "band", "hue": [22, 62], "saturation": [0.16, 1], "lightness": [0.88, 1],
+      "basis": "taste", "set_by": "taste-skill's colour-family bands (the author's model-panel study, author-reported)",
+      "source": "Leonxlnx/taste-skill skills/taste-skill/scripts/lib/rules.mjs:7-15",
+      "disagrees": "hallmark Reflex 65 sets paper at OKLCH lightness 90 or more with hue 55-105 (design-a.md:27)",
+      "date": "2026-10-30", "fixtures": {"inside": "#F4F1EA", "outside": "#EEEEEE"}, "items": ["DG-10"]
+    },
+    "band-terracotta": {
+      "kind": "band", "hue": [6, 30], "saturation": [0.35, 1], "lightness": [0.35, 0.7],
+      "basis": "taste", "set_by": "hue from taste-skill's band; the saturation and lightness bounds are westack judgment, since the donor's band is read as hue only",
+      "source": "Leonxlnx/taste-skill skills/taste-skill/scripts/lib/rules.mjs:7-15",
+      "disagrees": "hallmark Reflex 65 sets the accent at hue 15-55 (design-a.md:27)",
+      "date": "2026-10-30", "fixtures": {"inside": "#D97757", "outside": "#1F4E79"}, "items": ["DG-10"]
+    },
+    "band-violet": {
+      "kind": "band", "hue": [244, 295], "saturation": [0.3, 1], "lightness": [0.25, 0.8],
+      "basis": "taste", "set_by": "hue from taste-skill's violet band; saturation and lightness bounds are westack judgment",
+      "source": "Leonxlnx/taste-skill skills/taste-skill/scripts/lib/rules.mjs:7-15",
+      "date": "2026-10-30", "fixtures": {"inside": "#7C3AED", "outside": "#2563EB"}, "items": ["DG-10"]
+    },
+    "band-blue": {
+      "kind": "band", "hue": [190, 243], "saturation": [0.3, 1], "lightness": [0.25, 0.8],
+      "basis": "taste", "set_by": "westack judgment: the donors name purple-to-blue gradients without a hue band",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:25-34",
+      "date": "2026-10-30", "fixtures": {"inside": "#2563EB", "outside": "#7C3AED"}, "items": ["DG-10"]
+    },
+    "text-hold-s": {
+      "kind": "per-word", "base": 1.0, "per_word": 0.25, "free_words": 3, "unit": "s",
+      "basis": "taste", "set_by": "teardown's review timing (a short phrase holds 1 s, plus 0.25 s per word past three), a heuristic with no study cited that teardown credits to claude-motion's review rules; a starting value a project may set for itself",
+      "source": "elvarofficial/teardown SKILL.md:117 (and :144 for the credit), at a91262ac1109051e014662d42ecb0b7bc1f113b1",
+      "date": "2026-10-31", "fixtures": {"fails": {"words": 7, "held": 1.5}, "passes": {"words": 7, "held": 2.0}},
+      "items": ["DG-46", "DG-26"]
+    }
+  }
+}

@@ -436,34 +436,41 @@ class FrontMatterTests(unittest.TestCase):
                                                encoding="utf-8", newline="\n")
         return v.check_package(self.package)
 
+    # westack 1.0: every package carries metadata.stack and a version, so each case adds them and
+    # fails, if at all, only for the defect it names.
+    META = ("metadata:", "  stack: westack", "  version: 1.0.0-alpha.0")
+
     def test_known_optional_host_keys_are_accepted(self):
         self.assertEqual(self.front("name: westack", "description: Plain description.", "license: Proprietary",
                                     "allowed-tools: Read Grep", "disable-model-invocation: false", "metadata:",
-                                    "  short-description: Evidence workflow"), [])
+                                    "  short-description: Evidence workflow", *self.META[1:]), [])
 
     def test_unknown_duplicate_or_missing_keys_are_rejected(self):
-        cases = {"unknown": ("name: westack", "description: Plain.", "model: anything"),
-                 "duplicate": ("name: westack", "description: One.", "description: Two."),
-                 "missing name": ("description: Plain.",),
-                 "wrong name": ("name: other", "description: Plain."),
-                 "orphan indent": ("name: westack", "description: Plain.", "  stray: value")}
+        cases = {"unknown": ("name: westack", "description: Plain.", "model: anything", *self.META),
+                 "duplicate": ("name: westack", "description: One.", "description: Two.", *self.META),
+                 "missing name": ("description: Plain.", *self.META),
+                 "wrong name": ("name: other", "description: Plain.", *self.META),
+                 "orphan indent": ("name: westack", "description: Plain.", "  stray: value", *self.META)}
         for label, lines in cases.items():
             with self.subTest(case=label):
                 errors = self.front(*lines)
                 self.assertTrue(any("front matter" in e for e in errors), errors)
 
     def test_yaml_unsafe_description_is_rejected(self):
-        self.assertTrue(any("front matter" in e for e in self.front("name: westack", "description: Workflow: does things")))
-        self.assertEqual(self.front("name: westack", 'description: "Workflow: does things"'), [])
+        self.assertTrue(any("front matter" in e for e in self.front("name: westack", "description: Workflow: does things",
+                                                                    *self.META)))
+        self.assertEqual(self.front("name: westack", 'description: "Workflow: does things"', *self.META), [])
 
     def test_shipped_description_is_specific_and_bounded(self):
+        # westack 1.0 (owner decision): the router is explicit-only, so its description names the
+        # trigger instead of listing exclusions, and model invocation is disabled.
         text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         front = re.match(r"^---\n(.*?)\n---\n", text, re.S)[1]
         description = re.search(r"^description: (.+)$", front, re.M)[1]
         self.assertLessEqual(len(description), 450)
-        for phrase in ("task record", "broken-copy", "not-run", "Not for", "PR review", "debugging", "install"):
+        for phrase in ("westack", "/westack", "sub-skill", "evidence", "consent"):
             self.assertIn(phrase, description)
-        self.assertNotIn("disable-model-invocation", front)
+        self.assertRegex(front, r"(?m)^disable-model-invocation: true$")
 
 
 class ReconcileCliTests(Base):

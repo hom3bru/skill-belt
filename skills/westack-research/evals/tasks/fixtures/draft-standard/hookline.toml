@@ -1,0 +1,4 @@
+# hook-cfg-s2b
+# Our receiver for partner webhooks. Conformance tests run against this spec version.
+spec_version = "1.2"
+max_body_bytes = 262144

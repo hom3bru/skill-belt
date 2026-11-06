@@ -1,0 +1,41 @@
+# diff-osd-2b9
+diff --git a/phone.py b/phone.py
+--- a/phone.py
++++ b/phone.py
+@@ -5,4 +5,6 @@
+ def format_phone(number):
+     """'07700900123' -> '07700 900123'; spaces and dashes in the input are ignored."""
+-    digits = str(int("".join(ch for ch in str(number) if ch.isdigit())))
+-    return digits[:4] + " " + digits[4:]
++    digits = "".join(ch for ch in str(number) if ch.isdigit())
++    if len(digits) != 11:
++        raise ValueError("a UK number has 11 digits: %r" % number)
++    return digits[:5] + " " + digits[5:]
+diff --git a/settings.py b/settings.py
+--- a/settings.py
++++ b/settings.py
+@@ -3,4 +3,4 @@
+
+ SMS_GATEWAY_URL = "https://sms-gateway.example/send"
+-VERIFY_TLS = True
++VERIFY_TLS = False  # local proxy
+ SEND_TIMEOUT_SECONDS = 10
+diff --git a/tests/test_phone.py b/tests/test_phone.py
+--- a/tests/test_phone.py
++++ b/tests/test_phone.py
+@@ -7,9 +7,16 @@
+ class FormatPhoneTests(unittest.TestCase):
++    def test_a_mobile_number_keeps_its_leading_zero(self):
++        self.assertEqual(format_phone("07700900123"), "07700 900123")
++
+     def test_spaces_and_dashes_are_ignored(self):
+-        self.assertEqual(format_phone("07700-900 123"), "7700 900123")
++        self.assertEqual(format_phone("07700-900 123"), "07700 900123")
+
+     def test_a_london_number(self):
+-        self.assertEqual(format_phone("02079460000"), "2079 460000")
++        self.assertEqual(format_phone("02079460000"), "02079 460000")
++
++    def test_too_few_digits_are_refused(self):
++        with self.assertRaises(ValueError):
++            format_phone("0770090")

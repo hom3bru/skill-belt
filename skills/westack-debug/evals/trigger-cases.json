@@ -1,0 +1,43 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "debug-routing-v1",
+  "kind": "routing",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-debug)",
+  "hypothesis": "The westack-debug description takes bugs of unknown cause and leaves verification of finished work, code review, speed work, explicitly named gstack investigate and superpowers systematic-debugging requests, and ordinary questions to their owners.",
+  "how_to_run": "Copy this file to a scratch campaign folder as campaign.json, snapshot the population there (westack-eval route.py population --registry --plugin superpowers=<plugin skills folder> --root <folder holding the westack skills> --out population.json), and register. Expectations name the westack 1.0 owners; until a sibling is installed, replace its name with the fallback below before registering, and say so in the result.",
+  "fallback_until_installed": {
+    "westack-verify": "superpowers:verification-before-completion",
+    "westack-review": "review",
+    "westack-perf": "NONE"
+  },
+  "pending_note": "No case is pending: westack-perf, which t13 and t14 expect, was built at alpha.46 and their markers are gone. The fallback above stays for a population without it installed.",
+  "held_out_note": "Split fixed by hand before any description tuning: 6 of 21 cases, spread across expected owners. Score the held-out split once per description version.",
+  "population": "population.json",
+  "backend": {"name": "host", "params": {}},
+  "host": {"name": "claude", "timeout_min": 5},
+  "cases": [
+    {"id": "t01", "prompt": "test_parse_date fails with ValueError: day is out of range for month and I can't see why. Can you track down what is causing it?", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t01"},
+    {"id": "t02", "prompt": "Our nightly job crashes with KeyError: 'region' in build_report.py line 88. Find the root cause and fix it.", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t02"},
+    {"id": "t03", "prompt": "Why does the cart total come out one cent low when someone buys three pens?", "expect": "westack-debug", "split": "held-out", "fixture": "routing-fixtures/t03"},
+    {"id": "t04", "prompt": "This test passes most of the time but fails about one run in five on my laptop. Work out what is going on.", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t04"},
+    {"id": "t05", "prompt": "Investigate why the export button produces an empty CSV since yesterday's merge. Don't change anything yet.", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t05"},
+    {"id": "t06", "prompt": "Running the CLI locally gives TypeError: Cannot read properties of undefined (reading 'map') at render (list.js:42). What's wrong?", "expect": "westack-debug", "split": "held-out", "fixture": "routing-fixtures/t06"},
+    {"id": "t07", "prompt": "The login form accepts the right password but sends me straight back to the login page every time. Find out why.", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t07"},
+    {"id": "t08", "prompt": "npm test started failing in the date utils even though nobody touched them. Bisect if you need to; I just want to know what broke it.", "expect": "westack-debug", "split": "dev", "fixture": "routing-fixtures/t08"},
+    {"id": "t09", "prompt": "The agent says the migration is finished and every test passes. Check that is actually true before I merge.", "expect": "westack-verify", "split": "dev", "fixture": "routing-fixtures/t09"},
+    {"id": "t10", "prompt": "Confirm the import task meets its acceptance criteria. Don't change any code.", "expect": "westack-verify", "split": "dev", "fixture": "routing-fixtures/t10"},
+    {"id": "t11", "prompt": "Review my diff before I open the pull request.", "expect": "westack-review", "split": "dev", "fixture": "routing-fixtures/t11"},
+    {"id": "t12", "prompt": "Can you do a code review of src/payments and point out bugs and risky patterns?", "expect": "westack-review", "split": "held-out", "fixture": "routing-fixtures/t12"},
+    {"id": "t13", "prompt": "The search endpoint takes four seconds per request. Make it faster.", "expect": "westack-perf", "split": "dev"},
+    {"id": "t14", "prompt": "Profile the import script; it got noticeably slower after last week's refactor.", "expect": "westack-perf", "split": "held-out"},
+    {"id": "t15", "prompt": "Use gstack's investigate skill on this crash: a segfault in the image resizer.", "expect": "investigate", "split": "dev", "fixture": "routing-fixtures/t15"},
+    {"id": "t16", "prompt": "/investigate the upload test that keeps timing out", "expect": "investigate", "split": "dev", "fixture": "routing-fixtures/t16"},
+    {"id": "t17", "prompt": "Run superpowers systematic-debugging on the failing auth test.", "expect": "superpowers:systematic-debugging", "split": "held-out", "fixture": "routing-fixtures/t17"},
+    {"id": "t18", "prompt": "Use the superpowers test-driven-development skill to write the tests first for parseDuration.", "expect": "superpowers:test-driven-development", "split": "dev", "fixture": "routing-fixtures/t18"},
+    {"id": "t19", "prompt": "What does Python's functools.lru_cache do?", "expect": "NONE", "split": "dev"},
+    {"id": "t20", "prompt": "Write a function that turns a blog post title into a URL slug.", "expect": "NONE", "split": "dev"},
+    {"id": "t21", "prompt": "Explain how the retry decorator in utils.py works.", "expect": "NONE", "split": "held-out", "fixture": "routing-fixtures/t21"}
+  ],
+  "misroute_rule": 0.10,
+  "budget": {"usd": 6.0, "runs": 21, "per_run_usd": 0.25}
+}

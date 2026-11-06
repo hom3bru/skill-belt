@@ -1,0 +1,18 @@
+{
+  "format": "westack-health-results-1",
+  "repo": "example-python-service",
+  "date": "2026-11-04",
+  "branch": "main",
+  "revision": "abc1234",
+  "categories": {
+    "typecheck": {"status": "skipped", "reason": "no configuration found; declare it in a Health Stack section"},
+    "lint": {"status": "ran", "command": "ruff check .", "exit": 1, "counts": {"warnings": 6},
+             "log": "lint.log", "log_sha256": "1111111111111111111111111111111111111111111111111111111111111111"},
+    "tests": {"status": "ran", "command": "python -m pytest -q", "exit": 0,
+              "counts": {"collected": 120, "executed": 118, "passed": 118, "failed": 0, "skipped": 2},
+              "log": "tests.log", "log_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+    "deadcode": {"status": "skipped", "reason": "vulture not configured"},
+    "shell": {"status": "skipped", "reason": "no shell scripts"},
+    "index": {"status": "skipped", "reason": "no westack-onboard index for this repository"}
+  }
+}

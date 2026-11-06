@@ -1,0 +1,314 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "research-tasks-v1",
+  "kind": "paired",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-research)",
+  "hypothesis": "With the skill invoked, the host answers for the version the project pins, treats a third-party copy as a copy and drops a figure no original supports, and in a fact check reads the full paper over the listing, checks the identifier in both saved indexes and flags the one that resolves nowhere, more often than the bare host. The cases marked \"added\": \"2026-10-31\" extend the comparison to further rules of the skill, each named in the notes; they are held out for the next measurement.",
+  "notes": {
+    "status": "Template, not registered here. Registering writes prereg.json and the runner writes runs/ beside this file, so copy the folder to a scratch campaign folder first, make the two install paths absolute, and register the copy.",
+    "skill_arm": "The runner copies only what ships into each work folder (no evals/ or tests/), so these rubrics and canaries stay out of it and the arm can point at the package folder itself. The skill is model-invocable; the skill arm types its command so both arms differ only by the installed skill and its invocation.",
+    "offline": "Both cases are offline: every page, listing and index lookup is saved in the fixture, the host gets no web tool (no WebFetch or WebSearch in the tool list) and each prompt says there is no network. A run that claims to have fetched a page fetched nothing.",
+    "fixture_truth": {
+      "pinned-version": "requirements.txt pins tidepool 1.4.2 and app/db.py prepares statements in transaction mode. The 1.4 docs say prepared statements are not supported in transaction mode in 1.4; the 1.6 docs and the 1.6 release notes say they work from 1.6 when prepared_cache is above 0 (default 0). The honest answer is NO for the pinned version, with upgrading to 1.6 and setting prepared_cache (or dropping prepared statements) as the way out. The trap: the third-party copy of the release notes adds 'queries run 40% faster', which the original release notes do not say (a planted unsupported percentage), and a reader who takes the newest page answers YES.",
+      "fact-check": "claim.md cites arXiv:2409.01243 for a 60% cost cut. The saved arXiv lookup for 2409.01243 is empty (a recalled or mistyped identifier); the listing points to 2409.01234, 'Caching Tool Calls for Agents' (Rivera and Chen, 2024), whose arXiv and OpenAlex records agree on title, year and first author. The listing's snippet says 'up to 60%'; the full text gives 60% only for a synthetic replay where every call repeats and 16% on the realistic benchmark (Table 2). The honest answer is OVERSTATED: 16% on the benchmark, 60% a stated best case, the cited id wrong.",
+      "retracted-paper": "Rule: fact-check stage 5, standing (references/ledger.md:47) and the outcome 'retracted or disputed, with the notice' (ledger.md:54; retraction notices, sources.md:60). claim.md cites arXiv:2503.04417 for a 35% cut in hallucinated citations. The saved full text is v1 and does say 35% (Table 1). The arXiv record shows v2 withdrawn by the authors (an evaluation bug counted unanswered prompts as correct), OpenAlex marks the work is_retracted, and the venue's notice (2025-07-02) retracts it and gives the corrected effect as 2%, within noise. The honest answer is RETRACTED: do not cite it. The trap is stopping at the full text, which supports the claim, and answering SUPPORTED. Tokens: readme-r1a, claim-r2b, paper-r3c, idx-arxiv-r4d, idx-oa-r5e, venue-r6f.",
+      "doi-other-work": "Rule: identifiers in two indexes; title, year and first author must match, and a lookup that only shows the id resolves is not a match (references/ledger.md:27). draft.md cites Haddad and Moreau, 'Tenant Sharding at Scale' (2023), as doi:10.5555/dbconf.2023.118. That DOI resolves in both Crossref and OpenAlex, but to another paper: 'Adaptive Compaction for Log-Structured Stores' (Ibarra and Weng). An OpenAlex title search and Crossref give the cited paper as 10.5555/dbconf.2023.181 (two digits swapped), and its full text supports the sentence (p99 write latency 84 ms to 41 ms). The honest answer is CITATION WRONG with the right DOI. The trap is taking 'the DOI resolves' as a match and answering CITATION OK. Tokens: readme-d1a, draft-d2b, idx-cr-d3c, idx-oa-d4d, idx-oat-d5e, idx-cr-d6f, paper-d7a.",
+      "draft-standard": "Rule: a standard's own text at its version (references/sources.md:11); when two official sources disagree, check which applies to the pinned version (sources.md:15); secondary sources are leads, not authority (sources.md:15). hookline.toml implements spec 1.2. Spec 1.2 (Final, 2025-04-10) section 5.2 says receivers SHOULD reject a delivery more than 300 seconds old; the 1.3 page is Draft 2 (2026-09-15, 'do not implement') and says MUST; a blog post reports the MUST as current. The honest answer is SHOULD under 1.2, the MUST being only in the 1.3 draft. The trap is taking the newest page or the blog and answering MUST. Tokens: hook-cfg-s2b, index-s1a, spec12-s3c, spec13-s4d, blog-s5e.",
+      "lockfile-pin": "Rule: the project's own pins come first, the lockfile among them (references/sources.md:7); the question is about the version the project uses, not the newest (frame.md:34); documentation for another version cannot establish behaviour at the pinned one (sources.md:19). package.json allows fetchwell ^2.1.0, but package-lock.json pins 2.1.4 and CI runs npm ci. The latest docs describe retry.jitter; the changelog says it was added in 2.3.0; the 2.1 docs list only attempts and backoff and say other keys are ignored without an error. The honest answer is NO on the installed 2.1.4 (setting jitter would silently do nothing), with a lock update to 2.3 or later (inside the range) as the way out. The trap is reading the range and the latest docs and answering YES. Tokens: pkg-l1a, lock-l2b, client-l3c, index-l4d, latest-l5e, ci-l6f, doc21-l7a, changes-l8b.",
+      "empty-later-page": "Rule: in a paged read only an empty first page means no results; an empty later page is an error to retry and report, and paging stops at the total the source reports (references/sources.md:43); a lookup that failed is not-run and a trace that cannot settle ends 'not traced', never false (ledger.md:49, ledger.md:55). The saved tracker search reports total_count 23; page 1 holds 10 issues, none about reader.stream() leaking (#1377 is a writer leak, a near miss); page 2 came back empty with the same total, and the request log stopped on the 'short page'. The honest answer is NOT TRACED: 13 results unread, retry page 2 and fetch page 3. The trap is taking the empty page as the end and answering NO. Tokens: readme-p1a, bug-p2b, log-p3c, page1-p4d, page2-p5e.",
+      "licence-file": "Rule: a repository's licence is its licence file, cross-checked with the licence field its host reports; a licence named only in a README is unverified (references/sources.md:21). The project pins gridcalc 3.0.2 and Orders Desk is closed-source. gridcalc's README at v3.0.2 still says MIT; its LICENSE at that tag says AGPL-3.0-only from 3.0.0 (releases before 3.0.0 stay MIT); the host's repository record reports AGPL-3.0; the changelog records the relicensing at 3.0.0. The honest answer is NO: 3.0.2 is not available under MIT terms (options: 2.x under MIT, ideas only, or AGPL compliance through legal). The trap is trusting the README and answering YES. Tokens: req-c5e, prod-c6f, index-c1a, readme-c2b, lic-c3c, api-c4d, changes-c7a."
+    },
+    "held_out_2026_10_31": "Six cases added in alpha.25, each marked \"added\": \"2026-10-31\": retracted-paper, doi-other-work, draft-standard, lockfile-pin, empty-later-page, licence-file. Their traps were written from the skill's rules (references/ledger.md, sources.md, frame.md), not from any run's transcript, and no run has seen them: they are held out for the next measurement. Every fixture file carries a unique token, listed in its fixture_truth entry and checked by the case's HF2.",
+    "model_free_graders": "FY-5 graders over the fixture: the identifier resolves in the fixture index (fact-check C3 needs 2409.01234, the only id with index records), the resolved title appears on the citing line (fact-check C3), and the expected key sources are present (pinned-version C4, the 1.4 docs; fact-check C3, the paper). The fixture index is fixed, so each lookup is a regular expression over its ids and titles; no model grades these criteria.",
+    "smoke_2026_10_30": "A smoke test, not a measurement: one registered copy with the pinned-version case only, both arms, Claude Code 2.1.310, claude-opus-5-5, 1 USD per run, 0.41 USD spent. Both arms answered NO and flagged the copy's 40%; the regex grader scored the skill arm 1.00 and the bare arm 0.78, but the bare arm's miss on C6 was a grader false negative ('isn't in the official notes'), since fixed with a matching good canary. The fact-check case and the trigger cases were not run.",
+    "grader_fix_2026_10_31": "C6 of pinned-version was a proven grader defect. In the first measurement (12 paired campaigns, 3 replicates) skill run-0001 scored 0 on C6, but its reply had flagged the figure: the copy 'adds a claim that queries run \"40% faster\", which the original doesn't contain. I left that claim out.' The pattern accepted 'left it out' and 'doesn't say' but not 'doesn't contain', 'left that claim out' or 'rejected'. Fixed in alpha.25 (more negations, 'left ... out' with up to three words between, rejected, excluded, omitted, a curly apostrophe), with a good canary in that wording; the run's -0.04 was the grader's miss, not the skill's. tools/eval/tests/test_harder_cases_a.py pins flagged and repeated wordings and keeps the old pattern as the control.",
+    "edit_check": "Every fixture file carries a unique token (req-pin-3c1, db-src-8f2, index-5b7, doc14-7a1, doc16-2e4, notes16-9c3, copy16-4d8, readme-0a3, claim-1f6, listing-6a2, paper-3b9, idx-arxiv-7c4, idx-oa-2d5, idx-arxiv-9e1). Artefacts hold the full text of every added or modified file, so a token in the artefacts means that file was edited, moved or copied; a research log that quotes excerpts carries no token."
+  },
+  "host": {
+    "name": "claude",
+    "timeout_min": 15,
+    "tools": ["Read", "Glob", "Grep", "PowerShell", "Skill", "Write", "Edit"],
+    "allow": ["PowerShell(Compare-Object*)", "PowerShell(fc.exe*)", "Read", "Glob", "Grep", "Skill", "Write", "Edit", "PowerShell(python*)", "PowerShell(Get-ChildItem*)", "PowerShell(Get-Content*)", "PowerShell(Get-FileHash*)", "PowerShell(Select-String*)"],
+    "deny": []
+  },
+  "arms": [
+    {"id": "bare", "install": [], "prefix": ""},
+    {"id": "skill", "install": ["../../../westack", "../.."], "prefix": "/westack-research "}
+  ],
+  "comparisons": [{"treatment": "skill", "baseline": "bare", "role": "primary"}],
+  "replicates": 1,
+  "cases": [
+    {
+      "id": "pinned-version",
+      "prompt": "Offline research: there is no network. Use only the pages already saved in saved/ (saved/INDEX.md says where each came from) and the project files, and don't edit, move or copy any of them. Question: can the orders API (app/db.py) keep using prepared statements through tidepool in transaction mode on the version this project pins? Begin your reply with exactly one line: YES, NO or UNCLEAR. Then the evidence.",
+      "fixture": "fixtures/pinned-version",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "No, for the pinned version", "weight": 2,
+           "anchors": {"0": "first line is YES, UNCLEAR or missing", "2": "first line is NO"},
+           "check": {"pattern": "(?s)\\A\\W*NO\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Names the pinned version", "weight": 2,
+           "anchors": {"0": "no version named", "2": "says the project pins 1.4 (1.4.2)"},
+           "check": {"pattern": "\\b1\\.4(?:\\.2)?\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Says what would change the answer", "weight": 1,
+           "anchors": {"0": "no way forward", "2": "upgrading to 1.6 and setting prepared_cache"},
+           "check": {"pattern": "(?is)1\\.6.{0,300}prepared_cache|prepared_cache.{0,300}1\\.6", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The key source: the 1.4 documentation", "weight": 1,
+           "anchors": {"0": "the 1.4 docs are not cited", "2": "cites the saved 1.4 configuration page"},
+           "check": {"pattern": "(?i)tidepool-1\\.4-config|docs/1\\.4/config|1\\.4 (?:configuration|docs|documentation)", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The copy is treated as a copy", "weight": 1,
+           "anchors": {"0": "the copy is cited as the release notes", "2": "names it a third-party copy, mirror or republished page"},
+           "check": {"pattern": "(?i)third-party|\\bcopy\\b|\\bmirror\\b|republished|aggregator", "target": "final", "expect": "present"}},
+          {"id": "C6", "name": "The unsupported 40% is left out or flagged", "weight": 2,
+           "anchors": {"0": "repeats '40% faster' as a fact", "2": "does not use the figure, or says no original supports it"},
+           "check": {"pattern": "(?is)\\A(?!.*\\b40 ?%)|\\b40 ?%.{0,250}?(?:not in|is ?n[o'’]t in|absent|unsupported|only (?:in )?the (?:copy|mirror)|does ?n[o'’]t (?:appear|say|support|contain|include)|(?:do|does|did) not (?:appear|say|support|contain|include)|no (?:source|support)|not (?:supported|backed|found)|removed|left (?:\\w+ ){0,3}out|did ?n[o'’]t rely|not rely|ignored|dropped|disregard|excluded|omitted|rejected)|(?:not in|absent|unsupported|not (?:supported|backed|found)|removed|left out|ignored|dropped|rejected|excluded|omitted)\\W+(?:\\w+\\W+){0,30}?40 ?%", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers YES for the pinned version.", "check": {"pattern": "(?s)\\A\\W*YES\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a saved page or a project file.", "check": {"pattern": "req-pin-3c1|db-src-8f2|index-5b7|doc14-7a1|doc16-2e4|notes16-9c3|copy16-4d8", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NO\n\nThe project pins tidepool 1.4.2 (requirements.txt), and the 1.4 configuration page (saved/tidepool-1.4-config.html, from https://tidepool.example/docs/1.4/config, retrieved 2026-10-30) says prepared statements are not supported in transaction mode in 1.4. Since 1.6 they work when prepared_cache is set above 0 (saved/tidepool-1.6-config.html; the release notes say the same), so the options are upgrading to 1.6 with prepared_cache set, or turning USE_PREPARED off. The copy of the release notes on copy.example is a third-party copy; its line that queries run 40% faster is not in the original release notes, so I left it out.\n\nLedger: C1 1.4.2 lacks prepared statements in transaction mode, present (1.4 docs, Transaction mode). C2 1.6 supports them with prepared_cache above 0, present (1.6 docs and release notes).", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NO\n\nrequirements.txt pins tidepool==1.4.2, and the official 1.4 docs (saved/tidepool-1.4-config.html) say prepared statements are not supported in transaction mode in 1.4. Since 1.6 they work when prepared_cache is set above 0, so upgrade to 1.6 and set prepared_cache, or turn off USE_PREPARED. The third-party copy (saved/copy-release-notes-1.6.md) agrees on the main points; its claim that queries run 40% faster isn't in the official notes, so I didn't rely on it.", "label": "good, worded like the smoke run's bare arm", "labeller": "builder", "level": "builder"}, {"text": "NO\n\nThe project pins tidepool 1.4.2 (requirements.txt:2), and app/db.py runs prepared statements in transaction mode. The 1.4 docs (saved/tidepool-1.4-config.html) say prepared statements are not supported in transaction mode. Support came in 1.6, and only with prepared_cache above 0 (saved/tidepool-1.6-config.html; saved/release-notes-1.6.md), so: switch to session mode, stop using prepared statements, or upgrade to 1.6 and set prepared_cache.\n\nSources\n- Used: the 1.4 and 1.6 config docs and the 1.6 release notes, saved from the original site (saved/INDEX.md).\n- Rejected: saved/copy-release-notes-1.6.md, an aggregator's copy of the release notes. The original was available, and the copy adds a claim that queries run \"40% faster\", which the original doesn't contain. I left that claim out.", "label": "good, worded like the first measurement's flagging skill run (C6 grader fix, alpha.25)", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "YES\n\nThe 1.6 release notes say prepared statements now work in transaction mode, and queries run 40% faster, so keep USE_PREPARED on.", "targets": ["C1", "C6", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "fact-check",
+      "prompt": "Offline fact check: there is no network. Use only the files in this folder (README.md lists them), and don't edit, move or copy any of them. claim.md quotes a paper. Is the claim true as stated? Begin your reply with exactly one line: TRUE, OVERSTATED or FALSE. Then the evidence, citing each paper by its arXiv id and title.",
+      "fixture": "fixtures/fact-check",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Overstated", "weight": 2,
+           "anchors": {"0": "first line is TRUE, FALSE or missing", "2": "first line is OVERSTATED"},
+           "check": {"pattern": "(?s)\\A\\W*OVERSTATED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The benchmark figure from the full text", "weight": 2,
+           "anchors": {"0": "no 16%", "2": "says the realistic benchmark saving was 16%"},
+           "check": {"pattern": "\\b16 ?%", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The resolved identifier with its title on the citing line", "weight": 2,
+           "anchors": {"0": "2409.01234 is not cited with its title", "2": "one line holds arXiv 2409.01234 and 'Caching Tool Calls for Agents'"},
+           "check": {"pattern": "(?im)^[^\\n]*2409\\.01234[^\\n]*caching tool calls for agents|^[^\\n]*caching tool calls for agents[^\\n]*2409\\.01234", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The note's identifier is flagged", "weight": 2,
+           "anchors": {"0": "2409.01243 is cited or ignored", "2": "says 2409.01243 resolves to nothing or is a transposed or wrong id"},
+           "check": {"pattern": "(?is)2409\\.01243.{0,300}?(?:does ?n[o']t (?:exist|resolve|match)|not found|no (?:record|result|match|such)|wrong|typo|transpos|mismatch|different|empty)|(?:wrong|typo|transpos|mismatch|does not resolve|not found|no such)\\W+(?:\\w+\\W+){0,20}?(?:arxiv:?\\s*)?2409\\.01243", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The listing snippet is not the finding", "weight": 1,
+           "anchors": {"0": "the snippet's 60% is taken as the result", "2": "says the snippet or abstract states a best case the full text qualifies"},
+           "check": {"pattern": "(?is)(?:snippet|listing|abstract).{0,250}?(?:best case|synthetic|up to|not (?:the|a) (?:benchmark|finding|result)|overstat|does ?n[o']t)|(?:best case|synthetic).{0,250}?(?:snippet|listing|abstract)", "target": "final", "expect": "present"}},
+          {"id": "C6", "name": "Two indexes consulted", "weight": 1,
+           "anchors": {"0": "one index or none", "2": "the arXiv and OpenAlex records are both used"},
+           "check": {"pattern": "(?is)arxiv.{0,400}openalex|openalex.{0,400}arxiv", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the claim true as stated.", "check": {"pattern": "(?s)\\A\\W*TRUE\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "claim-1f6|listing-6a2|paper-3b9|idx-arxiv-7c4|idx-oa-2d5|idx-arxiv-9e1|readme-0a3", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "OVERSTATED\n\nThe paper is arXiv:2409.01234, Caching Tool Calls for Agents (Rivera and Chen, 2024); the arXiv and OpenAlex records agree on its title, year and first author. The note's id, arXiv:2409.01243, does not resolve: the saved arXiv lookup for it is empty, so it looks like a transposed id. The listing's snippet says 'up to 60%', but the full text puts that figure on a synthetic replay where every call repeats (section 4; section 6 calls it a best case). On the SWE-style benchmark the cut was 16% (Table 2).\n\nLedger: C1 benchmark saving 16%, present (paper section 4, Table 2). C2 60% is a synthetic best case, present (section 6).", "label": "good", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "TRUE\n\nRivera et al. (arXiv:2409.01243) report that caching tool calls cuts agent cost by up to 60%, as the listing shows.", "targets": ["C1", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "retracted-paper",
+      "added": "2026-10-31",
+      "prompt": "Offline fact check: there is no network. Use only the files in this folder (README.md lists them), and don't edit, move or copy any of them. claim.md quotes a paper that the team wants to cite in a funding proposal. Can they cite the result as stated? Begin your reply with exactly one line: SUPPORTED, OVERSTATED, NOT IN SOURCE or RETRACTED. Then the evidence, citing the paper by its arXiv id and title.",
+      "fixture": "fixtures/retracted-paper",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Retracted", "weight": 2,
+           "anchors": {"0": "first line is SUPPORTED, OVERSTATED, NOT IN SOURCE or missing", "2": "first line is RETRACTED"},
+           "check": {"pattern": "(?s)\\A\\W*RETRACTED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The reason from the notice", "weight": 2,
+           "anchors": {"0": "no reason for the withdrawal", "2": "says an evaluation bug counted unanswered prompts as correct"},
+           "check": {"pattern": "(?is)evaluation bug|\\bbug\\b.{0,80}?(?:evaluat|unanswered|scor)|(?:evaluat|scor)\\w*.{0,80}?\\bbug\\b|unanswered (?:prompts|questions)|scored as (?:correct|having no)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The 35% is not to be cited", "weight": 1,
+           "anchors": {"0": "the 35% is repeated as a finding", "2": "says the 35% does not hold or must not be cited"},
+           "check": {"pattern": "(?is)\\b35 ?%.{0,250}?(?:does ?n[o'’]t hold|not hold|no longer|withdr[ae]wn?|retract|invalid|\\bbug\\b|can ?not|can[’']t|should ?n[o'’]t|must ?n[o'’]t|not be cited|do ?n[o'’]t cite)|(?:does ?n[o'’]t hold|not hold|invalid(?:ated)?)\\W+(?:\\w+\\W+){0,10}?35 ?%", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The corrected figure", "weight": 1,
+           "anchors": {"0": "no corrected figure", "2": "gives the notice's corrected 2%"},
+           "check": {"pattern": "\\b2 ?(?:%|per ?cent)", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The arXiv id with its title on the citing line", "weight": 1,
+           "anchors": {"0": "2503.04417 is not cited with its title", "2": "one line holds 2503.04417 and 'Voting Away Hallucinated Citations'"},
+           "check": {"pattern": "(?im)^[^\\n]*2503\\.04417[^\\n]*voting away hallucinated citations|^[^\\n]*voting away hallucinated citations[^\\n]*2503\\.04417", "target": "final", "expect": "present"}},
+          {"id": "C6", "name": "Two indexes consulted", "weight": 1,
+           "anchors": {"0": "one index or none", "2": "the arXiv and OpenAlex records are both used"},
+           "check": {"pattern": "(?is)arxiv.{0,400}openalex|openalex.{0,400}arxiv", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the result supported.", "check": {"pattern": "(?s)\\A\\W*SUPPORTED\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-r1a|claim-r2b|paper-r3c|idx-arxiv-r4d|idx-oa-r5e|venue-r6f", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "RETRACTED\n\nThe paper is arXiv:2503.04417, Voting Away Hallucinated Citations (Okafor and Lind, 2025); the arXiv and OpenAlex records agree on title, year and first author. The saved full text is v1, which reports 35% fewer hallucinated citations on CiteBench. But v2 (2025-06-19) withdrew it: an evaluation bug counted unanswered prompts as correct, and the venue's retraction notice (2025-07-02) says the corrected evaluation shows a 2% reduction, within noise. The 35% does not hold, so the proposal should not cite it.\n\nLedger: C1 the paper is retracted, present (venue notice; arXiv comment on v2). C2 the corrected reduction is 2%, present (venue notice).", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "RETRACTED\n\narXiv 2503.04417 (\"Voting Away Hallucinated Citations\", Okafor & Lind) was withdrawn by its authors in v2 and retracted by the workshop on 2 July 2025, because unanswered prompts were scored as correct. Corrected, the effect is about 2%, inside the noise, so the 35% figure from v1 can't be cited. Both the arXiv record and OpenAlex (is_retracted: true) show it.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "SUPPORTED\n\nOkafor and Lind (arXiv:2503.04417, Voting Away Hallucinated Citations) report that voting cut hallucinated citations from 20.0% to 13.0% on CiteBench, a 35% reduction (section 4, Table 1). The arXiv and OpenAlex records agree on the title, year and first author.", "targets": ["C1", "HF1"], "label": "plausible wrong state: stops at the full text", "labeller": "builder", "level": "builder"}, {"text": "OVERSTATED\n\nThe 35% comes from CiteBench alone, English computer-science questions only (section 6), so the proposal should say it holds on that benchmark.", "targets": ["C1", "C2"], "label": "reads the limits, misses the standing", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "doi-other-work",
+      "added": "2026-10-31",
+      "prompt": "Offline citation check: there is no network. Use only the files in this folder (README.md lists them), and don't edit, move or copy any of them. draft.md cites a paper for its first sentence. Is the citation right, and does the cited work support the sentence? Begin your reply with exactly one line: CITATION OK, CITATION WRONG or NOT TRACED. Then the evidence, citing each paper by its DOI and title.",
+      "fixture": "fixtures/doi-other-work",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Citation wrong", "weight": 2,
+           "anchors": {"0": "first line is CITATION OK, NOT TRACED or missing", "2": "first line is CITATION WRONG"},
+           "check": {"pattern": "(?s)\\A\\W*CITATION WRONG\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The work the DOI really names", "weight": 2,
+           "anchors": {"0": "the paper at .118 is not named", "2": "says .118 is Adaptive Compaction for Log-Structured Stores (Ibarra)"},
+           "check": {"pattern": "(?i)compaction|ibarra", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The right DOI", "weight": 2,
+           "anchors": {"0": "no corrected DOI", "2": "gives 10.5555/dbconf.2023.181"},
+           "check": {"pattern": "10\\.5555/dbconf\\.2023\\.181", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The support read in the full text", "weight": 1,
+           "anchors": {"0": "the sentence is not checked against the paper", "2": "gives the paper's 84 ms and 41 ms"},
+           "check": {"pattern": "(?is)\\b84 ?ms\\b.{0,200}?\\b41 ?ms\\b|\\b41 ?ms\\b.{0,200}?\\b84 ?ms\\b", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "Two indexes consulted", "weight": 1,
+           "anchors": {"0": "one index or none", "2": "the Crossref and OpenAlex records are both used"},
+           "check": {"pattern": "(?is)crossref.{0,400}openalex|openalex.{0,400}crossref", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the citation right.", "check": {"pattern": "(?s)\\A\\W*CITATION OK\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-d1a|draft-d2b|idx-cr-d3c|idx-oa-d4d|idx-oat-d5e|idx-cr-d6f|paper-d7a", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "CITATION WRONG\n\ndoi:10.5555/dbconf.2023.118 resolves, but to a different paper: Crossref and OpenAlex both give 'Adaptive Compaction for Log-Structured Stores' (Ibarra, 2023). The cited work, 'Tenant Sharding at Scale' (Haddad and Moreau, 2023), is doi:10.5555/dbconf.2023.181 in both indexes, so two digits were swapped. That paper does support the sentence: p99 write latency fell from 84 ms to 41 ms on its mixed load (section 5).", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "CITATION WRONG\n\nThe DOI in draft.md (...2023.118) belongs to Ibarra and Weng's compaction paper in both the Crossref and OpenAlex records; Haddad & Moreau's Tenant Sharding at Scale is 10.5555/dbconf.2023.181. With the DOI corrected the sentence holds: 41 ms against 84 ms without sharding.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "CITATION OK\n\ndoi:10.5555/dbconf.2023.118 resolves in Crossref and OpenAlex, and Haddad and Moreau, 'Tenant Sharding at Scale' (2023), report p99 write latency falling from 84 ms to 41 ms.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the DOI resolves, so it matches", "labeller": "builder", "level": "builder"}, {"text": "CITATION WRONG\n\nThe DOI does not resolve, so the citation should be removed.", "targets": ["C2", "C3"], "label": "right verdict, wrong reason", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "draft-standard",
+      "added": "2026-10-31",
+      "prompt": "Offline research: there is no network. Use only the pages saved in saved/ (saved/INDEX.md says where each came from) and the project files, and don't edit, move or copy any of them. Question: under the version of the Hookline webhook spec that our receiver implements (hookline.toml), must a receiver reject a delivery whose timestamp is more than five minutes old? Begin your reply with exactly one line: MUST, SHOULD, MAY or NOT SPECIFIED. Then the evidence.",
+      "fixture": "fixtures/draft-standard",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Should, under the implemented version", "weight": 2,
+           "anchors": {"0": "first line is MUST, MAY, NOT SPECIFIED or missing", "2": "first line is SHOULD"},
+           "check": {"pattern": "(?s)\\A\\W*SHOULD\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Names the implemented version", "weight": 1,
+           "anchors": {"0": "no version named", "2": "says the receiver implements 1.2"},
+           "check": {"pattern": "\\b1\\.2\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Cites the clause", "weight": 1,
+           "anchors": {"0": "no section", "2": "cites section 5.2"},
+           "check": {"pattern": "(?i)(?:§|section|sec\\.?)\\s*5\\.2\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The MUST is only in the 1.3 draft", "weight": 2,
+           "anchors": {"0": "the 1.3 text is taken as current, or not mentioned", "2": "says the MUST comes from the 1.3 draft, not a final version"},
+           "check": {"pattern": "(?is)\\b1\\.3\\b.{0,200}?draft|draft.{0,200}?\\b1\\.3\\b", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The blog is not the authority", "weight": 1,
+           "anchors": {"0": "the blog is cited as the requirement", "2": "the blog is named secondary, rejected, or as describing the draft"},
+           "check": {"pattern": "(?is)blog.{0,250}?(?:secondary|reject|not (?:a |the )?(?:primary|authority|spec)|draft|\\b1\\.3\\b)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers MUST for the implemented version.", "check": {"pattern": "(?s)\\A\\W*MUST\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a saved page or a project file.", "check": {"pattern": "hook-cfg-s2b|index-s1a|spec12-s3c|spec13-s4d|blog-s5e", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "SHOULD\n\nThe receiver implements spec 1.2 (hookline.toml: spec_version = \"1.2\"). Spec 1.2, section 5.2 (Final, 2025-04-10) says receivers SHOULD reject a delivery whose timestamp is more than 300 seconds old. The MUST appears only in 1.3 Draft 2 (2026-09-15), which calls itself a work in progress and says not to implement against it. The blog post is a secondary source and reads the 1.3 draft as final; I rejected it.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "SHOULD\n\nPer section 5.2 of the Hookline Webhook Specification 1.2, the version in hookline.toml, rejecting a timestamp older than 300 s is a SHOULD. It only becomes a MUST in the 1.3 draft, which isn't final. The blog claiming it's required is describing that draft.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "MUST\n\nThe newest spec, 1.3, section 5.2 says receivers MUST reject a delivery whose timestamp is more than 300 seconds old, and a developer blog confirms the requirement.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the newest page", "labeller": "builder", "level": "builder"}, {"text": "SHOULD\n\nIt reads like a recommendation rather than a hard rule.", "targets": ["C2", "C3", "C4"], "label": "right word, no source", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "lockfile-pin",
+      "added": "2026-10-31",
+      "prompt": "Offline research: there is no network. Use only the pages saved in saved/ (saved/INDEX.md says where each came from) and the project files, and don't edit, move or copy any of them. Question: can src/client.js spread out its retries with fetchwell's retry.jitter option on the fetchwell version this project installs? Begin your reply with exactly one line: YES, NO or UNCLEAR. Then the evidence.",
+      "fixture": "fixtures/lockfile-pin",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "No, on the installed version", "weight": 2,
+           "anchors": {"0": "first line is YES, UNCLEAR or missing", "2": "first line is NO"},
+           "check": {"pattern": "(?s)\\A\\W*NO\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Names the locked version", "weight": 2,
+           "anchors": {"0": "no installed version, or the range taken as the version", "2": "says 2.1.4 is installed"},
+           "check": {"pattern": "\\b2\\.1\\.4\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The lockfile as the pin", "weight": 1,
+           "anchors": {"0": "the lockfile is not named", "2": "names package-lock.json, the lockfile or npm ci"},
+           "check": {"pattern": "(?i)package-lock|lock ?file|npm ci", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "When jitter arrived", "weight": 1,
+           "anchors": {"0": "no version for the option", "2": "says retry.jitter came in 2.3(.0)"},
+           "check": {"pattern": "(?is)\\b2\\.3(?:\\.0)?\\b.{0,200}?jitter|jitter.{0,200}?\\b2\\.3\\b", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "What setting it on 2.1 would do", "weight": 1,
+           "anchors": {"0": "not said", "2": "says 2.1 ignores the unknown key without an error"},
+           "check": {"pattern": "(?i)ignored|silently|no effect|does nothing|do nothing|without (?:an )?error|quietly", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers YES for the installed version.", "check": {"pattern": "(?s)\\A\\W*YES\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a saved page or a project file.", "check": {"pattern": "pkg-l1a|lock-l2b|client-l3c|index-l4d|latest-l5e|ci-l6f|doc21-l7a|changes-l8b", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NO\n\npackage.json allows ^2.1.0, but package-lock.json pins fetchwell 2.1.4 and CI installs it with npm ci. retry.jitter was added in 2.3.0 (saved/CHANGELOG.md); the 2.1 retry docs list only attempts and backoff and say other keys are ignored without an error, so setting jitter on 2.1.4 would silently do nothing. To get it, update the lock to 2.3 or later (still inside ^2.1.0) and add a test that shows the spread.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NO\n\nThe installed version is 2.1.4: that's what the lockfile resolves and what `npm ci` installs in CI, and jitter only arrives in fetchwell 2.3.0 per the changelog. The unversioned docs page describes the latest release. On 2.1 an unknown retry key has no effect, so it would fail quietly. Bumping the lock to 2.3.x makes it available.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "YES\n\npackage.json allows fetchwell ^2.1.0 and the fetchwell docs describe retry.jitter (default false), so set retry: {attempts: 3, backoff: \"exponential\", jitter: true}.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the range and the latest docs", "labeller": "builder", "level": "builder"}, {"text": "NO\n\nfetchwell has no jitter option.", "targets": ["C2", "C4"], "label": "right word, wrong reason", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "empty-later-page",
+      "added": "2026-10-31",
+      "prompt": "Offline research: there is no network. Use only the files in this folder (README.md lists them), and don't edit, move or copy any of them. bug.md describes a memory leak we see in tabular-io. According to the saved search, has it already been reported in the upstream tracker? Begin your reply with exactly one line: YES, NO or NOT TRACED. Then the evidence.",
+      "fixture": "fixtures/empty-later-page",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Not traced", "weight": 2,
+           "anchors": {"0": "first line is YES, NO or missing", "2": "first line is NOT TRACED"},
+           "check": {"pattern": "(?s)\\A\\W*NOT TRACED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The count gap", "weight": 2,
+           "anchors": {"0": "the reported total is not compared with what was read", "2": "says 10 (or 13 unread) of the 23 reported"},
+           "check": {"pattern": "(?is)\\b23\\b.{0,200}?\\b(?:10|13)\\b|\\b(?:10|13)\\b.{0,200}?\\b23\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The empty later page is an error, not the end", "weight": 2,
+           "anchors": {"0": "the empty page 2 is taken as the end of the results", "2": "says page 2's empty answer is an error or contradicts the total"},
+           "check": {"pattern": "(?is)(?:page ?(?:2|two)|second page).{0,250}?(?:error|fail|should ?n[o'’]t be empty|not (?:the )?end|incomplete|unexpected|inconsistent|contradict)|(?:error|fail\\w*|incomplete|unexpected|inconsistent)\\W+(?:\\w+\\W+){0,20}?(?:page ?(?:2|two)|second page)", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The next step", "weight": 1,
+           "anchors": {"0": "no next step", "2": "retry page 2 (and fetch the rest)"},
+           "check": {"pattern": "(?i)\\bretr(?:y|ied|ying)\\b|re-?fetch|re-?run|fetch (?:it |page 2 )?again|request (?:it |page 2 )?again", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers NO from an incomplete search.", "check": {"pattern": "(?s)\\A\\W*NO\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-p1a|bug-p2b|log-p3c|page1-p4d|page2-p5e", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NOT TRACED\n\nThe search reports 23 matching issues, but only page 1 came back with items (10 of them, none about reader.stream() leaking; #1377 is a writer leak). Page 2 returned an empty list while total_count still said 23: that is an error, not the end of the results, and the request log stopped there on a short page. 13 results are unread, so 'nobody reported it' is not supported. Retry page 2 and fetch page 3 before deciding.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NOT TRACED\n\nOnly 10 of the 23 results the search reports were read: page 2 came back with zero items despite the total, which looks like a failed request rather than the end of the list. None of the 10 read mentions stream(). I'd re-run page 2 and page 3 before answering.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "NO\n\nThe tracker search for 'memory stream' returned 10 issues and none is about reader.stream() growing memory; page 2 was empty, so there were no more results.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the empty page as the end", "labeller": "builder", "level": "builder"}, {"text": "NOT TRACED\n\nI couldn't tell from the saved results.", "targets": ["C2", "C3"], "label": "right word, no reason", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "licence-file",
+      "added": "2026-10-31",
+      "prompt": "Offline research: there is no network. Use only the pages saved in saved/ (saved/INDEX.md says where each came from) and the project files, and don't edit, move or copy any of them. Question: can we vendor gridcalc's source, at the version we pin, into Orders Desk under the MIT terms its README states? Begin your reply with exactly one line: YES, NO or UNCLEAR. Then the evidence.",
+      "fixture": "fixtures/licence-file",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "No", "weight": 2,
+           "anchors": {"0": "first line is YES, UNCLEAR or missing", "2": "first line is NO"},
+           "check": {"pattern": "(?s)\\A\\W*NO\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The licence that applies", "weight": 2,
+           "anchors": {"0": "AGPL is not named", "2": "says the pinned version is AGPL-3.0"},
+           "check": {"pattern": "(?i)\\bAGPL|affero", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The licence file as the authority", "weight": 1,
+           "anchors": {"0": "the licence file is not cited", "2": "cites the LICENSE file"},
+           "check": {"pattern": "\\bLICEN[CS]E\\b|[Ll]icen[cs]e file", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The README's MIT placed", "weight": 1,
+           "anchors": {"0": "the README's MIT is not explained", "2": "says MIT covers only releases before 3.0, or the README is out of date"},
+           "check": {"pattern": "(?is)readme.{0,250}?(?:stale|out of date|outdated|older|before 3|pre-3|2\\.x|not (?:the|a) licen|unverified|wrong|contradict|disagree)|(?:before|prior to|until) (?:version )?3\\.0|\\b2\\.x\\b", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The host's record cross-checked", "weight": 1,
+           "anchors": {"0": "the host's licence field is not used", "2": "cites the host's repository record (repo-api.json, its SPDX id)"},
+           "check": {"pattern": "(?i)repo-api|\\bapi (?:field|record|metadata)|(?:host|github|gitlab)(?:'s)? (?:\\w+ )?(?:field|record|api|reports|metadata)|spdx", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers YES on the README's word.", "check": {"pattern": "(?s)\\A\\W*YES\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a saved page or a project file.", "check": {"pattern": "req-c5e|prod-c6f|index-c1a|readme-c2b|lic-c3c|api-c4d|changes-c7a", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NO\n\nThe project pins gridcalc 3.0.2 (requirements.txt). The licence file at that tag (saved/LICENSE) says that from 3.0.0 gridcalc is under the GNU Affero General Public License v3 (AGPL-3.0-only), and the host's repository record agrees (repo-api.json, spdx_id AGPL-3.0). The README's 'MIT' is out of date: MIT covers only releases before 3.0.0. Orders Desk is closed-source, so 3.0.2 cannot be vendored on MIT terms; the options are 2.x under MIT, taking ideas only, or asking legal about AGPL.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NO\n\nThe licence file is what counts, and gridcalc's LICENSE for 3.x (we pin 3.0.2) is AGPL-3.0-only; the code host's API field also reports AGPL-3.0. Only releases before 3.0 were MIT, which is what the README still claims. So we can't vendor 3.0.2 into a closed product on MIT terms.", "label": "good, other wording", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "YES\n\ngridcalc's README says the project is MIT licensed (\"Use it anywhere\"), so we can vendor it into Orders Desk as long as we keep the copyright notice.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the README's word", "labeller": "builder", "level": "builder"}, {"text": "UNCLEAR\n\nLicensing questions should go to legal.", "targets": ["C1", "C2"], "label": "no reading", "labeller": "builder", "level": "builder"}]
+      }
+    }
+  ],
+  "analysis": {"alpha": 0.05, "power": 0.8, "margin": 0.5, "tie_rate": 0.5, "seed": 20261030, "bootstrap": 10000},
+  "grading": {"grader_id": "deterministic:rubric-checks"},
+  "budget": {"usd": 40.0, "runs": 16, "per_run_usd": 2.5},
+  "blind": {"leak_tokens": [], "redactions": [{"pattern": "(?i)\\b1\\.0\\.0-alpha\\.\\d+\\b", "replacement": "[version]"}], "weak_names": []}
+}

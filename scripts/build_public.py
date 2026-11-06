@@ -1,6 +1,6 @@
 """Generate public skill editions from their canonical sources. Standard library only.
 
-    python -B scripts/build_public.py --westack DIR [--frankenmine DIR] [--adopt-adapt DIR] [--carrier-pigeon DIR] [--rule-or-reason DIR] [--jobscura DIR] [--deep-dive DIR] [--check]
+    python -B scripts/build_public.py [--westack DIR | --westack-stack SKILLS_DIR] [--frankenmine DIR] [--adopt-adapt DIR] [--carrier-pigeon DIR] [--rule-or-reason DIR] [--jobscura DIR] [--deep-dive DIR] [--check]
 
 Each named skill is copied from its canonical directory into a fresh staging
 directory inside this repository, minus the exclude globs in public-build.json,
@@ -46,6 +46,7 @@ def _load(name):
 
 
 verify = _load("verify")
+westack_stack_layout = _load("westack_stack")
 
 
 def adopt_adapt_release(stage):
@@ -68,8 +69,8 @@ def shared_user_profile(stage):
     return (Path(stage).parents[1] / "shared/user-profile.md").read_bytes()
 
 
-# Files that describe the published bytes themselves, so they are generated in staging, not copied.
-# westack has none: 0.3.1 deliberately ships no package manifest, and its own rename guard scans every published file.
+# Edition manifests and the shared profile are generated in staging.
+# Westack keeps its canonical component resources without an extra generated package file.
 GENERATED_FILES = {"adopt-adapt": {"release.json": adopt_adapt_release},
                    "jobscura": {"references/user-profile.md": shared_user_profile,
                                 "package-files.json": jobscura_inventory}}
@@ -249,7 +250,7 @@ def changes(stage, current):
                 unchanged=len([path for path in set(new) & set(old) if new[path] == old[path]]))
 
 
-def stage_skill(name, source, entry, root, stage_root):
+def stage_skill(name, source, entry, root, stage_root, links=True):
     source = Path(source).resolve(strict=True)
     if source.is_relative_to(root) or root.is_relative_to(source):
         raise ValueError(name + ": the canonical source must be a directory outside this repository")
@@ -274,7 +275,7 @@ def stage_skill(name, source, entry, root, stage_root):
     staged = verify.source_files(stage)  # refuses links; matches what verify.py will scan
     if set(staged) != set(files):
         raise ValueError(name + ": staged files differ from the selected files")
-    verify.check_publication(staged, stage)
+    verify.check_publication(staged, stage, links=links)
     verify.check_vocabulary(stage, name, root)
     report = dict(source_tree_sha256=source_digest, edition_tree_sha256=tree_digest(files), files=len(files),
                   excluded=len(excluded), overlays=sorted(entry.get("overlays", {})),
@@ -297,7 +298,7 @@ def remove_tree(path, stage_root):
         shutil.rmtree(path, onerror=retry)
 
 
-def swap(names, root, stage_root):
+def swap(names, root, stage_root, removed=()):
     """Move every current copy aside, move every staged copy in; restore all on any failure."""
     done = []
     try:
@@ -307,7 +308,8 @@ def swap(names, root, stage_root):
             if had:
                 os.rename(current, previous)
             done.append((name, current, previous, had))
-            os.rename(stage_root / name, current)
+            if name not in removed:
+                os.rename(stage_root / name, current)
     except OSError as exc:
         try:
             for name, current, previous, had in reversed(done):
@@ -322,10 +324,50 @@ def swap(names, root, stage_root):
         raise ValueError("Replacement failed; skills/ was restored: " + str(exc)) from exc
 
 
-def build(sources, root=ROOT, check=False):
+def stack_sources(source, root):
+    """Validate the complete canonical sibling input before staging any edition."""
+    source = Path(source)
+    if is_link(source.lstat()):
+        raise ValueError("Linked westack stack source")
+    source = source.resolve(strict=True)
+    if source.is_relative_to(root) or root.is_relative_to(source):
+        raise ValueError("The canonical westack stack must be outside this repository")
+    canonical_files(source)  # Refuse links before reading the stack manifest.
+    if not (source / "westack/stack.json").is_file():
+        raise ValueError("Missing canonical westack stack manifest")
+    names = ("westack", *westack_stack_layout.sibling_names(source))
+    actual = {path.name for path in source.iterdir() if path.name not in GENERATED_DIRS}
+    if actual != set(names):
+        raise ValueError("Westack sibling directories disagree with the manifest; missing or undeclared entries")
+    return {name: source / name for name in names}
+
+
+def stage_stack(sources, config, root, stage_root):
+    """Check cross-sibling links inside their own bundle before joining the swap."""
+    bundle = stage_root / ".westack-stack"
+    bundle.mkdir()
+    report = {name: stage_skill(name, source, config["skills"][name], root, bundle, links=False)
+              for name, source in sources.items()}
+    if set(sources) != {"westack", *westack_stack_layout.sibling_names(bundle)}:
+        raise ValueError("Published westack stack membership disagrees with the canonical input")
+    verify.check_publication(verify.source_files(bundle), bundle)
+    for name in sources:
+        os.rename(bundle / name, stage_root / name)
+    bundle.rmdir()
+    return report
+
+
+def build(sources, root=ROOT, check=False, westack_stack=None):
     """Stage and check every named skill; replace skills/<name> only when all of them pass."""
     root = Path(root).resolve()
     config = load_config(root)
+    sources = dict(sources)
+    stack = stack_sources(westack_stack, root) if westack_stack is not None else {}
+    if set(sources) & set(stack):
+        raise ValueError("Name westack either as one skill or as a sibling stack, not both")
+    if "westack" in sources and (Path(sources["westack"]) / "stack.json").is_file():
+        raise ValueError("A sibling-stack router requires --westack-stack with its complete skills directory")
+    sources.update(stack)
     unknown = sorted(set(sources) - set(config["skills"]))
     if unknown:
         raise ValueError("No " + CONFIG_NAME + " entry for: " + ", ".join(unknown))
@@ -333,16 +375,22 @@ def build(sources, root=ROOT, check=False):
     if os.path.lexists(stage_root):
         raise ValueError(str(stage_root) + " already exists; an earlier build may have left previous copies there. "
                          "Inspect it, restore anything needed, then remove it.")
+    removed = (set(westack_stack_layout.sibling_names(root / "skills")) - set(stack)
+               if "westack" in sources else set())
+    names = sorted(set(sources) | removed)
     stage_root.mkdir()
-    names = sorted(sources)
     try:
         report = dict(mode="check" if check else "build",
-                      skills={name: stage_skill(name, sources[name], config["skills"][name], root, stage_root) for name in names})
+                      skills={name: stage_skill(name, source, config["skills"][name], root, stage_root)
+                              for name, source in sorted(sources.items()) if name not in stack})
+        if stack:
+            report["skills"].update(stage_stack(stack, config, root, stage_root))
+            report["removed_stack_skills"] = sorted(removed)
     except BaseException:
         remove_tree(stage_root, stage_root)
         raise
     if not check:
-        swap(names, root, stage_root)
+        swap(names, root, stage_root, removed=removed)
         report["next"] = "python -B scripts/generate_manifest.py, then python -B scripts/verify.py"
     remove_tree(stage_root, stage_root)
     return report
@@ -351,6 +399,7 @@ def build(sources, root=ROOT, check=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--westack", type=Path, help="canonical westack skill directory")
+    parser.add_argument("--westack-stack", type=Path, help="canonical skills directory containing the westack router and declared siblings")
     parser.add_argument("--frankenmine", type=Path, help="canonical Frankenmine skill directory")
     parser.add_argument("--adopt-adapt", dest="adopt_adapt", type=Path, help="canonical adopt-adapt skill directory")
     parser.add_argument("--carrier-pigeon", dest="carrier_pigeon", type=Path, help="canonical carrier-pigeon skill directory")
@@ -362,10 +411,10 @@ def main():
     sources = {name: path for name, path in (("adopt-adapt", args.adopt_adapt), ("westack", args.westack),
                                              ("frankenmine", args.frankenmine), ("carrier-pigeon", args.carrier_pigeon), ("jobscura", args.jobscura),
                                              ("rule-or-reason", args.rule_or_reason), ("deep-dive", args.deep_dive)) if path is not None}
-    if not sources:
+    if not sources and args.westack_stack is None:
         parser.error("name at least one canonical skill directory")
     try:
-        report = build(sources, check=args.check)
+        report = build(sources, check=args.check, westack_stack=args.westack_stack)
     except (OSError, ValueError) as exc:
         # Failures before replacement leave skills/ untouched; swap() reports its own state.
         print("Public build failed: " + str(exc), file=sys.stderr)

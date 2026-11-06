@@ -1,0 +1,969 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-research",
+  "reviewed": "2026-10-30",
+  "policy": "Ideas only, in our own words. The plan of record's five strongest donors (cat: and harness: refs) and imozuru (adj:) were read for this build at their pinned commits on 2026-10-30, through a web fetch of the raw file, with SHA-256 and byte counts from an in-memory GET of the same URL; nothing was saved or run. The P2 backlog items whose home is this skill (refs p2:) and the addendum items (or:, ab:, ax:, fy:) are recorded from the deep reads and addenda that assessed them, with the hashes recorded there, and were not re-inspected (each record says so). The treg sweep rows (sweep:) come from the 2026-10-28 source sweep, which recorded no hashes. Restricted sources (source-available or custom terms) are marked ideas only and never to be quoted. ChatPaper (CC BY-NC-ND) gave nothing and daily-arXiv is not quoted; both are under considered_not_taken. The lists: record (DG-37, 2026-10-31) comes from the user's design-inspiration list as the westack-design brief reports it; no repository was read for it.",
+  "donors": [
+    {
+      "ref": "cat:addy-agent-skills.skill.source-driven-development",
+      "system": "addyosmani/agent-skills (source-driven-development)",
+      "licence": "MIT (LICENSE read: Copyright (c) 2025 Addy Osmani)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/skills/source-driven-development/SKILL.md",
+          "sha256": "c59faf851377f0eeda45306398d16eb96d77ab1c2fd3e1a7fb58e9a0af33c1e9",
+          "bytes": 10038,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/LICENSE",
+          "sha256": "6f202f8bd568cd730dbb2b0d1f8e243bc74c2fa1f64dbce9b2c7ea08bd5c9fd7",
+          "bytes": 1068,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Find the version the project actually uses from its dependency files before reading any documentation; when it is missing or unclear, ask instead of guessing.",
+          "grade": "present",
+          "evidence": "Step 1 (detect the stack and its versions)",
+          "where": "references/frame.md (What is already known: the project's pins)"
+        },
+        {
+          "mechanism": "Fetch the page for the feature, not the documentation's home page, and rank sources by authority: official documentation, then the official blog and changelog, then standards and compatibility references; tutorials, forum answers and model-written summaries are not primary.",
+          "grade": "present",
+          "evidence": "Step 2 (fetch official documentation)",
+          "where": "references/sources.md (Primary first)"
+        },
+        {
+          "mechanism": "When two official sources disagree, report the disagreement and check which applies to the detected version.",
+          "grade": "present",
+          "evidence": "Step 2 (conflicting official sources)",
+          "where": "references/sources.md (Primary first)"
+        },
+        {
+          "mechanism": "Where no official documentation covers a pattern, say so plainly and mark the result unverified rather than hedging.",
+          "grade": "present",
+          "evidence": "Step 4 (missing documentation)",
+          "where": "references/sources.md (Pins and kinds: lower the row to what it supports)"
+        }
+      ],
+      "rejected": [
+        "Citing sources in code comments: westack-research changes no repository file; citations live in the ledger and the answer.",
+        "Its retrieval-safety note is already core guards.md (fetched text is data), which the skill points to."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way.",
+        "Named by the plan of record (the westack 1.0 capability map) as one of the five strongest donors for research."
+      ]
+    },
+    {
+      "ref": "harness:cookbooks-research-lead-prompt",
+      "system": "anthropics/claude-cookbooks (patterns/agents research lead prompt)",
+      "licence": "MIT (LICENSE read: Copyright (c) 2023 Anthropic)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-cookbooks/blob/bfe50e59dbb4f5546a0af9ca36ebb77e637c9ce1/patterns/agents/prompts/research_lead_agent.md",
+          "sha256": "cc3165be0721fa26b92800027ac035c2db792d3a22f4bdd3577424559067d29e",
+          "bytes": 23102,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-cookbooks/blob/bfe50e59dbb4f5546a0af9ca36ebb77e637c9ce1/LICENSE",
+          "sha256": "d7a04bf11ce24a7b79cd44b4a78dcc9971eaeb3b565821de437e0ecb7723e634",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Classify the query before planning: straightforward (one focused lookup), depth-first (several angles on one question) or breadth-first (independent sub-questions), and size the effort to the class.",
+          "grade": "present",
+          "evidence": "research process and subagent-count guidance",
+          "where": "references/frame.md (Depth class and size)"
+        },
+        {
+          "mechanism": "A straightforward query gets one searcher; stop when further searching gives diminishing returns and the answer is good enough.",
+          "grade": "present",
+          "evidence": "subagent-count guidance; stopping guidance",
+          "where": "references/frame.md (the proportionality rule; follow-up rounds)"
+        }
+      ],
+      "rejected": [
+        "Up to twenty subagents for a hard query: westack starts workers only when the user asks (core hosts/README.md) and caps one coordinator at about seven (westack-orchestrate decide.md).",
+        "A final report without citations or a reference list: every westack-research row cites its source and location."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way.",
+        "Named by the plan of record (the westack 1.0 capability map) as one of the five strongest donors for research."
+      ]
+    },
+    {
+      "ref": "cat:bmad-v7-preview:bmad-deep-recon",
+      "system": "bmad-code-org/BMAD-METHOD v7 preview (bmad-deep-recon)",
+      "licence": "MIT (LICENSE read: Copyright (c) 2025 BMad Code, LLC)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/bmad-code-org/BMAD-METHOD/blob/61e01f82644c4bb533750cfa0d6d61ab61d2cc9b/skills/bmad-deep-recon/SKILL.md",
+          "sha256": "f5360d92576908b91ce97c1bb75577c4cd724d0dcefaf20dd3b460c5a738507b",
+          "bytes": 10687,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/bmad-code-org/BMAD-METHOD/blob/61e01f82644c4bb533750cfa0d6d61ab61d2cc9b/LICENSE",
+          "sha256": "0aa79baf6328b4a1e694ce10a12ffc36d7666554da128dff0e8fcda0fc536a66",
+          "bytes": 1572,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Research starts from the decision it serves, and that decision shapes each later step.",
+          "grade": "present",
+          "evidence": "Overview; research types and decision shapes",
+          "where": "references/frame.md (The decision)"
+        },
+        {
+          "mechanism": "Conclusions rest on evidence gathered in this run, never on what the model already believes; project context may shape the questions but is not evidence; thin data is reported as thin.",
+          "grade": "present",
+          "evidence": "Overview (epistemics)",
+          "where": "references/frame.md (What is already known: a recalled fact is a lead); references/ledger.md"
+        },
+        {
+          "mechanism": "Every claim carries its source with publisher, publication date and access date, and decisions, sources and claims go to an append-only log written as the run goes.",
+          "grade": "present",
+          "evidence": "How you work",
+          "where": "references/sources.md (Pins and kinds); references/log.md (the run file)"
+        }
+      ],
+      "rejected": [
+        "Configurable research-type packs and a headless JSON summary: westack-research keeps one log format checked by research_log.py.",
+        "Its verification and synthesis references were not read (the skill page only points to them)."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way.",
+        "Named by the plan of record (the westack 1.0 capability map) as one of the five strongest donors for research."
+      ]
+    },
+    {
+      "ref": "cat:compound-engineering:skill:ce-pov",
+      "system": "EveryInc/compound-engineering-plugin (ce-pov)",
+      "licence": "MIT (LICENSE read: Copyright (c) 2025 Every)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/skills/ce-pov/SKILL.md",
+          "sha256": "571f15137501d4046f0ef47a96ff081ad936cdd2074508ea404e88871f0d5db3",
+          "bytes": 7847,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/LICENSE",
+          "sha256": "61d89de7646effdaba2d0a4ab7bd0eba60b4094b83efe5bc73c7940e43e93fc6",
+          "bytes": 1062,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Lead with the decision and keep the key evidence and the uncertainty beside it.",
+          "grade": "present",
+          "evidence": "Consumer and interaction",
+          "where": "references/answer.md (Shape: the answer first)"
+        },
+        {
+          "mechanism": "Claims from the conversation are leads to check, not evidence.",
+          "grade": "present",
+          "evidence": "Grounding is not optional",
+          "where": "references/frame.md (What is already known)"
+        },
+        {
+          "mechanism": "When grounding falls short of the bar, return a blocked or partial result that says what is missing instead of a confident verdict; route requests that belong to another workflow away.",
+          "grade": "present",
+          "evidence": "Identify the question; Phase 0 and Phase 2",
+          "where": "references/answer.md (Partial and blocked); SKILL.md (Not this skill)"
+        }
+      ],
+      "rejected": [
+        "Consulting other models as a panel: independence is a level in core critique.md, and another vendor needs the user's consent first."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way.",
+        "The plan of record pinned the file at 9f5b16fc (its head was 00d0a5bb then); this build read the pinned commit.",
+        "Named by the plan of record (the westack 1.0 capability map) as one of the five strongest donors for research."
+      ]
+    },
+    {
+      "ref": "cat:gbrain.skill.academic-verify",
+      "system": "garrytan/gbrain (academic-verify)",
+      "licence": "MIT (LICENSE read: Copyright (c) 2026 Garry Tan)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gbrain/blob/e7bdf107bbedb44a3a147d71bda669a73dd4f838/skills/academic-verify/SKILL.md",
+          "sha256": "485839f3f35ddebeb99dacc901deed4b5c7c6c7f7c8367a444b8a427530e75a5",
+          "bytes": 10217,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/garrytan/gbrain/blob/e7bdf107bbedb44a3a147d71bda669a73dd4f838/LICENSE",
+          "sha256": "e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c",
+          "bytes": 1066,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Trace a cited claim through its publication, its methods, its raw data and independent verification, after first pinning down who said what, the number and the period.",
+          "grade": "present",
+          "evidence": "What this is; How it works",
+          "where": "references/ledger.md (Fact-check mode, stages 1 to 5)"
+        },
+        {
+          "mechanism": "Look in what is already known before searching outside, and reuse an earlier verification.",
+          "grade": "present",
+          "evidence": "How it works (look up existing knowledge first)",
+          "where": "references/frame.md (What is already known)"
+        },
+        {
+          "mechanism": "Unverifiable means not verified, never wrong; a failed lookup marks the claim unverified and names the step that failed.",
+          "grade": "present",
+          "evidence": "Standards; When it fails",
+          "where": "references/ledger.md (Fact-check mode: not traced is inconclusive, a failed lookup is not-run)"
+        }
+      ],
+      "rejected": [
+        "Its own five-label verdict set as a strength scale: strength stays the core vocabulary; the trace's outcomes (supported, overstated, not in the source, retracted or disputed, not traced) describe what the source says, not how strong the evidence is.",
+        "Delegating the lookup to a paid web-research service: retrieval follows references/sources.md."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way.",
+        "The plan of record pinned the file at e7bdf107 (its head was 82b7ef60 then); this build read the pinned commit.",
+        "Named by the plan of record (the westack 1.0 capability map) as one of the five strongest donors for research."
+      ]
+    },
+    {
+      "ref": "adj:MaryCache/imozuru",
+      "system": "imozuru: research skill that traces a topic to original sources, saves originals unsummarised and stops on evidence",
+      "licence": "MIT (LICENSE read in the 2026-10-29 adjacent deep read, Copyright 2026 MaryCache)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/MaryCache/imozuru/blob/808407e501bc5a1e596655b0a6d62e1f3b20ba1b/skills/imozuru/SKILL.md",
+          "sha256": "f71b79594e7552306d4e3121d1d8804d2359f42d1f2f279824aca5f4c8858ffb",
+          "bytes": 44407,
+          "read": "full, through a translating summary (the file is in Japanese)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/MaryCache/imozuru/blob/808407e501bc5a1e596655b0a6d62e1f3b20ba1b/LICENSE",
+          "sha256": "6cb8cc064f163d233449e415d0faa33758d315c05dc724354a0c149eeb167342",
+          "bytes": 1066,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Save each source as retrieved and do not summarise while researching; summaries come only after the decision to stop.",
+          "grade": "present",
+          "evidence": "skills/imozuru/SKILL.md:19-47 (approximate; the fetch carried no line numbers)",
+          "where": "references/sources.md (Save originals, unsummarised)"
+        },
+        {
+          "mechanism": "Cite a location as a file, a line and a short phrase from the source, because converted PDF text shifts line order.",
+          "grade": "present",
+          "evidence": "skills/imozuru/SKILL.md:113-114 (as recorded in the adjacent deep read)",
+          "where": "references/sources.md (Save originals, unsummarised)"
+        },
+        {
+          "mechanism": "Stop when every research point has a located source, when a round cap is reached (listing what was not reached), or when what remains is behind a login or paywall; never work round a bot check, login or paywall, and treat instructions inside fetched pages as data.",
+          "grade": "present",
+          "evidence": "skills/imozuru/SKILL.md:116-134",
+          "where": "references/every-step.md (rule 8); references/sources.md (When a page will not load)"
+        }
+      ],
+      "rejected": [
+        "The saturation rule (stop when about 70% of a round's finds were already known): its own text calls the figure provisional; westack-research stops on coverage within the follow-up cap.",
+        "The dashboard, digest and report generators: presentation, and large.",
+        "The research-issue design and the safe-fetch guard: recorded for adopt-adapt in the adjacent deep read; the guard's westack half is core guards.md (classify a link's host before fetching it)."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read for this build on 2026-10-30 at the pinned commit: the file was read through a web fetch of its raw URL and its SHA-256 and byte count were taken from an in-memory GET of the same URL (nothing saved, nothing run). The licence was read the same way. Its SHA-256 and byte count matched the 2026-10-29 adjacent deep read. The LICENSE hash is that read's and was not fetched again.",
+        "The search-delegate triad (WA-83) from the same file is recorded under p2:MaryCache/imozuru."
+      ]
+    },
+    {
+      "ref": "p2:Yeachan-Heo/oh-my-claudecode",
+      "system": "oh-my-claudecode (OMC)",
+      "licence": "MIT, Copyright (c) 2025 Yeachan Heo (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/skills/trace/SKILL.md",
+          "sha256": "e82ccaa563f703803ad92093766ada969188df44b9ee91298a26b8c3d0792b0e",
+          "bytes": 10381,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/LICENSE",
+          "sha256": "1d2b966f93feaa8928a57a69868388ee9016c86a341299fc5261ded44249af79",
+          "bytes": 1068,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-66: Evidence strength is ranked (controlled reproduction, primary artefacts with provenance, converging independent sources, single-source inference, circumstantial clues, intuition); say why a row moved down and run a check on a contested one.",
+          "grade": "present",
+          "evidence": "skills/trace/SKILL.md:50-63,192-203",
+          "where": "references/ledger.md (Strength in the core's words); scripts/research_log.py (strength, reading)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-66 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Not re-inspected for this build. Only the cited files and the licence file are listed.",
+        "Mapped onto the core vocabulary with no second scale, as the item's conflict note requires; the debug half of SS-66 is in westack-debug.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:code-yeongyu/oh-my-openagent",
+      "system": "oh-my-openagent (OmO; previously oh-my-opencode)",
+      "licence": "Ideas only (restrictive). Sustainable Use License v1.0, source-available and not open source: internal business, non-commercial or personal use only, free non-commercial distribution only. Documentation read only; no code or prompt text read or carried.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/docs/reference/features.md",
+          "sha256": "4e0003aa678897a1932226368250dbead5f695342bf5cce8ef90368abf5a3aef",
+          "bytes": 71589,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/LICENSE.md",
+          "sha256": "b61ac928f152d13517328263e6bee9175b928f9ab696a2d2ca2b6cfd961ddc32",
+          "bytes": 3973,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-66: Research where every claim needs a citation, a proof artefact or an execution-backed verdict, and contested claims are proved by running code.",
+          "grade": "present",
+          "evidence": "docs/reference/features.md:471,474",
+          "where": "references/ledger.md (a contested row names its check; tested needs a run with its receipt)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-66 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks), one paragraph only; its instruments (a claim graph, an observation manifest) are unverified and not carried. Not re-inspected for this build.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:MaryCache/imozuru",
+      "system": "imozuru: research skill that traces a topic to original sources, saves originals unsummarised and stops on evidence",
+      "licence": "MIT (LICENSE read, Copyright 2026 MaryCache)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/MaryCache/imozuru/blob/808407e501bc5a1e596655b0a6d62e1f3b20ba1b/skills/imozuru/SKILL.md",
+          "sha256": "f71b79594e7552306d4e3121d1d8804d2359f42d1f2f279824aca5f4c8858ffb",
+          "bytes": 44407,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/MaryCache/imozuru/blob/808407e501bc5a1e596655b0a6d62e1f3b20ba1b/LICENSE",
+          "sha256": "6cb8cc064f163d233449e415d0faa33758d315c05dc724354a0c149eeb167342",
+          "bytes": 1066,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-83: Search-delegate return triad: found, searched-nothing-found, not searched (which becomes the next-lead list); per-query hits go to the log as machine output, never retyped; snippet-derived facts stay unconfirmed.",
+          "grade": "present",
+          "evidence": "skills/imozuru/SKILL.md:70-85",
+          "where": "references/frame.md (Workers); references/log.md (delegates); scripts/research_log.py (delegates, queries)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-83 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (voxyz-feed); for this build the SKILL.md was fetched again at the same commit and its SHA-256 and byte count matched. The research half only: the general half (the brief, the return and workers.py collect) is westack-orchestrate's, reused here.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "or:alphaXiv/OpenResearch",
+      "system": "alphaXiv OpenResearch (the orx CLI and its agent-skills pack)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/alphaXiv/OpenResearch/blob/703fd4bba66311625cf7e0b0776a0f949d3f4c73/agent-skills/orx-lit-review/SKILL.md",
+          "sha256": "4f741a3e696f7e7d9d2a915be4e4522b96a27f28664bb6ac93e5f3cd0304f7ab",
+          "bytes": 15954,
+          "read": "lines 97-206; headings for the rest",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/alphaXiv/OpenResearch/blob/703fd4bba66311625cf7e0b0776a0f949d3f4c73/LICENSE",
+          "sha256": "c84f7f49136436f347d86e71adb0a6bc132f0b5a3817d84bf572edee71bf33e7",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "OR-1: Size a literature search by difficulty with 0, 1 or 2 follow-up rounds as a hard cap; each round targets one named gap and never rephrases an earlier search; stop once coverage suffices.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-lit-review/SKILL.md, as read for the addendum (lines 97-206)",
+          "where": "references/frame.md (Depth class and size); scripts/research_log.py (rounds)"
+        },
+        {
+          "mechanism": "OR-2: Every call of one search keeps the same date window and ranking.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-lit-review/SKILL.md, as read for the addendum",
+          "where": "references/log.md; scripts/research_log.py (window)"
+        },
+        {
+          "mechanism": "OR-3: Cite only papers that came back in this search's results, never a recalled identifier; match duplicates by id, then DOI or arXiv id, then exact title.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-lit-review/SKILL.md, as read for the addendum",
+          "where": "references/ledger.md (Read before citing); scripts/research_log.py (results)"
+        },
+        {
+          "mechanism": "OR-4: A paper supports a claim only after it has been read (a snippet or listing does not verify), and a paper's linked repository may be a framework rather than its code.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-lit-review/SKILL.md, as read for the addendum",
+          "where": "references/ledger.md (Read before citing); scripts/research_log.py (reading: snippet-only)"
+        }
+      ],
+      "rejected": [
+        "Agent-filed vendor reports sent without interrupting the task (orx-feedback): against the consent rule for sending content to an outside service.",
+        "Its telemetry defaults (on unless the user opts out)."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items OR-1 to OR-4 (OpenResearch addendum, westack-research/2026-10-29-openresearch-alphaxiv.md, 2026-10-29).",
+        "Not re-inspected for this build: the SHA-256 and byte counts are those recorded in the addendum, read at the pinned commit; the clone was not opened.",
+        "OR-3 adds the URL as a match key between the arXiv id and the title, for web results that carry no identifier; OR-4's framework check is prose only (research_log.py lists it as not checked).",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "ab:kishormorol/ResearchScope",
+      "system": "kishormorol/ResearchScope (a CS paper discovery site with a public API and dataset)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/kishormorol/ResearchScope/blob/b71410579376e22c729e7897759b334f57861422/README.md",
+          "sha256": "fe2bca84a7e711b910d643bec6e6fd92f2ae9e680ad2b9c7ba2d908ebc62aae0",
+          "bytes": 23147,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/kishormorol/ResearchScope/blob/b71410579376e22c729e7897759b334f57861422/LICENSE",
+          "sha256": "657bb8dd54ad778a8fd277c7657a78d47e6cdd0a4d0a09ba12cfb01d4b88cd69",
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RS-1: Label each research gap by origin (stated in a source, inferred from a pattern across sources, or speculative) and never present an inferred or speculative gap as stated.",
+          "grade": "claimed",
+          "evidence": "README.md, as read for the addendum",
+          "where": "references/ledger.md (Gaps by origin); scripts/research_log.py (gaps)"
+        },
+        {
+          "mechanism": "RS-2 (reference): its public API and Hugging Face dataset as an extra discovery source for computer-science papers, cited as a third-party aggregator, not an authority.",
+          "grade": "claimed",
+          "evidence": "README.md, as read for the addendum",
+          "where": "references/sources.md (Discovery sources)"
+        }
+      ],
+      "rejected": [
+        "Ranking papers by author prestige: popularity and prestige measure attention, not quality (core inspect.md).",
+        "Duplicate detection by title similarity: exact identifiers first (OR-3) is stronger."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RS-1 and RS-2 (AgentBaton and ResearchScope addendum, westack-research/2026-10-29-agentbaton-researchscope.md, 2026-10-29).",
+        "Graded claimed: only the README was read (the repository is 1.76 GB and was not cloned). Not re-inspected for this build: the SHA-256 and byte counts are those recorded in the addendum, read at the pinned commit; the clone was not opened. The addendum gives no byte count for the LICENSE.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "ax:lukasschwab/arxiv.py",
+      "system": "lukasschwab/arxiv.py (a Python client for the arXiv API)",
+      "licence": "MIT (LICENSE.txt read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/lukasschwab/arxiv.py/blob/abf05a533a819c4360a8e1c468af509dcc31ee3b/arxiv/__init__.py",
+          "sha256": "6e6ea7510c1810a66f5eb931437ea2702560d0109daa8b8eb80844d26d4b32c6",
+          "bytes": 22360,
+          "read": "lines 420-605",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/lukasschwab/arxiv.py/blob/abf05a533a819c4360a8e1c468af509dcc31ee3b/README.md",
+          "sha256": "0f3ef540f2d8cc8836ae3e8cfbdcd5a82b79ac3ec21fd699c1b6bd5df2b906e5",
+          "bytes": 4587,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/lukasschwab/arxiv.py/blob/abf05a533a819c4360a8e1c468af509dcc31ee3b/LICENSE.txt",
+          "sha256": "ca2643bfec5841c34e5441eb0de26b7def730f753b780165a4611cc3dc4b5f2c",
+          "bytes": 1056,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AX-1: In a paged read only an empty first page means no results; an empty later page is an error to retry, then report, and paging stops at the total the source reports, not at the first short page.",
+          "grade": "present",
+          "evidence": "arxiv/__init__.py, client paging, lines 420-605, as read for the addendum",
+          "where": "references/sources.md (Pacing and failures)"
+        },
+        {
+          "mechanism": "AX-2: Respect a source's published rate rule with a client-side minimum interval measured from the last request (three seconds for arXiv), and record the URL and attempt number on every failure.",
+          "grade": "present",
+          "evidence": "arxiv/__init__.py, client, lines 420-605, as read for the addendum",
+          "where": "references/sources.md (Pacing and failures); scripts/research_log.py (pacing)"
+        },
+        {
+          "mechanism": "AX-3 (reference): a maintained API client over hand-parsing arXiv's Atom feed, which can return a silently empty result for a paper that exists.",
+          "grade": "present",
+          "evidence": "README.md, as read for the addendum",
+          "where": "references/sources.md (Tools)"
+        }
+      ],
+      "rejected": [
+        "Its handling of a malformed feed (a warning, then it carries on): the case core evidence.md already forbids (malformed input is blocked or inconclusive, never clean)."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AX-1, AX-2 and AX-3 (arxiv.py addendum, westack-research/2026-10-29-arxiv-py.md, 2026-10-29).",
+        "Not re-inspected for this build: the SHA-256 and byte counts are those recorded in the addendum, read at the pinned commit; the clone was not opened.",
+        "Second donor for AX-2: Feynman's request pacer (extensions/research-tools/request-pacer.ts), recorded on the fy: record. AX-1 (an empty later page of a paged read is an error) was applied here on 2026-10-31 with the seven-repos and OpenCode addendum, beside NR-16; core evidence.md, its other named home, still has no room for it.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "fy:Companion-Inc/feynman",
+      "system": "Companion-Inc/feynman (an open research agent: a lead prompt with researcher, verifier and reviewer subagents)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/prompts/deepresearch.md",
+          "sha256": "d17d80f2dde1eca5577cb30a287a2c7140a6932586a80e66ea8012b7b78fa9fb",
+          "bytes": 9520,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/.feynman/agents/verifier.md",
+          "sha256": "4a00bf43a81a3b0c324c1776cf63cdf906814ab299d831a3c002e3f3fabf5077",
+          "bytes": 4477,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/.feynman/agents/reviewer.md",
+          "sha256": "11a995656a20250ccfec8312dae2564e54aa68716d1cac778701528324ba442a",
+          "bytes": 3676,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/evals/README.md",
+          "sha256": "72ec5a752ea335bf75a84935e8b5b5019539f7481cfb404715dd82f481ce7ab3",
+          "bytes": 5020,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/extensions/research-tools/request-pacer.ts",
+          "sha256": "dbf39fac6a005f48df535a9e557c923e5a1384db0f84bbfd751a86e8eb6dcc4f",
+          "bytes": 751,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/README.md",
+          "sha256": "db2c2f082fc0f9ae0bcb10404d301ef05fb48c34c8fd01cc0471d9e9246ca7c0",
+          "bytes": 3395,
+          "read": "Sources and Telemetry sections",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/LICENSE",
+          "sha256": "a108cc5a8e90d79d1daea6a7891db062537af9587f8eb10f81702137bbc192d5",
+          "bytes": 1072,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "FY-1: Check each cited arXiv id or DOI in two independent indexes; title, year and first author must match; record which record matched; flag a mismatch and never keep it silently.",
+          "grade": "present",
+          "evidence": ".feynman/agents/verifier.md, as read for the addendum",
+          "where": "references/ledger.md (Identifiers in two indexes); scripts/research_log.py (identifiers)"
+        },
+        {
+          "mechanism": "FY-2 (research half): before saving research output, every number, benchmark name, figure, superiority claim and dataset size traces to wording a source, note, file or command output supports, or is removed and listed as removed.",
+          "grade": "present",
+          "evidence": ".feynman/agents/verifier.md and reviewer.md, as read for the addendum",
+          "where": "references/answer.md (The sweep before saving); scripts/research_log.py (trace)"
+        },
+        {
+          "mechanism": "FY-3 (research half): a research run whose tools fail still writes its final output, marked blocked or partial, with a provenance record of sources consulted, accepted and rejected and the checks not done.",
+          "grade": "present",
+          "evidence": "prompts/deepresearch.md, as read for the addendum",
+          "where": "references/answer.md (Partial and blocked); references/log.md; scripts/research_log.py (sources)"
+        },
+        {
+          "mechanism": "FY-4 (query half): run at least three distinct queries and record each verbatim, so every claim to have searched maps to a logged query.",
+          "grade": "present",
+          "evidence": "prompts/deepresearch.md, as read for the addendum",
+          "where": "references/frame.md (Depth class and size: the proportionality rule); scripts/research_log.py (queries)"
+        },
+        {
+          "mechanism": "FY-5 (research graders): research output graded without a model: the identifier resolves, the resolved title appears on the citing line, the expected key papers are present.",
+          "grade": "present",
+          "evidence": "evals/README.md, as read for the addendum",
+          "where": "evals/tasks/campaign.json (fact-check C3, pinned-version C4)"
+        },
+        {
+          "mechanism": "FY-7 (reference): Feynman named as a host tool for literature research, with its side effects disclosed: network access, and PostHog telemetry unless FEYNMAN_TELEMETRY=off (commands, tools, models, token counts and errors with stack traces, not prompts or outputs).",
+          "grade": "present",
+          "evidence": "README.md, Telemetry section, as read for the addendum",
+          "where": "references/sources.md (Tools)"
+        }
+      ],
+      "rejected": [
+        "Its result labels (PASS, PASS WITH NOTES, BLOCKED): westack keeps passed, failed, inconclusive, blocked and not-run.",
+        "Dropping network-failed lookups from a grader's totals: westack-eval's grader-error rule (EV-12) excludes and lists them instead."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items FY-1, FY-2, FY-3, FY-4, FY-5 and FY-7 (Feynman, daily-arXiv and ChatPaper addendum, westack-research/2026-10-30-feynman-daily-arxiv-chatpaper.md, 2026-10-30).",
+        "Not re-inspected for this build: the SHA-256 and byte counts are those recorded in the addendum, read at the pinned commit; the clone was not opened. The addendum's table lists the files read but does not map each item to a file; the evidence named for each item is inferred from the file names.",
+        "FY-4's three-query floor is adapted, not adopted whole: it binds depth-first and breadth-first questions, and a straightforward lookup needs one logged query, or none when the user gave the page (references/frame.md, the proportionality rule).",
+        "FY-2 and FY-3: only the research halves land here. FY-2's core half (references/finish.md and evidence.md, for every skill) still needs room and stays in the P2 backlog; FY-3's general half was already held in the core.",
+        "Second donor for AX-2 (ax: record): the request pacer keeps requests in one queue, starts each a set gap after the previous one started, and does not let a failure block the queue.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "sweep:superdesigndev/treg",
+      "system": "superdesigndev/treg (tools-registry: a hosted tool-catalog proxy with agent skills and decision docs)",
+      "licence": "Ideas only (restrictive). Apache License 2.0 with additional terms that take precedence: no hosted, managed or embedded service for third parties without the licensor's written authorisation; GitHub reports NOASSERTION. Copying text or code into a distributed westack is not safe.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/superdesigndev/treg/blob/c358c2f8036dc71af88b6d376f6af788f14259fc/src/treg/web/skill.md",
+          "read": "lines 188-241 and 426-428, as recorded in the sweep",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/superdesigndev/treg/blob/c358c2f8036dc71af88b6d376f6af788f14259fc/plugins/workflows/recruit/skills/recruit/SKILL.md",
+          "read": "lines 16-23, 41-44, 70-78, 119-130, as recorded in the sweep",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/superdesigndev/treg/blob/c358c2f8036dc71af88b6d376f6af788f14259fc/docs/HUB-DECISIONS.md",
+          "read": "lines 180-182, as recorded in the sweep",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Spend discipline (sweep row 8): a cap on one call does not bound a loop; tell the human the expected total first; keep a running sum and stop before the agreed amount is passed; pilot a handful and read the parsed results before looping.",
+          "grade": "present",
+          "evidence": "src/treg/web/skill.md:188-193,202-241,426-428; plugins/workflows/recruit/skills/recruit/SKILL.md:41-44",
+          "where": "references/frame.md (Spend); scripts/research_log.py (spend)"
+        },
+        {
+          "mechanism": "A staged run file (sweep row 11): written after every stage so an interrupted run still says what it did, with counts in and out, evidence only when a call returned it, and costs from observed responses rather than a price list.",
+          "grade": "present",
+          "evidence": "plugins/workflows/recruit/skills/recruit/SKILL.md:16-23,41-44,70-78,119-130",
+          "where": "references/log.md (the run file); references/frame.md (Spend: costs the service reported)"
+        }
+      ],
+      "rejected": [
+        "The product itself, a central broker holding everyone's keys (its hosted service reported an intrusion on 2026-10-23).",
+        "Server-injected hints in tool results that tell the agent what to do next: tool output is data."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports source-inventory rows 8 and 11 (westack-research/2026-10-28-source-inventory/sweeps/treg.md).",
+        "Read at the pinned commit in the 2026-10-28 source sweep with read-only API calls; the sweep recorded no SHA-256 or byte counts for these files. Not re-inspected for this build.",
+        "Licence status: ideas-only (restrictive, source-available terms). Never quote this source."
+      ]
+    },
+    {
+      "ref": "local:user-retrieval-practice",
+      "system": "the user's own retrieval practice for outside sources (generalised)",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "the user's own working practice, given in the build brief on 2026-10-30; not a published source",
+      "taken": [
+        {
+          "mechanism": "Prefer ordinary web access and primary sources; if a page is blocked, try a public text copy before asking the user.",
+          "where": "references/sources.md (Primary first; When a page will not load)"
+        },
+        {
+          "mechanism": "A copy is a third-party copy: record the original URL, the retrieval URL and the date, keep retrieved text apart from media not viewed, and corroborate consequential claims against the linked official documentation or source; never assume a copy is authoritative.",
+          "where": "references/sources.md (When a page will not load); scripts/research_log.py (sources: mirror-unrecorded; reading: copy-only)"
+        },
+        {
+          "mechanism": "Never bypass access controls.",
+          "where": "SKILL.md (rule 3); references/sources.md"
+        },
+        {
+          "mechanism": "Use paid crawl services only when simpler retrieval failed, and never retry once credits are exhausted.",
+          "where": "references/sources.md (When a page will not load); references/frame.md (Spend)"
+        }
+      ],
+      "notes": [
+        "Kept generic: no mirror service or endpoint is named anywhere in this skill."
+      ]
+    },
+    {
+      "ref": "nr:Panniantong/Agent-Reach",
+      "system": "Panniantong/Agent-Reach (a web and platform reader for agents, with public and logged-in channels)",
+      "licence": "MIT (LICENSE read by the 2026-10-30 read); the CloakBrowser binary it downloads has separate terms",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/agent_reach/runtime/public_web.py",
+          "sha256": "17666cd9efa158737cdaffb8d9d1a341b0ce23d34193d9a2896d2065f9263e26",
+          "bytes": 4199,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/agent_reach/channels/web.py",
+          "sha256": "8c881350a067f2677ef4be5aea4f861c93e6845d9756cd43289294f68cbc1521",
+          "bytes": 8866,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/agent_reach/skill/SKILL_en.md",
+          "sha256": "b6f00572f0aec469b0d43e845283650362f71ab184565fe103ef7dc90106ac96",
+          "bytes": 7855,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/LICENSE",
+          "sha256": "e94c131ac1c2f78cfd8f7e69da354c0ff58e4e54071697703d56856c036de402",
+          "bytes": 1067,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-16: Each fetched source records its access mode (public, or the user's signed-in session) and its scope (snippet or body); a failure is attributed to the layer that raised it, so a proxy's rate limit is never evidence that the site needs a login.",
+          "grade": "present",
+          "evidence": "agent_reach/runtime/public_web.py:17-89; agent_reach/channels/web.py:51-67",
+          "where": "references/sources.md (Pins and kinds; Pacing and failures)"
+        }
+      ],
+      "rejected": [
+        "The executor itself (platform channels, a browser bridge, a dedicated look-alike browser profile): it fetches with the user's logged-in sessions and a browser built to pass as a person's; references/sources.md forbids getting round logins and bot checks.",
+        "Copying a site's cookies from the user's everyday browser into the agent's: credential acquisition, which core authority.md forbids."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-16 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-a.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Second donor (already held): its closed fetch-failure codes, where login-needed, blocked, rate-limited and busy are final (agent_reach/skill/SKILL_en.md:37-54), beside references/sources.md, When a page will not load (never get round an access control; list it as not reached).",
+        "Flags (recorded, not carried): it copies cookies from the user's everyday Chrome; its README promises to work around anti-bot rules; queries go to Exa and Jina; it installs with irm | iex; the CloakBrowser binary it downloads has separate terms."
+      ]
+    },
+    {
+      "ref": "lists:design-inspiration-monitoring-2026-10-31",
+      "system": "the user's design-inspiration monitoring deep dive (F5), through the westack-design brief's DG-37 row",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "A local research list, not a repository: F5 (<research_root>\\2026-10-30-design-taste-anti-slop\\design-inspiration-monitoring-deep-dive.md, SHA-256 2b44bbdbf21fb8783802aa810ebd06fd8010ea29065b6a3425a28fcf12e91216, 20384 bytes on 2026-10-31) lines 92 and 141, and the brief's DG-37 row (BRIEF-westack-design.md:174), were read. The two repositories F5 names there were not read.",
+      "taken": [
+        {
+          "mechanism": "DG-37: a repository's licence is its licence file, cross-checked with the host's licence field; a licence named only in a README or package metadata is unverified, and with no licence file only ideas are taken.",
+          "grade": "claimed",
+          "evidence": "F5:92 (chrismicah/design-mcp: its package metadata names MIT, and no root licence file was detected); F5:141 (DmitriyPolukhin/Awwwards-RSS-Parser: its README names MIT, it has no LICENSE file, and the GitHub API's licence field is null)",
+          "where": "references/sources.md (Pins and kinds); references/log.md (sources, the checker); scripts/research_log.py (licence)"
+        }
+      ],
+      "rejected": [
+        "Both repositories as donors: neither has a licence file, so by this rule they give ideas only, and nothing here comes from them; the list itself is the source."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption item DG-37 (westack-design brief, section 'Added from the design-inspiration deep dive (2026-10-31)'), applied in westack-research, not westack-design, as the brief's destination says; the user approved it ('Yes, brief and send', 2026-10-31).",
+        "Graded claimed: the licence facts are the list's and the brief's. The brief's author found GitHub's licenseInfo null for both repositories on 2026-10-31 and did not read their READMEs; this build read neither repository and fetched nothing.",
+        "Flags (recorded, not carried): chrismicah/design-mcp and DmitriyPolukhin/Awwwards-RSS-Parser have no licence file, so neither is verified MIT whatever its package metadata or README says (F5:92, :141). The brief's survey found two more repositories with no licence GitHub detects (joesteinkamp/screenshots-design-inspiration, caleb05w/twitter-spammer) and one reading NOASSERTION (qiuyiwu1989-star/opendesign); none is a donor here."
+      ]
+    },
+    {
+      "ref": "notes:poteto-grokbots-teardown-2026-10-31",
+      "system": "the user's correction of 2026-10-31 ('pstack and potetos other tools are not the same thing') and the case behind it, through the westack-design brief's SI-1 row",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "A user's statement and a local assessment, not a repository: the brief's SI-1 row (BRIEF-westack-design.md, section 'Added from teardown and the poteto links (2026-10-31)') and section 1 of inspo-2026-10-31-poteto-grokbots-teardown.md beside it were read. This build read none of the case's artifacts and fetched nothing.",
+      "taken": [
+        {
+          "mechanism": "SI-1: name each artifact on its own. A tool a source bundles, wraps, ports or cites gets its own row, pin and licence, and none is credited with another's parts; a port or a directory listing is not the original.",
+          "grade": "claimed",
+          "evidence": "the notes' section 1: a shared bot whose profile names three of a plugin's skills and three of its own, the plugin (an MIT folder in cursor/plugins at 4dd1d058), one skill inside the plugin, an original repository that returned 404, a third-party port, and a directory listing that disagrees with its creator's page",
+          "where": "references/sources.md (Pins and kinds); references/log.md (sources, the checker, what stays judgment); scripts/research_log.py (artifacts)"
+        }
+      ],
+      "notes": [
+        "Ideas only, in westack's own words: the user's sentence is the rule's source and the case shows it.",
+        "the user approved the item ('Yes, brief and send', 2026-10-31). The brief first numbered it AA-n; SI-1 is its id now.",
+        "The adopt-adapt half of SI-1 (its due-diligence page, where source identity is checked) is not applied here: adopt-adapt's canonical checkout belongs to another session, and the brief holds that half for the user."
+      ]
+    },
+    {
+      "ref": "ds:deepseek-ai/dsh-superagent-prototype",
+      "system": "deepseek-ai/dsh-superagent-prototype at 6337fc82 (a research prototype, not an official DeepSeek product), through the dsh-superagent brief",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/003-execution.md",
+          "sha256": "049aa22a717f75b9dec4cd6969356db6f736c127de4501c3ce1f6d846217f6eb",
+          "bytes": 17389,
+          "read": "line 166",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/LICENSE",
+          "sha256": "6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550",
+          "bytes": 1078,
+          "read": "lines 1-3",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DS-6 (westack half): record a GitHub 404 as 'not found or not visible to this account'; GitHub answers 404, not 403, for a private resource the caller cannot see, so a 404 never reads as 'does not exist'.",
+          "grade": "present",
+          "evidence": "003-execution.md:166 (a 404 is retried because access to a private repository can be lost); GitHub's REST troubleshooting page (docs.github.com, fetched 2026-10-31, SHA-256 dbb9c793670cfbdda649f405acdec2b951168b2d9649b8c4e579b56232a13728, text line 297): 404 instead of 403 hides the existence of private repositories",
+          "where": "references/sources.md (Pacing and failures); references/log.md (the checker); scripts/research_log.py (pacing: 404-read-as-absent)"
+        }
+      ],
+      "licence": "MIT, DeepSeek Harness Team (LICENSE:1-3, SHA-256 6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550); ideas only, nothing copied",
+      "notes": [
+        "Supports adoption item DS-6 (dsh-superagent brief, 2026-10-31). The adopt-adapt half of DS-6 (its due-diligence page) is not applied here: it belongs to whoever builds adopt-adapt against r16.1 (1e97955), and it is held for the user.",
+        "Ideas only, in westack's words: nothing was quoted, copied or run. An 8-word overlap check of every added line and file against the twelve donor files read found no shared run.",
+        "The donor files were fetched into memory from the pinned commit on 2026-10-31 and their SHA-256 matched the brief's; nothing was written to disk. the user approved the items ('Brief and send all', 2026-10-31)."
+      ]
+    }
+  ],
+  "retrieval": {
+    "method": "WebFetch of https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path> to read; SHA-256 and bytes from an in-memory Invoke-WebRequest GET of the same URL (no file written)",
+    "retrieved": "2026-10-30",
+    "files": "the five plan-of-record donor files, their LICENSE files, and imozuru's SKILL.md",
+    "firecrawl": "not used",
+    "clones": "none opened (the deep-read clones under the user's deep-reads folder and D: were not touched)"
+  },
+  "considered_not_taken": [
+    {
+      "ref": "inventory:mvanhorn/last30days-skill",
+      "system": "mvanhorn/last30days-skill (recent-activity research across Reddit, X, YouTube, Hacker News and the web)",
+      "why": "Listed in the 2026-10-28 source inventory (sweeps/E-existing.md, engineering-adjacent, low priority) as useful for research with social-scraping caveats, and never deep-read, so no pin was recorded. Not taken: its route is scraping social platforms, which runs into platform terms, logins and cookie handling that the never-bypass rule forbids, and recency on those platforms measures attention, not evidence (core inspect.md). An engineering decision's primary sources are documentation, code, standards, papers and vendor terms."
+    },
+    {
+      "ref": "fy:kaixindelele/ChatPaper",
+      "system": "kaixindelele/ChatPaper",
+      "url": "https://github.com/kaixindelele/ChatPaper/blob/f19b3a4510c24d49a14549a41de4ad4dd32dc6c1/LICENSE.md",
+      "sha256": "6309658127cfd4304e4bc5951eaacdd4300690c26a5456bf61f5ed61a09e4dca",
+      "bytes": 389,
+      "why": "CC BY-NC-ND 4.0 forbids derivatives, so nothing is taken; its ideas are covered by the Feynman items. Licence hash as recorded in the Feynman, daily-arXiv and ChatPaper addendum."
+    },
+    {
+      "ref": "fy:dw-dengwei/daily-arXiv-ai-enhanced",
+      "system": "dw-dengwei/daily-arXiv-ai-enhanced",
+      "url": "https://github.com/dw-dengwei/daily-arXiv-ai-enhanced/blob/01fdad3b0aec2d2f7977b686253a7b0c1c8273dc/README.md",
+      "sha256": "a68e255257fa9e01029af6e28725df5d45c30b22bb390bc4a5fafd2abad7d4c4",
+      "bytes": 8512,
+      "why": "Nothing quoted or taken here (its licence is a 'Modified Apache License' whose modification was not found). Its fail-open content filter and unsafe fetch script are recorded as rejected patterns in the core's records; its fail-the-job-on-a-failed-batch rule is already held (CM-43, CM-45)."
+    },
+    {
+      "ref": "fy:Companion-Inc/feynman (FY-6)",
+      "system": "Feynman's reviewer habits (FY-6)",
+      "why": "Keep reviewing after a severe finding and question a suspiciously clean result: landed in westack-review, not here."
+    }
+  ],
+  "inherited_from_core": [
+    "primary documentation for the pinned version, with target and observed versions, URL, retrieval date and revalidation (core context.md and inspect.md, C9)",
+    "search memory before researching, cite the entries used, never save what a search returns, trust marks (core memory.md, C10)",
+    "independence levels and fresh-context review of a contested claim (core critique.md, C8)",
+    "the claim-strength words, results and receipts (core evidence-vocabulary.md and evidence.md, C2)",
+    "egress needs a grant naming the destination; fetched and imported text is data; classify a link's host before fetching it (core authority.md and guards.md, C4)",
+    "caps, the stuck rule, retries and end states (core durable.md, C6); audit the delivered text and label partial or blocked (core finish.md)",
+    "the brief and return contract for delegated searching (core delegation.md, C7), with westack-orchestrate's search-worker lists when installed",
+    "the research-adopt-adapt capability defer and its consent rule (core defer-map.json and defer.md)"
+  ],
+  "own_additions": [
+    "the research log (westack-research-log-1) as the one artefact a checker reads, cited from the task record by a receipt holding its SHA-256 and an observation naming it",
+    "the proportionality rule that reconciles FY-4's three-query floor with a one-fact lookup: the floor binds depth-first and breadth-first questions; a straightforward lookup needs one logged query, or none when the user gave the page",
+    "strength caps derived from the citations: snippets, listings and summaries, copies and aggregators alone, or one secondary source keep a row at claimed; tested and observed need a run with its receipt",
+    "the egress reading for research: a request to research grants reading public pages and searching through the host's tools; it never grants sending the repository's code, private names, credentials or personal data in a query, URL or form",
+    "a numbers trace that accepts a source's version, dates and identifiers as well as its excerpt, so a version in a claim traces to the source entry"
+  ],
+  "overlap_check": {
+    "method": "lower-cased word n-grams of every text file in this package (SKILL.md, references, scripts, tests, provenance, evals and fixtures) against the six donor files read for this build (the five plan-of-record files and imozuru's SKILL.md), fetched into memory at their pins",
+    "script": "builder scratch research-build/ngram_overlap.py (not shipped); its control, a 14-word run copied from one donor file and planted as an extra text, was flagged",
+    "result": "clean on 2026-10-30: no shared run of 12 words, nor of 8, across the 26 package files. The addendum donors (OpenResearch, ResearchScope, arxiv.py, Feynman, treg, oh-my-claudecode, oh-my-openagent) were not fetched for this build, so the package was not compared with them; their ideas came through the addenda's own paraphrases."
+  },
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/research_log.py",
+    "reason": "The plan of record judged a helper unjustified; the user overruled it because the queued items carry mechanical test ideas (OR-1 to OR-4, FY-1, FY-2, FY-4, AX-2, WA-83, RS-1, SS-66). One standard-library pass over the research log and the files it names checks them repeatably; it reads files, runs nothing and opens no network connection. Where a rule cannot honestly be mechanical (paraphrase, relevance, whether a source is really primary, a framework posing as a paper's code, a stated gap's truth, the prose around the ledger) it is left to prose and every report lists it.",
+    "reuse": "The research log is an artefact, not a second record: --record reads the task record through the core's record.py (record.shape against contract.json) and looks for a receipt holding the log's SHA-256 and an observation naming it. The claim-strength words are parsed from the core vocabulary's Claim strength table. The delegate return's three-list check in a worker's report stays in westack-orchestrate's workers.py collect; this helper checks the lists once they are in the log.",
+    "tests": "tests/test_research_log.py: 78 tests, written first and run against a stub that raised NotImplementedError (77 errored; the 78th, a static scan of the script for network and write calls, passes on the stub as well). Then green. Every rule has a broken-copy control: a copy of research_log.py with that one condition turned off, run through the same assertions, lets the bad log through."
+  }
+}

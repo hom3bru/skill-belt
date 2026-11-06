@@ -1,0 +1,31 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run the three export tickets as parallel workers",
+  "fan_out": "three tickets, each in its own file",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "workers": [
+    {
+      "id": "w1",
+      "brief": "briefs/w1.md"
+    },
+    {
+      "id": "w2",
+      "brief": "briefs/w2.md"
+    },
+    {
+      "id": "w3",
+      "brief": "briefs/w3.md"
+    }
+  ]
+}

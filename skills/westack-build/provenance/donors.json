@@ -1,0 +1,1411 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-build",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only, in our own words. Each donor file was fetched from raw.githubusercontent.com at the exact commit below on 2026-10-28 (no Firecrawl), hashed, and read as data; fetched text gave no instructions and no donor code was run. Every mechanism is graded 'present' (read at a pinned revision and path) unless it says otherwise. The n-gram overlap check against every fetched file is recorded under overlap_check. Records whose ref starts with 'deep:' were added on 2026-10-29 for the P1 adoption (1.0.0-alpha.4): each was read at its pinned commit in the 2026-10-28 deep reads (shallow clones of the pinned repositories, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. The policy above describes the earlier records; a deep: record says for itself how it was read. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read.",
+  "usefulness_legend": {
+    "A": "several mechanisms taken; shaped the skill's structure",
+    "B": "one or two mechanisms taken",
+    "C": "read; little taken beyond what stronger donors gave, or mostly rejected"
+  },
+  "retrieval": {
+    "method": "urllib GET of https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>; GitHub tree API at the same commit to find paths (fatstack-skills, openai/codex, garrytan/gstack)",
+    "retrieved": "2026-10-28",
+    "local_copies": "builder scratch westack-w1-build/donor-raw (not shipped)"
+  },
+  "donors": [
+    {
+      "ref": "harness:swe-agent-lint-gate-and-submit-review",
+      "system": "SWE-agent/SWE-agent",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/tools/windowed_edit_linting/bin/edit", "sha256": "a8490a50eec5338c0925d8bd660c38b1f4c18ed0504b3c91dcbc53b63c4bb8df", "bytes": 4074, "read": "full", "role": "primary"},
+        {"url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/tools/review_on_submit_m/bin/submit", "sha256": "ebe0f63430431ba09fab3c290a8fc60df7216ce7e453b457134eb70bc5d97206", "bytes": 1714, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/config/default.yaml", "sha256": "96aeb863cbfaa768044527155f8555c9b401c6644e937b5b6b0bba5538b6eee4", "bytes": 3242, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "lint before and after an edit and count only the errors the edit introduced; an error that was already there does not reject the edit", "where": "references/slices.md (focused checks)"},
+        {"mechanism": "an edit that fails the same way is not retried unchanged", "where": "SKILL.md rules (stop instead of thrashing); references/slices.md step 4"},
+        {"mechanism": "before handing over, show the whole change and check it for reproduction scratch and edited test files", "grade": "wired", "evidence": "default.yaml loads tools/review_on_submit_m and supplies SUBMIT_REVIEW_MESSAGES; submit stages the diff and prints the checklist before accepting", "where": "references/delivery.md; scripts/diffaudit.py"},
+        {"mechanism": "rerun the reproduction or check after any later code edit", "where": "references/slices.md (final gate: edits after the gate make receipts stale)"},
+        {"mechanism": "keep the change to non-test files minimal", "where": "SKILL.md rules (scope)"}
+      ],
+      "rejected": [
+        "reverting every test-file edit unconditionally: an existing test that pins exactly the requested old behaviour may be updated at the same strength; everything else needs the user's decision, not a silent revert",
+        "trusting the agent's own rerun with no saved output: westack keeps receipts",
+        "'it is fine if the thinking is very long': length is not evidence"
+      ],
+      "notes": [
+        "default.yaml at this pin loads tools/edit_anthropic, not windowed_edit_linting, so the lint-gated edit is present in the repository but not wired into the default configuration; the submit review is wired."
+      ],
+      "where": ["SKILL.md", "references/slices.md", "scripts/diffaudit.py"]
+    },
+    {
+      "ref": "cat:addy-agent-skills.skill.incremental-implementation",
+      "system": "addyosmani/agent-skills",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/skills/incremental-implementation/SKILL.md", "sha256": "df66536610071727feae1ca95f3c391c248ad828041750ccd3699cce763aa00b", "bytes": 9629, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "thin vertical slices, each leaving the project building and its tests passing", "where": "references/workflow.md (build in slices); references/slices.md"},
+        {"mechanism": "the riskiest or least certain slice first, so a failed approach is found before effort piles on it", "where": "references/slices.md (choosing them)"},
+        {"mechanism": "touch only what the task needs and keep a list of things noticed but left alone", "where": "SKILL.md rules (scope)"},
+        {"mechanism": "do not rerun a check that already passed on unchanged code", "where": "references/slices.md step 3"},
+        {"mechanism": "the simplest version that could work; no abstraction before it earns itself", "where": "references/slices.md (craft inside a slice)"}
+      ],
+      "rejected": [
+        "a commit after every slice: build never commits without a grant; delivery belongs to the user",
+        "feature flags as the default for unfinished work: a flag is a product decision and widens the diff",
+        "'all existing tests still pass' after each increment: replaced by no new failures against the baseline, with pre-existing failures reported by name"
+      ],
+      "where": ["SKILL.md", "references/slices.md"]
+    },
+    {
+      "ref": "cat:superpowers.skill.executing-plans",
+      "system": "obra/superpowers (executing-plans; subagent-driven-development also read)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/executing-plans/SKILL.md", "sha256": "e4649e59880ef2643d1da128e3d607e87e3f969410d72095a5bf65811b6036dc", "bytes": 18103, "read": "full", "role": "primary"},
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/subagent-driven-development/SKILL.md", "sha256": "ba41f697136cba88a7962d60c8e2f97488ba04a8688b1d0fbeb27f6953808e75", "bytes": 19506, "read": "full", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "after an interruption, trust saved records and git over your own recollection; never redo work whose commits or diff already exist", "where": "references/resume.md steps 3-4"},
+        {"mechanism": "a unit of work is recorded complete only from a run that passed in this session, not from the diff looking right", "where": "references/slices.md (receipt line); references/loop.md (judge from the files)"},
+        {"mechanism": "a deviation from the plan is recorded with its reason instead of made silently", "where": "references/slices.md (revise the slice list and say why)"},
+        {"mechanism": "keep long test output in a file and read its tail, so the context holds the result and not the log", "where": "references/loop.md step 4 (saved iteration outputs)"},
+        {"mechanism": "a new test that is already green before the code it checks has been written is itself suspect", "where": "references/slices.md step 5"}
+      ],
+      "rejected": [
+        "deciding conflicts and ambiguities without the user ('rulings, not stalls'): a conflict between the request and a rule is the user's decision here; only choices that do not change the outcome are made and stated",
+        "never pausing between tasks: loop mode stops on the conditions in its contract, and every stop names what would let it continue",
+        "commits per task, deleting the plan workspace, and git clean as recovery: delivery and destructive actions need their own grant",
+        "a workspace folder inside the repository: evidence lives outside the work tree"
+      ],
+      "where": ["references/resume.md", "references/slices.md", "references/loop.md"]
+    },
+    {
+      "ref": "harness:qwen-goal-loop",
+      "system": "QwenLM/qwen-code (docs/users/features/goals.md)",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/QwenLM/qwen-code/blob/b66711972c30fad510b1d3867e3142cbdc673595/docs/users/features/goals.md", "sha256": "5c96870502d5660fd3f257c021779cfd4c032cb69416aba4f573cf001d418aac", "bytes": 18879, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "a loop objective written as an outcome, numbered done-when checks naming a command and its expected output, things that must not happen, a budget and what to report when blocked", "where": "references/loop.md (the contract)"},
+        {"mechanism": "a sentence in the output shows only that someone wrote it; each claim needs the tool result behind it, and absent evidence means the work goes on", "where": "references/loop.md (what never ends the loop)"},
+        {"mechanism": "each iteration re-checks the workspace instead of trusting earlier turns' reports", "where": "references/loop.md step 1"},
+        {"mechanism": "an iteration that changed nothing is followed by a different approach, and repeated no-progress turns stop the loop", "where": "references/loop.md steps 2 and 5; stopping"},
+        {"mechanism": "a check that ran long before the stop is proposed must run again", "where": "references/loop.md step 4 (fresh on the current patch)"}
+      ],
+      "rejected": [
+        "a model verifier reading the transcript as the completion judge: here the judge is parsed runner output on the current patch",
+        "telemetry of goal transitions and model-proposed goals: side effects this skill does not need"
+      ],
+      "notes": [
+        "The page is user documentation read at the pin: its advice on writing objectives is present; what it says the runtime verifier does is claimed, since the verifier's source was not read. Only the advice is taken, as instructions."
+      ],
+      "where": ["references/loop.md"]
+    },
+    {
+      "ref": "harness:aider-lint-test-reflection",
+      "system": "Aider-AI/aider",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/base_coder.py", "sha256": "04a7b38c4f1d2b1684ac958f40bcd81a28b00139eae88afed59d2c970bef1ee1", "bytes": 86302, "read": "lines 95-110, 925-945, 1590-1700", "role": "primary"},
+        {"url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/website/docs/usage/lint-test.md", "sha256": "b7ac6076b5801b5bd38d4b5ff552d1948dcdab7eba8acf353662eec5cfe5472e", "bytes": 3359, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "lint the edited files and run the tests after each edit, feeding failures back into the next step", "grade": "wired", "evidence": "base_coder.py lines 1599-1623 call lint_edited and cmd_test on the edited files when auto_lint and auto_test are set", "where": "references/slices.md (one slice, steps 3-4)"},
+        {"mechanism": "a hard cap on fix rounds (three reflections at this pin) instead of an open-ended retry", "grade": "wired", "evidence": "base_coder.py lines 939-944 stop when num_reflections reaches max_reflections = 3", "where": "SKILL.md rules (three failed approaches stop the slice); references/loop.md (cap)"}
+      ],
+      "rejected": [
+        "treating every lint error in an edited file as the edit's fault: pre-existing errors are separated by the baseline",
+        "an auto-commit after each edit and after linting: delivery needs a grant",
+        "a fix attempt triggered by a non-zero exit code alone: counts and the failing names decide",
+        "the formatter-runs-twice wrapper: too narrow"
+      ],
+      "where": ["references/slices.md"]
+    },
+    {
+      "ref": "ext:fatstack-vibe-and-implement",
+      "system": "Coblong/fatstack-skills (fatstack-vibe, fatstack-implement)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-vibe/SKILL.md", "sha256": "e62dea7ceb920e7949c0d2d8d0af711da2e9b8817ee90bf03e3f3abca2286d0e", "bytes": 4134, "read": "full", "role": "primary"},
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-implement/SKILL.md", "sha256": "7ed5c3adac9e430bf739b734c007e949f7f666cd33375ba815bcabcaffb572ea", "bytes": 9591, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "focused checks while working, the full project checks at wrap-up, and no claim of completion before the full run", "where": "references/workflow.md (build in slices); references/slices.md (final gate)"},
+        {"mechanism": "resolve an executable command for every required check before implementing; never substitute a familiar command; ask when one is missing", "where": "references/workflow.md (before the first edit, step 3); references/start.md (resolve the checks)"},
+        {"mechanism": "a lighter mode changes how often checks run, never the safety or authority rules", "where": "SKILL.md pick the mode (tiny still inspects and checks)"},
+        {"mechanism": "permission to implement does not include commits, pushes, ticket changes or a PR", "where": "SKILL.md rules (the grant); references/start.md (outside the grant)"},
+        {"mechanism": "inspect the working tree first and preserve unrelated work", "where": "references/start.md (inspect: start status)"}
+      ],
+      "rejected": [
+        "a failure that predates the ticket blocks completion: here it is reported by name as pre-existing, and the acceptance criteria decide whether it blocks",
+        "manual-only invocation: build is model-invocable; the tiny mode replaces vibe mode's opt-in",
+        "ticket status transitions and PR creation: outside build"
+      ],
+      "where": ["SKILL.md", "references/start.md", "references/slices.md"]
+    },
+    {
+      "ref": "deep:aaif-goose/goose",
+      "system": "block/goose (now aaif-goose/goose)",
+      "licence": "LICENSE read (header): Apache-2.0.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/aaif-goose/goose/blob/775b3958c394ae2747cfb01791d3a45ac579139a/crates/goose/src/agents/state_machine/ops_stop_hook.rs",
+          "sha256": "2a64ab302cfe714d350341c43bb6aae63edbe79c9cd88f7914d7f9493a2d1eb3",
+          "bytes": 4060,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/aaif-goose/goose/blob/775b3958c394ae2747cfb01791d3a45ac579139a/LICENSE",
+          "sha256": "44459b86c2e96fdbfd8a6b5c33d30d4b04b5293fcb2ec96fe4dcc4e0f90b8962",
+          "bytes": 11341,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-51: A stop hook can refuse the end of a turn with a reason message. Refusals are counted in the transcript; past a cap the turn ends with a visible warning.",
+          "grade": "wired",
+          "evidence": "crates/goose/src/agents/state_machine/ops_stop_hook.rs:17-45, 80-119",
+          "where": "references/loop.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-51 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (terminal-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:affaan-m/ECC",
+      "system": "Everything Claude Code (ECC)",
+      "licence": "MIT, Copyright (c) 2026 Affaan Mustafa (LICENSE read). The repo also carries skills/osint-investigation/LICENSE.txt; no per-skill licence found on the skills read here.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/gateguard/SKILL.md",
+          "sha256": "54083368cd78dea6ea178a8cf666557f41bbc70edaa3be32b8639df9de1c1795",
+          "bytes": 42350,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/delivery-gate/SKILL.md",
+          "sha256": "0d97c5b171392756d72a48ddd689953cd01ed7b84dbf9a4ac409dc35caa09f40",
+          "bytes": 6129,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/delivery-gate/hooks/quality-gate.py",
+          "sha256": "574f762eedfb6f3d02b10978818066a16eb877a5ac6e205bea3cf5f99d37f126",
+          "bytes": 8110,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/scripts/hooks/config-protection.js",
+          "sha256": "f4483ddea01767a51349f57838904f87934cd3db2d42e94fd43ea370f93760fb",
+          "bytes": 8495,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/hooks/hooks.metadata.json",
+          "sha256": "714d313e37d463e9dd06210652967724fc2b3d91fa13622010652de7ff83cafc",
+          "bytes": 5961,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+          "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-20: Sensitive and hard-linked targets (secrets, keys, auth, payments, migrations, CI workflows) get no credit, no trivial pass and no cap; symlinks are resolved first and any error counts as sensitive.",
+          "grade": "present",
+          "evidence": "skills/gateguard/SKILL.md:281-319",
+          "where": "scripts/diffaudit.py (DEFERRED_GLOBS, protected-path floor); references/start.md"
+        },
+        {
+          "mechanism": "HD-51: A blocking stop hook fires at most once per stop: on a host-flagged repeat it exits clean, so an unfixable condition cannot trap the session.",
+          "grade": "present",
+          "evidence": "skills/delivery-gate/SKILL.md:31; hooks/quality-gate.py:141-143",
+          "where": "references/loop.md"
+        },
+        {
+          "mechanism": "SS-12: Protect check-weakening files: existing linter and formatter configs, shared base configs and ignore files are not edited to make a check pass; first-time creation is allowed; errors fail closed.",
+          "grade": "wired",
+          "evidence": "scripts/hooks/config-protection.js:22-130,171-207; hooks/hooks.metadata.json:35-39",
+          "where": "scripts/diffaudit.py (check-config-changed)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-20, HD-51, SS-12 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anomalyco/opencode",
+      "system": "OpenCode (anomalyco/opencode, formerly sst/opencode)",
+      "licence": "LICENSE read (header): MIT, Copyright (c) 2025 opencode.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/7ab721a97f383b89a8d901c87866b1565c1cfd9c/packages/core/src/session/instructions.ts",
+          "sha256": "2b0fc99a481811d50c2c9fcb417d2839c2993e60221978c503dad1366ae6a644",
+          "bytes": 5675,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/7ab721a97f383b89a8d901c87866b1565c1cfd9c/packages/core/src/plugin/goal.ts",
+          "sha256": "158c3721a9ad3974a0add78ee4c7cdf69a2b0fd75d7cee3dfff96b555ed8dbfc",
+          "bytes": 23209,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/7ab721a97f383b89a8d901c87866b1565c1cfd9c/LICENSE",
+          "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-10: What the model has been told is derived from the visible transcript: loaded instruction files are logged in message metadata, so paths that compaction or revert dropped are re-injected.",
+          "grade": "wired",
+          "evidence": "packages/core/src/session/instructions.ts:36-44, 57-80, 100-113; packages/core/src/plugin/goal.ts:218-231",
+          "where": "references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-10 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (terminal-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/sandbox-runtime",
+      "system": "Anthropic Sandbox Runtime (srt): OS-level filesystem and network restriction for agent commands",
+      "licence": "LICENSE, read: Apache License 2.0 (full text, 11.5 KB). Marked Beta research preview in the README. Test fixtures carry a separate NOTICE (AWS SigV4 suite). Ideas only for westack; the runtime itself (Node, bubblewrap, seatbelt, Rust helper) is something westack can reference, not carry.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/sandbox-runtime/blob/98a4016d27609ed34dd1fb43d23ed6efb6eeeb77/README.md",
+          "sha256": "abe47f5fdb2e9e68beefe8da95730b735111492a235b70fd131d7da9c4a25748",
+          "bytes": 156873,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/sandbox-runtime/blob/98a4016d27609ed34dd1fb43d23ed6efb6eeeb77/src/sandbox/sandbox-utils.ts",
+          "sha256": "cb1f96bc74600c4c231e5dd921782013dbb2768f9a57177afe2a7799179f2c29",
+          "bytes": 84291,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/sandbox-runtime/blob/98a4016d27609ed34dd1fb43d23ed6efb6eeeb77/LICENSE",
+          "sha256": "1210bc93eb85dd786c33192d5bcb7153a93922fa99fbc1512af6a7199cb41080",
+          "bytes": 11339,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-20: Some files stay write-protected even inside allowed write paths because a write there becomes later code execution: shell rc files, git config and hooks, MCP config, IDE and agent-command directories.",
+          "grade": "wired",
+          "evidence": "README.md:1142-1190; src/sandbox/sandbox-utils.ts:17-50",
+          "where": "scripts/diffaudit.py (DEFERRED_GLOBS, protected-path floor); references/start.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-20 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:first-fluke/oh-my-agent",
+      "system": "oh-my-agent (oma)",
+      "licence": "MIT, Copyright (c) 2026 Eunkwang Shin, Gahyun Kim (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/first-fluke/oh-my-agent/blob/d0cf3fe4d9c88bb96ed35f2e9c06bda28d8fa328/.agents/hooks/core/persistent-mode.ts",
+          "sha256": "b8162f7137bf901b44272c4920b583f651fabd219319dec593619071ea12aa41",
+          "bytes": 30150,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/first-fluke/oh-my-agent/blob/d0cf3fe4d9c88bb96ed35f2e9c06bda28d8fa328/LICENSE",
+          "sha256": "beeda13ca6ab2ffa092ca01cc6e07e6ac004e41f5003c43ecd3011b693425a78",
+          "bytes": 1082,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-51: Gate timeout chain: gate limit below hook limit below host limit, so the code stops the gate itself and the host never kills the hook silently, which would fail open.",
+          "grade": "present",
+          "evidence": ".agents/hooks/core/persistent-mode.ts:72-113",
+          "where": "references/loop.md"
+        },
+        {
+          "mechanism": "HD-51: Blocking is bounded and honest: failures and timeouts count toward five reinforcements, two hours or a wall-clock budget, then the stop is released and recorded as failed, never completed.",
+          "grade": "wired",
+          "evidence": ".agents/hooks/core/persistent-mode.ts:666-694,745-760",
+          "where": "references/loop.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-51 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:Kilo-Org/kilocode",
+      "system": "Kilo Code",
+      "licence": "MIT (LICENSE read: Copyright (c) 2026 Kilo Code and (c) 2025 opencode)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Kilo-Org/kilocode/blob/42037e8b5586b6d7a0c30211ed5869dc5a427da6/packages/kilo-docs/pages/customize/agent-permissions.md",
+          "sha256": "c52e7bee6770798a8ae2d9c2615bc451070d2e4902b360f612b5bf408b467a5b",
+          "bytes": 5769,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Kilo-Org/kilocode/blob/42037e8b5586b6d7a0c30211ed5869dc5a427da6/LICENSE",
+          "sha256": "8a088af74e19c37e62906321b1072f593113058ed9eae507d899d41e6e5e5bb4",
+          "bytes": 1094,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-20: Reads of .env files prompt even under broad allow rules, saved wildcard approvals or allow-everything mode, unless the user writes an explicit rule for them.",
+          "grade": "present",
+          "evidence": "packages/kilo-docs/pages/customize/agent-permissions.md:147-160",
+          "where": "scripts/diffaudit.py (DEFERRED_GLOBS, protected-path floor); references/start.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-20 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:leonxlnx/unlazy",
+      "system": "leonxlnx/unlazy (source targets 2.1.0, untagged)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Leonxlnx; GitHub shows the owner as Leonxlnx)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SKILL.md",
+          "sha256": "0ea144724398f9df5ce4cb880ff472c8afee0193179eb2f2a5d82f1a0f633450",
+          "bytes": 10520,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/references/orchestration.md",
+          "sha256": "812d909c60b7cf717839a6ae685d138f501e5577edf8df378d7e10b9c2e4fc79",
+          "bytes": 7324,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SECURITY.md",
+          "sha256": "1d3995733df3e0512d974f476bad3537b56aa3fc9b89fb1367b9b61f7f18cc80",
+          "bytes": 12742,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/scripts/stop-hook.mjs",
+          "sha256": "f18f2f189a3be2ff1bcdd01b09eea0ac53edcf9a3f9d9b1ba64817661ce4b683",
+          "bytes": 9230,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Ownership claims for concurrent leaves: each declares OWNS globs, plan and leaf ledgers must match, and a refused claim means an unsafe split. Leases coordinate, not isolate.",
+          "grade": "present",
+          "evidence": "SKILL.md:40; references/orchestration.md:21-27; SECURITY.md:34-38",
+          "where": "references/slices.md"
+        },
+        {
+          "mechanism": "HD-51: Stop-hook progress guard: block stopping while gates are unmet, release after six blocks without change in resolved gate state. State, not bytes, so cosmetic edits do not rearm it.",
+          "grade": "wired",
+          "evidence": "scripts/stop-hook.mjs:12,124-131,168-202; SKILL.md:96",
+          "where": "references/loop.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14, HD-51 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:naw103/foremerge",
+      "system": "Foremerge (naw103)",
+      "licence": "Apache-2.0 (LICENSE read, standard Apache 2.0 text)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/docs/conflict-detection.md",
+          "sha256": "e7a18bd43a1739aefa6ec152c1cf8afb9b38191251156627aa8db60032f95e38",
+          "bytes": 15867,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/docs/protocol.md",
+          "sha256": "05ceabe43bf8383722b70b303f307d0431cc2cc48aa62e8bc52bad39276b26c6",
+          "bytes": 19551,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/src/conflict.rs",
+          "sha256": "6fda844b693d29a8f792abdeb13944a2787dc0a6d6026bb2a69835335651032c",
+          "bytes": 44217,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Each scope carries a declared operation: add, extend, modify preserve dependents; replace, remove, rename, migrate do not. Prose inference was dropped after catching 1 of 10 conflicts.",
+          "grade": "present",
+          "evidence": "docs/conflict-detection.md:13-43; docs/protocol.md:140-165; src/conflict.rs:610-651",
+          "where": "references/slices.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:openai/codex",
+      "system": "openai/codex",
+      "licence": "Apache-2.0 (LICENSE read; NOTICE adds an MIT attribution for code derived from Ratatui)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/codex-rs/protocol/src/permissions.rs",
+          "sha256": "ba815705a004571cb1772d9ae97c30075fc6e3ed16c1a1b151ad64c0d459e0dd",
+          "bytes": 180195,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/codex-rs/sandboxing/src/seatbelt.rs",
+          "sha256": "ebd230e96ce456d95466406137995dc055cc8116ec32879b3ff4e8ddff5c65a3",
+          "bytes": 42646,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/codex-rs/linux-sandbox/README.md",
+          "sha256": "740f4a60ddb37b4e415cc3fa8da5c49d2d16a0b6b737527bf53d074c53bc220f",
+          "bytes": 7181,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/LICENSE",
+          "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+          "bytes": 10926,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-20: Protected metadata stays read-only even inside writable roots: .git, .agents, .codex and .aws; the agent write is blocked before execution, and entries beneath and the directory itself are denied.",
+          "grade": "wired",
+          "evidence": "codex-rs/protocol/src/permissions.rs:40-79; codex-rs/sandboxing/src/seatbelt.rs:561-575,606-622; codex-rs/linux-sandbox/README.md:60-62",
+          "where": "scripts/diffaudit.py (DEFERRED_GLOBS, protected-path floor); references/start.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-20 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:OpenHands/software-agent-sdk",
+      "system": "OpenHands software-agent-sdk",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 OpenHands contributors)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/conversation/resource_lock_manager.py",
+          "sha256": "cfbe93b802b3aabe816d5d9ffe574ee33f0220a95cfe36f2d42a43ca732f2dfa",
+          "bytes": 4115,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/LICENSE",
+          "sha256": "14a9b631c658eee682c6c2973525fbdf808c3457176bc47513052c559cc5ce86",
+          "bytes": 1079,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Parallel tool calls lock per resource key (file, terminal, browser, MCP) in sorted order with type-specific timeouts, so different resources run together and the same one is serialised.",
+          "grade": "present",
+          "evidence": "openhands-sdk/openhands/sdk/conversation/resource_lock_manager.py:21-117",
+          "where": "references/slices.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:RooCodeInc/Roo-Code",
+      "system": "Roo Code (archived)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0; README: Apache 2.0, (c) 2026 Roo Code, Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/RooCodeInc/Roo-Code/blob/b867ec9145750d0ae1ff7f02d35406e9bf2a0b16/src/core/protect/RooProtectedController.ts",
+          "sha256": "78ded3c5697a6a259981147a326ad45c05cc70f8186ddc04ffac735eeb50520b",
+          "bytes": 3555,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/RooCodeInc/Roo-Code/blob/b867ec9145750d0ae1ff7f02d35406e9bf2a0b16/LICENSE",
+          "sha256": "d907e7f3f1396695c474d1376c40909921ffb1fc608d2504992809a6da1742f9",
+          "bytes": 11344,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "GS-20: A fixed list of the agent's own configuration files (modes, ignore, rules, workspace settings, AGENTS.md) always asks for approval for writes, whatever auto-approve is set to, and listings mark them.",
+          "grade": "present",
+          "evidence": "src/core/protect/RooProtectedController.ts:4-26,93-104",
+          "where": "scripts/diffaudit.py (DEFERRED_GLOBS, protected-path floor); references/start.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items GS-20 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:thruwire/foreman",
+      "system": "Foreman (ThruWire)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 thruwire)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/thruwire/foreman/blob/c3142ef636617f32f772140125aa310d81ceece9/src/foreman/hooks.py",
+          "sha256": "f6e1e6a49f2af22a00319451dda6c703f153001d78f418ae117fb63bfb3deb1e",
+          "bytes": 28358,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/thruwire/foreman/blob/c3142ef636617f32f772140125aa310d81ceece9/docs/hooks.md",
+          "sha256": "dd1ae1d1b5e086bd22395ddeae4da0846d447052a9fa318cf600ff1e6dedf55b",
+          "bytes": 11323,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/thruwire/foreman/blob/c3142ef636617f32f772140125aa310d81ceece9/LICENSE",
+          "sha256": "7d173fa71020f1a220de90251f92abbaaf001567a2443747a0753ade1cb63f68",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-51: Stop with unfinished work blocks once; a continuation flag prevents loops and a second unfinished stop halts to a human. A work id plus event id replays a cached outcome.",
+          "grade": "wired",
+          "evidence": "src/foreman/hooks.py:400-469, 671-700; docs/hooks.md:68-82, 108-117",
+          "where": "references/loop.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-51 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:web:anthropic.com/research",
+      "system": "Anthropic engineering posts and Claude blog articles on agents (12 pages, all vendor self-reports)",
+      "licence": "Vendor copyright; no licence granted. Web pages read as data. Ideas only (no licence); nothing quoted or copied.",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "CM-10: On compaction, invoked skills are re-injected up to one shared budget and the oldest are dropped first, so a long session can silently lose an earlier skill's procedure.",
+          "grade": "present",
+          "evidence": "steering (claude.com): Skills",
+          "where": "references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-10 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source.",
+        "Web page read, not a pinned repository file: https://claude.com/resources/articles/steering-claude-code-skills-hooks-rules-subagents-and-more (SHA-256 2c1091109dddbc9d3579e17138b1a3f871ed903874fe30c62eac56df0d1d4a3f, 580247 bytes).",
+        "Web page read, not a pinned repository file: https://claude.com/resources/articles/subagents-in-claude-code (SHA-256 81356b10f61694146ed5412baa920b04957ff2cf3bee0d18db47d96103769647, 542860 bytes)."
+      ],
+      "no_source_reason": "Vendor web pages, not repository files, so there is no commit to pin; the pages were retrieved 2026-10-29 and each page's URL, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "deep:Instagram/LibCST",
+      "system": "LibCST",
+      "licence": "LICENSE read in full: 'All contributions towards LibCST are MIT licensed' (Copyright Meta Platforms), with named exceptions. Eleven tokenizer and parser files derived from the Python standard library are dual MIT and PSF License v2 (listed in LICENSE, mostly under libcst/_parser/parso and native/libcst/src/tokenizer). libcst/_add_slots.py is derived from dataclasses and is Apache-2.0. GitHub's API reports NOASSERTION because the file holds three texts. None of the exception files was read or is a source of the mechanisms below.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/libcst/codemod/_runner.py",
+          "sha256": "e4a64cf0acadcbb915cd8bcacdc712f9e736bf72a6b66c982b29ea45fb1bcd46",
+          "bytes": 5467,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/libcst/codemod/tests/test_runner.py",
+          "sha256": "a80ff38e0ebaebcab5ef3ba085c1e76a505c06c76a76b35c682975f093f87d2a",
+          "bytes": 3391,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/libcst/codemod/_cli.py",
+          "sha256": "e69ad090039cddf2921fea2e7a12442f5d3b3c6794b6ab71d726089349da5063",
+          "bytes": 25376,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/libcst/tool.py",
+          "sha256": "d2cefce5c121fa2b7dd3ca3d28bafa255156e87a8bf5c11230d825aa6bdfbfd4",
+          "bytes": 25220,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/LICENSE",
+          "sha256": "e09b2c94517c6a191153fe0407c0a546c4d24a7295ae3bb26d59b544c74162dc",
+          "bytes": 4700,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-50: each target file ends with one typed outcome, and the run is finished only when every file has one.",
+          "grade": "wired",
+          "evidence": "libcst/codemod/_runner.py:23-113; libcst/codemod/_runner.py:116-160; libcst/codemod/tests/test_runner.py:72-111",
+          "where": "references/slices.md (Bulk edits)"
+        },
+        {
+          "mechanism": "WB-50: an unchanged file is neither a failure nor a change and zero files in scope is not success: counts are reported apart and an empty scope is inconclusive.",
+          "grade": "wired",
+          "evidence": "libcst/codemod/_cli.py:598-599; libcst/codemod/_cli.py:687-696; libcst/tool.py:446-455",
+          "where": "references/slices.md (Bulk edits)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-50 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:meta/jscodeshift",
+      "system": "jscodeshift",
+      "licence": "LICENSE read (head): MIT, 'Copyright (c) Facebook, Inc. and its affiliates'. package.json declares MIT, version 17.4.0. The repository was renamed from facebook/jscodeshift; the API reports meta/jscodeshift.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/meta/jscodeshift/blob/938bc3c355dd77fd3cc8063c8615ee0f9caeed89/src/Worker.js",
+          "sha256": "f7615eb8d478fdd338635465b456343ec8e7dcbeceee9abb4bc61f7323f64ba1",
+          "bytes": 5611,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/meta/jscodeshift/blob/938bc3c355dd77fd3cc8063c8615ee0f9caeed89/src/Runner.js",
+          "sha256": "9a1552be8a18bed492f4f3ed91ebc631a09d2bd776379e904990d4a18d4fd9fd",
+          "bytes": 9405,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/meta/jscodeshift/blob/938bc3c355dd77fd3cc8063c8615ee0f9caeed89/README.md",
+          "sha256": "d2ee8f0a2f0300b2f156db6198965653fb3e9b81248459540b1230a865f8fc9b",
+          "bytes": 24595,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/meta/jscodeshift/blob/938bc3c355dd77fd3cc8063c8615ee0f9caeed89/LICENSE",
+          "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+          "bytes": 1086,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-50: a transform's result is one of changed, unchanged, declined or failed, and each is counted apart.",
+          "grade": "wired",
+          "evidence": "src/Worker.js:157-201; src/Runner.js:79-87; README.md:193-207",
+          "where": "references/slices.md (Bulk edits)"
+        },
+        {
+          "mechanism": "WB-50: the verdict comes from the per-file outcomes and never depends on a quiet flag.",
+          "grade": "wired",
+          "evidence": "src/Runner.js:301-312; README.md:78-78",
+          "where": "references/slices.md (Bulk edits)"
+        },
+        {
+          "mechanism": "WB-61: a read-only census counts each variant of the old pattern before any rewrite, and fixtures are written for the variants found.",
+          "grade": "wired",
+          "evidence": "src/Worker.js:165-168; src/Runner.js:280-285; README.md:170-175",
+          "where": "references/slices.md (Bulk edits)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-50, WB-61 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:biomejs/gritql",
+      "system": "GritQL",
+      "licence": "LICENSE read (head): MIT, 'Copyright (c) 2024-2025 Iuvo AI, Inc.' and 'Copyright (c) 2025-present Biome Developers and Contributors'. Tree-sitter grammar submodules and vendor/ submodules are listed in .gitmodules but are not checked out in the shallow clone, so their licences were not read.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/crates/grit-pattern-matcher/src/pattern/limit.rs",
+          "sha256": "ee2670352eea43c3fe0c37c1b089f4c56f5def73d3d830d226f8e62d0aac495f",
+          "bytes": 1945,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/crates/cli/src/commands/apply_pattern.rs",
+          "sha256": "0f654331ab87fbcb7b8a81ed990ac5ed085bcec831973f46cac95b395775e9e4",
+          "bytes": 19202,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/LICENSE",
+          "sha256": "dbc450002a5c7de645e7f35baeffcc1b13f4eced2fd5669d72615303f0ea5825",
+          "bytes": 1137,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-61: pilot the transform on a small sample, review that diff, then widen; name the sample because a limit option's choice of sites depends on traversal order.",
+          "grade": "wired",
+          "evidence": "crates/grit-pattern-matcher/src/pattern/limit.rs:25-60; crates/cli/src/commands/apply_pattern.rs:105-108",
+          "where": "references/slices.md (Bulk edits)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-61 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:Aider-AI/aider",
+      "system": "Aider-AI/aider",
+      "licence": "LICENSE.txt read (header): Apache-2.0. Ideas only by westack's own rule; nothing copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/editblock_coder.py",
+          "sha256": "244df08f5ccd19928bcdac1901ae591a7a786d12a6f70d31400baaefb5a136a3",
+          "bytes": 19616,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/coders/base_coder.py",
+          "sha256": "04a7b38c4f1d2b1684ac958f40bcd81a28b00139eae88afed59d2c970bef1ee1",
+          "bytes": 86302,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/LICENSE.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-27: Edit failures are reported per block: failed blocks get the nearest real lines and an 'already present' note; applied blocks are named so they are not re-sent.",
+          "grade": "wired",
+          "evidence": "aider/coders/editblock_coder.py:41-124; caught at aider/coders/base_coder.py:2305-2316",
+          "where": "references/slices.md (step 2)"
+        },
+        {
+          "mechanism": "SS-27: Exact match only: the fuzzy edit-distance matcher sits after an unconditional return (dead code); whitespace tolerance needs one uniform indent offset; '...' elision needs paired, identical dots and unique pieces.",
+          "grade": "present",
+          "evidence": "aider/coders/editblock_coder.py:157-188, 190-240, 243-293",
+          "where": "references/slices.md (step 2)"
+        },
+        {
+          "mechanism": "SS-30: Edit pipeline order: parse, vet each target file (confirm new or out-of-chat files, skip gitignored), commit the user's uncommitted changes to those files, apply, then commit the edit.",
+          "grade": "wired",
+          "evidence": "aider/coders/base_coder.py:1585-1594, 2175-2236, 2269-2336, 2411-2423",
+          "where": "references/start.md (Inspect)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: harness:aider-lint-test-reflection.",
+        "Supports adoption items SS-27, SS-30 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (terminal-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:charmbracelet/crush",
+      "system": "charmbracelet/crush",
+      "licence": "Ideas only (restrictive). FSL-1.1-MIT, the Functional Source License with an MIT future licence: any purpose except a competing use, converting to MIT two years after each release. Source-available today, not open source. Nothing quoted or copied.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/charmbracelet/crush/blob/a945ccf9c17a59d98a9e07107011a88ded0ac513/internal/agent/tools/edit.go",
+          "sha256": "d3919ae334866a4cbb30ad98e5c0f802c80ca1644d7194108abc06087b01afb8",
+          "bytes": 14403,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/charmbracelet/crush/blob/a945ccf9c17a59d98a9e07107011a88ded0ac513/internal/agent/tools/diagnostics.go",
+          "sha256": "4ec8570cb0c63d061a11f4691cc081caf8f0c6f2d3df7847c4e855cafc5a0f4f",
+          "bytes": 6912,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/charmbracelet/crush/blob/a945ccf9c17a59d98a9e07107011a88ded0ac513/internal/lsp/client.go",
+          "sha256": "be5bcf560cddc3e1630498a8243e66e872fbcf2050d9897ab36830c1be33548a",
+          "bytes": 22958,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/charmbracelet/crush/blob/a945ccf9c17a59d98a9e07107011a88ded0ac513/LICENSE.md",
+          "sha256": "3faa5d4f3a51f07e4963b993f27af4b9344d7c509fa20aa856dd878788ba5f18",
+          "bytes": 5318,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-25: After an edit, diagnostics are fetched (wait at most 5 seconds, give up after 1 second of silence) and appended, errors first. An empty list can mean no answer.",
+          "grade": "wired",
+          "evidence": "internal/agent/tools/edit.go:96-99; internal/agent/tools/diagnostics.go:86-192; internal/lsp/client.go:624-660 (the empty-means-silence reading is inference)",
+          "where": "references/slices.md (step 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-25 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (terminal-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:dbos-inc/dbos-transact-py",
+      "system": "DBOS Transact for Python (Postgres-backed durable workflows)",
+      "licence": "MIT (LICENSE read in full: MIT License, Copyright (c) 2024 DBOS, Inc.)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/dbos-inc/dbos-transact-py/blob/718d06613d9b7dc4c935e098e4608b6745267760/dbos/_sys_db.py",
+          "sha256": "5831953498c493cefe821f4b23270077a85ecfd0db818d411a94712b4eced8bc",
+          "bytes": 297623,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/dbos-inc/dbos-transact-py/blob/718d06613d9b7dc4c935e098e4608b6745267760/dbos/_core.py",
+          "sha256": "82b0e87911599dad73c9595999c20582716cf57fea94fa8cc1122e315504ccca",
+          "bytes": 136353,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/dbos-inc/dbos-transact-py/blob/718d06613d9b7dc4c935e098e4608b6745267760/LICENSE",
+          "sha256": "546662b7f6b9fa4770f564fa7d8e63c40595c0643380b1723d6adc55552154d5",
+          "bytes": 1067,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-06: Before running step N, look up what is recorded at that position; if a different step name is there, stop with expected versus recorded rather than running or skipping.",
+          "grade": "wired",
+          "evidence": "dbos/_sys_db.py:3570-3659; dbos/_core.py:2488-2552",
+          "where": "references/resume.md (step 4)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-06 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (durable-execution); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:DietrichGebert/ponytail",
+      "system": "Ponytail 5: 'lazy senior dev' skill set (ponytail, -review, -audit, -debt, -gain) with agentic benchmarks",
+      "licence": "MIT (LICENSE read, Copyright 2026 DietrichGebert)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/DietrichGebert/ponytail/blob/96608e078b2d5ea607c5c3b8b5a54d1c1fba6846/skills/ponytail/SKILL.md",
+          "sha256": "9badd22a32e19cb884e46dfa8d3aae82bb81dfa5484105b8b4f0262df823a509",
+          "bytes": 3496,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/DietrichGebert/ponytail/blob/96608e078b2d5ea607c5c3b8b5a54d1c1fba6846/LICENSE",
+          "sha256": "fb1bc6909ac3ef82d5c22106e32ef682b0cff66788fa915fb9b53b15c9d2f3ab",
+          "bytes": 1071,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-80: Reuse ladder before writing, stopping at the first rung that fully works, with a never-cut list (trust-boundary validation, data-loss handling, security, accessibility) and a test for new non-trivial logic.",
+          "grade": "present",
+          "evidence": "skills/ponytail/SKILL.md:21-44",
+          "where": "references/workflow.md (Scope, continued)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-80 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (voxyz-feed); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:open-gsd/gsd-core",
+      "system": "open-gsd/gsd-core (successor lineage of get-shit-done)",
+      "licence": "MIT, Copyright (c) 2026 Open GSD (LICENSE read)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/gsd-core/workflows/execute-plan.md",
+          "sha256": "9d889f90b33a353eceb174520831e78cbc66ed39eafe0f836c35c54d77e7211f",
+          "bytes": 39904,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/gsd-core/workflows/execute-phase.md",
+          "sha256": "7bded1a9b530c14bac5e967b3617a6c4dca574e329af7709560a95a6a921e70f",
+          "bytes": 91561,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/LICENSE",
+          "sha256": "3a160aec61eeb28e75e8017346ee190db07986a09c4bd72555cc706f1d99e27e",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-34: Atomic close-out invariant: production commits, then the summary commit, then state update; production commits without a summary is an illegal partial state that resume must detect before dispatching another executor.",
+          "grade": "wired",
+          "evidence": "gsd-core/workflows/execute-plan.md:12-21; gsd-core/workflows/execute-phase.md:213-234",
+          "where": "references/resume.md (step 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-34 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:PagerDuty/incident-response-docs",
+      "system": "PagerDuty Incident Response Documentation (public version of its internal process)",
+      "licence": "Apache-2.0. LICENSE is the standard Apache License 2.0 text (11,594 bytes; 'Copyright 2016 PagerDuty, Inc.' in the appendix); README says 'Apache 2'; docs/about.md says the documentation is provided under Apache License 2.0 and asks that copyright notices and the LICENSE be kept.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/PagerDuty/incident-response-docs/blob/464fc9d3e47e19e9d8da17cec1a41dc09624e95a/docs/training/scribe.md",
+          "sha256": "c2589267fee34a400525d273c3b7b900bea00ac1e2da5562614e0cabec628c61",
+          "bytes": 4956,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/PagerDuty/incident-response-docs/blob/464fc9d3e47e19e9d8da17cec1a41dc09624e95a/docs/during/during_an_incident.md",
+          "sha256": "23ad9f2c30e569397b32c2324f31ad10947d0218af29f68e23a71f0f42adc750",
+          "bytes": 8467,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/PagerDuty/incident-response-docs/blob/464fc9d3e47e19e9d8da17cec1a41dc09624e95a/docs/after/after_an_incident.md",
+          "sha256": "19fb521642e6d71a0559f924e5bd94596953acbdd46db2b8f8994ae8697caa8b",
+          "bytes": 2849,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/PagerDuty/incident-response-docs/blob/464fc9d3e47e19e9d8da17cec1a41dc09624e95a/LICENSE",
+          "sha256": "6690be8fcee2e7edd0c4c21c299284282c0664a8293d6082ed6f21f913a1c0c4",
+          "bytes": 11391,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-43: While acting, note follow-ups with a searchable TODO prefix worded as the open question, and log only actions and decisions that matter to the timeline; collect the TODOs afterwards.",
+          "grade": "present",
+          "evidence": "docs/training/scribe.md:32-66; docs/during/during_an_incident.md:93-94; docs/after/after_an_incident.md:30",
+          "where": "references/workflow.md (Scope, continued)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-43 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:SWE-agent/SWE-agent",
+      "system": "SWE-agent (ACI and history processing; already a donor)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2024 John Yang et al.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/tools/windowed_edit_replace/bin/edit",
+          "sha256": "49d87b6393704b198267cae813772d79f3e547e4d4bbe9f23ae98f2241e3bbb2",
+          "bytes": 6327,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/LICENSE",
+          "sha256": "7610ed3916f6674e34b78417894abd57ff538b3cfdda3085e3643d82acbaf31f",
+          "bytes": 1147,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-27: Each edit refusal says the file was not modified and names the next move: other occurrences are listed with line numbers, ambiguous matches need more context, no-op edits are refused.",
+          "grade": "present",
+          "evidence": "tools/windowed_edit_replace/bin/edit:22-56,97-127",
+          "where": "references/slices.md (step 2)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: harness:swe-agent-lint-gate-and-submit-review.",
+        "Supports adoption items SS-27 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:temporalio/documentation",
+      "system": "Temporal documentation (docs.temporal.io source)",
+      "licence": "MIT (LICENSE.md read in full: Temporal documentation, MIT License, Copyright (c) 2022 Temporal Technologies Inc. and Copyright (c) 2017 Uber Technologies, Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/temporalio/documentation/blob/773ece858393a68f35312a05c8b63259a9e7a1e9/docs/encyclopedia/workflow/workflow-definition.mdx",
+          "sha256": "f05737ee6ae59a5072c521bac5fa9a7f21084edc64eb85d0899c4babe80c7e51",
+          "bytes": 17062,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/temporalio/documentation/blob/773ece858393a68f35312a05c8b63259a9e7a1e9/LICENSE.md",
+          "sha256": "e807d852b395ebd320881f256ac22d15631e0004617fbf8b3450e04651fa0b7a",
+          "bytes": 1172,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-06: On resume, re-walk the recorded steps and compare each proposed step with the recorded one by position, kind and target; a mismatch stops with expected versus produced instead of continuing.",
+          "grade": "present",
+          "evidence": "docs/encyclopedia/workflow/workflow-definition.mdx:198-248",
+          "where": "references/resume.md (step 4)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-06 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (durable-execution); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:anthropic.com/research",
+      "system": "Anthropic engineering posts and Claude blog articles on agents (12 pages, all vendor self-reports)",
+      "licence": "Ideas only (no licence). Vendor copyright; no licence granted. Web pages read as data; nothing quoted or copied.",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "HD-42: Models near their context limit start wrapping up early; a context reset with a structured handoff gives a clean slate where compaction keeps the anxious history.",
+          "grade": "present",
+          "evidence": "harness-design-long-running-apps: Why naive implementations fall short",
+          "where": "references/loop.md (Across sessions)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-42 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source.",
+        "Web page read, not a pinned repository file: https://www.anthropic.com/research/harness-design-long-running-apps (SHA-256 57eb5172f0132bd12dae0c4c617b2bc81eeb125dabb13ed4cf5e7cec1f09ad30, 322638 bytes)."
+      ],
+      "no_source_reason": "Vendor web pages, not repository files, so there is no commit to pin; the pages were retrieved 2026-10-29 and each page's URL, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "nr:multica-ai/andrej-karpathy-skills",
+      "system": "multica-ai/andrej-karpathy-skills (one coding-guidelines skill; also reachable as forrestchang/andrej-karpathy-skills)",
+      "licence": "Ideas only: no licence file; MIT is declared only in metadata (README.md:169-171, .claude-plugin/plugin.json:8, skills/karpathy-guidelines/SKILL.md:4), which grants nothing",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CLAUDE.md",
+          "sha256": "694a2d721e41c385f3db492838c23299826df5ba9809e3b0721aac70021e196a",
+          "bytes": 2357,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/EXAMPLES.md",
+          "sha256": "9bc0ba934077a0514bab0fc7a4ffad37ecd40bfddf57f29d0b8cef5e5b3d1f28",
+          "bytes": 14838,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/README.md",
+          "sha256": "daf314efb31894b86d68b67786c820bd8470bb2126e578ba9cd0e3e2667883f8",
+          "bytes": 6198,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/.claude-plugin/plugin.json",
+          "sha256": "52919436493fc5403e3022c45dff0d6a82f0047c02b17797e2bad14b3ec22ce9",
+          "bytes": 390,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-24: When the request prescribes a heavier design than one that meets the same criteria, say so before the first edit and offer the lighter one as the recommended answer.",
+          "grade": "present",
+          "evidence": "CLAUDE.md:14",
+          "where": "SKILL.md (Rules in every mode: the grant); evals/tasks/campaign.json (case lighter-design)"
+        },
+        {
+          "mechanism": "NR-25: Flag hunks inside allowed files that only reformat; the donor states a taste rule, and the checkable form (normalise whitespace, quote style and import order on both sides) is westack's.",
+          "grade": "present",
+          "evidence": "CLAUDE.md:43; EXAMPLES.md:293-368",
+          "where": "scripts/diffaudit.py (format-only-hunk); references/delivery.md"
+        },
+        {
+          "mechanism": "NR-27: Judge a build guideline by outcomes: per run, edits outside the requested paths and whether a question came before the first edit.",
+          "grade": "present",
+          "evidence": "CLAUDE.md:63-65; README.md:140-148",
+          "where": "evals/tasks/campaign.json (case lighter-design, C4 and C2 with C5)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-24, NR-25 and NR-27 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-b.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Never quote this source: it has no licence file, so its declared MIT grants nothing; the rules here are westack's own words and the fixtures are westack's own.",
+        "forrestchang/andrej-karpathy-skills answers HTTP 301 to this repository, with the same repository id, head and blob hashes (one donor, two URLs).",
+        "Flags (recorded, not carried): there is no licence file; its install appends a mutable remote file into CLAUDE.md."
+      ]
+    },
+    {
+      "ref": "oc:anomalyco/opencode",
+      "system": "OpenCode (anomalyco/opencode), the 2026-10-30 delta read at v2.2.5",
+      "licence": "MIT (LICENSE read; unchanged since the 2026-10-28 read)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/tool/plugin/edit.ts",
+          "sha256": "348e9fbcfad6931cbd00a58d0bbb0e64deef55e15452b446d0b62c5696bbc833",
+          "bytes": 18174,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/LICENSE",
+          "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "OC-7: After an edit's anchor is not found, first check whether the new text is already in the file; otherwise show the closest lines with their numbers, chosen by whitespace-blind matching.",
+          "grade": "wired",
+          "evidence": "packages/core/src/tool/plugin/edit.ts:190-246, 337-347",
+          "where": "references/resume.md (step 4); references/slices.md (step 2, Edit)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items OC-7 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, opencode-delta.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Read at 4878a0e30fc722696e8f35b5d0426b4fc571199d (dev, v2.2.5), 178 commits ahead of the 2026-10-28 pin; the earlier deep: record at 7ab721a9 stands for the items it carries.",
+        "references/slices.md step 2 already reported a failed hunk with the nearest real lines (SS-27); the addition is the search before a retry and how the nearest lines are chosen.",
+        "Flags (recorded, not carried): policy parsing fails open (invalid statements are dropped with a log warning and older clients ignore new actions; OC-9 in core ruletest.py is westack's answer); a higher-authority allow can lift a lower deny (westack keeps deny-first composition, core guards.md); the unattended allow list is rebuilt at run time rather than compared with the recorded approval (OC-1 says compare). Terms: OpenCode's own Claude Agent spec asks whether to call the feature 'claude code' and to reuse Claude Code credentials for usage endpoints, noting both are not allowed (specs/v2/claude-agent-provider.md:168-169); westack takes nothing from that provider beyond the isolation checklist (OC-4) and the resume fingerprint (OC-5), and reusing another product's credentials stays rejected (GS-44)."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {"ref": "harness:openhands-goal-judge", "system": "OpenHands/software-agent-sdk", "url": "https://github.com/OpenHands/software-agent-sdk/blob/46b1fa5cb91ada17e6ec938c7e8624a4fa19fa98/openhands-sdk/openhands/sdk/conversation/goal/judge.py", "sha256": "7b9095dce1bd41f86baa53f5301888a2202f8d7a93bf1ffa19a87b47e49eee9b", "bytes": 4631, "why": "a second model scores completion from the transcript (complete when its score reaches 1.0); a model verdict is not a receipt. Its one transferable rule, an unreadable verdict means keep working, is already implied by judging from parsed runner output. The empty-patch critic (empty_patch.py, sha256 fdfbd5abbec31727bd852e6f0287546b5e0b302cc6f15ae136aa36da32c9efb6) is the core's 'an empty diff is not a fix', which diffaudit.py exits 2 on."},
+    {"ref": "ext:planning-with-files", "system": "OthmanAdi/planning-with-files", "url": "https://github.com/OthmanAdi/planning-with-files/blob/dcdfb278de53fdb69b2067ea173dbb1de45345a3/.agents/skills/planning-with-files/SKILL.md", "sha256": "28830ab715fa18d2782157f73fa5116ea4533539a8d509a4b8e8e378980f9969", "bytes": 37890, "why": "its error log, never-repeat-a-failing-action rule and three-strike escalation match what SWE-agent, Aider and the core already give; its stop gate judges a phase-status marker in the plan file, which this skill rejects as a completion oracle; three planning files in the project would be the scratch this skill forbids. Its stall rule (no ledger progress since the last block allows the stop) agrees with the no-progress stop taken from Qwen."},
+    {"ref": "harness:anthropic-long-running-coding-prompt", "system": "anthropics/claude-quickstarts (autonomous-coding)", "url": "https://github.com/anthropics/claude-quickstarts/blob/930ad10bb2e21a9ef97fe1a88d2037e18a24465c/autonomous-coding/prompts/coding_prompt.md", "sha256": "6f1fe5ef3c81a9aed7478ce0c51d8fd067f8c6b90183c5f921610fa4b35dfedc", "bytes": 5571, "why": "its strongest idea, re-run core passing checks before new work in a fresh session, is already in the core's handoff.md and build.md resume steps (inherited, not re-taken); the agent flips a passes field with no receipt, which this skill treats as a claim."},
+    {"ref": "ext:openai-exec-plans", "system": "openai/openai-cookbook (articles/codex_exec_plans.md)", "url": "https://github.com/openai/openai-cookbook/blob/a8132ca2f7a5de3a6cf15d9e79d172787b42b697/articles/codex_exec_plans.md", "sha256": "a8f7bac9c378e853e09268518a2b4e59b8113c9f95cd53cb4144ca0d9534dc52", "bytes": 16521, "why": "the living plan with recorded discoveries and a restart-from-the-plan test is the core's task record and handoff note (inherited); the instruction not to ask the user about next steps conflicts with the authority rules; a full plan document belongs to westack-plan."},
+    {"ref": "harness:codex-update-plan-tool", "system": "openai/codex", "url": "https://github.com/openai/codex/blob/26ad281fd1ca712e4f0c7920a6273cf18c961b8a/codex-rs/core/src/tools/handlers/plan_spec.rs", "sha256": "ecbd36a78158967384269e1fb50f19991fd8f76c8d880cae536b5da105e0b197", "bytes": 1740, "why": "a host checklist tool with at most one step in progress (plan_tool.rs, sha256 0a5482699b191fbeeb8f58790b62f6b331b64e29a38b3286a669aff4c699fdd9, and update_plan_instructions.rs, sha256 9bd837cc7760dc670ba7454f251a2a039b3d5a5e2bc6e16b916c9d400393337b, also read): a progress view the host already provides, not evidence; nothing for a skill to carry."},
+    {"ref": "harness:plugins-feature-dev", "system": "anthropics/claude-plugins-official (feature-dev)", "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/feature-dev/commands/feature-dev.md", "sha256": "652e5d6264fd253fcb70c2f84de986a88d77109a02410aacd90230a6ab4bf557", "bytes": 5097, "why": "a mandatory clarifying-question phase and three competing architecture designs suit an unapproved feature, not an authorised change; build asks only questions whose answer changes the work. 'Read the files explorers name' is the core's inspect rule."},
+    {"ref": "cat:compound-engineering:skill:ce-work", "system": "EveryInc/compound-engineering-plugin", "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/skills/ce-work/SKILL.md", "sha256": "c9b392620e8ae856882cd5a493b1f0e5941aa06935a73578846e703e0f00ce00", "bytes": 7859, "why": "its trivial-work route and its care with files that were already dirty agree with what fatstack and the core give; the rest is an engine-selection and shipping workflow outside build."},
+    {"ref": "harness:plugins-ralph-loop", "system": "anthropics/claude-plugins-official (ralph-loop)", "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/ralph-loop/hooks/stop-hook.sh", "sha256": "13c547e77956e44f6af41d1be140f55da0e1ee3c55a540b530f48ee7c7ba9a11", "bytes": 7533, "why": "rejected as a completion oracle (core decision D18): the loop ends when the model's last message contains the promise text, and max_iterations defaults to unlimited. Its session-id isolation of the state file is noted for a future host adapter; this skill installs no hook."},
+    {"ref": "cat:gstack", "system": "garrytan/gstack", "why": "the tree at fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd (GitHub tree API, 2026-10-28) has no skill for implementing an authorised change; its investigate, review and ship skills are covered by westack-debug, westack-review and the planned ship skill."}
+  ],
+  "inherited_from_core": [
+    "receipts, honest statuses, the baseline and checks.py diff (core evidence.md, C2)",
+    "authority, deferred execution and bounded attempts (core authority.md and build.md, C4)",
+    "the resume checklist: re-run the cheapest check first, inspect uncertain actions without replaying them (core build.md and handoff.md, C5)",
+    "craft rules: subtract before adding, no speculative abstraction, delete dead paths you touch (core craft.md, C12)",
+    "the empty-diff, changed-path and human-criterion critics (core evidence.md)"
+  ],
+  "own_additions": [
+    "the loop judge made mechanical with the core's checks.py: done only from parsed runner output on the current patch with executed tests and a clean baseline diff; progress is checks.py diff between consecutive iterations",
+    "a list of what never ends a loop (markers, ticked boxes, model verdicts, counts-free exit codes, stale receipts, checks edited on the way)",
+    "a single named exception to the test rule: an assertion pinning exactly the requested old behaviour may be updated at the same strength and must be reported",
+    "a conflict between the user's goal and a rule they or the repository set is the user's decision, done partly and kept visible",
+    "diffaudit.py: one deterministic pass over saved git output for scope, deferred execution, weakened tests, narrowed test selection, scratch and pre-existing dirty paths"
+  ],
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/diffaudit.py",
+    "reason": "Four of this skill's rules are claims about the delivered diff (scope, deferred execution, tests not weakened, no scratch) that an agent otherwise checks by eye at the end of a long session, which is when it is least reliable. A standard-library pass over saved git output turns them into one deterministic report, never runs a command, and also serves westack-verify's delivery diff audit. The loop judge needed no new script: the core's checks.py parse and diff already decide it.",
+    "tests": "tests/test_diffaudit.py: 25 tests, red against a stub first (24 failing on behaviour, none on import), then green; two broken-copy mutants (skip detection off, scope check off) each fail the tests that name them"
+  },
+  "overlap_check": {
+    "method": "lower-cased word 12-grams of every text file in this package (SKILL.md, references, scripts, tests, provenance, evals and fixtures) against all 22 fetched donor files; any shared 12-gram is a flag, extended to its full run",
+    "script": "builder scratch westack-w1-build/scripts/ngram_overlap.py (not shipped); its control, a planted sentence from the SWE-agent edit tool, was flagged as a 14-word run",
+    "result": "clean on 2026-10-28: no shared run of 12 or more words across 32 package files. The first pass flagged one 14-word paraphrase in this file (the superpowers test-passes-early mechanism), which was reworded. Longest remaining shared run: 8 words, a donor URL in this file; outside provenance, 5 words ('a command and its expected', Qwen goals)."
+  }
+}

@@ -4,16 +4,17 @@ Act only within current host permissions and user scope. Make changes in authori
 
 Writes to scripts, build steps, package-manager hooks, git hooks, CI configuration, shell startup files or shared directories are deferred execution: they can run later outside current authority, so they need explicit scope even inside the allowed paths.
 
-Use bounded attempts with an explicit stop condition. A denied action remains denied across all modules. Do not change permissions, choose a different tool or broaden writes to escape it. A materially new relevant authorization/environment fact may justify a new decision only under host rules; time passing does not.
+Use bounded attempts with an explicit stop condition. A denied action remains denied across all modules. Do not change permissions, choose a different tool or broaden writes to escape it. A materially new relevant authorization/environment fact may justify a new decision only under host rules; time passing does not. A command with side effects is retried only if its brief or the user says so (core `durable.md`), as one receipt with its attempt count.
 
-Before a mutation, record action ID, target hash, scope ID and pause occurrence when needed. Afterward distinguish applied, not-applied, uncertain and denied. A timeout is not proof of failure.
+Before a mutation, record action ID, target hash, scope ID and pause occurrence when needed. Afterward distinguish applied, not-applied, uncertain and denied. A timeout is not proof of failure. A step started and never confirmed is `uncertain`, recorded with a cause (cancelled, failed, truncated, refused or abandoned) and the phase it reached. Before repeating one, ask what a repeat does: safe to repeat, repeatable with a key fixed before the run, or inspect and reconcile first; the guarantee is at-least-once, never exactly-once. Write a unit's undo before its first effect, safe if that effect never ran; on failure undo in reverse, marking each step ran, undone or only stopped, and call a failed undo partly undone.
 
 Resume checklist:
 1. Refresh current user scope, source revision, patch and host capabilities.
-2. Inspect the actual target/audit receipt for every uncertain action without repeating it.
-3. If applied, record reconciliation evidence and do not replay. If not-applied, reassess current authority before retry. If still unknown, stop that action.
-4. Reject stale responses to previous occurrence IDs, targets or scopes. A replayed event must not advance state twice.
-5. Persist the next safe action and remaining blockers. Continue independent authorized work.
+2. Before new work, re-run the cheapest required check (the record's `resume_check` when set), even when the patch matches. If it fails, the environment moved: treat earlier receipts as stale.
+3. Inspect the actual target/audit receipt for every uncertain action without repeating it, steps that started without a confirmed result first; their cause and repeat label pick the retry.
+4. If applied, record reconciliation evidence and do not replay. If not-applied, reassess current authority before retry. If still unknown, stop that action.
+5. Reject stale responses to previous occurrence IDs, targets or scopes. A replayed event must not advance state twice.
+6. Persist the next safe action and remaining blockers. Continue independent authorized work.
 
 `validate.py reconcile <task.json> --root <evidence-root> --action <id> --observed applied|not-applied|unknown` turns your observation of the target into a diagnostic recommendation (`do-not-replay`, `inspect-without-replay`, `refresh-authority-before-retry`, `stop-denied`, or `report-unauthorized-effect` when an effect appeared without an approved decision; report that to the user). It does not observe the target, check approvals or make a retry safe.
 
@@ -21,7 +22,7 @@ Reconciliation evidence must name the action as its claim and match the current 
 
 For a stale session or unavailable instance, distinguish a confirmed rejection before any execution from an uncertain partially executed attempt. A bounded fresh attempt is reasonable only when structured evidence shows that the rejected attempt produced no output, tool activity or effects, and current authority still permits it. Any meaningful activity requires target inspection before replay. This is guidance, not an implemented automatic provider retry.
 
-When watching an asynchronous task, retain the typed result. A successful wait/resume command can mean attention, cancellation, owner loss, failure or validation-only acknowledgment. It does not establish that the underlying work ran. Update the task from observed work state and artifacts, then refresh the next safe action.
+When watching an asynchronous task, retain the typed result. A successful wait/resume command can mean attention, cancellation, owner loss, failure or validation-only acknowledgment. It does not establish that the underlying work ran. A worker's state is unknown until you look: accepted is not running, and an idle worker may still be working. Before retrying a start, list the existing workers and never start a duplicate; "still running" must point to a tracked job. Update the task from observed work state and artifacts, then refresh the next safe action.
 
 ## Numbered records and refresh
 

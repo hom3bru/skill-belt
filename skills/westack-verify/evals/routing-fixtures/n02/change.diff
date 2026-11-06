@@ -1,0 +1,18 @@
+diff --git a/catalog.py b/catalog.py
+index 8a7b6c5..1d2e3f4 100644
+--- a/catalog.py
++++ b/catalog.py
+@@ -1,2 +1,12 @@
++import time
++
++_cache = {"at": 0, "items": None}
++
++
+ def list_products(db):
+-    return db.query("SELECT id, name, price FROM products")
++    if _cache["items"] is not None and time.time() - _cache["at"] < 300:
++        return _cache["items"]
++    items = db.query("SELECT id, name, price FROM products")
++    _cache["items"] = items
++    _cache["at"] = time.time()
++    return items

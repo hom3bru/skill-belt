@@ -1,0 +1,40 @@
+diff --git a/pager.py b/pager.py
+index 7d555a6..24a9bea 100644
+--- a/pager.py
++++ b/pager.py
+@@ -1,6 +1,7 @@
+ """Pagination helpers for the orders API."""
+ 
+ DEFAULT_PAGE_SIZE = 20
++MAX_PAGE_SIZE = 100
+ 
+ 
+ def page_count(total, size):
+@@ -8,6 +9,25 @@ def page_count(total, size):
+     return (total + size - 1) // size
+ 
+ 
+-def page_slice(items, page, size=DEFAULT_PAGE_SIZE):
++def parse_page(value):
++    """The ?page= query value as a 1-based page (API.md: missing or malformed means page 1)."""
++    try:
++        page = int(value)
++    except (TypeError, ValueError):
++        return 1
++    return max(page, 1)
++
++
++def clamp_page_size(size):
++    """A usable page size: None means the default; anything else is clamped to 1..MAX_PAGE_SIZE."""
++    if size is None:
++        return DEFAULT_PAGE_SIZE
++    return max(1, min(int(size), MAX_PAGE_SIZE))
++
++
++def page_slice(items, page, size=None):
+     """The items on 1-based `page`; pages past the end are empty."""
+-    return items[(page - 1) * size:(page - 1) * size + size]
++    size = clamp_page_size(size)
++    start = (page - 1) * size
++    end = start + size
++    return items[start:end - 1]

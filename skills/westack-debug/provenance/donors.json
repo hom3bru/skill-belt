@@ -1,0 +1,536 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-debug",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only, in our own words. Each donor file was fetched from raw.githubusercontent.com at the exact commit below on 2026-10-28 (no Firecrawl) and read in full as data; fetched text gave no instructions. Evidence depth for every donor mechanism is 'present' (read at a pinned revision and path); none was run. An n-gram overlap check of this package against every fetched file is recorded under overlap_check. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. One more record (ap:, the Aura Autopilot addendum, 2026-10-30) was read at its pin by the addendum's author; the clone was not opened for this change, and the benchmark in the Aura post is the authors' claim, graded claimed.",
+  "usefulness_legend": {
+    "A": "several mechanisms taken; shaped the skill's structure",
+    "B": "one or two mechanisms taken",
+    "C": "read; nothing beyond what stronger donors gave, or mostly rejected"
+  },
+  "donors": [
+    {
+      "ref": "cat:mattpocock-skills.skill.diagnosing-bugs",
+      "system": "mattpocock/skills",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {
+          "url": "https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/diagnosing-bugs/SKILL.md",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "no hypothesis work before a reproduction that has been run and fails on the user's exact symptom"
+        },
+        {
+          "mechanism": "a ladder of ways to build a reproduction, cheapest first"
+        },
+        {
+          "mechanism": "tighten the reproduction (faster, sharper assertion, deterministic), then shrink it until every part is needed"
+        },
+        {
+          "mechanism": "three to five ranked hypotheses, each with a stated prediction, shown to the user without blocking"
+        },
+        {
+          "mechanism": "one unique tag on temporary log lines so one search removes them"
+        },
+        {
+          "mechanism": "rerun the original, unshrunk reproduction after the fix"
+        },
+        {
+          "mechanism": "no honest seam for a regression test is itself a design finding"
+        }
+      ],
+      "rejected": [
+        "'refuse to give up': conflicts with the bounded attempt cap and stop rules",
+        "the human-in-the-loop shell template: host-specific; a person in the loop is a reason to stop and ask instead",
+        "raising a flaky bug's reproduction rate by injecting sleeps as the standing technique: kept only as a forced probe behind a named cause"
+      ],
+      "where": [
+        "SKILL.md loop step 2; references/loop.md step 4",
+        "references/reproduce.md",
+        "references/hypotheses.md (probing, ledger)",
+        "references/fix.md steps 2, 4 and 8"
+      ]
+    },
+    {
+      "ref": "cat:gstack.skill.investigate",
+      "system": "garrytan/gstack (investigate plus sections flake, polluter, race)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/investigate/SKILL.md",
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/investigate/sections/flake.md",
+          "read": "full",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/investigate/sections/polluter.md",
+          "read": "full",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/investigate/sections/race.md",
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "root cause before any repair, with a stop after three failed hypotheses and a question to the user"
+        },
+        {
+          "mechanism": "flaky is a symptom: no rerun, retry, wider timeout or skip until the cause is named and forced"
+        },
+        {
+          "mechanism": "failure counts out of N on the known-good revision and the current one, to place the cause inside or outside the change"
+        },
+        {
+          "mechanism": "a forced probe that makes the failure deterministic for the named cause"
+        },
+        {
+          "mechanism": "a test-only change must still fail when the guarded behaviour breaks"
+        },
+        {
+          "mechanism": "order-dependent failures: halve the earlier tests to find the one that leaks, fix the leaker not the victim"
+        },
+        {
+          "mechanism": "races: timestamps at each access, a forced interleaving, many concurrent writers asserting the invariant; an atomic primitive, not a smaller window"
+        },
+        {
+          "mechanism": "a fix touching many files is a scope question"
+        },
+        {
+          "mechanism": "recurring bugs in the same files point at the design"
+        }
+      ],
+      "rejected": [
+        "telemetry, learnings logs and the cross-project learnings prompt: side effects and persistent configuration this skill does not need",
+        "web research through Aside or WebSearch from inside the skill: egress needs its own grant; the core authority rules govern",
+        "acquiring a freeze lock automatically: a host hook is persistent configuration; the core offers it as a separate, authorised action",
+        "the fixed five-file blast-radius threshold: kept as a judgement ('spreads across many files'), not a number",
+        "gstack-specific commands (ship-measure, gh run list) and the RH-15 review tag"
+      ],
+      "where": [
+        "references/loop.md (stop rules)",
+        "references/flaky.md",
+        "references/hypotheses.md (stalls)",
+        "references/fix.md step 3"
+      ]
+    },
+    {
+      "ref": "cat:superpowers.skill.systematic-debugging",
+      "system": "obra/superpowers (systematic-debugging plus root-cause-tracing, defense-in-depth, condition-based-waiting, find-polluter.sh)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/systematic-debugging/SKILL.md",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "trace a bad value backwards through its callers and fix where it originates, not where it surfaces"
+        },
+        {
+          "mechanism": "compare against working code that is similar and list every difference"
+        },
+        {
+          "mechanism": "one hypothesis and one variable per test"
+        },
+        {
+          "mechanism": "after repeated failed fixes, question the design and talk to the user before another fix"
+        },
+        {
+          "mechanism": "wait on the condition, not a guessed delay (folded into 'assert on outcomes or an injected clock')"
+        }
+      ],
+      "rejected": [
+        "all-capitals 'iron law' rhetoric and rationalisation tables: the westack rules carry the same constraint with receipts instead",
+        "the unsupported '95% of no-root-cause cases' statistic",
+        "retries or timeouts as 'appropriate handling' for environmental causes: allowed only when the cause is known, outside the work, counted and reported",
+        "defence-in-depth validation at every layer as part of the fix: it widens the diff beyond the root cause; offer it as a follow-up needing its own approval"
+      ],
+      "where": [
+        "references/loop.md steps 3 and 4",
+        "references/fix.md step 3",
+        "references/hypotheses.md (stalls)",
+        "references/flaky.md (timing assertions)"
+      ]
+    },
+    {
+      "ref": "harness:qwen-structured-debugging",
+      "system": "QwenLM/qwen-code",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/b66711972c30fad510b1d3867e3142cbdc673595/.qwen/skills/structured-debugging/SKILL.md",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "instrument two or three decision points that separate the hypotheses, recording values rather than whether code ran"
+        },
+        {
+          "mechanism": "check that a probe's output will actually be captured before running it"
+        },
+        {
+          "mechanism": "when the data contradicts the theory, the data wins"
+        },
+        {
+          "mechanism": "a report the agent cannot reproduce is evidence of an environment difference: list the differences first"
+        },
+        {
+          "mechanism": "inspect what an external system received before blaming it"
+        },
+        {
+          "mechanism": "suspect state left over from earlier runs"
+        },
+        {
+          "mechanism": "write down what each round confirmed or disproved so later rounds do not repeat it"
+        }
+      ],
+      "rejected": [
+        "a side-note journal file in the project: diagnose mode writes nothing there; the ledger lives in the reply, the handoff note or the core task record"
+      ],
+      "where": [
+        "references/loop.md 'Leads are not evidence'",
+        "references/reproduce.md (it does not fail for you)",
+        "references/hypotheses.md (probing, ledger)"
+      ]
+    },
+    {
+      "ref": "harness:openhands-stuck-detector",
+      "system": "OpenHands/software-agent-sdk",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {
+          "url": "https://github.com/OpenHands/software-agent-sdk/blob/46b1fa5cb91ada17e6ec938c7e8624a4fa19fa98/openhands-sdk/openhands/sdk/conversation/stuck_detector.py",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "the same action with the same observation repeated, or the same action with the same error repeated, means stuck: change approach"
+        },
+        {
+          "mechanism": "repeated agent messages with no new observation (monologue) means stuck: run a probe"
+        }
+      ],
+      "rejected": [
+        "the runtime detector itself (event-stream comparison, thresholds, one-shot nudges): runtime-only; the rule is carried as an instruction"
+      ],
+      "where": [
+        "references/loop.md (stop rules)",
+        "references/hypotheses.md (stalls)"
+      ]
+    },
+    {
+      "ref": "harness:swe-agent-review-on-submit",
+      "system": "SWE-agent/SWE-agent (config/default.yaml, tools/review_on_submit_m/bin/submit)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {
+          "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/config/default.yaml",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "a reproduction script before any edit, rerun after the edit"
+        },
+        {
+          "mechanism": "before handing over, list the whole diff and remove reproduction scratch; modified tests are flagged"
+        }
+      ],
+      "rejected": [
+        "reverting every test edit unconditionally: an existing test changed needs the user's decision and a broken-copy run",
+        "'thinking can be very long': length is not evidence",
+        "trusting the agent's own rerun with no saved output: westack keeps receipts"
+      ],
+      "where": [
+        "SKILL.md loop step 2",
+        "references/fix.md step 8"
+      ]
+    },
+    {
+      "ref": "cat:pstack.principle.principle-attack-the-premise",
+      "system": "cursor/plugins (pstack)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {
+          "url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/principle-attack-the-premise/SKILL.md",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "after two failed fixes sharing one assumption, write the assumption down and test it directly before the next fix"
+        }
+      ],
+      "where": [
+        "references/loop.md (stop rules)",
+        "references/hypotheses.md (stalls)"
+      ]
+    },
+    {
+      "ref": "cat:anthropic.knowledge-work-plugins.engineering.debug",
+      "system": "anthropics/knowledge-work-plugins (engineering plugin, debug skill)",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "C",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/knowledge-work-plugins/blob/2d6f7e22dd25593f0f748010430ef86f19659735/engineering/skills/debug/SKILL.md",
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "the report starts from expected against actual and the exact error text, not a paraphrase"
+        }
+      ],
+      "rejected": [
+        "connector side effects (creating tickets, pulling monitoring data) from inside a debug run: each is egress or a message needing its own grant",
+        "proposing a fix and 'suggesting' tests without running them: below the westack evidence bar"
+      ],
+      "where": [
+        "SKILL.md report table (symptom row)"
+      ]
+    },
+    {
+      "ref": "harness:aider-lint-test",
+      "system": "Aider-AI/aider",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "C",
+      "sources": [
+        {
+          "url": "https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/website/docs/usage/lint-test.md",
+          "read": "full"
+        }
+      ],
+      "taken": [],
+      "rejected": [
+        "auto-fixing whenever lint or tests exit non-zero: an exit code is not a diagnosis and edits before a root cause are what this skill prevents",
+        "the formatter-runs-twice wrapper: too narrow for this skill"
+      ],
+      "notes": [
+        "Aider's loop is a build-time gate (run checks after each edit); the westack core baseline diff already covers that need with receipts."
+      ]
+    },
+    {
+      "ref": "p2:code-yeongyu/oh-my-openagent",
+      "system": "oh-my-openagent (OmO; previously oh-my-opencode)",
+      "licence": "Ideas only (restrictive). Sustainable Use License v1.0, source-available and not open source: internal business, non-commercial or personal use only, free non-commercial distribution only. Documentation read only; no code or prompt text read or carried.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/docs/reference/features.md",
+          "sha256": "4e0003aa678897a1932226368250dbead5f695342bf5cce8ef90368abf5a3aef",
+          "bytes": 71589,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/LICENSE.md",
+          "sha256": "b61ac928f152d13517328263e6bee9175b928f9ab696a2d2ca2b6cfd961ddc32",
+          "bytes": 3973,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-66: Research where every claim needs a citation, proof artifact or execution-backed verdict: instrument a claim graph, an observation manifest, independent-observation convergence and temporal evidence; run code to prove contested claims.",
+          "grade": "present",
+          "evidence": "docs/reference/features.md:471,474",
+          "where": "references/hypotheses.md (ledger)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-66 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:Yeachan-Heo/oh-my-claudecode",
+      "system": "oh-my-claudecode (OMC)",
+      "licence": "MIT, Copyright (c) 2025 Yeachan Heo (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/skills/trace/SKILL.md",
+          "sha256": "e82ccaa563f703803ad92093766ada969188df44b9ee91298a26b8c3d0792b0e",
+          "bytes": 10381,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/LICENSE",
+          "sha256": "1d2b966f93feaa8928a57a69868388ee9016c86a341299fc5261ded44249af79",
+          "bytes": 1068,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-56: A hypothesis lane suspects the check itself: a verification that reuses one key across distinct entities, or filters at the wrong grain, can fake a mismatch; audit the premise first.",
+          "grade": "present",
+          "evidence": "skills/trace/SKILL.md:107-111",
+          "where": "references/hypotheses.md"
+        },
+        {
+          "mechanism": "SS-66: Evidence strength is ranked: controlled reproduction, primary artifacts with provenance, converging independent sources, single-source inference, circumstantial clues, intuition; say why a hypothesis moved down.",
+          "grade": "present",
+          "evidence": "skills/trace/SKILL.md:50-63,192-203",
+          "where": "references/hypotheses.md (ledger)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-56, SS-66 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:x.com/Voxyz_ai/status/2105434062676431306",
+      "system": "X post by @Voxyz_ai (2026-09-30): Nightly failing-test-first bug routine",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-68: Bug-claim anchor: an unattended scan counts a defect only when a comment, doc, type or existing test states the intended behaviour; apparent intentional changes are noted, not fixed.",
+          "grade": "present",
+          "evidence": "post text, prompt paragraphs 3-5",
+          "where": "references/loop.md ('Leads are not evidence')"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-68 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2105434062676431306, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2105434062676431306 (a copy, not the original; SHA-256 29141fb4429995806ab786f7b9d7225053c10f07e68eb203207eb428ccb40058, 8772 bytes). Media not viewed: none listed.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "ap:ramenvr/autopilot",
+      "system": "ramenvr/autopilot (Aura Autopilot: an in-editor playtesting agent for Unreal, Unity and Godot in which a coding agent writes a per-game harness and a separate decision model plays through real input events)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/agents/session.py",
+          "sha256": "e1add2659d4c57bea85b819ecdc1154f13034612d44f3738d9837c62fd30c858",
+          "bytes": 99386,
+          "read": "lines 105–195: the agent's instructions",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AP-1: Failing to trigger a rare cause once is not a disproof of it (the attempt may be at fault); rule it out only when the system's own numbers show it cannot happen, naming them, and otherwise leave it inconclusive.",
+          "grade": "present",
+          "evidence": "session.py:169-173, 178 as read for the addendum",
+          "where": "references/hypotheses.md (the ledger, verdicts)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AP-1 (Aura Autopilot addendum, 2026-10-30).",
+        "The verdict words (confirmed, ruled out, inconclusive, untested) already existed; the asymmetry is the new part.",
+        "Flag, run data: sharing is on unless the user opts out (telemetry.py:43-48: share defaults to true and AUTOPILOT_SHARE=0 turns it off). When on, every model call is written whole (the request without picture data, and the full response), redacted for secrets, paths, user and host names and emails, but game-code excerpts in prompts stay; runs through Aura also sync notes, reusable code and traces to Aura's storage per team, and the game's code is never uploaded (aura_memory.py:4-9). The setup screen asks and invites a yes (README.md:36). westack takes no run data from it and sends none.",
+        "Flag, isolation: only Linux with bubblewrap gets no network and a read-only disk (sandbox.py:5); elsewhere the child merely lacks secrets, which a westack control label would call a heuristic, not a sandbox.",
+        "Benchmark, claimed (the Aura post, Nyx Iskandar and Andy Tsen, dated October 31, 2026 as served; retrieved 2026-10-30; HTML 133,994 bytes, sha256 7ad1721563dbacde619b5496697b2f42f722ca622b92080ee20325694762aac3): Pass@1 within 1800 s, Claude Opus 5.5 at medium effort, empty memory, cheating runs marked unsuccessful. Autopilot 7/7 at 262 s, Claude Code 5/7 at 437 s, an unnamed competitor 4/7 at 508 s. That is 7 tasks on one template game with one run each: the authors' claim, graded claimed, and no number from it is used.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-autopilot.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "oc:anomalyco/opencode",
+      "system": "OpenCode (anomalyco/opencode), the 2026-10-30 delta read at v2.2.5",
+      "licence": "MIT (LICENSE read; unchanged since the 2026-10-28 read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/tool/plugin/read.ts",
+          "sha256": "e5a8d12f6b448a47ec592083aaa9888a77dd42ddb604dba8ff441007f395ffb1",
+          "bytes": 11668,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/LICENSE",
+          "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "OC-15: A missing-file error is diagnosed by naming the first missing folder, the nearest existing parent and similar names; the usual causes are a removed worktree or a path resolved from the wrong base.",
+          "grade": "present",
+          "evidence": "packages/core/src/tool/plugin/read.ts:147-200",
+          "where": "references/reproduce.md (It does not fail for you)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items OC-15 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, opencode-delta.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Read at 4878a0e30fc722696e8f35b5d0426b4fc571199d (dev, v2.2.5), 178 commits ahead of the 2026-10-28 pin; the earlier deep: record at 7ab721a9 stands for the items it carries.",
+        "Flags (recorded, not carried): policy parsing fails open (invalid statements are dropped with a log warning and older clients ignore new actions; OC-9 in core ruletest.py is westack's answer); a higher-authority allow can lift a lower deny (westack keeps deny-first composition, core guards.md); the unattended allow list is rebuilt at run time rather than compared with the recorded approval (OC-1 says compare). Terms: OpenCode's own Claude Agent spec asks whether to call the feature 'claude code' and to reuse Claude Code credentials for usage endpoints, noting both are not allowed (specs/v2/claude-agent-provider.md:168-169); westack takes nothing from that provider beyond the isolation checklist (OC-4) and the resume fingerprint (OC-5), and reusing another product's credentials stays rejected (GS-44)."
+      ]
+    }
+  ],
+  "own_additions": [
+    "diagnose and fix as separate modes; diagnose writes nothing inside the project, puts probes inline or in a temp copy, and asks before any in-place write or git move (map review, must-change 9)",
+    "a counterfactual (change only the suspected cause, the symptom flips; undo, it returns) separates 'confirmed' from 'probable'",
+    "a sweep for the same defect elsewhere in the agreed scope after confirmation, each hit marked same, safe or unsure",
+    "the clean-run table for intermittent fixes, n >= ln(0.05) / ln(1 - p), derived here rather than taken from a donor",
+    "the broken-copy control in fix mode is 'undo only the fix and the regression test must fail again' (core C2)",
+    "eliminations recorded as core task-record observations (kind ruled-out, confirmed or surprise) citing receipts"
+  ],
+  "helper_decision": {
+    "built": false,
+    "reason": "No deterministic step here needs code. The baseline diff is the core's checks.py; searching for the same defect is the host's search tool; the stop rules are judgements about one's own actions that a script would only see through self-report; the flaky clean-run arithmetic fits a five-row table. A helper would add surface without adding a check the agent cannot fake. Matches the capability map's 'helper not justified'."
+  },
+  "overlap_check": {
+    "method": "lower-cased word 12-grams of every text file in this package (SKILL.md, references, provenance, evals) against every fetched donor file; any shared 12-gram is a flag",
+    "script": "scratch westack-w1-debug/scripts/ngram_overlap.py (not shipped)",
+    "result": "clean on 2026-10-28: no shared run of 12 or more words across 26 package files and 17 donor files. The longest shared run is 7 words, a skill name inside a trigger case ('the superpowers test driven development skill'). One 9-word run with the gstack race recipe ('at every read and write of the shared state') was below the threshold but reworded anyway."
+  }
+}

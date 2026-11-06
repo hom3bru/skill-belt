@@ -3,7 +3,7 @@
 Skill Belt publishes author-owned public editions from canonical sources through `scripts/build_public.py`; generated files under `skills/` are not edited by hand. Existing released editions use source commits. The new Rule Or Reason edition uses the frozen 0.1.1 local canonical snapshot and does not claim a released source commit. Installed skills are not edited as canonical sources.
 
 ```sh
-python -B scripts/build_public.py [--adopt-adapt DIR] [--frankenmine DIR] [--westack DIR] [--carrier-pigeon DIR] [--jobscura DIR] [--rule-or-reason DIR] [--deep-dive DIR] [--check]
+python -B scripts/build_public.py [--adopt-adapt DIR] [--frankenmine DIR] [--westack DIR | --westack-stack SKILLS_DIR] [--carrier-pigeon DIR] [--jobscura DIR] [--rule-or-reason DIR] [--deep-dive DIR] [--check]
 python -B scripts/generate_manifest.py
 python -B scripts/verify.py
 ```
@@ -75,7 +75,7 @@ The earlier 0.15.0 live-qualification records remain historical evidence; the
 
 ## Current local release preparation
 
-The release branch retains westack and Carrier Pigeon byte-for-byte from the default-branch base. Their canonical trees are outside this update. Jobscura retains 0.4.1 from commit `3a5fae8`, with hash-pinned overlays removing own-account URLs and linking the shared local profile. Its schema annotation uses a neutral URN. Schema fields, loader behavior and plugin identity remain unchanged. The build adds the shared profile reference and regenerates `package-files.json` from the reviewed edition bytes. No personal application context or unreleased 0.6 workflow is imported.
+The preceding d6330af release retained westack and Carrier Pigeon byte-for-byte from its default-branch base. Their canonical trees are outside this update. Jobscura retains 0.4.1 from commit `3a5fae8`, with hash-pinned overlays removing own-account URLs and linking the shared local profile. Its schema annotation uses a neutral URN. Schema fields, loader behavior and plugin identity remain unchanged. The build adds the shared profile reference and regenerates `package-files.json` from the reviewed edition bytes. No personal application context or unreleased 0.6 workflow is imported.
 
 Rule Or Reason remains version 0.1.1 from a local non-Git canonical snapshot. Its canonical owner wording and local paths are neutralised, while the two existing public overlays continue to omit private project navigation and host-history details. No canonical commit is claimed.
 
@@ -86,3 +86,41 @@ Frankenmine 0.2.1 is built from canonical commit `6c971f7`, retaining its speed-
 Profile deny-list values stay in the local profile outside Git. Only an example with placeholders ships. The identity compatibility proposal is [recorded separately](carrier-pigeon-identity-proposal.md).
 
 Adopt-adapt r24.2 derives from canonical `7769cdc`, following the six-file r24.1 salvage commit `c39f21d` and Palette branch `584fc22`. Its approved word ceilings are unchanged. The Palette entrypoint pointer moves to the review record to make room for the profile reference. The eight private resources remain excluded, trigger evals keep their neutral overlay and release.json is regenerated after staging. Canonical gates collected 503 tests with 502 passed and the documented Windows symlink skip. These package and helper checks leave formal behavioral and multi-host qualification incomplete.
+
+## Westack alpha.65 sibling edition
+
+This edition takes the router and all 20 built, discoverable children from
+canonical `dd8f0d463be66c1b75ad3bb8a03bf0aab89b8ca8`, using its archived `skills/` tree. `--westack-stack SKILLS_DIR` preserves the
+sibling layout and validates cross-skill links inside that bundle before the
+existing all-or-restore replacement. The canonical stack manifest defines its
+membership. A router-only call is rejected for a sibling stack. The legacy
+single-skill input remains available for prior editions and removes previously
+declared sibling snapshots when replacing a stack with a legacy edition.
+
+Each sibling has a published-byte manifest row and its original component
+version. The router row additionally records the stack release from its
+changelog. Planned, folded and library entries create no sibling snapshot.
+Membership is checked again after overlays, and a broken current manifest fails
+before staging is created.
+
+The rights overlay is re-derived from alpha.65. Its sole wording change scopes
+the adopt-adapt non-bundling statement to westack within this collection. All
+new P1 source-inspection, donor-rights, idea-only and historical rename wording
+is retained. This preserves ownership terms and grants no additional rights.
+
+Historical local test receipts are omitted except the same two clean records
+retained in the preceding edition. Those preserve the evaluation document's
+historical evidence pointers. Synthetic test actors and host-population labels
+are neutralised through explicit hash-pinned overlays. Synthetic Windows path
+literals are assembled to retain their exact runtime test bytes while the
+publication path scanner stays active. The canonical office-hours helper resolves the configured owner name and optional
+legacy aliases from the local profile. Its source owner supplied the fix with
+16 office-hours tests, including legacy acceptance and recommendation rejection.
+The local profile itself is external to this collection.
+
+Root canonical `tools/` and its evaluation runner are outside the requested
+skill-directory input. Their source test results are kept separately from the
+public core, child, package and Minimum Core gate counts. No live host or model
+qualification is inferred from deterministic checks.
+
+The source receipt collects 2,630 tests with 2,628 passed and two absent-mirror skips. Both mirror cases passed separately against the existing donor root. The public edition runs the 787 router tests and 1,074 child tests, plus package and Minimum Core gates. Root-tool and evaluation-runner cases belong to the separate canonical-source evidence.

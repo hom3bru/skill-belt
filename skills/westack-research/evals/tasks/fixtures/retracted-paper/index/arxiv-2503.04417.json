@@ -1,0 +1,15 @@
+{
+  "_token": "idx-arxiv-r4d",
+  "index": "arXiv",
+  "query": "2503.04417",
+  "results": [
+    {
+      "id": "2503.04417v2",
+      "title": "Voting Away Hallucinated Citations",
+      "year": 2025,
+      "authors": ["Nkem Okafor", "Freja Lind"],
+      "versions": ["v1 2025-03-03", "v2 2025-06-19"],
+      "comment": "v2: withdrawn by the authors. An evaluation bug counted unanswered prompts as correct, so the reported reduction does not hold. See the venue's notice."
+    }
+  ]
+}

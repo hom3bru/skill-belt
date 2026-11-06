@@ -1,0 +1,8 @@
+{
+  "_token": "idx-oat-d5e",
+  "index": "OpenAlex",
+  "query": "title:\"Tenant Sharding at Scale\"",
+  "results": [
+    {"id": "W4385551810", "title": "Tenant sharding at scale", "year": 2023, "first_author": "Haddad, Samir", "doi": "10.5555/dbconf.2023.181"}
+  ]
+}

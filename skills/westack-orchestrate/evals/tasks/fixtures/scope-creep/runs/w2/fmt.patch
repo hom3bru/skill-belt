@@ -1,0 +1,38 @@
+patch-w2-2c9
+--- a/src/fmt/dates.py
++++ b/src/fmt/dates.py
+@@ -1,4 +1,4 @@
+ # dates-src-4d7
+ def fmt(d):
+     """A date for the order screen."""
+-    return d.strftime("%d/%m/%Y")
++    return d.isoformat()
+--- a/tests/test_dates.py
++++ b/tests/test_dates.py
+@@ -6,5 +6,5 @@
+ 
+ 
+ class DateTests(unittest.TestCase):
+     def test_formats_a_date(self):
+-        self.assertEqual(dates.fmt(datetime.date(2026, 10, 29)), "29/10/2026")
++        self.assertEqual(dates.fmt(datetime.date(2026, 10, 29)), "2026-10-29")
+--- a/src/fmt/money.py
++++ b/src/fmt/money.py
+@@ -1,4 +1,7 @@
+ # money-src-9e2
++from decimal import ROUND_HALF_UP, Decimal
++
++
+ def fmt(amount):
+     """An amount for the order screen, two decimals."""
+-    return "%.2f" % amount
++    return str(Decimal(str(amount)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+--- a/tests/test_money.py
++++ b/tests/test_money.py
+@@ -7,3 +7,6 @@
+ class MoneyTests(unittest.TestCase):
+     def test_two_decimals(self):
+         self.assertEqual(money.fmt(3), "3.00")
++
++    def test_rounds_half_up(self):
++        self.assertEqual(money.fmt(2.675), "2.68")

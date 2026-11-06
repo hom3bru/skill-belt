@@ -1,0 +1,27 @@
+diff --git a/notify.py b/notify.py
+index 7a3e9b1..c40d2e8 100644
+--- a/notify.py
++++ b/notify.py
+@@ -1,11 +1,17 @@
+ import smtplib
++import time
+ 
+ 
+-def send_email(host, sender, to, body):
+-    with smtplib.SMTP(host) as server:
+-        server.sendmail(sender, to, body)
++def send_email(host, sender, to, body, retries=3):
++    for attempt in range(retries):
++        try:
++            with smtplib.SMTP(host) as server:
++                server.sendmail(sender, to, body)
++            return True
++        except smtplib.SMTPException:
++            time.sleep(attempt)
++    return False
+ 
+ 
+ def send_all(host, sender, recipients, body):
+-    for to in recipients:
+-        send_email(host, sender, to, body)
++    return [send_email(host, sender, to, body) for to in recipients]

@@ -1,0 +1,14 @@
+test_rejects_bare_number (tests.test_contract.ContractTests.test_rejects_bare_number) ... ok
+test_rejects_empty (tests.test_contract.ContractTests.test_rejects_empty) ... ok
+test_all_three_units (tests.test_parse.ParseTests.test_all_three_units) ... ok
+test_bare_number_is_seconds (tests.test_parse.ParseTests.test_bare_number_is_seconds) ... ok
+test_hours (tests.test_parse.ParseTests.test_hours) ... ok
+test_hours_and_minutes (tests.test_parse.ParseTests.test_hours_and_minutes) ... ok
+test_minutes (tests.test_parse.ParseTests.test_minutes) ... ok
+test_rejects_garbage (tests.test_parse.ParseTests.test_rejects_garbage) ... ok
+test_seconds (tests.test_parse.ParseTests.test_seconds) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+OK

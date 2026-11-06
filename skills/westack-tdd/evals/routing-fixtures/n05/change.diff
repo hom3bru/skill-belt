@@ -1,0 +1,17 @@
+diff --git a/tests/test_slug.py b/tests/test_slug.py
+new file mode 100644
+index 0000000..5c6d7e8
+--- /dev/null
++++ b/tests/test_slug.py
+@@ -0,0 +1,11 @@
++import unittest
++
++from slug import slugify
++
++
++class SlugTest(unittest.TestCase):
++    def test_spaces_become_hyphens(self):
++        self.assertEqual(slugify("Hello World"), "hello-world")
++
++    def test_punctuation_is_stripped(self):
++        self.assertEqual(slugify("Hi, there!"), "hi-there")

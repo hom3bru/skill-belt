@@ -1,0 +1,919 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-docs",
+  "reviewed": "2026-10-30",
+  "policy": "Ideas only, in westack's own words. The writing donors (write:) were read at their pinned commits by the 2026-10-30 sub-skill reads (writing.json), which re-hashed all 94 source files; the docs items from the new-tools reads (new:, new-a.json and new-b.json) and the UI-copy idea from the design read (design:, design-b.json) likewise. Every idea comes through those reads' paraphrase and the brief (BRIEF-westack-docs.md); the hashes and byte counts are the ones the reads recorded, except for the two EGM files (see that record). For the overlap check only, this build fetched each cited donor file into memory at its pin (nothing saved, nothing run) and compared its SHA-256 with the recorded one. The P2 item SS-105 (p2:) and the adoption-list item SS-106 (adopt:) come from the 2026-10-28 deep reads. The installed iceberg plugin is recorded as a reference only (reference:), with its flags. Every source is MIT or Apache-2.0. None of the donors gives a README, ADR or changelog skeleton, and this skill invents none.",
+  "usefulness_legend": {
+    "strong": "shaped a rule and its helper check",
+    "useful": "shaped one or more rules",
+    "minor": "one idea, or a second donor for an idea taken elsewhere"
+  },
+  "retrieval": {
+    "method": "ideas from the reads named in each record; for the overlap check, an in-memory GET of https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path> per cited file on 2026-10-30 (no file written, nothing run), its SHA-256 compared with the recorded pin",
+    "hash_check": "44 of 46 cited files matched their recorded SHA-256 and size; the two EGM files match only after converting the served bytes to CRLF, so that record lists the served-bytes hashes and says why",
+    "reads": "<projects_root>/westack-research/2026-10-30-sub-skill-reads (writing, new-a, new-b, design-b) and 2026-10-28-deep-reads (ide-sdk-harnesses, google)",
+    "clones": "none opened"
+  },
+  "donors": [
+    {
+      "ref": "write:conorbronsdon/avoid-ai-writing",
+      "system": "conorbronsdon/avoid-ai-writing (editing contract, pattern catalogue, detector, preservation validator, gate, corpus)",
+      "licence": "MIT License, Copyright (c) 2026 Conor Bronsdon; standard MIT text, read in full. NOTICE.md credits the OpenAI/Codex packaging and router skills to a contributor under the same MIT terms.",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/skills/avoid-ai-writing/detector/validate.js",
+          "sha256": "00c36a802373e263120325c4180e34d7bf2f64196f850b76226e90a09c7f22c9",
+          "bytes": 23404,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/SKILL.md",
+          "sha256": "031c8ad21ea2a8ce93c4af97f82cf0218fabeb8450ad2d5fce41a76fac1eebd7",
+          "bytes": 33205,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/skills/avoid-ai-writing/references/patterns.md",
+          "sha256": "d5452a813006840b47273b0c1ddd4ca655733cbab4db9fbe19e803c03e77c499",
+          "bytes": 119875,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/evals/rewrite/preservation-policy-cases.json",
+          "sha256": "3fb6345bd31c0d45fcb7d49c67828c97cc4e50806fc1c15fe71aae816dc0f7c6",
+          "bytes": 1957,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/CONTRIBUTING.md",
+          "sha256": "5373b2606c4275d467f7325f9cad51953d6a12e55bd62558db5d64aee9186e57",
+          "bytes": 14293,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/skills/avoid-ai-writing/detector/CATEGORIES.md",
+          "sha256": "fb303990be9e9da197ab83ac5b9ff3539de63b827641f3760493a13bc1763256",
+          "bytes": 16785,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/bin/avoid-ai-writing-gate.js",
+          "sha256": "8d584a2145f0991842fea4bb21d6ed06f34b2af3073bbe9ff5b20bce7e3e2a76",
+          "bytes": 7034,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/evals/gate-calibration/2026-10-15.md",
+          "sha256": "375ddef6d66e915d7224ef0757e8ef9eb1f30e3a9b06b834e297aa8a295a8b53",
+          "bytes": 3937,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/corpus/README.md",
+          "sha256": "8ddf7a4d38609682ea3a36383b907f682d58b703ece4f37935d2ac134a3a9af8",
+          "bytes": 20694,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/PROOF.md",
+          "sha256": "e8a1b64de134bff26b734a5b9dbe025a0dc2e958cf52f95fb34a473a16751c6d",
+          "bytes": 7632,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/scripts/self-scan.js",
+          "sha256": "08f800d16972a43b352d48277c04ee6ce33946e71485e9d315366a8d48e178ee",
+          "bytes": 13774,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/conorbronsdon/avoid-ai-writing/blob/9cd07215982eca9736e14caaa63241c0264856f3/LICENSE",
+          "sha256": "4da9b9f0bb899269b6e79fb383b4c3f24ebcadf7352f970871bae3e215401589",
+          "bytes": 1071,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-2: compare the original with the rewrite and fail on changed code, front matter, quotations, tables, inline code, links, paths and heading structure; warn on numbers, heading wording and a large shrink; say that a mechanical pass is not semantic proof.",
+          "grade": "present",
+          "evidence": "skills/avoid-ai-writing/detector/validate.js:342-471; evals/rewrite/preservation-policy-cases.json:1-58",
+          "where": "scripts/prose.py (preserve); references/preserve.md (The mechanical check)"
+        },
+        {
+          "mechanism": "WD-3: add only what the source holds or the user corrected; the no-op is a result; every changed span maps to a finding or a requested change.",
+          "grade": "present",
+          "evidence": "SKILL.md:62-69,99-105,226-230,301-315",
+          "where": "SKILL.md (rule 2); references/preserve.md (Add nothing, Map every change); scripts/prose.py (preserve --map)"
+        },
+        {
+          "mechanism": "WD-5: a rule-by-document-type matrix (strict, relaxed, skip), where skip means not audited.",
+          "grade": "present",
+          "evidence": "skills/avoid-ai-writing/references/patterns.md:741-814; SKILL.md:79-86",
+          "where": "references/rules.json (levels); references/doctypes.md; scripts/prose.py (lint)"
+        },
+        {
+          "mechanism": "WD-6: template placeholder shapes (bracketed your/insert phrases, XX dates, placeholder comments).",
+          "grade": "present",
+          "evidence": "skills/avoid-ai-writing/references/patterns.md:460-462",
+          "where": "references/rules.json (template-placeholder)"
+        },
+        {
+          "mechanism": "WD-7: a rule is either pattern-checkable with a true-positive and a must-not-fire example, or judgment-only; a reverted detector stays logged with the false positive that removed it.",
+          "grade": "present",
+          "evidence": "CONTRIBUTING.md:41-62,79-98; skills/avoid-ai-writing/detector/CATEGORIES.md:3-20,126-129",
+          "where": "references/rules.json (must_match, must_not_match, judgment, reverted); scripts/prose.py (contract on load)"
+        },
+        {
+          "mechanism": "WD-8: scan the project's own docs, publish raw and exempted counts, ceilings that only move down; WD-9: a gate's threshold comes from the project's own human-written docs, a hashed corpus stops the run when changed, no rate below n of 100 or from one register, and unscannable input exits 2.",
+          "grade": "wired",
+          "evidence": "PROOF.md:14-52,94-137; scripts/self-scan.js:37-62; bin/avoid-ai-writing-gate.js:12-26,87-141; corpus/README.md:3-33; evals/gate-calibration/2026-10-15.md:15-36",
+          "where": "scripts/prose.py (selflint, gates); references/rules.md (Self-lint, Numeric gates)"
+        },
+        {
+          "mechanism": "Hedges: cut the performed ones; a modal stays whenever it marks real uncertainty, a limit or a condition, however blunt the house voice (the basis of the one-word amendment to core craft.md).",
+          "grade": "present",
+          "evidence": "skills/avoid-ai-writing/references/patterns.md:28,291-302; SKILL.md:93-95",
+          "where": "references/rules.md (Hedges); references/rules.json (performed-hedge); core references/craft.md line 7"
+        },
+        {
+          "mechanism": "WD-18: check how the destination renders single newlines before unwrapping hard-wrapped paragraphs.",
+          "grade": "present",
+          "evidence": "SKILL.md:222",
+          "where": "references/doctypes.md (Line breaks); references/rules.json (hard-wrap)"
+        }
+      ],
+      "rejected": [
+        "Vocabulary ban lists and the numeric word-list gates as rules: taste that dates, which the catalogue itself calls inherited, not measured (patterns.md:72).",
+        "Stylometric detectors and the 0 to 100 composite score: the repository's own corpus put paragraph ROC-AUC at 0.501 (PROOF.md:111-116), and type-token ratio has a length confound.",
+        "Default replacement tables (robust to strong and the like): lossy in technical docs.",
+        "A hard em-dash maximum: taste, and the skill itself says a dash is not authorship evidence; only a repository's own house style may ban it.",
+        "The seven-skill router, the mandatory read of a 120 KB catalogue before every pass, and the social, launch-copy and voice-profile rules.",
+        "Erroring on any heading-count change: westack-docs expects it in revise-structure and ties each such finding to the user's request instead."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (writing.json, writing.md section 2); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Risk flags from that read: the skill tells an agent to run bundled Node scripts and read a 120 KB reference first, and its corpus fetch script downloads public texts; nothing here runs or fetches anything.",
+        "Three of the five writing donors (humanizer, avoid-ai-writing, better-writing) share a lineage, so their agreement is weak evidence (writing.md, Read this first, item 1)."
+      ]
+    },
+    {
+      "ref": "write:Anbeeld/WRITING.md",
+      "system": "Anbeeld/WRITING.md (prose ruleset and writing skill)",
+      "licence": "MIT License, Copyright (c) 2026 Anbeeld; standard MIT text, read in full",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/Anbeeld/WRITING.md/blob/0c127ca4a4e51debec5adf4816f2bf464d83438b/skills/writing/SKILL.md",
+          "sha256": "8ba40af0032c9275d9e969322fbc395842aed761c45707fdcf599ec19e60f037",
+          "bytes": 17759,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Anbeeld/WRITING.md/blob/0c127ca4a4e51debec5adf4816f2bf464d83438b/skills/writing/references/medium-routing.md",
+          "sha256": "e096eebdbfd679866f136aebb2b3d2dc180ff27e2a3df7da84f4b98005e267a6",
+          "bytes": 3937,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Anbeeld/WRITING.md/blob/0c127ca4a4e51debec5adf4816f2bf464d83438b/skills/writing/references/formula-watchlist.md",
+          "sha256": "d49003797024ba7c04944675a71bfc8d421db20d72e8560bba62d3f6baca47d9",
+          "bytes": 5087,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Anbeeld/WRITING.md/blob/0c127ca4a4e51debec5adf4816f2bf464d83438b/skills/writing/references/required-checks.md",
+          "sha256": "54826c628e713648e293c23a6c5bf9128a7964d87f3155234f5d0f0b6d56f2a1",
+          "bytes": 3788,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Anbeeld/WRITING.md/blob/0c127ca4a4e51debec5adf4816f2bf464d83438b/LICENSE",
+          "sha256": "670257db7ed6046711cb38be31868c3b2002e7e17b25a3cd8a054da1f2f24db2",
+          "bytes": 1064,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-1: write an inventory of what must survive before editing and diff against it after; some shifts are banned outright, such as a possibility turned into a promise, a part into the whole, a correlation into a cause, a vendor's claim into a product fact, or not finding into shown absent.",
+          "grade": "present",
+          "evidence": "skills/writing/SKILL.md:214-229; skills/writing/references/formula-watchlist.md:45-55",
+          "where": "SKILL.md (rule 1); references/preserve.md (The inventory); scripts/prose.py (preserve word classes)"
+        },
+        {
+          "mechanism": "WD-4: causal and proof verbs stay only with support, otherwise a weaker relation; a summary adds no claim and keeps dissent and open questions at their weight.",
+          "grade": "present",
+          "evidence": "skills/writing/SKILL.md:109-117; skills/writing/references/medium-routing.md:10",
+          "where": "references/every-mode.md (rule 3); references/rules.md (Evidence-bound prose)"
+        },
+        {
+          "mechanism": "WD-10: a fixed precedence (truth, safety, privacy and legal; explicit instructions; medium norms; core rules; workflow checks; watchlists).",
+          "grade": "present",
+          "evidence": "skills/writing/SKILL.md:18-31",
+          "where": "references/every-mode.md (rule 6)"
+        },
+        {
+          "mechanism": "WD-11: do not silently fix the author's errors; keep a requested correction apart from style edits.",
+          "grade": "present",
+          "evidence": "skills/writing/SKILL.md:229",
+          "where": "references/every-mode.md (rule 4); references/preserve.md (The author's errors)"
+        },
+        {
+          "mechanism": "Task modes (draft, revise, audit, transform) with neighbouring work refused, and an audit that may return nothing.",
+          "grade": "present",
+          "evidence": "skills/writing/SKILL.md:33-44",
+          "where": "SKILL.md (Modes)"
+        }
+      ],
+      "rejected": [
+        "No em dash by default and counted rewrite triggers (a move rewritten on its third repeat): they force edits to correct technical prose.",
+        "Preferring 'we changed it': reference docs stay in the present tense; 'we' is fine only in PR text and changelogs.",
+        "Mandatory reference reads, long-form essay structure advice and voice calibration."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (writing.json, writing.md section 3); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "No scripts, tests or fixtures in the repository; nothing in it is measured (its README says so)."
+      ]
+    },
+    {
+      "ref": "write:forjd/better-writing",
+      "system": "forjd/better-writing (skill, references, stdlib checker, fixtures per document type, self-lint)",
+      "licence": "MIT License, Copyright (c) 2026 Forjd; standard MIT text, read in full (the skill folder ships an identical copy; not read separately)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/scripts/lint_prose.py",
+          "sha256": "8bdfe3768c92a20626c8ce72ad1d02344afd94300a90cb218d52175fe9e17d87",
+          "bytes": 18025,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/skills/better-writing/SKILL.md",
+          "sha256": "7306c3092c4a76a486682bbab9594dd1a77621a36d8d09bc0e30a1ef610c9441",
+          "bytes": 14888,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/skills/better-writing/references/preflight.md",
+          "sha256": "ad4744c29fd0182c98379757a103f428cef338f1bb66f3cec82c2fb8b1d8832c",
+          "bytes": 7637,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/skills/better-writing/references/structures-and-phrases.md",
+          "sha256": "ba6e3aba57a48f1faa9639668698fc1654c0dafeea6253b4816ec73b8383fcd2",
+          "bytes": 20379,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/skills/better-writing/references/genre-tells.md",
+          "sha256": "cd7225316db875ba21deb43f053742c1536d7cb1d5f3a3b2bdc389ef837c8560",
+          "bytes": 9288,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/skills/better-writing/references/ai-writing-patterns.md",
+          "sha256": "0f6c3561443b64ec09fbcc8a3c3a22174222cc32eff67904df5143debdef6133",
+          "bytes": 40024,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/evals/fixtures/docs-page/checks.json",
+          "sha256": "4999b7d3aa716cf466658c8cc0cc4281f06278eb4cb6aba5d1b825e80fb5ec50",
+          "bytes": 714,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/evals/fixtures/pr-review-reply/checks.json",
+          "sha256": "bfd8b424db18e3a6ff7203543caca1ce5072a34076f0b8b7d2db6cfef3b73de7",
+          "bytes": 974,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/forjd/better-writing/blob/8e45d0b241fc042d39444f499bbce4cfdb7a6c86/LICENSE",
+          "sha256": "9d7ca7e0934e84cd6d5ba3db51e43d5aed04b93a153ef2ba81e84b44c2f554b9",
+          "bytes": 1062,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-1: claims keep their source's strength; scope words (only, first, most, never) survive; read the last sentence alone.",
+          "grade": "present",
+          "evidence": "skills/better-writing/references/preflight.md:14-17; skills/better-writing/SKILL.md:42",
+          "where": "SKILL.md (rule 1); references/preserve.md (The inventory)"
+        },
+        {
+          "mechanism": "WD-4: a comparative needs a named baseline and a universal claim named cases.",
+          "grade": "present",
+          "evidence": "skills/better-writing/references/structures-and-phrases.md:187-189,403-412",
+          "where": "references/every-mode.md (rule 3); references/rules.json (comparative-no-baseline)"
+        },
+        {
+          "mechanism": "WD-5: current-state docs describe present behaviour and ban diff narration; changelogs, release notes, migration guides and decision records are exempt.",
+          "grade": "wired",
+          "evidence": "skills/better-writing/references/genre-tells.md:105-121; evals/fixtures/docs-page/checks.json:1-33",
+          "where": "references/doctypes.md (Current-state documents); references/rules.json (diff-narration)"
+        },
+        {
+          "mechanism": "WD-6: one sighting of leaked chat machinery fails (citation tokens, tracking parameters, pasted assistant lines, invisible characters, with emoji joiners and a leading byte-order mark carved out); deliberate gap markers in drafts differ from template leftovers, which always fail.",
+          "grade": "wired",
+          "evidence": "scripts/lint_prose.py:183-228,317-336; skills/better-writing/references/ai-writing-patterns.md:65-78; skills/better-writing/SKILL.md:19; skills/better-writing/references/preflight.md:32",
+          "where": "references/rules.json (the WD-6 rules); scripts/prose.py (lint --mode); references/rules.md (What no person types)"
+        },
+        {
+          "mechanism": "WD-8: a lint of the project's own docs reports each exclusion's hit count beside a naive scan without exclusions.",
+          "grade": "wired",
+          "evidence": "scripts/lint_prose.py:9-50,231-266,347-410",
+          "where": "scripts/prose.py (selflint); tools/tests/test_docs_selflint.py"
+        },
+        {
+          "mechanism": "WD-17 amendment: a shortened reply keeps every new measurement (the review-reply fixture requires each new fact).",
+          "grade": "present",
+          "evidence": "evals/fixtures/pr-review-reply/checks.json",
+          "where": "references/doctypes.md (Replies)"
+        }
+      ],
+      "rejected": [
+        "The per-vendor fingerprint section (dated, partly from leaked prompts, second-hand) and era-stamped vocabulary lists.",
+        "A strict dash pass that also forbids colons and parentheses.",
+        "Voice-drift metrics and sample profiling: useful only on request, and stylometric.",
+        "'Never add a next step the source lacks' read literally: a next step that follows from a stated limit is derived, not invented (references/preserve.md)."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (writing.json, writing.md section 5); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Its README says the install CLI collects anonymous telemetry unless disabled, and evals/run_skill.py calls a model; nothing here installs or runs it."
+      ]
+    },
+    {
+      "ref": "write:blader/humanizer",
+      "system": "blader/humanizer (26 writing patterns in one SKILL.md)",
+      "licence": "MIT License, Copyright (c) 2025 Siqi Chen; standard MIT text, read in full",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/blader/humanizer/blob/0ef9fe5bc3572734fd3ae6c448fe00a30cd5dcf0/SKILL.md",
+          "sha256": "0612f1dfb1672b0ea9b97e139bf1f06cabe98d8b27424fe8ff01e1fb4cc99cad",
+          "bytes": 32348,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/blader/humanizer/blob/0ef9fe5bc3572734fd3ae6c448fe00a30cd5dcf0/LICENSE",
+          "sha256": "4ac4810254ab36d45419141aeb8e69bf50652cfafe5b2dab947d06d44e5cbf96",
+          "bytes": 1066,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-5: text that describes its own sourcing, layout or a replaced earlier version is cut, except in change-bearing documents.",
+          "grade": "present",
+          "evidence": "SKILL.md:353-364",
+          "where": "references/doctypes.md (Current-state documents); references/rules.json (self-description)"
+        },
+        {
+          "mechanism": "WD-10: a writing sample the user supplies outranks the rule list.",
+          "grade": "present",
+          "evidence": "SKILL.md:41-45",
+          "where": "references/every-mode.md (rule 6)"
+        },
+        {
+          "mechanism": "WD-17: a reply leads with its decision and drops background the thread already holds (amended: every new measurement is kept or linked).",
+          "grade": "present",
+          "evidence": "SKILL.md:30,366-381",
+          "where": "references/doctypes.md (Replies)"
+        }
+      ],
+      "rejected": [
+        "Adding a reaction or opinion 'where the writer would': invented stance.",
+        "The blanket dash rule, which also replaces en dashes in numeric ranges.",
+        "Pattern 26's example as written: it drops two measured facts from a reply.",
+        "The strength ordering of patterns and the 16 of 16 blind-test claim: no data in the repository."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (writing.json, writing.md section 1); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md)."
+      ]
+    },
+    {
+      "ref": "write:Adkid-Zephyr/anti-defensive-writing-Skill",
+      "system": "Adkid-Zephyr/anti-defensive-writing-Skill (academic-paper prompt pack)",
+      "licence": "MIT License, Copyright (c) 2026 Adkid-Zephyr; standard MIT text, read in full",
+      "grade": "present",
+      "usefulness": "minor",
+      "sources": [
+        {
+          "url": "https://github.com/Adkid-Zephyr/anti-defensive-writing-Skill/blob/82d31402caa0db1790026824399044538483171b/skills/anti-defensive-writing-en/SKILL.md",
+          "sha256": "49705a92677d06b1be9f78be5be4f966b1d30c4ed72a3b97c86a973d06683b9b",
+          "bytes": 6419,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Adkid-Zephyr/anti-defensive-writing-Skill/blob/82d31402caa0db1790026824399044538483171b/README_EN.md",
+          "sha256": "940477bec8392cf5cffb6f6f623e178fc6dab3c86dfebf303c4757c0f2f9a67f",
+          "bytes": 5141,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Adkid-Zephyr/anti-defensive-writing-Skill/blob/82d31402caa0db1790026824399044538483171b/LICENSE",
+          "sha256": "fdf440e5214588d9edcdc1ec315cddbd8525fe509242c24989a8472d283325f4",
+          "bytes": 1069,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "State a limit once, as a scoped plain fact about what was not tested, not wrapped in apology (the one phrasing idea that survives).",
+          "grade": "present",
+          "evidence": "skills/anti-defensive-writing-en/SKILL.md:53-65; README_EN.md:42",
+          "where": "references/preserve.md (Limits stated once); references/rules.json (limit-stated-once, judgment)"
+        }
+      ],
+      "rejected": [
+        "The core policy: organise around the strongest result and omit, move or downplay unfavourable ones, never saying a method lost. It removes evidence and conflicts with westack's passed, failed and inconclusive reporting.",
+        "Its decision order, which puts plain disclosure last, and its ban on self-weakening phrases."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (writing.json, writing.md section 4); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Its own README example discloses the limit first, contradicting the skill's decision order."
+      ]
+    },
+    {
+      "ref": "new:mvschwarz/openrig",
+      "system": "OpenRig (mvschwarz/openrig)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0 text; package.json declares Apache-2.0)",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/ARCHITECTURE.md",
+          "sha256": "8963f26802970f8cbcedd8f90032aaa6c29bb088718dd3040b21c8fed344e226",
+          "bytes": 22647,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/docs/as-built/architecture/living-notes-review.md",
+          "sha256": "54cfd280f4d4922dda2c32c9a5d39eff00cfd6ed9c58e34de4c2819f663afccf",
+          "bytes": 10873,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/scripts/check-docs-guard.mjs",
+          "sha256": "ea8567670020c4fa201b009fa70f9bdf5f4a67ae90ea759f2afe39efb10d6d92",
+          "bytes": 2749,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/LICENSE",
+          "sha256": "c92a33920bf0cd3aa07ca2c479932ec900931ca1449948a4dc01d3bf979f45e3",
+          "bytes": 10763,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-12: each as-built page carries the commit it was last verified against, a last-updated date and an applies-when line; a docs map says the code wins on disagreement and gives every count with its reproducing command and commit.",
+          "grade": "present",
+          "evidence": "ARCHITECTURE.md:1-8,114-128; docs/as-built/architecture/living-notes-review.md:1-17",
+          "where": "references/doctypes.md (As-built pages and doc maps); references/rules.json (as-built-header)"
+        },
+        {
+          "mechanism": "WD-13: tracked docs only in named roots; each exception is an exact path with a written reason, never a directory hole.",
+          "grade": "present",
+          "evidence": "scripts/check-docs-guard.mjs:1-58",
+          "where": "references/doctypes.md (Where docs live); scripts/prose.py (lint --roots)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (new-a.json); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Risk flags from that read: its installer writes into other tools' configuration (trust settings, hooks, MCP entries, managed blocks in instruction files) with no preview; none of that is relevant to the ideas taken, and nothing was run."
+      ]
+    },
+    {
+      "ref": "new:Panniantong/Agent-Reach",
+      "system": "Agent-Reach (Panniantong/Agent-Reach)",
+      "licence": "MIT (LICENSE read: 'MIT License, Copyright (c) 2025 Agent Eyes'); the CloakBrowser binary it downloads has a separate licence that the repo says must not be described as MIT (docs/cloakbrowser.md:15; upstream licence not read)",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/tests/test_auth_guidance_policy.py",
+          "sha256": "331644272911ab36c6ad8e8402c7eb6320a13497c7b92413b2d2f69ffabcfcdb",
+          "bytes": 3335,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Panniantong/Agent-Reach/blob/14c213405669414492bda0f8d52cc6531d062c45/LICENSE",
+          "sha256": "e94c131ac1c2f78cfd8f7e69da354c0ff58e4e54071697703d56856c036de402",
+          "bytes": 1067,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-14: policy documents are tested like code: a test scans them for forbidden guidance (implicit login, installing a same-named unrelated package, secrets in command arguments) and reports file and line.",
+          "grade": "wired",
+          "evidence": "tests/test_auth_guidance_policy.py:11-97",
+          "where": "references/doctypes.md (Policy and instruction files); references/rules.json (secret-in-argument, implicit-login); tools/tests/test_docs_selflint.py"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (new-a.json); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Risk flags from that read: the tool sends search queries and page URLs to third-party services, checks for updates and downloads installers; nothing was run."
+      ]
+    },
+    {
+      "ref": "new:milind-soni/OpenMausBot",
+      "system": "OpenMausBot (milind-soni/OpenMausBot)",
+      "licence": "Apache-2.0 for everything except enterprise/. LICENSE was read and is byte-identical to the canonical Apache-2.0 text (sha256 cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30, 11358 bytes). enterprise/ is the proprietary 'OpenMausBot Enterprise License' (enterprise/LICENSE read in full): source-available, evaluation only, no redistribution or hosting for third parties, and the licence check may not be circumvented; contributions there need the CLA (CLA.md read in part). NOTICE (read in part) records a relicence from MIT to Apache-2.0 with contributor consent; vendored third-party code under third_party/ keeps its own licences and the OpenMausBot and MausBot names are trademarks not licensed (LICENSING.md:41-49). Ideas only.",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/apps/docs/content/docs/contributing/documentation.mdx",
+          "sha256": "7a147db7052b7f82b9561f87ca8e0f0783346a158bc482f09558ed22df67d035",
+          "bytes": 1170,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/milind-soni/OpenMausBot/blob/d26d7c164e5548b200679918a79ed165884dd37c/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-15: documentation describes shipped behaviour only: lead with the user's outcome, give exact recovery steps for known failures, state platform and security limits plainly, keep unreleased claims out.",
+          "grade": "present",
+          "evidence": "apps/docs/content/docs/contributing/documentation.mdx:38-45",
+          "where": "references/every-mode.md (rule 5); references/rules.json (shipped-only, judgment)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (new-b.json); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Licence: Apache-2.0 except the enterprise/ folder, which nothing here draws on. Risk flag from that read: usage analytics on by default (opt-out); nothing was run."
+      ]
+    },
+    {
+      "ref": "new:CopilotKit/OpenBot",
+      "system": "OpenBot (CopilotKit/OpenBot), its copy skill",
+      "licence": "MIT (LICENSE read in full): Copyright (c) 2026 CopilotKit, the standard MIT text with no additions. The product needs a CopilotKit Intelligence project and licence (README.md:69; free Developer plan, managed or self-hosted), which is a separate commercial service, not covered by this licence. Ideas only.",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/.claude/skills/openbot-copy/SKILL.md",
+          "sha256": "1917979c665094f9206c73adb8a101dfc909add6365b108a28263289ed07c669",
+          "bytes": 6229,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/CopilotKit/OpenBot/blob/743649efc3f21d7bf0badbe6af2bcd5daedd97ce/LICENSE",
+          "sha256": "6d35a6bb107ae508da34636387f6208e75a6938e797bc0d5bfa9489d2ca95bad",
+          "bytes": 1067,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-16: buttons name the outcome; errors give what failed and one next step without apology.",
+          "grade": "present",
+          "evidence": ".claude/skills/openbot-copy/SKILL.md:39-57,69-80",
+          "where": "references/doctypes.md (UI copy); references/rules.json (ui-generic-button, ui-apology-error)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (new-b.json); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Risk flag from that read: desktop telemetry on by default; nothing was run."
+      ],
+      "rejected": [
+        "Its banned phrases (no 'rather than', no em dash) and the 25-word sentence cap: house style, not a stated failure.",
+        "The one-word-per-concept glossary with a 'Not' column: core craft.md already holds one name per domain idea, and the glossary itself needs room this build does not have."
+      ]
+    },
+    {
+      "ref": "design:anthropics/skills.frontend-design",
+      "system": "anthropics/skills, frontend-design skill (second donor for WD-16)",
+      "licence": "Apache License 2.0 terms in the skill folder's LICENSE.txt, as read by the 2026-10-30 design read (design-b.json); the repository has no root licence file",
+      "grade": "present",
+      "usefulness": "minor",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/SKILL.md",
+          "sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+          "bytes": 9390,
+          "read": "full",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WD-16: interface copy names the action's outcome and keeps one term for one action.",
+          "grade": "present",
+          "evidence": "skills/frontend-design/SKILL.md:61-71",
+          "where": "references/doctypes.md (UI copy); references/rules.json (ui-generic-confirmation, action-one-name)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Read at the pinned commit by the 2026-10-30 sub-skill reads (design-b.json); the SHA-256 and byte counts are those recorded there, re-hashed by that session. Not re-inspected for this build: the ideas come through the read's own paraphrase and the brief (BRIEF-westack-docs.md).",
+        "Also in the westack-design brief; recorded here only for the UI-copy rules."
+      ]
+    },
+    {
+      "ref": "p2:continuedev/continue",
+      "system": "Continue",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0 text, 11,348 bytes)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/continuedev/continue/blob/5522c6f44ca0ac3528b37244818fbfa39b5af470/.continue/checks/update-agents-md.md",
+          "sha256": "623020f238a3283c1d10f4f2b1a3f50effca37cde2a8a0e77357335be5e0dd27",
+          "bytes": 2847,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/continuedev/continue/blob/5522c6f44ca0ac3528b37244818fbfa39b5af470/LICENSE",
+          "sha256": "b14a17598cb08c4c7c82c070731126304e0a75d001ed59fb9ea3955a0b561802",
+          "bytes": 11348,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-105: Edit hierarchical instruction files only for changed boundaries, contracts, patterns, pitfalls or dependencies, leaf first; each fact sits at the shallowest node covering its code and appears once; an internal refactor owes no edit.",
+          "grade": "present",
+          "evidence": ".continue/checks/update-agents-md.md:1-70",
+          "where": "references/sync.md (Sync: instruction files)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier record of this repository: deep:continuedev/continue.",
+        "Supports adoption items SS-105 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Not re-inspected for this build. Only the cited file and the licence file are listed.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:adr/madr",
+      "system": "MADR (Markdown Architectural Decision Records) 4.0.0 plus the project's own decision records",
+      "licence": "Ideas only (conservative). The repository is dual-licensed MIT or CC0-1.0 (both texts read), but GitHub reports no recognised licence file and the deep read graded its mechanisms ideas-only. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
+          "sha256": "232c401b9607b98cd055ae45983971ef35034ab274a142b42406bf428548bce2",
+          "bytes": 1907,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE",
+          "sha256": "cb9c3a276eb7991be197e401ae38d035f0f0efae425c21f499393f51c9b29ffd",
+          "bytes": 15,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-20: Template placeholders use curly braces, distinct from guidance comments, because users left bracketed template text in finished records (for example a date left inside square brackets); an unfilled placeholder is a mechanically detectable defect.",
+          "grade": "present",
+          "evidence": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md:21-58",
+          "where": "references/rules.json (template-placeholder, gap-marker); scripts/prose.py lint"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier record of this repository: deep:adr/madr.",
+        "Supports adoption items WB-20 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there, copied from westack-ship's p2:adr/madr record. Not re-inspected for this record. Only the cited file and the licence file are listed.",
+        "Recorded by the 2026-10-31 build follow-ups (1.0.0-alpha.13); no rule changed. The docs half of WB-20 is carried by WD-6, built earlier: the template-placeholder rule (bracketed, double-curly, to-do style comment and XX-date leftovers) fails in every mode, and the gap-marker rule keeps a deliberate gap open in a draft and a finding in delivery. The wording of those rules came from write:conorbronsdon/avoid-ai-writing and write:forjd/better-writing, recorded under those refs.",
+        "Not matched by those rules (a probe on 2026-10-31): MADR's single-curly placeholder form such as {date}, and a guidance comment that does not begin with todo, insert, add, replace or fill in. The architecture half of WB-20 waits for the planned westack-architecture.",
+        "Closed in 1.0.0-alpha.18 (test integrity fixes): the template-placeholder rule now matches both forms named in the note above (references/rules.json; tests/test_prose.py, TemplateLeftoverFormTests). The two notes above describe the state at 1.0.0-alpha.13.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "adopt:google/elephant-goldfish-model",
+      "system": "Elephant-Goldfish Model (EGM), its drift-report skill",
+      "licence": "Apache-2.0 (LICENSE read: standard Apache License 2.0 text, 11,560 bytes). README states 'not an officially supported Google product'. No riders.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/skills/egm-drift-report/SKILL.md",
+          "sha256": "c000ffe2e77a9fe74ee6915b314e1547337c95c79a19014c44fd976dc6511476",
+          "bytes": 3169,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-106: Compare each design document with the current source and report differences only, with an explicit no-drift line for each document that has none.",
+          "grade": "present",
+          "evidence": "skills/egm-drift-report/SKILL.md:41-63",
+          "where": "references/sync.md (Drift: documents against the source)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Hashes: the 2026-10-28 deep read recorded 574f1ed358033dd21f0fa602fd5e4ceb4c0d36268918bda9ae5eab758a62519e (3,236 bytes) for the skill file and 3ddf9be5c28fe27dad143a5dc76eea25222ad1dd68934a047064e56ed2fa40c5 (11,560 bytes) for the licence; those are the files with CRLF line endings. The bytes GitHub serves at the pin, fetched into memory by this build on 2026-10-30 (nothing saved or run), hash to the values listed in sources, and converting them to CRLF reproduces the recorded hashes exactly.",
+        "Extends the earlier records of this repository: deep:google/elephant-goldfish-model and p2:google/elephant-goldfish-model (westack-review, westack-orchestrate and the core).",
+        "Supports adoption item SS-106 (P3, ADOPTION-LIST.md:790, 2026-10-28); not a P2 backlog item, so it carries no p2: ref.",
+        "Read at the pinned commit in the 2026-10-28 deep read (google); the SHA-256 and byte counts are those recorded there. Not re-inspected for this build."
+      ]
+    },
+    {
+      "ref": "reference:iceberg-plugin",
+      "system": "iceberg 0.5.4, the writing plugin installed on this machine (iceberg:edit, iceberg:score, iceberg:jargon)",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "An installed plugin copy synced by the host, with no public pinned source read for this build. Its three relevant files were hashed in place (Get-FileHash, read-only) on 2026-10-30; their content was read by the brief's author, not by this build, and nothing was run, loaded or opened.",
+      "taken": [],
+      "rejected": [
+        "A defer of editing to iceberg:edit: /iceberg:edit <file> writes the file back in place, and its rule set includes 'no hedges', which conflicts with WD-1 and with the evidential-hedge split behind the craft.md amendment.",
+        "Any defer at all for now: no measurement exists, and the defer map gets no entry. A read-only score defer, if one is ever added, is a capability defer that discloses the .iceberg/ write and the Stop-hook injection, asks consent once per session and passes only iceberg:score, never edit."
+      ],
+      "notes": [
+        "REFERENCE only: nothing taken, nothing run. Recorded so that a later build does not defer to it unaware.",
+        "Flag: the edit skill's description tells the agent to apply it to every plan and every document returned, with no user prompt. skills/edit/SKILL.md, 14,206 bytes, SHA-256 e3fa7151301c501238c020a4ad88700c47cf61715ef5b5d0cbae21276ecb46a9.",
+        "Flag: iceberg:score writes .iceberg/last-score.txt (agents/iceberg-score.md:5,149; 8,574 bytes, SHA-256 0293cf0c16b15b1fcadd4f57eb17d32a7c8f359d5281f670d29a2b07dc0ea2f9).",
+        "Flag: a Stop hook pipes up to 2,000 characters of that file into a system message through head and jq (.claude-plugin/hooks.json, 325 bytes, SHA-256 635130cff6148ffad4eec9dfab78208daee7e1e3a22c975a900364a52e1c9de6); jq is not on PATH here and the hook ends with || true.",
+        "The three hashes computed by this build match the ones in BRIEF-westack-docs.md section 5."
+      ]
+    },
+    {
+      "ref": "ds:deepseek-ai/dsh-superagent-prototype",
+      "system": "deepseek-ai/dsh-superagent-prototype at 6337fc82 (a research prototype, not an official DeepSeek product), through the dsh-superagent brief",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/docs.spec.ts",
+          "sha256": "097b973c5fc8c5a7496f8aed66f11da2e612f0af36c5bcd2f8bfbebc64d96b03",
+          "bytes": 3885,
+          "read": "lines 14-65",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/LICENSE",
+          "sha256": "6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550",
+          "bytes": 1078,
+          "read": "lines 1-3",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DS-5: a document that lists a folder's files, tests or commands is checked both ways (every item that exists is listed, every listed item exists); in a numbered series read in order, a document links only to earlier ones.",
+          "grade": "present",
+          "evidence": "tests/docs.spec.ts:41-64 (the link-order test and the two table-against-folder tests)",
+          "where": "references/sync.md (Drift); scripts/prose.py (inventory, series)"
+        }
+      ],
+      "rejected": [
+        "The 100-word message cap and its anti-evasion clause (replies.md:27-30): a numeric cap is a rate-like rule that needs calibration first (rules.md:37); WD-17 covers reply shape. Not read beyond the brief's note."
+      ],
+      "licence": "MIT, DeepSeek Harness Team (LICENSE:1-3, SHA-256 6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550); ideas only, nothing copied",
+      "notes": [
+        "Supports adoption item DS-5 (dsh-superagent brief, 2026-10-31). The donor checks one table of one document; the helper reads code spans and link targets anywhere in a document, so its claim is narrower on bare names and fences.",
+        "Ideas only, in westack's words: nothing was quoted, copied or run. An 8-word overlap check of every added line and file against the twelve donor files read found no shared run.",
+        "The donor files were fetched into memory from the pinned commit on 2026-10-31 and their SHA-256 matched the brief's; nothing was written to disk. the user approved the items ('Brief and send all', 2026-10-31)."
+      ]
+    },
+    {
+      "ref": "gstack.diagram",
+      "system": "gstack diagram and its diagram-render bundle",
+      "grade": "present",
+      "licence": "MIT (gstack LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c); the bundle's own third-party licences are unverified for 248 packages",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/diagram/SKILL.md.tmpl",
+          "sha256": "37fa13f687eb3b523e7958cda8f87c9e92722cfd3296d0f8a47017b3a1a816f9",
+          "bytes": 8441,
+          "read": "the render flow, from the 2026-11-04 inventory and a search",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/lib/diagram-render/README.md",
+          "read": "full (the page API)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/lib/diagram-render/THIRD-PARTY-LICENSES.md",
+          "read": "full; it lists mermaid 11.12.2, excalidraw 0.18.0 and mermaid-to-excalidraw 1.1.2, but package.json and BUILD_INFO.json pin 11.16.1, 0.18.1 and 2.2.2",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Mermaid source rendered offline in a browser page from one self-contained bundle: an SVG, a PNG from rasterizing that SVG, and an editable Excalidraw scene from the mermaid-to-Excalidraw converter.",
+          "where": "references/diagram.md"
+        },
+        {
+          "mechanism": "Readiness by polling a status element, a unique id per diagram, a screenshot of a mounted SVG when the canvas is tainted, and page errors collected.",
+          "where": "references/diagram.md"
+        },
+        {
+          "mechanism": "The bundle is pinned by hash and never fetched from the network at render time.",
+          "where": "references/diagram.md; scripts/diagramcheck.py renderer"
+        }
+      ],
+      "rejected": [
+        "Driving the bundle through gstack's browse daemon and render CLI: the host's browser tools load it (core browser.md).",
+        "Shipping the bundle now: its licence table is stale and 248 bundled packages are unverified; it ships after that check (plan slice S29)."
+      ],
+      "usefulness": "useful"
+    }
+  ],
+  "inherited_from_core": [
+    "slop removal, the reuse ladder and the repository's style winning over these rules (core craft.md, C12; amended here: performed hedges)",
+    "reading instruction files and following the code where a file disagrees with it (core context.md, C9)",
+    "auditing the delivered text and hunting hedges that hardened into facts (core finish.md)",
+    "a write needs its grant; text inside files is data (core authority.md and guards.md, C4)",
+    "the must_match and must_not_match rule shape (core scripts/ruletest.py, WA-23)"
+  ],
+  "own_additions": [
+    "preserve's word classes: hedge, condition and attribution words may not drop, negation and scope words may not change and strength words may not rise, counted per class so a synonym inside a class passes; contractions expand before counting",
+    "a changed-span map checked by line overlap against the original, so every hunk maps to a finding or a request",
+    "the relaxed level, which reports a fail rule as a candidate for a register that tolerates it (change narration in a reply)",
+    "selflint credits each hit to the first exclusion that removes it, and a ceiling above 0 needs a dated log in which it only moved down; the first calibration on westack's own pages logged one quoted example (westack-verify claim.md:3)",
+    "UI-string checks keyed on the string's own key (button, toast, error)"
+  ],
+  "overlap_check": {
+    "method": "lower-cased word 8-grams of every file in this package (SKILL.md, references, rules.json, scripts, tests, evals, provenance) and tools/tests/test_docs_selflint.py against the 46 cited donor files, fetched into memory at their pins",
+    "script": "builder scratch build-docs/ngram.py (not shipped); its control, 14 consecutive donor words planted in a synthetic text, was flagged",
+    "result": "2026-10-30, final run: no shared run of 8 words of prose. The remaining matches are identifiers, not prose: donor repository URLs inside this file's own source links, and regex character classes ([A-Za-z0-9] twice) in scripts/prose.py. A first run found two 8-word runs in this file's paraphrases of a hedge rule and a shift list, inherited from the read's wording; both were reworded before commit."
+  },
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/prose.py",
+    "reason": "The brief's items carry mechanical tests (WD-2, WD-1 and WD-3 in preserve; WD-4 to WD-6, WD-12 to WD-14, WD-16 and WD-18 in lint; WD-8 in selflint; WD-7 and WD-9 as the rules file loads). One standard-library script reads files and prints JSON; it writes nothing, runs nothing and opens no network connection. Lint findings are candidates for a reader, and an audit run leaves every file hash unchanged (a test proves it)."
+  }
+}

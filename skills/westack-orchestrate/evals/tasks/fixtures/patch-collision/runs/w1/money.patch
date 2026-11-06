@@ -1,0 +1,21 @@
+patch-w1-1e7
+--- a/src/fmt/money.py
++++ b/src/fmt/money.py
+@@ -1,4 +1,4 @@
+ # money-src-5k1
+ def fmt(amount):
+     """An amount for display."""
+-    return str(amount)
++    return "%.2f" % amount
+--- /dev/null
++++ b/tests/test_money_invoice.py
+@@ -0,0 +1,9 @@
++import unittest
++
++from src.fmt import money
++
++
++class InvoiceTests(unittest.TestCase):
++    def test_two_decimals(self):
++        self.assertEqual(money.fmt(3), "3.00")
++        self.assertEqual(money.fmt(1234.5), "1234.50")

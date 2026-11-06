@@ -1,0 +1,6 @@
+flowchart LR
+  A[Request arrives] --> B{Cached?}
+  B -->|yes| C[Serve from cache]
+  B -->|no| D[Render page]
+  D --> E[(Store in cache)]
+  E --> C

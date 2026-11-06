@@ -1,0 +1,44 @@
+{
+  "version": "1.45.0",
+  "results": [
+    {
+      "check_id": "python.lang.security.audit.formatted-sql-query.formatted-sql-query",
+      "path": "app/reports.py",
+      "start": {
+        "line": 9,
+        "col": 5
+      },
+      "end": {
+        "line": 9,
+        "col": 72
+      },
+      "extra": {
+        "severity": "WARNING",
+        "message": "SQL query built with string formatting. Use a parameterised query."
+      }
+    },
+    {
+      "check_id": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+      "path": "app/reports.py",
+      "start": {
+        "line": 15,
+        "col": 5
+      },
+      "end": {
+        "line": 15,
+        "col": 75
+      },
+      "extra": {
+        "severity": "ERROR",
+        "message": "subprocess call with shell=True. Pass a list of arguments instead."
+      }
+    }
+  ],
+  "errors": [],
+  "paths": {
+    "scanned": [
+      "app/reports.py",
+      "app/views.py"
+    ]
+  }
+}

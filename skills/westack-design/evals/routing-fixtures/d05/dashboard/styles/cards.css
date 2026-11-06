@@ -1,0 +1,6 @@
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 18px; }
+.card h3 { margin: 0 0 6px; font-size: 14px; color: #6b7280; }
+.card .value { font-size: 28px; color: #1f2933; }
+.card .delta-up { color: #059669; }
+.card .delta-down { color: #dc2626; }
+.card .link { color: var(--color-accent); margin-top: var(--space-2); }

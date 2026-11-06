@@ -1,0 +1,13 @@
+Weekly sync, 28 October
+
+Priya: Okay, first thing, the billing export. Where are we?
+Tom: The CSV part is done. I still need to handle accounts with more than ten thousand invoices, it times out.
+Priya: Can you have that by Friday?
+Tom: Friday works if Lena reviews it Thursday.
+Lena: Thursday afternoon is fine.
+Priya: Good. Second thing, the on-call rota. We are short one person in November.
+Lena: I can take the second week.
+Priya: Thanks. I will update the rota today. Last thing, the customer call with Northwind is moved to Tuesday.
+Tom: Who is joining?
+Priya: Me and Tom. Tom, bring the export numbers.
+Tom: Will do.

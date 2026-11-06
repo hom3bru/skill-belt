@@ -1,0 +1,25 @@
+diff --git a/pricing.py b/pricing.py
+index 3d41f0a..e9b2c77 100644
+--- a/pricing.py
++++ b/pricing.py
+@@ -1,9 +1,13 @@
+-def price(item, qty):
+-    unit = item["unit_cents"]
+-    if qty >= 10:
+-        unit = unit * 90 // 100
+-    return unit * qty
++TIERS = [(100, 80), (10, 90)]
+ 
+ 
+-def cart_total(items):
+-    return sum(price(i, i["qty"]) for i in items)
++def price(item, qty):
++    unit = item["unit_cents"]
++    for minimum, percent in TIERS:
++        if qty >= minimum:
++            return unit * percent // 100 * qty
++    return unit * qty
++
++
++def cart_total(items):
++    return sum(price(i, i["qty"]) for i in items)

@@ -1,0 +1,7 @@
+/* land-css-5b9 */
+:root { --fg: #111827; }
+body { font-family: Inter, sans-serif; color: var(--fg); background: #FFFFFF; }
+.btn { background: #1D4ED8; color: #FFFFFF; padding: 8px 16px; border-radius: 6px; }
+.btn:hover { background: #3B82F6; }
+.cta { background: #FF6B6B; color: var(--fg); padding: 8px 16px; }
+.stat { font-size: 13px; }

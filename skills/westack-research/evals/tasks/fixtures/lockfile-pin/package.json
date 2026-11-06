@@ -1,0 +1,12 @@
+{
+  "name": "orders-web",
+  "version": "0.9.0",
+  "private": true,
+  "description": "pkg-l1a",
+  "dependencies": {
+    "fetchwell": "^2.1.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

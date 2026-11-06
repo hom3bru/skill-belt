@@ -1,0 +1,10 @@
+Planning sync, 29 October
+
+Dana: Let's start with the mobile release. Are we still aiming for the 12th?
+Raj: The login screen is done. The offline mode needs another week, so I would say the 19th.
+Dana: Then the 19th. Raj, can you tell support by Friday?
+Raj: Yes.
+Dana: Next, the data export complaints. Mei, you looked at those?
+Mei: Three customers hit the timeout on large exports. I can raise the limit this week, but we need a proper fix later.
+Dana: Fine. Raise it now and write up the proper fix for next sprint planning.
+Mei: Will do.

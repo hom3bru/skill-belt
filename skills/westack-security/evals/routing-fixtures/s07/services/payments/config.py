@@ -1,0 +1,4 @@
+import os
+
+PROVIDER_KEY = os.environ["PAYMENTS_PROVIDER_KEY"]
+WEBHOOK_SECRET = os.environ["PAYMENTS_WEBHOOK_SECRET"]

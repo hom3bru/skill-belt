@@ -1,0 +1,26 @@
+paper-3b9
+Caching Tool Calls for Agents
+Ana Rivera, Bo Chen
+arXiv:2409.01234v1, 2 September 2024
+
+Abstract
+We cache the results of an agent's tool calls by a hash of the call. In a synthetic replay where every call is
+repeated, caching cuts agent cost by up to 60%. On a realistic software-engineering benchmark the saving is smaller.
+
+1 Introduction
+Agents repeat many tool calls within one task: reading the same file, listing the same folder.
+
+3 Method
+We key each call on its tool name and arguments and invalidate entries when a write touches the same path.
+
+4 Results
+Synthetic replay (every call repeated once): cost fell by 60%.
+On the SWE-style benchmark, caching cut cost by 16% (Table 2), with no change in the pass rate.
+
+Table 2. Cost per task, SWE-style benchmark.
+  no cache: 1.00 (normalised)
+  cache:    0.84
+
+6 Limitations
+The 60% figure is a best case: it comes from the synthetic replay, where every call repeats. We did not measure
+latency under load, and the benchmark has 120 tasks.

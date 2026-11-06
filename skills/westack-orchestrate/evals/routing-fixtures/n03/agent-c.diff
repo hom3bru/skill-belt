@@ -1,0 +1,8 @@
+diff --git a/src/slug.py b/src/slug.py
+index 0f1e2d3..4c5b6a7 100644
+--- a/src/slug.py
++++ b/src/slug.py
+@@ -1,2 +1,2 @@
+ def make(text):
+-    return text.lower().replace(" ", "-")
++    return text.lower().replace(" ", "-").strip("-")

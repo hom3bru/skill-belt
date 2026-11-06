@@ -1,0 +1,19 @@
+/* mp-css-9f3 */
+.dock-item { transition: transform 120ms ease-out; }
+.dock-item:hover { transform: scale(1.4); }
+
+.plan-card { transition: transform 200ms ease-out, opacity 200ms ease-out; }
+.plan-card:hover { transform: scale(1.03); opacity: 0.96; }
+
+.toast { transition: opacity 150ms ease-out; }
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal[open] { animation: dialog-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-item, .plan-card, .toast { transition: none; }
+  .modal[open] { animation: none; }
+}

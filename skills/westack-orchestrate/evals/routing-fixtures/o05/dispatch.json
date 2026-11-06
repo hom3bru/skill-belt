@@ -1,0 +1,9 @@
+{
+  "mode": "workers",
+  "runs": "runs",
+  "workers": [
+    {"id": "a", "brief": "briefs/a.md", "handle": "agent-91a1"},
+    {"id": "b", "brief": "briefs/b.md", "handle": "agent-91a2"},
+    {"id": "c", "brief": "briefs/c.md", "handle": "agent-91a3"}
+  ]
+}

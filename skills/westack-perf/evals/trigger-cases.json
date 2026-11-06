@@ -1,0 +1,19 @@
+{
+  "format": "westack-perf-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-perf, westack-debug, westack-qa and westack-build from this repository. The user's real population also holds chrome-devtools-mcp's performance skills (debug-optimize-lcp) and benchmark skills from installed plugins; keep them in.",
+  "pending_note": "westack-db is planned, not built: n03 carries pending_until_built.",
+  "cases": [
+    {"id": "p01", "split": "dev", "expect": "westack-perf", "prompt": "Our landing page feels slow on mobile. Measure LCP and CLS and tell me what's holding it back."},
+    {"id": "p02", "split": "dev", "expect": "westack-perf", "prompt": "Did my lazy-loading change actually make the dashboard faster? Compare it with main."},
+    {"id": "p03", "split": "held-out", "expect": "westack-perf", "prompt": "The nightly export job went from 4 minutes to 11. Profile it and find where the time goes."},
+    {"id": "p04", "split": "dev", "expect": "westack-perf", "prompt": "Our JS bundle grew after the upgrade. How much, and is it over budget?"},
+    {"id": "p05", "split": "held-out", "expect": "westack-perf", "prompt": "A blog post claims this config cuts p99 latency by 40%. Check it against our API before we adopt it."},
+    {"id": "n01", "split": "dev", "expect": "westack-debug", "prompt": "The export job crashes halfway with a MemoryError. Why?", "near_miss_of": "westack-perf (a failure, not slowness)"},
+    {"id": "n02", "split": "dev", "expect": "westack-qa", "prompt": "Half the links on the pricing page 404 since the deploy.", "near_miss_of": "westack-perf (broken, not slow)"},
+    {"id": "n03", "split": "dev", "expect": "westack-db", "pending_until_built": "westack-db", "prompt": "This Postgres query takes 9 seconds; add the right index.", "near_miss_of": "westack-perf (the limiter is known to be SQL)"},
+    {"id": "n04", "split": "held-out", "expect": "westack-build", "prompt": "Implement the image lazy-loading we agreed on in the plan.", "near_miss_of": "westack-perf (building a known change)"},
+    {"id": "n05", "split": "dev", "expect": "NONE", "prompt": "What is a good LCP target in general?", "near_miss_of": "westack-perf (a question, nothing to measure)"}
+  ]
+}

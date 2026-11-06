@@ -1,0 +1,15 @@
+{
+  "format": "westack-health-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-health, westack-review, westack-verify, westack-retro, westack-perf and westack-build from this repository. The user's real population also holds gstack's health skill while it is installed; keep it in.",
+  "cases": [
+    {"id": "h01", "split": "dev", "expect": "westack-health", "prompt": "How healthy is this codebase? Run the type checker, linter and tests and give me a score."},
+    {"id": "h02", "split": "dev", "expect": "westack-health", "prompt": "Run all our quality checks and tell me whether things got better or worse since last week's health check."},
+    {"id": "h03", "split": "held-out", "expect": "westack-health", "prompt": "Give me a code quality dashboard for this repo and what to fix first."},
+    {"id": "n01", "split": "dev", "expect": "westack-review", "prompt": "Review this PR for bugs before I merge it.", "near_miss_of": "westack-health (one change, not the codebase)"},
+    {"id": "n02", "split": "dev", "expect": "westack-verify", "prompt": "The agent says all the lint errors are fixed. Check that.", "near_miss_of": "westack-health (a done claim)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-retro", "prompt": "What did we ship this week and how did testing go?", "near_miss_of": "westack-health (a look back at work, not tool scores)"},
+    {"id": "n04", "split": "dev", "expect": "westack-build", "prompt": "Fix all the lint warnings in src/.", "near_miss_of": "westack-health (fixing, which health never does)"}
+  ]
+}

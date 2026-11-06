@@ -1,0 +1,30 @@
+{
+  "format": "westack-build-trigger-cases-1",
+  "status": "not-run as a set. One dev case ran once on Claude Code as the routing smoke on 2026-10-28; see the package report. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-build, westack-tdd, westack-plan, westack-debug, westack-verify and westack-review from this repository, plus the superpowers plugin's `superpowers:executing-plans`. westack-eval is manual-only. Requests with no owner in the population expect NONE.",
+  "cases": [
+    {"id": "b01", "split": "dev", "expect": "westack-build", "prompt": "Add a --dry-run flag to the export command in cli.py: print what would be written and write nothing. The behaviour is agreed, so go ahead and implement it.", "fixture": "routing-fixtures/b01"},
+    {"id": "b02", "split": "dev", "expect": "westack-build", "prompt": "Implement ticket ENG-142: limit the login endpoint to five attempts per minute per IP, returning the 429 body the ticket specifies.", "fixture": "routing-fixtures/b02"},
+    {"id": "b03", "split": "held-out", "expect": "westack-build", "prompt": "Wire the new PaymentProvider interface into checkout.py and its two callers, the way we agreed yesterday.", "fixture": "routing-fixtures/b03"},
+    {"id": "b04", "split": "dev", "expect": "westack-build", "prompt": "Keep going on the CSV importer until npm test and npm run typecheck are both clean. Six attempts at most, and leave the tests alone.", "fixture": "routing-fixtures/b04"},
+    {"id": "b05", "split": "dev", "expect": "westack-build", "prompt": "We were halfway through adding pagination to /api/orders when the session died. Pick it up where it stopped and finish it.", "fixture": "routing-fixtures/b05"},
+    {"id": "b06", "split": "held-out", "expect": "westack-build", "prompt": "Make the config loader accept a YAML file as well as JSON. Only touch src/config/.", "fixture": "routing-fixtures/b06"},
+    {"id": "b07", "split": "dev", "expect": "westack-build", "prompt": "Do step 3 of the approved migration plan: add the archived_at column and the code that writes it. Nothing beyond step 3.", "fixture": "routing-fixtures/b07"},
+    {"id": "b08", "split": "dev", "expect": "westack-build", "prompt": "Change format_total so euro amounts put the symbol after the number, like 12.50 €.", "fixture": "routing-fixtures/b08"},
+    {"id": "b09", "split": "held-out", "expect": "westack-build", "prompt": "Don't stop until the integration suite is green, but if you're stuck after five tries, tell me what's blocking you.", "fixture": "routing-fixtures/b09"},
+    {"id": "b10", "split": "dev", "expect": "westack-build", "prompt": "Implement the retry with exponential backoff described in issue 88 for the webhook sender.", "fixture": "routing-fixtures/b10"},
+    {"id": "n01", "split": "dev", "expect": "westack-tdd", "prompt": "Write the failing tests for parse_duration first, watch them fail, then implement it.", "near_miss_of": "westack-build (test-first work)", "fixture": "routing-fixtures/n01"},
+    {"id": "n02", "split": "held-out", "expect": "westack-tdd", "prompt": "Add characterisation tests around the legacy billing module before anyone changes it.", "near_miss_of": "westack-build (tests, no change to build)", "fixture": "routing-fixtures/n02"},
+    {"id": "n03", "split": "dev", "expect": "westack-plan", "prompt": "Break the move from REST to gRPC into ordered steps with a rollback for each. No code yet.", "near_miss_of": "westack-build (planning, not implementing)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-debug", "prompt": "The export command started throwing KeyError after yesterday's merge. Find out why.", "near_miss_of": "westack-build (unknown cause)", "fixture": "routing-fixtures/n04"},
+    {"id": "n05", "split": "held-out", "expect": "westack-debug", "prompt": "test_scheduler fails on CI about one run in ten. Figure out what's going on.", "near_miss_of": "westack-build (flaky, cause unknown)", "fixture": "routing-fixtures/n05"},
+    {"id": "n06", "split": "dev", "expect": "westack-verify", "prompt": "The agent says the pagination feature is finished. Check it against the ticket without changing anything.", "near_miss_of": "westack-build (auditing a done claim, no edits)", "fixture": "routing-fixtures/n06"},
+    {"id": "n07", "split": "dev", "expect": "westack-review", "prompt": "Review this diff for bugs before I merge it.", "near_miss_of": "westack-build", "fixture": "routing-fixtures/n07"},
+    {"id": "n08", "split": "dev", "expect": "superpowers:executing-plans", "prompt": "Run superpowers' executing-plans on docs/plans/export.md.", "near_miss_of": "westack-build (an explicitly named outside skill wins)", "fixture": "routing-fixtures/n08"},
+    {"id": "n09", "split": "dev", "expect": "NONE", "prompt": "What does git rebase --onto do?"},
+    {"id": "n10", "split": "held-out", "expect": "NONE", "prompt": "Build the Docker image and push it to the registry.", "near_miss_of": "westack-build (the word build; a deploy action with no installed owner)", "fixture": "routing-fixtures/n10"},
+    {"id": "n11", "split": "dev", "expect": "NONE", "prompt": "Explain how the retry decorator in utils.py works.", "near_miss_of": "westack-build (reading, not changing)", "fixture": "routing-fixtures/n11"},
+    {"id": "n12", "split": "held-out", "expect": "NONE", "prompt": "Build me a reading list on distributed systems.", "near_miss_of": "westack-build (the word build, no code)"}
+  ]
+}

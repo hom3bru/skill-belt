@@ -1,0 +1,1192 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-verify",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only. No donor text was copied into this package. Each donor file was read in full at its pinned commit for this package; the mechanisms below are paraphrased, graded with the shared evidence vocabulary (present = read at the pin; wired = an entrypoint or configuration traced to it at the pin) and nothing was run. Records whose ref starts with 'deep:' were added on 2026-10-29 for the P1 adoption (1.0.0-alpha.4): each was read at its pinned commit in the 2026-10-28 deep reads (shallow clones of the pinned repositories, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. The policy above describes the earlier records; a deep: record says for itself how it was read. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. One more record (ap:, the Aura Autopilot addendum, 2026-10-30) was read at its pin by the addendum's author; the clone was not opened for this change, and the benchmark in the Aura post is the authors' claim, graded claimed.",
+  "retrieval": {
+    "method": "Plain HTTPS GET of raw.githubusercontent.com/<owner>/<repo>/<40-hex commit>/<path> (PowerShell Invoke-WebRequest); no Firecrawl, no mirrors. Fetched text was treated as data.",
+    "retrieved_utc": "2026-10-28T15:35:09Z",
+    "corroboration": "Six of the files are byte-identical to copies fetched at the same pins on 2026-10-28 for the research2 donor review (cursor verify-this, pstack create-verification-skill, SWE-agent submit and default.yaml, HumanLayer validate_plan, claude-quickstarts coding_prompt).",
+    "overlap_check": "see overlap_check below"
+  },
+  "donors": [
+    {
+      "ref": "cat:superpowers:skill:verification-before-completion",
+      "system": "obra/superpowers",
+      "licence": "MIT (repository LICENSE at the pin, from the research2 review)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/verification-before-completion/SKILL.md",
+          "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3",
+          "bytes": 3646,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Each kind of claim (tests pass, build succeeds, bug fixed, agent finished, requirements met) has named evidence that settles it and named stand-ins that do not.",
+          "grade": "present",
+          "where": "references/checks.md 'Claims are not proof' and 'The checks'"
+        },
+        {
+          "mechanism": "A delegated agent's success report is checked against the version-control diff rather than accepted.",
+          "grade": "present",
+          "where": "references/acceptance.md step 4 (paths from version control, never the claimant's list)"
+        },
+        {
+          "mechanism": "Requirements are checked one by one against the plan instead of being inferred from a green test run.",
+          "grade": "present",
+          "where": "references/checks.md 'What done means'; 'Exercise the claim'"
+        },
+        {
+          "mechanism": "A regression test is shown by reverting the fix and watching it fail, then restoring.",
+          "grade": "present",
+          "where": "references/claim.md step 4, done outside the work in a disposable worktree"
+        }
+      ],
+      "rejected": [
+        "The exhortation layer (rationalisation tables, red-flag phrases): this skill rests on receipts and statuses, not on persuading the agent.",
+        "Freshness defined as 'run in this message': receipts here are bound to revision, patch and scope, so a current receipt from earlier in the session still counts and a fresh one at the wrong revision does not.",
+        "Its role as the agent's own pre-claim habit: that stays with the installed superpowers skill, which the description excludes; westack-verify is a separate audit of a claim."
+      ]
+    },
+    {
+      "ref": "cat:cursor-plugins:verify-this",
+      "system": "cursor/plugins (cursor-team-kit)",
+      "licence": "MIT (cursor-team-kit/LICENSE; the repository has no root licence)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/cursor-team-kit/skills/verify-this/SKILL.md",
+          "sha256": "c1c7b27c1133085bd3409c601ea12b6e6f61b4b23debcd52bc248fc01907e7de",
+          "bytes": 2805,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Restate the claim so it can be falsified: condition, observable, threshold.",
+          "grade": "present",
+          "where": "references/checks.md 'What done means' step 2; references/claim.md step 1"
+        },
+        {
+          "mechanism": "Before and after captured with the same command, data and environment, then the raw artefacts compared.",
+          "grade": "present",
+          "where": "references/claim.md step 3"
+        },
+        {
+          "mechanism": "An inconclusive outcome when the baseline is invalid, the signal is noisy or the environment differs.",
+          "grade": "present",
+          "where": "references/claim.md steps 3 and 5; mapped onto the shared 'inconclusive' result"
+        },
+        {
+          "mechanism": "A negative result is reported plainly, not softened.",
+          "grade": "present",
+          "where": "references/claim.md step 5; SKILL.md 'Report'"
+        }
+      ],
+      "rejected": [
+        "Its /tmp artefact layout: the core's evidence root outside the work is used instead.",
+        "Its own verdict words: the shared result vocabulary (passed, failed, inconclusive, blocked, not-run) is used so results compare across westack skills.",
+        "Named harnesses (control-cli, control-ui) that do not exist on every host."
+      ]
+    },
+    {
+      "ref": "harness:swe-agent-staged-submit-review",
+      "system": "SWE-agent/SWE-agent (tools/review_on_submit_m)",
+      "licence": "MIT",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/tools/review_on_submit_m/bin/submit",
+          "sha256": "ebe0f63430431ba09fab3c290a8fc60df7216ce7e453b457134eb70bc5d97206",
+          "bytes": 1714,
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/SWE-agent/SWE-agent/blob/3ea751c087f32b16e039a2233dd6eefecef325d5/config/default.yaml",
+          "sha256": "96aeb863cbfaa768044527155f8555c9b401c6644e937b5b6b0bba5538b6eee4",
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Submission is held until the full diff, taken from git rather than from the agent, has been shown against a checklist.",
+          "grade": "wired",
+          "evidence": "default.yaml lists the review_on_submit_m bundle and sets SUBMIT_REVIEW_MESSAGES; submit stages and prints the diff for each review stage before it emits the submission",
+          "where": "references/acceptance.md step 4"
+        },
+        {
+          "mechanism": "The checklist singles out reproduction scripts left behind and edits to existing test files.",
+          "grade": "wired",
+          "where": "references/acceptance.md step 4, classes 'scratch' and 'existing test changed'"
+        }
+      ],
+      "rejected": [
+        "Reverting the test edits and deleting the scratch files: verification reports them and changes nothing; the user decides.",
+        "The agent's own rerun of its reproduction as the evidence: no receipt, counts or control.",
+        "Staging with git add -A to build the diff: it changes the index; read-only status and diff are used instead."
+      ]
+    },
+    {
+      "ref": "cat:humanlayer:commands:validate_plan",
+      "system": "humanlayer/humanlayer (.claude/commands; removed from HEAD in d8197bab, 2026-10-22)",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/validate_plan.md",
+          "sha256": "5f28ac5c0671063563920ae5d607b875df69f5cf98677f850fb3d53dd6b00e02",
+          "bytes": 5226,
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/create_plan.md",
+          "sha256": "2a4b16e8050a3c96042727532f72231875efdcced14f4c76c0ba9a42524fc647",
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/implement_plan.md",
+          "sha256": "1e682b990898e1c9f040f88766f8a91ac06e51f056db6d15dd78c7837d785046",
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Success criteria split into automated and manual; manual items stay unticked until the person confirms them.",
+          "grade": "present",
+          "where": "references/checks.md 'What done means' step 3; references/acceptance.md step 5"
+        },
+        {
+          "mechanism": "Validation checks that phases marked complete are really done instead of reading the ticks.",
+          "grade": "present",
+          "where": "references/checks.md 'Claims are not proof'"
+        },
+        {
+          "mechanism": "Deviations from the plan are reported apart from defects.",
+          "grade": "present",
+          "where": "references/acceptance.md step 4, class 'out of scope'"
+        }
+      ],
+      "rejected": [
+        "Resuming by trusting checked items and re-verifying only when something seems off (implement_plan): rejected, see references/resume.md step 4 (research2 N20).",
+        "The agent ticking the plan file's boxes: verification never edits the work or its records.",
+        "make check test as the default command: the repository's own command is used."
+      ]
+    },
+    {
+      "ref": "harness:anthropic-long-running-coding-prompt",
+      "system": "anthropics/claude-quickstarts (autonomous-coding)",
+      "licence": "MIT",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-quickstarts/blob/930ad10bb2e21a9ef97fe1a88d2037e18a24465c/autonomous-coding/prompts/coding_prompt.md",
+          "sha256": "6f1fe5ef3c81a9aed7478ce0c51d8fd067f8c6b90183c5f921610fa4b35dfedc",
+          "bytes": 5571,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "A fresh session re-runs one or two core features already marked passing before any new work, and treats a failure there as a regression to deal with first.",
+          "grade": "present",
+          "evidence": "prompt read at the pin; the agent.py wiring was not traced",
+          "where": "references/resume.md steps 2 and 3"
+        },
+        {
+          "mechanism": "Tests are never removed, edited, merged or reordered; only the pass flag may change.",
+          "grade": "present",
+          "where": "references/acceptance.md step 4 (a deleted, renamed or skipped test is a finding) and the checks.py missing/newly-skipped lists"
+        }
+      ],
+      "rejected": [
+        "The pass flag itself as completion evidence: it is a marker.",
+        "Browser automation as the only acceptable test: the evidence type follows the criterion (proportionality)."
+      ]
+    },
+    {
+      "ref": "cat:openspec:skill:openspec-verify-change",
+      "system": "Fission-AI/OpenSpec",
+      "licence": "MIT (stated in the skill's front matter; the repository licence was not re-fetched)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Fission-AI/OpenSpec/blob/6d04a1b58dedc95729d34e4f223d9d483aae210a/skills/openspec-verify-change/SKILL.md",
+          "sha256": "f06dfdd46d810b3db1e900044542fe89864578bd43b6705faff67e8f39bce97b",
+          "bytes": 20456,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Verification neither implements nor archives; it only reports.",
+          "grade": "present",
+          "where": "SKILL.md 'Hands off the work'"
+        },
+        {
+          "mechanism": "A skipped or partly checked item is reported as not verified with its reason, never scored as passing, and no readiness is claimed while anything was skipped.",
+          "grade": "present",
+          "where": "SKILL.md 'Report' (result order; never 'done' while anything is open)"
+        }
+      ],
+      "rejected": [
+        "Keyword search and 'reasonable inference' as correctness evidence: a search hit shows presence at most (shared vocabulary).",
+        "The CRITICAL / WARNING / SUGGESTION scale: results use the shared vocabulary; diff findings that need a decision hold the result back from passed.",
+        "Verification as advisory: here a failed criterion fails the result.",
+        "Spec-delta mechanics (REMOVED and RENAMED requirements): specific to OpenSpec artefacts."
+      ]
+    },
+    {
+      "ref": "deep:0marm0/coord-harness",
+      "system": "COORD-Harness (coordharness)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 COORD-Harness contributors)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/0marm0/COORD-Harness/blob/31d7182b8b920b9ecd8eb6ae5c4cc623c5aca3d3/src/coordharness/coord/coord_db.py",
+          "sha256": "44f16e55778bb0e9294253e2b55fb131f51a47543bc70f837911b6227691116e",
+          "bytes": 491106,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/0marm0/COORD-Harness/blob/31d7182b8b920b9ecd8eb6ae5c4cc623c5aca3d3/LICENSE",
+          "sha256": "d224478a8ee7a868955ea571cfb5fc567dba946be4401ad90ff7fea72d1a0e2e",
+          "bytes": 1083,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-45: Work status is derived on read: running needs an unexpired claim, done needs an artifact plus passed review. Named proof states include verified_done, legacy_done, needs_adjudication, missing_done_signal.",
+          "grade": "wired",
+          "evidence": "src/coordharness/coord/coord_db.py:10763-10854",
+          "where": "references/checks.md (Claims are not proof); references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-45 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/claude-plugins-official",
+      "system": "Claude Code official plugin marketplace (marketplace CI and policy, security-guidance, receipts, math-proof, hookify, plugin-dev)",
+      "licence": "Mixed. The repository LICENSE is Apache-2.0 and most plugins repeat it. The claude-security plugin is proprietary and bars use of any part of it with or to develop a non-Anthropic product: it is excluded, and nothing from it informed these records. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/.github/policy/schema.json",
+          "sha256": "cd6d6306ad5b6e091c34c7d4ac10c7cc44004e0e70bed40e0d5dc5e29bde8ede",
+          "bytes": 1972,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/.github/policy/prompt.md",
+          "sha256": "e90eecc461c4797a874b8d75205feb4cc9bd3b8ab2da4ad8d5e6978a9bfbf3fb",
+          "bytes": 7977,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-45: The verdict is a typed record with separate booleans and a derived pass; a failure must cite the file or hook and state what the user was not told.",
+          "grade": "present",
+          "evidence": ".github/policy/schema.json:16-27; .github/policy/prompt.md:118-140",
+          "where": "references/checks.md (Claims are not proof); references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-45 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/sandbox-runtime",
+      "system": "Anthropic Sandbox Runtime (srt): OS-level filesystem and network restriction for agent commands",
+      "licence": "LICENSE, read: Apache License 2.0 (full text, 11.5 KB). Marked Beta research preview in the README. Test fixtures carry a separate NOTICE (AWS SigV4 suite). Ideas only for westack; the runtime itself (Node, bubblewrap, seatbelt, Rust helper) is something westack can reference, not carry.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/sandbox-runtime/blob/98a4016d27609ed34dd1fb43d23ed6efb6eeeb77/README.md",
+          "sha256": "abe47f5fdb2e9e68beefe8da95730b735111492a235b70fd131d7da9c4a25748",
+          "bytes": 156873,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/sandbox-runtime/blob/98a4016d27609ed34dd1fb43d23ed6efb6eeeb77/LICENSE",
+          "sha256": "1210bc93eb85dd786c33192d5bcb7153a93922fa99fbc1512af6a7199cb41080",
+          "bytes": 11339,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-43: Enforcement gaps are surfaced: a glob the Linux backend cannot apply hides nothing and is returned by a warnings call; a deny for a missing path hides nothing.",
+          "grade": "present",
+          "evidence": "README.md:563, 1168-1176",
+          "where": "references/claim.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-43 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Second donor (2026-10-30): dw-dengwei/daily-arXiv-ai-enhanced (ai/runtime.py) fails the job on a failed AI batch instead of publishing placeholders, the case CM-43 forbids; recorded in the core's facility-donors.json, section fy_addendum. Nothing new taken."
+      ]
+    },
+    {
+      "ref": "deep:edonadei/caliper",
+      "system": "edonadei/caliper (caliper-eval, Python CLI)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Emrick Donadei)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0007-raw-success-rate-is-the-primary-metric.md",
+          "sha256": "4c69fb10ca89de484f71a6392b441964dd0e162858724289d0da43ec98bfa8d2",
+          "bytes": 4779,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/LICENSE",
+          "sha256": "b2075a7c452faf779e0522579eb07b896b16090363d03c09884d222a55807ee9",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-45: Every number a task reports is derived from its attempt list; stored aggregates are ignored on load, so no saved count can contradict the attempts beside it.",
+          "grade": "present",
+          "evidence": "docs/adr/0007-raw-success-rate-is-the-primary-metric.md:43-62",
+          "where": "references/checks.md (Claims are not proof); references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-45 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:leonxlnx/unlazy",
+      "system": "leonxlnx/unlazy (source targets 2.1.0, untagged)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Leonxlnx; GitHub shows the owner as Leonxlnx)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SKILL.md",
+          "sha256": "0ea144724398f9df5ce4cb880ff472c8afee0193179eb2f2a5d82f1a0f633450",
+          "bytes": 10520,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/references/orchestration.md",
+          "sha256": "812d909c60b7cf717839a6ae685d138f501e5577edf8df378d7e10b9c2e4fc79",
+          "bytes": 7324,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-46: Final claim audit: reread the current request, re-measure every number and completion claim immediately before reporting, and report measured met, unmet and abandoned counts with qualified ids.",
+          "grade": "present",
+          "evidence": "SKILL.md:84-86; references/orchestration.md:51",
+          "where": "SKILL.md (Report)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-46 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:microsoft/waza",
+      "system": "microsoft/waza (Go CLI; docs name published v0.39.0)",
+      "licence": "MIT (LICENSE read, Copyright Microsoft Corporation)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/docs/CONTROLLED-COMPARISONS.md",
+          "sha256": "752bfa0a1d286c4232fd72cb3a4b70ad9a9a99311e9865176d9290bfb855672d",
+          "bytes": 46186,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/LICENSE",
+          "sha256": "7df20dcdf9197e9945c14858d41c60f11b52b93e5b69e2b63416b874d598d322",
+          "bytes": 1074,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-45: A verdict is computed only from verified receipts; a sidecar or transported pass boolean is never adopted, and operational rejection is never inferred from score or prose.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:705-712",
+          "where": "references/checks.md (Claims are not proof); references/resume.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-45 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:mrtooher/fable-mode",
+      "system": "fable-mode (mrtooher)",
+      "licence": "Ideas only (no licence). The tree has no LICENSE file and GitHub reports none, so all rights are reserved. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/double-check/SKILL.md",
+          "sha256": "2182e4dfbc609c888775af2270afb87bea30939655a280be7144554f035f699c",
+          "bytes": 11861,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/SKILL.md",
+          "sha256": "b13e40ae3abd401fd12cb23682985552a9b60e1be22ec588c6eb848f6eb41ebf",
+          "bytes": 17387,
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-46: Synthesis seam: claims are extracted from the document about to be delivered, and the checker hunts hedges that became firm conclusions and proxy metrics read as the real quantity.",
+          "grade": "present",
+          "evidence": "double-check/SKILL.md:166-185",
+          "where": "SKILL.md (Report)"
+        },
+        {
+          "mechanism": "EV-46: The run closes with a one-line marker saying whether a final cold check happened (yes, intermediates only, or no); a missing line is never evidence the check happened, and claiming yes falsely removes the only gate.",
+          "grade": "present",
+          "evidence": "SKILL.md:204-224; double-check/SKILL.md:28-35",
+          "where": "SKILL.md (Report)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-46 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:naw103/foremerge",
+      "system": "Foremerge (naw103)",
+      "licence": "Apache-2.0 (LICENSE read, standard Apache 2.0 text)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/docs/protocol.md",
+          "sha256": "05ceabe43bf8383722b70b303f307d0431cc2cc48aa62e8bc52bad39276b26c6",
+          "bytes": 19551,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-43: A what-if preflight stores nothing and uses throwaway ids that cannot be linked; an id passed as free text is rejected so a false all-clear cannot result.",
+          "grade": "present",
+          "evidence": "docs/protocol.md:266-296",
+          "where": "references/claim.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-43 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:NVIDIA/SkillEvaluator",
+      "system": "NVIDIA/SkillEvaluator 0.6.0",
+      "licence": "Apache-2.0 (pyproject.toml, NOTICE and SPDX headers read; third-party notices separate)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/README.md",
+          "sha256": "d1739d520fc7ecf110433a0ff4282bb4c190f0b260e31f83ab303412124a983d",
+          "bytes": 9630,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/docs/superpowers/specs/2026-08-24-required-tier-publication-evidence-design.md",
+          "sha256": "6bd103ec6ef2353e7778d02f5d807932857b9d5cb28102581c5d01527e2acea6",
+          "bytes": 7970,
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-47: Three contracts stay apart: what ran, what gates the process exit code, and what evidence publication requires. Run-selection flags such as --no-dedup or --tiers 1,3 are never waivers.",
+          "grade": "present",
+          "evidence": "design spec:20-27,89-91; README.md:129-133",
+          "where": "references/checks.md (The checks); references/acceptance.md (sections 2 and 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-47 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:openai/codex",
+      "system": "openai/codex",
+      "licence": "Apache-2.0 (LICENSE read; NOTICE adds an MIT attribution for code derived from Ratatui)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/codex-rs/codex-mcp/src/connection_manager/required.rs",
+          "sha256": "21af5592c5bbb35e2b296c23b02f331bc3a50a7ed21378a59b18eb3cb8d9c1b2",
+          "bytes": 2559,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/codex/blob/8fdf6472955749a731fd9e4b8ffc218e8e80c51d/LICENSE",
+          "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+          "bytes": 10926,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-43: Required MCP servers must initialise or session start fails with each server's error; a cached catalog may satisfy the wait only when the server's policy allows it.",
+          "grade": "present",
+          "evidence": "codex-rs/codex-mcp/src/connection_manager/required.rs:17-63",
+          "where": "references/claim.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-43 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:openai/symphony",
+      "system": "openai/symphony",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; NOTICE says copyright 2025 OpenAI; README calls it a low-key engineering preview for trusted environments)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/SPEC.md",
+          "sha256": "c6638056502ecd2e60eb04e1f1a627a4964506fcdf4d39873e78aa5834de85d5",
+          "bytes": 92077,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-43: Adapter contract keeps a tiny read kernel and rejects silent omission: a state-list fetch may drop a malformed record, an id refresh must fail instead, because absence carries meaning.",
+          "grade": "present",
+          "evidence": "SPEC.md:1186-1228,1259-1284",
+          "where": "references/claim.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-43 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:UiPath/coder_eval",
+      "system": "UiPath/coder_eval (coder-eval 0.12.16)",
+      "licence": "Apache-2.0 (LICENSE, NOTICE and pyproject.toml read; NOTICE names UiPath SRL and UiPath Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/README.md",
+          "sha256": "3cb27f1c7a562e2c3ce1177eca8b822780b37bfed330a6d0dc72deef96e09e4d",
+          "bytes": 19671,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/CI_GATE.md",
+          "sha256": "961e6b9c8833733cd9f3c6fb9e1fb3eda444dff893d24791484983bc4201fa08",
+          "bytes": 9912,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/LICENSE",
+          "sha256": "f9fcdfa7803589be66c4079326605369b5c2bf3d0da0fd87b3b9ba133162fabd",
+          "bytes": 11336,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-47: Action inputs never forward CLI flags: GitHub ignores unknown inputs, so a mistyped one yields a run that measured something else and exits 0. Flags travel in one args channel.",
+          "grade": "present",
+          "evidence": "README.md:175-180; docs/CI_GATE.md:47-52,65-93",
+          "where": "references/checks.md (The checks); references/acceptance.md (sections 2 and 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-47 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:web:x.com/Voxyz_ai/status/2107093456833352180",
+      "system": "X post by @Voxyz_ai (2026-10-05): Excuses that don't count (verify skill)",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-71: each stock excuse for skipping verification maps to the action to take first and the line to report.",
+          "grade": "present",
+          "evidence": "post text, 'Excuses that don't count' block (8 rows)",
+          "where": "references/checks.md (Claims are not proof)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-71 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2107093456833352180, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2107093456833352180 (a copy, not the original; SHA-256 46a95266b684f9d5ef24ad78149c78a88f1cfcd586a5498cbbde390c0851a7ea, 6351 bytes). Media not viewed: https://pbs.twimg.com/media/HTzXaffboAA1wdS.jpg?name=orig.",
+        "The post's claim that the host runs a verify skill before each commit is not carried; only the excuse table idea is.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "deep:adr/madr",
+      "system": "MADR (Markdown Architectural Decision Records) 4.0.0 plus the project's own decision records",
+      "licence": "LICENSE file reads 'MIT OR CC0-1.0' (one line). LICENSE.MIT is the MIT licence, copyright 2017-2022 Oliver Kopp and Olaf Zimmermann; LICENSE.CC0-1.0 is CC0 1.0 Universal; README states the work is dual-licensed and you may choose either. GitHub reports NOASSERTION because the LICENSE file is not a standard text. Permissive either way.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/template/adr-template.md",
+          "sha256": "940d45674563e0a2c6e96b4741b2778b18fdf0d5df1f47cc2a27a841d1b5ea82",
+          "bytes": 3527,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/docs/decisions/0018-use-confirmation-as-heading.md",
+          "sha256": "1a91aac93fd5afd1cb6e63fefbc0057660561926c2be6d732cb886e76b3573af",
+          "bytes": 1038,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/CHANGELOG.md",
+          "sha256": "03bf5dece8dc62b0c03b554f839176e1ac6efc2dfef182e1501dc4960d7c7db8",
+          "bytes": 10348,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE",
+          "sha256": "cb9c3a276eb7991be197e401ae38d035f0f0efae425c21f499393f51c9b29ffd",
+          "bytes": 15,
+          "read": "full",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE.MIT",
+          "sha256": "a2eef9f0961adab958f4cfa85f65c2864bab694620919cfda402382783bc0c8d",
+          "bytes": 1090,
+          "read": "partial",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE.CC0-1.0",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499",
+          "bytes": 7048,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-14: a decision names the check that confirms it and reads decided but unconfirmed until a passing receipt covers it (text part only; no contract field was made).",
+          "grade": "present",
+          "evidence": "template/adr-template.md:41-44; docs/decisions/0018-use-confirmation-as-heading.md:19-34; CHANGELOG.md:37",
+          "where": "references/acceptance.md (step 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-14 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:syrupy-project/syrupy",
+      "system": "syrupy (pytest snapshot plugin)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2025 Syrupy Project)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/syrupy-project/syrupy/blob/0a5cfce8b5d670f425cb7ff7217ae9711428b570/src/syrupy/report.py",
+          "sha256": "2ae237f107594120c9dbc4b024d391b766cb4bf87bbe399b4775ea22e8d0e265",
+          "bytes": 26444,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/syrupy-project/syrupy/blob/0a5cfce8b5d670f425cb7ff7217ae9711428b570/LICENSE",
+          "sha256": "4f9b3b33397d667e4b6aa94539aca612d3036086d21e0a6208e14518d91909ee",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-03: a run made with an update flag is an update run and supports no parity claim.",
+          "grade": "wired",
+          "evidence": "src/syrupy/report.py:385-444",
+          "where": "references/checks.md (The checks)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-03 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:approvals/ApprovalTests.Python",
+      "system": "ApprovalTests.Python (approval testing, received versus approved files)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0). Its docs folder sits in the same repo and falls under that licence.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/file_approver.py",
+          "sha256": "4db09983fe41b255af8d8a69035e9e8502a9531f71d02a98b39de21da265bc76",
+          "bytes": 4613,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/LICENSE",
+          "sha256": "73ba74dfaa520b49a401b5d21459a8523a146f3b7518a833eea5efa85130bf68",
+          "bytes": 10273,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-03: a run that changed the oracle never counts as passing; cite a fresh rerun of the same selection.",
+          "grade": "wired",
+          "evidence": "approvaltests/file_approver.py:118-125",
+          "where": "references/checks.md (The checks)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-03 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:affaan-m/ECC",
+      "system": "Everything Claude Code (ECC)",
+      "licence": "MIT, Copyright (c) 2026 Affaan Mustafa (LICENSE read). The repo also carries skills/osint-investigation/LICENSE.txt; no per-skill licence found on the skills read here.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/delivery-gate/SKILL.md",
+          "sha256": "0d97c5b171392756d72a48ddd689953cd01ed7b84dbf9a4ac409dc35caa09f40",
+          "bytes": 6129,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/delivery-gate/hooks/quality-gate.py",
+          "sha256": "574f762eedfb6f3d02b10978818066a16eb877a5ac6e205bea3cf5f99d37f126",
+          "bytes": 8110,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+          "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-54: A stop gate blocks only on machine-checkable facts; regex-detected rationalisation phrases (pre-existing bug, skipping tests for now, failing but I will fix) only warn, because heuristics can false-positive.",
+          "grade": "present",
+          "evidence": "skills/delivery-gate/SKILL.md:21-29; hooks/quality-gate.py:22-27,172-179",
+          "where": "references/checks.md (Claims are not proof)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-54 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:danielmiessler/LifeOS",
+      "system": "LifeOS (Daniel Miessler's personal AI infrastructure)",
+      "licence": "MIT, Copyright (c) 2025-2026 Daniel Miessler (LICENSE read). A vendored htmlplan folder carries its own 11 KB LICENSE (not read, not used).",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/danielmiessler/LifeOS/blob/b7efec97d8c3885feee285bee468c35602fb0606/LifeOS/install/hooks/ISAGate.hook.ts",
+          "sha256": "c68c8c4344885c7e3fe35b9ecf04f60049698e590f078478be98f5f770f39b0b",
+          "bytes": 20742,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/danielmiessler/LifeOS/blob/b7efec97d8c3885feee285bee468c35602fb0606/LICENSE",
+          "sha256": "802360a4008afd2f6c93a02c68d1caf34b6a5898b6a00c86421c0e4b4502c968",
+          "bytes": 1076,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-54: Only binary structural facts a stub entry cannot satisfy block a close; count-shaped checks stay advisory (Goodhart line); an explicit manual row is a visible exception, never a fake probe.",
+          "grade": "present",
+          "evidence": "LifeOS/install/hooks/ISAGate.hook.ts:26-39,55-56",
+          "where": "references/checks.md (Claims are not proof)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-54 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:first-fluke/oh-my-agent",
+      "system": "oh-my-agent (oma)",
+      "licence": "MIT, Copyright (c) 2026 Eunkwang Shin, Gahyun Kim (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/first-fluke/oh-my-agent/blob/d0cf3fe4d9c88bb96ed35f2e9c06bda28d8fa328/.agents/workflows/ralph/resources/judge-protocol.md",
+          "sha256": "5de4a11c7c82138cf4a3a0c13fc369aa680e35402e2325800c67bd0aba61fea2",
+          "bytes": 10339,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/first-fluke/oh-my-agent/blob/d0cf3fe4d9c88bb96ed35f2e9c06bda28d8fa328/LICENSE",
+          "sha256": "beeda13ca6ab2ffa092ca01cc6e07e6ac004e41f5003c43ecd3011b693425a78",
+          "bytes": 1082,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-41: Criterion states PASS, FAIL, BLOCKED (three consecutive same-cause failures despite new approaches) and REGRESSED (earlier PASS now failing, evidence names last pass and files changed); re-verify all each iteration.",
+          "grade": "present",
+          "evidence": ".agents/workflows/ralph/resources/judge-protocol.md:58-73,119-142",
+          "where": "references/acceptance.md (section 2)"
+        },
+        {
+          "mechanism": "EV-41: Cache a heavy check only if it last passed, its declared paths and command are unchanged and it is at most three iterations old; never cache FAIL or REGRESSED.",
+          "grade": "present",
+          "evidence": ".agents/workflows/ralph/resources/judge-protocol.md:146-195",
+          "where": "references/acceptance.md (section 2)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-41 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:leonxlnx/unlazy",
+      "system": "leonxlnx/unlazy (source targets 2.1.0, untagged)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Leonxlnx; GitHub shows the owner as Leonxlnx)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/references/gates.md",
+          "sha256": "83a70b12f1b5058d1f1554fe42f350307bcb83fd33e8c102c60d20955def423c",
+          "bytes": 15368,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SKILL.md",
+          "sha256": "0ea144724398f9df5ce4cb880ff472c8afee0193179eb2f2a5d82f1a0f633450",
+          "bytes": 10520,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/scripts/gate-lint.mjs",
+          "sha256": "12fedaa4ad7bcfacf6da8d66f4ead0d186115e03fe941d3d20efd361dec7ee7e",
+          "bytes": 9540,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-47: A runnable gate is met only on exit zero plus an EXPECT match in combined output; error text never passes a nonzero exit, and overflow fails rather than truncating.",
+          "grade": "wired",
+          "evidence": "references/gates.md:50-55,100",
+          "where": "references/checks.md (The checks)"
+        },
+        {
+          "mechanism": "EV-48: Measure supplied numbers independently: a figure copied from the brief must not be its own EXPECT; the script computes it from source data and prints a separate success marker.",
+          "grade": "present",
+          "evidence": "SKILL.md:72; references/gates.md:102",
+          "where": "references/checks.md (The checks, Exercise the claim)"
+        },
+        {
+          "mechanism": "SS-45: A gate linter audits whether gates can fail, without running them: fixed-output commands, weak expectations such as ok or done, path read as regex, activity titles, unmeasured numbers, mostly-manual ledgers.",
+          "grade": "wired",
+          "evidence": "scripts/gate-lint.mjs:109-201; references/gates.md:106-126",
+          "where": "references/checks.md (The checks, Controls)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:leonxlnx/unlazy.",
+        "Supports adoption items EV-47, EV-48, SS-45 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:NVIDIA/SkillSpector",
+      "system": "NVIDIA/SkillSpector 2.12.0",
+      "licence": "Apache-2.0 (LICENSE and pyproject.toml read; SPDX headers in sources checked)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/docs/SUPPRESSION.md",
+          "sha256": "07d2df61abb6b17307387f1952a97a2e7a49c6d40d23f0c7072555a0bcd6b92a",
+          "bytes": 10914,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/LICENSE",
+          "sha256": "9f8785b47596b2993a17a3fa8d747ae63126a2c5e80a9e77195a907273d71839",
+          "bytes": 10782,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-40: Exact suppression fingerprints hash scanner version, path, the full text scanned and every evidence field. A source edit or upgrade reactivates the finding; a version mismatch fails closed.",
+          "grade": "wired",
+          "evidence": "docs/SUPPRESSION.md:120-161",
+          "where": "SKILL.md (Baseline); references/acceptance.md (section 2)"
+        },
+        {
+          "mechanism": "EV-40: Two suppression kinds: exact fingerprints re-triaged on any change, and drift-tolerant glob rules that survive edits, which the docs warn can hide newly malicious content.",
+          "grade": "present",
+          "evidence": "docs/SUPPRESSION.md:96-118,193-196",
+          "where": "SKILL.md (Baseline); references/acceptance.md (section 2)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-40 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:x.com/Voxyz_ai/status/2107093456833352180",
+      "system": "X post by @Voxyz_ai (2026-10-05): Excuses that don't count (verify skill)",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-72: Prove pre-existing late: run the one failing test alone at the parent commit in a detached worktree; never stash, checkout or reset; if true, still tell the user.",
+          "grade": "present",
+          "evidence": "post text, first row of the excuse block",
+          "where": "references/claim.md (step 3); SKILL.md (Baseline); references/acceptance.md (section 2)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-72 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2107093456833352180, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2107093456833352180 (a copy, not the original; SHA-256 46a95266b684f9d5ef24ad78149c78a88f1cfcd586a5498cbbde390c0851a7ea, 6351 bytes). Media not viewed: https://pbs.twimg.com/media/HTzXaffboAA1wdS.jpg?name=orig.",
+        "The post's claim that the host runs a verify skill before each commit is not carried; only the excuse table idea is.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "ap:ramenvr/autopilot",
+      "system": "ramenvr/autopilot (Aura Autopilot: an in-editor playtesting agent for Unreal, Unity and Godot in which a coding agent writes a per-game harness and a separate decision model plays through real input events)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/agents/session.py",
+          "sha256": "e1add2659d4c57bea85b819ecdc1154f13034612d44f3738d9837c62fd30c858",
+          "bytes": 99386,
+          "read": "lines 105–195: the agent's instructions",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/KIT.md",
+          "sha256": "33369e355e911ef04a7b28b3812c6d2d4d5fff0639def36b5793c722306e14ac",
+          "bytes": 20738,
+          "read": "searched",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AP-1: Code reading points to where to look; a defect counts once the running system shows it. A 'can happen' claim is shown true by doing it once; failing to do it is not a disproof (the attempt may be at fault), so call it impossible only when the system's own numbers prove it, naming them, and otherwise inconclusive.",
+          "grade": "present",
+          "evidence": "session.py:169-173, 178 as read for the addendum",
+          "where": "references/claim.md (section 5, Verdict)"
+        },
+        {
+          "mechanism": "AP-2: Direct state changes (seeding, teleporting, setting values) may set up or measure a check, never achieve what the claim is about; list each with its reason, by phase; a result reached through one is a cheat.",
+          "grade": "present",
+          "evidence": "session.py:112-114, 186-189; KIT.md:46 as read for the addendum (the post scored teleporting and spawning items as failures)",
+          "where": "references/acceptance.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AP-1 and AP-2 (Aura Autopilot addendum, 2026-10-30).",
+        "The verdict words already existed (passed, failed, inconclusive); the asymmetry for a 'can happen' claim is the new part.",
+        "AP-6 (code a model wrote after reading untrusted input runs without credentials, with a reachability self-test) is not applied: core verify.md is at its size cap; the P2 backlog holds the text.",
+        "Flag, run data: sharing is on unless the user opts out (telemetry.py:43-48: share defaults to true and AUTOPILOT_SHARE=0 turns it off). When on, every model call is written whole (the request without picture data, and the full response), redacted for secrets, paths, user and host names and emails, but game-code excerpts in prompts stay; runs through Aura also sync notes, reusable code and traces to Aura's storage per team, and the game's code is never uploaded (aura_memory.py:4-9). The setup screen asks and invites a yes (README.md:36). westack takes no run data from it and sends none.",
+        "Flag, isolation: only Linux with bubblewrap gets no network and a read-only disk (sandbox.py:5); elsewhere the child merely lacks secrets, which a westack control label would call a heuristic, not a sandbox.",
+        "Benchmark, claimed (the Aura post, Nyx Iskandar and Andy Tsen, dated October 31, 2026 as served; retrieved 2026-10-30; HTML 133,994 bytes, sha256 7ad1721563dbacde619b5496697b2f42f722ca622b92080ee20325694762aac3): Pass@1 within 1800 s, Claude Opus 5.5 at medium effort, empty memory, cheating runs marked unsuccessful. Autopilot 7/7 at 262 s, Claude Code 5/7 at 437 s, an unnamed competitor 4/7 at 508 s. That is 7 tasks on one template game with one run each: the authors' claim, graded claimed, and no number from it is used.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-autopilot.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {
+      "ref": "pstack.skill.create-verification-skill",
+      "url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/create-verification-skill/SKILL.md",
+      "sha256": "d353973547bf8ad8977eca645f4cd4feaed0d32f4b43d1448f906b0a76c4d694",
+      "bytes": 6533,
+      "why": "Its proof standards (drive the real user path, ready means usable, proof survives clean-up) already reach this skill through the core's verify.md 'Applications and harnesses' (core decision D06). Generating per-app verification skills is out of scope."
+    },
+    {
+      "ref": "anthropic code-review plugin, validation step",
+      "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/code-review/commands/code-review.md",
+      "sha256": "3f02ea6eed996590348264777b2e324859a6e2c0c5f7dd298617ea21deb3b1b2",
+      "bytes": 7329,
+      "why": "Per-finding validation by a separate agent and the false-positive list belong to westack-review (research2 N03). The one overlapping idea, keeping pre-existing problems apart, reaches this skill through the core's baseline diff (N01)."
+    },
+    {
+      "ref": "TDD Guard rules",
+      "url": "https://github.com/nizos/tdd-guard/blob/54be0ac5a4f39f61a99a9f9fb1864a9bb07f8f5b/src/validation/prompts/rules.ts",
+      "sha256": "8bab13f8d28f97f9ce98a350418cee58cf008c6bb41fcc8e027aa284bc6fa49b",
+      "bytes": 3859,
+      "why": "Corroboration only: its 'clean red' (no tests ran, or an error before the assertion, is not a red) matches the core's matched-control rule, which claim.md step 4 restates. Its model-judged allow/block validator is rejected as evidence (research2 N19)."
+    }
+  ],
+  "inherited_from_core": [
+    "Baseline diff by test name (research2 N01; SWE-agent lint-gated edit, Codex review rubric): scripts/checks.py, used as is.",
+    "Human-only acceptance (N05) and the resume check field (N06): contracts/README.md acceptance[].verifier and resume_check.",
+    "Matched broken-copy controls and the disposable-worktree recipe: references/verify.md."
+  ],
+  "helper_decision": "No helper. checks.py already covers what a verify helper would compute (per-test results from saved output, zero-test detection, new versus pre-existing failures, missing and newly skipped tests). The delivery diff audit is a short path list from git whose classes (intended, out of scope) need the request's scope, which a pattern helper cannot judge; adding one would add surface without settling anything.",
+  "overlap_check": {
+    "method": "Lower-case word tokens ([a-z0-9]+) of every file in this package compared with the twelve fetched donor files listed above; every run of 12 or more consecutive shared words is flagged.",
+    "run_utc": "2026-10-28",
+    "result": "0 runs of 12 or more words. Longest shared run in any file: 5 words (references/claim.md against cursor verify-this; provenance/donors.json against SWE-agent default.yaml).",
+    "control": "A planted 13-word donor run was flagged and a planted 11-word run was not, so the check detects copying at the stated threshold."
+  }
+}

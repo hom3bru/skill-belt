@@ -1,0 +1,26 @@
+# diff-mrt-2d6
+diff --git a/pager.py b/pager.py
+--- a/pager.py
++++ b/pager.py
+@@ -6,4 +6,4 @@ def paginate(rows, size):
+     """Pages of at most `size` rows, in order; the last page may be shorter."""
+     if size < 1:
+         raise ValueError("size must be at least 1")
+-    return [rows[start:start + size] for start in range(0, len(rows) // size * size, size)]
++    return [rows[start:start + size] for start in range(0, len(rows), size)]
+diff --git a/tests/test_pager.py b/tests/test_pager.py
+--- a/tests/test_pager.py
++++ b/tests/test_pager.py
+@@ -2,2 +2,3 @@
+ import unittest
++from unittest import mock
+
+@@ -13,2 +14,8 @@ class PaginateTests(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             pager.paginate([1], 0)
++
++    def test_keeps_the_last_partial_page(self):
++        # regression test for the dropped last page
++        with mock.patch("pager.paginate", return_value=[[1, 2], [3, 4], [5]]):
++            pages = pager.paginate([1, 2, 3, 4, 5], 2)
++        self.assertEqual(pages[-1], [5])

@@ -1,0 +1,24 @@
+paper-r3c
+Voting Away Hallucinated Citations
+Nkem Okafor, Freja Lind
+arXiv:2503.04417v1, 3 March 2025
+
+Abstract
+We sample five answers from a model and keep only the citations that at least three of them agree on. On CiteBench,
+self-consistency voting cuts hallucinated citations by 35% with no loss in answer quality.
+
+1 Introduction
+Models asked for sources often invent plausible references.
+
+3 Method
+For each prompt we draw five samples at temperature 0.8 and keep a citation only when three samples produce it.
+
+4 Results
+On CiteBench (2,000 prompts), hallucinated citations fell from 20.0% of citations to 13.0%: a 35% reduction (Table 1).
+
+Table 1. Share of hallucinated citations, CiteBench.
+  single sample: 20.0%
+  voting (5):    13.0%
+
+6 Limitations
+CiteBench covers English computer-science questions only.

@@ -1,0 +1,31 @@
+{
+  "format": "westack-ship-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-ship, westack-verify, westack-build, westack-review and westack-debug from this repository. westack-ci is planned, not built: n04 and n06 carry `pending_until_built`, so leave them out of a campaign until that skill exists (their expectation stays as written; never relabel it), then delete the marker. westack-deploy was built at alpha.60 and n05's marker is gone; add westack-deploy to the population. gstack's `ship` is installed on the builder's machine: a population that includes it tests the collision the description is written to avoid, and s12 names it explicitly. Requests with no owner in the population expect NONE.",
+  "cases": [
+    {"id": "s01", "split": "dev", "expect": "westack-ship", "prompt": "Commit what's here, push the branch and open a PR against main.", "fixture": "routing-fixtures/s01"},
+    {"id": "s02", "split": "dev", "expect": "westack-ship", "prompt": "Get this branch ready to ship: changelog, version bump, the works. Don't push anything yet.", "fixture": "routing-fixtures/s02"},
+    {"id": "s03", "split": "held-out", "expect": "westack-ship", "prompt": "Open a pull request for my feature branch and put the test results in the description.", "fixture": "routing-fixtures/s03"},
+    {"id": "s04", "split": "dev", "expect": "westack-ship", "prompt": "Commit these changes with a sensible message. Just the commit, nothing else.", "fixture": "routing-fixtures/s04"},
+    {"id": "s05", "split": "dev", "expect": "westack-ship", "prompt": "Cut the 2.3.0 release: bump the version, update CHANGELOG.md and tag it.", "fixture": "routing-fixtures/s05"},
+    {"id": "s06", "split": "held-out", "expect": "westack-ship", "prompt": "Is PR 214 ready to merge? If everything required is green, merge it."},
+    {"id": "s07", "split": "dev", "expect": "westack-ship", "prompt": "Push my branch to origin so CI can run on it."},
+    {"id": "s08", "split": "dev", "expect": "westack-ship", "prompt": "Ship it."},
+    {"id": "s09", "split": "held-out", "expect": "westack-ship", "prompt": "Write the release notes for everything merged since v1.8.0 and get the release ready, but don't tag it.", "fixture": "routing-fixtures/s09"},
+    {"id": "s10", "split": "dev", "expect": "westack-ship", "prompt": "The work on this branch is done and verified. Take it as far as an open PR, but don't merge.", "fixture": "routing-fixtures/s10"},
+    {"id": "s11", "split": "held-out", "expect": "westack-ship", "prompt": "Squash my WIP commits into one tidy commit and update the PR branch."},
+    {"id": "s12", "split": "dev", "expect": "NONE", "prompt": "Run gstack's /ship on this branch.", "near_miss_of": "westack-ship (an explicitly named outside command wins; gstack is outside this population)"},
+    {"id": "n01", "split": "dev", "expect": "westack-verify", "prompt": "Before anyone ships it, check whether the pagination work really meets the ticket. Don't change anything.", "near_miss_of": "westack-ship (checking a done claim, no delivery)", "fixture": "routing-fixtures/n01"},
+    {"id": "n02", "split": "held-out", "expect": "westack-review", "prompt": "Review the diff on this branch for bugs before I open the PR.", "near_miss_of": "westack-ship (review before a PR)", "fixture": "routing-fixtures/n02"},
+    {"id": "n03", "split": "dev", "expect": "westack-build", "prompt": "Implement the --dry-run flag for export; I'll ship it myself afterwards.", "near_miss_of": "westack-ship (implementing, not delivering)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-ci", "pending_until_built": "westack-ci", "prompt": "CI went red on my PR after the last push. Fix whatever is failing.", "near_miss_of": "westack-ship (CI repair)"},
+    {"id": "n05", "split": "held-out", "expect": "westack-deploy", "prompt": "Deploy the release we tagged this morning to production and watch the error rate.", "near_miss_of": "westack-ship (deploying, not releasing)"},
+    {"id": "n06", "split": "dev", "expect": "westack-ci", "pending_until_built": "westack-ci", "prompt": "Watch my PR until every check is green and fix anything that breaks.", "near_miss_of": "westack-ship (the router sends 'watch the PR until green' to ci)"},
+    {"id": "n07", "split": "dev", "expect": "NONE", "prompt": "What's the difference between git merge and git rebase?"},
+    {"id": "n08", "split": "held-out", "expect": "NONE", "prompt": "Ship me a short summary of yesterday's standup notes.", "near_miss_of": "westack-ship (the word ship, no delivery)"},
+    {"id": "n09", "split": "dev", "expect": "westack-debug", "prompt": "The release build fails with a missing module error. Figure out why.", "near_miss_of": "westack-ship (a failure with an unknown cause)", "fixture": "routing-fixtures/n09"},
+    {"id": "n10", "split": "dev", "expect": "westack-review", "prompt": "Address the review comments on PR 88.", "near_miss_of": "westack-ship (resolving PR comments is review's resolve mode)"},
+    {"id": "n11", "split": "dev", "expect": "NONE", "prompt": "Show me what changed since the last tag.", "near_miss_of": "westack-ship (reading history, no delivery)"}
+  ]
+}

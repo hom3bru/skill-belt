@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pricing - Ledgerly</title>
+  <link rel="stylesheet" href="pricing.css">
+  <script src="/js/track.js" defer></script>
+</head>
+<body>
+  <h1 class="title">PICK YOUR PLAN!!</h1>
+  <div class="plans">
+    <div class="plan">
+      <h2>Solo</h2><p class="price">$9<span>/month</span></p>
+      <a class="cta" href="/signup?plan=solo" data-track="pricing_solo_click">Start free trial</a>
+    </div>
+    <div class="plan plan-featured">
+      <span class="badge">MOST POPULAR</span>
+      <h2>Studio</h2><p class="price">$29<span>/month</span></p>
+      <a class="cta" href="/signup?plan=studio" data-track="pricing_studio_click">Start free trial</a>
+    </div>
+    <div class="plan">
+      <h2>Agency</h2><p class="price">$79<span>/month</span></p>
+      <a class="cta" href="/contact-sales" data-track="pricing_agency_click">Talk to sales</a>
+    </div>
+  </div>
+  <form class="faq-question" action="/api/questions" method="post" data-track="pricing_question_submit">
+    <label for="question">Question about plans?</label>
+    <input id="question" name="question" required>
+    <button type="submit">Ask</button>
+  </form>
+</body>
+</html>

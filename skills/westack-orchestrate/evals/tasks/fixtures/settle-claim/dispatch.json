@@ -1,0 +1,24 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run SLUG-4 through a worker while I review other tickets",
+  "fan_out": "a fresh-context worker was asked for",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "workers": [
+    {
+      "id": "w1",
+      "brief": "briefs/w1.md",
+      "handle": "agent-41a"
+    }
+  ]
+}

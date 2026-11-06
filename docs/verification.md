@@ -37,3 +37,15 @@ error. Passing instruction/link checks do not prove future reminder delivery.
 `user_profile.check_files` reads the local profile at verification and staged-build time. It rejects configured identifiers, personal paths in plain or JSON-escaped forms, and a real profile file in the publication. Diagnostics omit matched values. Synthetic broken-copy controls cover case, path separators, Unicode escapes, malformed profiles and filename leakage. A missing local profile leaves the generic privacy checks active and is recorded as unconfigured.
 
 Deep-dive runs its retained suite with `DEEP_DIVE_CP_VALIDATOR` set explicitly to this collection's retained Carrier Pigeon validator. Missing validators and empty, failing or skipped suites fail verification. These are schema, instruction and link checks.
+
+## Westack sibling checks
+
+The westack stack manifest declares the installed sibling entrypoints. Structure
+and byte checks cover each sibling, reject duplicate or missing manifest rows
+and retain the existing nested layouts of the other toolkits. The verifier runs
+all 21 package checks, the generated Minimum Core check, the router core suite
+and each declared child's existing test directory. A child suite that collects
+zero tests, fails or skips a case fails the collection. Root canonical tools and
+evaluation-runner receipts have their own scope and are recorded separately.
+
+The shared profile scanner also treats optional `legacy_user_names` as private identity values. Synthetic alias-leak and malformed-alias controls exercise that path without embedding real user labels.

@@ -4,7 +4,7 @@ Read applicable repository instructions before edits. Inspect the relevant imple
 
 For unfamiliar APIs, identify the project's installed/pinned version and consult current primary documentation. Record target version, observed documentation version, original URL, retrieved date and revalidation deadline. A cached page for another version cannot establish compatibility. Write target and observed versions at the same granularity (both `1.x`, or both exact): the checker compares them as exact strings. No documentation service needs installing.
 
-For source claims distinguish directly inspected implementation, maintainer documentation, supplied summary and index-only records. Popularity measures attention at a date, not efficacy. Aliases and ports are not extra capabilities. Keep hypotheses distinct from observed facts.
+For source claims distinguish directly inspected implementation, maintainer documentation, supplied summary and index-only records. Popularity measures attention at a date, not efficacy. Aliases and ports are not extra capabilities. Keep hypotheses distinct from observed facts. Record each disproven hypothesis with the evidence that killed it (a record's `observations`, or the [handoff](handoff.md) note), so a later context does not test it again.
 
 On resume, re-inspect changed files (a failed `task --repo` lists them when a manifest is stored) and affected callers. If documentation or a lesson expires or targets another revision, revalidate before relying on it. Unknown facts stay unknown; inspect the smallest source that could resolve them.
 

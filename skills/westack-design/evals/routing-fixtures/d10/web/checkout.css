@@ -1,0 +1,8 @@
+.checkout { max-width: 720px; margin: 32px auto; font-family: system-ui, sans-serif; }
+fieldset { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 20px; padding: 16px; }
+input { display: block; width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; }
+input::placeholder { color: #bbb; }
+.summary { background: #f7f7f7; padding: 16px; }
+.summary span { float: right; }
+.total { font-weight: bold; }
+button[type=submit] { width: 100%; padding: 14px; background: #16a34a; color: #fff; border: 0; font-size: 16px; }

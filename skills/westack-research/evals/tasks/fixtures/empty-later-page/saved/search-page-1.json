@@ -1,0 +1,19 @@
+{
+  "_token": "page1-p4d",
+  "query": "memory stream",
+  "page": 1,
+  "per_page": 10,
+  "total_count": 23,
+  "items": [
+    {"number": 1412, "state": "closed", "title": "read_chunks() memory spikes with very wide rows"},
+    {"number": 1398, "state": "open", "title": "Docs: streaming example uses removed argument"},
+    {"number": 1377, "state": "closed", "title": "Memory leak in writer when an exception is raised mid-row"},
+    {"number": 1360, "state": "open", "title": "stream() should accept a file object, not only a path"},
+    {"number": 1341, "state": "closed", "title": "High memory use when inferring dtypes on 1M rows"},
+    {"number": 1329, "state": "closed", "title": "Python 3.13: stream tests fail on Windows"},
+    {"number": 1310, "state": "open", "title": "Feature: memory-mapped reads for Parquet"},
+    {"number": 1295, "state": "closed", "title": "Typo in stream() docstring"},
+    {"number": 1281, "state": "closed", "title": "read_csv memory regression in 4.8"},
+    {"number": 1266, "state": "closed", "title": "Streaming writer drops the last row without flush()"}
+  ]
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="checkout.css">
+</head>
+<body>
+  <main class="checkout">
+    <h1>Checkout</h1>
+    <form action="/api/orders" method="post">
+      <fieldset>
+        <legend>Shipping</legend>
+        <input name="name" placeholder="Full name" required>
+        <input name="address" placeholder="Address" required>
+        <input name="postcode" placeholder="Postcode" required>
+      </fieldset>
+      <fieldset>
+        <legend>Payment</legend>
+        <div id="card-element"></div>
+      </fieldset>
+      <aside class="summary">
+        <p>Subtotal <span>$48.00</span></p>
+        <p>Shipping <span>$5.00</span></p>
+        <p class="total">Total <span>$53.00</span></p>
+      </aside>
+      <button type="submit">Place order</button>
+    </form>
+  </main>
+</body>
+</html>

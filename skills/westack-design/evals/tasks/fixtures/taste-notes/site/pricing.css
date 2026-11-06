@@ -1,0 +1,19 @@
+/* tn-css-3d1 */
+:root {
+  --color-background: #FFFFFF;
+  --color-foreground: #111827;
+  --color-primary: #1D4ED8;
+  --color-on-primary: #FFFFFF;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-12: 48px;
+  --radius-md: 6px;
+}
+body { font-family: Inter, sans-serif; font-size: 16px; color: var(--color-foreground); background: var(--color-background); }
+main { padding: var(--space-12) var(--space-6); }
+h1 { font-size: 32px; font-weight: 600; margin: 0 0 var(--space-6); }
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+.plan h2 { font-size: 16px; font-weight: 600; margin: 0 0 var(--space-2); }
+.plan .price { margin: 0 0 var(--space-4); }
+.plan a { display: inline-block; padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--color-primary); color: var(--color-on-primary); text-decoration: none; }

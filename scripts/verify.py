@@ -18,6 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILE_SPEC = importlib.util.spec_from_file_location("belt_user_profile", ROOT / "scripts/user_profile.py")
 user_profile = importlib.util.module_from_spec(PROFILE_SPEC)
 PROFILE_SPEC.loader.exec_module(user_profile)
+STACK_SPEC = importlib.util.spec_from_file_location("belt_westack_stack", ROOT / "scripts/westack_stack.py")
+westack_stack = importlib.util.module_from_spec(STACK_SPEC)
+STACK_SPEC.loader.exec_module(westack_stack)
 SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason", "deep-dive")
 # Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
 SUB_SKILLS = {"deep-dive": ("deeper-dive", "check-work"),
@@ -33,6 +36,36 @@ def positive_seconds(text):
     if value <= 0:
         raise argparse.ArgumentTypeError("timeout must be a positive number of seconds")
     return value
+
+
+def snapshot_names(root=ROOT):
+    """The seven toolkit snapshots plus the router's declared sibling snapshots."""
+    return SKILLS + westack_stack.sibling_names(Path(root) / "skills")
+
+
+def json_test_counts(stdout):
+    counts = json.loads(stdout)
+    total = counts.get("total", counts.get("collected", 0))
+    if total <= 0 or counts["failed"] or counts["skipped"] or counts["passed"] != total:
+        raise ValueError("Suite has empty, failing, skipped or inconsistent counts")
+    return dict(collected=total, passed=counts["passed"], skipped=0)
+
+
+def westack_checks(run, output, root=ROOT):
+    """Run the published router and sibling gates without canonical root tools."""
+    skills = Path(root) / "skills"
+    router = skills / "westack"
+    siblings = westack_stack.sibling_names(skills)
+    python = sys.executable
+    for name in ("westack",) + siblings:
+        run(name + "-package", [python, "-B", str(router / "scripts/validate.py"), "package", "."], skills / name)
+    if siblings:
+        run("westack-minimum-core", [python, "-B", "scripts/build_core_block.py", "check",
+                                    "--skills-dir", str(skills)], router)
+    run("westack-tests", [python, "-B", "tests/run.py", "--output", str(output / "westack-results.json")], router)
+    for name in siblings:
+        if (skills / name / "tests").is_dir():
+            run(name + "-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], skills / name)
 
 
 def text_of(output):
@@ -131,7 +164,7 @@ STALE_NAME_ALLOWED = (
     dict(path="skills/frankenmine/CHANGELOG.md", rule="5", max=2, pattern=_ANY_CASE,
          why="The rename entry names the other public project that owns the old names, and those names; "
              "Frankenmine's guard counts exactly two besides its one 'then called' note"),
-    # skills/westack: the keep list of the 0.3.1 source (its own tests/test_rename_guard.py), whole files first.
+    # Historical provenance retained by the alpha stack, whole files first.
     dict(path=_WESTACK + "CHANGELOG.md", rule="2",
          why="Entries for versions released under the old name stay as written; the rename entry names it"),
     dict(path=_WESTACK + "provenance/" + _OLD + "-0.2.0-package-manifest.json", rule="3",
@@ -153,8 +186,14 @@ STALE_NAME_ALLOWED = (
     dict(path=_WESTACK + "tests/results/tests-final.json", rule="1",
          why="The final test receipt; ships because the skill's own rename guard lists tests/results"),
     # Wire identifiers inside live files (rule 4): changing one changes every stored patch ID or manifest.
-    dict(path=_WESTACK + "scripts/validate.py", rule="4", max=2, pattern=_wire("fingerprint-v1", "manifest-v1"),
+    dict(path=_WESTACK + "scripts/evidence.py", rule="4", max=2, pattern=_wire("fingerprint-v1", "manifest-v1"),
          why="Fingerprint and manifest format identifiers that feed stored hashes"),
+    dict(path=_WESTACK + "provenance/facility-donors.json", rule="5", max=4,
+         pattern=r"research3/" + _OLD + r"-1\.0-capability-map\.md|singularityhacker/(?i:" + _OLD + r")|skills/" + _OLD + r"-mode/SKILL\.md",
+         why="Pinned donor identity and capability-map source title, including the donor's skill path"),
+    dict(path="skills/westack-eval/provenance/donors.json", rule="5", max=4,
+         pattern=_OLD + r"-1\.0-capability-map|singularityhacker/(?i:" + _OLD + r")|skills/" + _OLD + r"-eval/SKILL\.md",
+         why="Pinned external donor identity and source skill path, plus the historical capability-map title"),
     dict(path=_WESTACK + "contracts/contract.json", rule="4", max=1, pattern=_wire("shape-v1"),
          why="Shape identifier that feeds stored hashes"),
     dict(path=_WESTACK + "contracts/README.md", rule="4", max=1, pattern=_wire("fingerprint-v1"),
@@ -165,6 +204,15 @@ STALE_NAME_ALLOWED = (
     dict(path="skills-manifest.json", rule="3", max=1,
          pattern=re.escape("provenance/" + _OLD + "-0.2.0-package-manifest.json"),
          why="Lists the 0.2.0 release manifest by its old file name"),
+) + tuple(
+    dict(path=path, rule="1", max=1, pattern=re.escape(phrase),
+         why="Historical rights record preserves the original attribution and dated rename statement")
+    for path in (_WESTACK + "provenance/RIGHTS.md", "public-overlays/westack/provenance/RIGHTS.md")
+    for phrase in (
+        _OLD + " remains a separate standalone workflow.",
+        _OLD.capitalize() + " adapts ideas only and copies no donor text.",
+        "On 2026-10-28 " + _OLD + " was renamed westack (see lineage.json).",
+    )
 )
 
 
@@ -268,13 +316,14 @@ def check_vocabulary(skill, name, root):
 
 def structure():
     all_files = source_files(ROOT)
-    expected = {"skills/" + name + "/SKILL.md" for name in SKILLS}
+    names = snapshot_names(ROOT)
+    expected = {"skills/" + name + "/SKILL.md" for name in names}
     expected |= {"skills/" + parent + "/skills/" + sub + "/SKILL.md" for parent, subs in SUB_SKILLS.items() for sub in subs}
     actual = {name for name in all_files if name.endswith("/SKILL.md") and not name.startswith("public-overlays/")}
     if actual != expected:
         raise ValueError("Expected exactly the declared collection entrypoints and their declared sub-skills; unexpected: "
                          + ", ".join(sorted(actual - expected)) + "; missing: " + ", ".join(sorted(expected - actual)))
-    for name in SKILLS:
+    for name in names:
         check_vocabulary(ROOT / "skills" / name, name, ROOT)
     # Overlay links resolve inside the skill they replace a file in; build_public.py checks them there.
     overlays = {name: path for name, path in all_files.items() if name.startswith("public-overlays/")}
@@ -282,7 +331,8 @@ def structure():
     check_publication(overlays, ROOT, links=False)
     check_stale_names(all_files)
     manifest = json.loads((ROOT / "skills-manifest.json").read_text(encoding="utf-8"))
-    if {row["name"] for row in manifest["skills"]} != set(SKILLS):
+    identities = [row["name"] for row in manifest["skills"]]
+    if set(identities) != set(names) or len(identities) != len(names):
         raise ValueError("Collection manifest identities differ")
     for row in manifest["skills"]:
         root = ROOT / "skills" / row["name"]
@@ -332,6 +382,8 @@ def main():
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests", "rule-or-reason-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
+        elif label.startswith("westack-") and label.endswith("-tests") and label != "westack-tests":
+            entry.update(unittest_counts(result.stderr))
         elif label == "deep-dive-tests":
             counts = json.loads(result.stdout.strip().splitlines()[-1])
             total = counts["total"]
@@ -339,24 +391,18 @@ def main():
                 raise ValueError(label + " has empty, failing, skipped or inconsistent counts")
             entry.update(collected=total, passed=counts["passed"], skipped=0)
         elif label in {"frankenmine-tests", "westack-tests", "carrier-pigeon-tests"}:
-            counts = json.loads(result.stdout)
-            total = counts.get("total", counts.get("collected", 0))
-            if total <= 0 or counts["failed"] or counts["skipped"] or counts["passed"] != total:
-                raise ValueError(label + " has empty, failing, skipped or inconsistent counts")
-            entry.update(collected=total, passed=counts["passed"], skipped=0)
+            entry.update(json_test_counts(result.stdout))
     try:
         count = structure()
         python = sys.executable
         run("collection-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"])
         aa = ROOT / "skills/adopt-adapt"
         fm = ROOT / "skills/frankenmine"
-        westack = ROOT / "skills/westack"
         run("adopt-adapt-manifest", [python, "-B", "scripts/package.py", "verify", "."], aa)
         run("adopt-adapt-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], aa)
         run("frankenmine-package", [python, "-B", "scripts/package.py"], fm)
         run("frankenmine-tests", [python, "-B", "tests/run_tests.py", "--output", str(output / "frankenmine-results")], fm)
-        run("westack-package", [python, "-B", "scripts/validate.py", "package", "."], westack)
-        run("westack-tests", [python, "-B", "tests/run.py", "--output", str(output / "westack-results.json")], westack)
+        westack_checks(run, output, ROOT)
         run("rule-or-reason-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], ROOT / "skills/rule-or-reason")
         run("carrier-pigeon-tests", [python, "-B", "tests/run.py"], ROOT / "skills/carrier-pigeon")
         jobscura = ROOT / "skills/jobscura"

@@ -1,0 +1,4 @@
+[project]
+name = "notes-cli"
+version = "2.3.1"
+requires-python = ">=3.10"

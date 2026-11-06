@@ -1,0 +1,8 @@
+{
+  "_token": "idx-cr-d6f",
+  "index": "Crossref",
+  "query": "10.5555/dbconf.2023.181",
+  "results": [
+    {"doi": "10.5555/dbconf.2023.181", "title": "Tenant Sharding at Scale", "year": 2023, "authors": ["Samir Haddad", "Claire Moreau"], "container": "Proceedings of DBConf 2023"}
+  ]
+}

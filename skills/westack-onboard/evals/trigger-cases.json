@@ -1,0 +1,15 @@
+{
+  "format": "westack-onboard-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-onboard, westack-research, westack-debug, westack-docs and westack-plan from this repository. The user's real population also holds codebase-mapping skills from installed plugins (feature-dev's code-explorer, code-modernization's legacy-analyst, graphify); keep them in.",
+  "cases": [
+    {"id": "o01", "split": "dev", "expect": "westack-onboard", "prompt": "I just cloned this repo. What does it do and how is it laid out?"},
+    {"id": "o02", "split": "dev", "expect": "westack-onboard", "prompt": "Explain how the retry decorator in utils/retry.py works and where we use it."},
+    {"id": "o03", "split": "held-out", "expect": "westack-onboard", "prompt": "Where is the session token validated in this codebase?"},
+    {"id": "o04", "split": "dev", "expect": "westack-onboard", "prompt": "Walk me through what happens when the CLI's sync command runs."},
+    {"id": "n01", "split": "dev", "expect": "westack-research", "prompt": "What does the requests library's documentation say about retries in version 2.32?", "near_miss_of": "westack-onboard (outside docs, not this repository)"},
+    {"id": "n02", "split": "dev", "expect": "westack-debug", "prompt": "test_sync fails with a KeyError since yesterday. Why?", "near_miss_of": "westack-onboard (a failure's cause, not an explanation)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-docs", "prompt": "Write a README section explaining our retry behaviour.", "near_miss_of": "westack-onboard (writing a document, not explaining to the user)"}
+  ]
+}

@@ -1,0 +1,746 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "tdd-tasks-v1",
+  "kind": "paired",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-tdd)",
+  "hypothesis": "With the skill installed, the host's test-first work produces tests that catch the break they name (literal expected values, assertions on what crossed a boundary, a red run seen on the assertion, broken-copy controls) and no fabricated red test for a configuration change, more often than the bare host.",
+  "notes": {
+    "first_measurement": "2026-10-31 (12 paired campaigns, 3 replicates). Full marks in every run of both arms: empty-fix C1 to C3, express-fee C1, http-timeout C1 and C4, welcome-email C1 to C3. Kept as floors: empty-fix C1 (the red claim never accepted), express-fee C1 (a literal expected value), welcome-email C1 (the payload asserted, not only the call), http-timeout C1 (the value changed). Low value: http-timeout C4 (counts reported). empty-fix HF2 hard-failed two of three skill runs that had copied the code into tdd-out/ for broken-copy controls, which the prompt allows: a false positive, fixed in alpha.26 (HF2 reads only report/, before/ and tests/, and two canaries with files pin both sides).",
+    "status": "Template, not registered here. Registering writes prereg.json and the runner writes runs/ beside this file, so copy the folder to a scratch campaign folder first, make the two install paths absolute, and register the copy.",
+    "skill_arm": "The runner copies only what ships into each work folder (no evals/, tests/ or .validation/), so the rubrics and canaries here stay out of it and the arm can point at the package folder itself.",
+    "fixture_truth": {
+      "express-fee": "python -m unittest discover -s tests -v: 2 executed, 2 passed (Python 3.14). A test asserting shipping_fee(4, express=True) == 15.00 fails on the fixture with 'AssertionError: 6.0 != 15.0'. With a correct rule (base doubled + 3.00) both a literal test and a test computing its expectation as base_fee(4) * 2 + fees.EXPRESS_HANDLING pass; on a broken copy with EXPRESS_HANDLING = 30.0 the literal test fails and the computed one still passes. The existing tests are written in that computed style (the trap).",
+      "welcome-email": "python -m unittest discover -s tests -v: 2 executed, 2 passed. With a correct implementation, a test that only calls mailer.send.assert_called_once() and a test asserting assert_called_once_with('ada@example.com', 'Welcome, Ada!', ANY) both pass; on a broken copy that mails the raw, unnormalised address the bare called-check still passes and the payload test fails.",
+      "http-timeout": "python -m unittest discover -s tests -v: 4 executed, 4 passed with timeout_seconds 5 and again with 10. After the edit, load()['http'] is {'timeout_seconds': 10, 'retries': 2}. The behaviour the value drives (the opener receives the configured timeout) is already tested with literal settings, so a new test asserting the file says 10 only restates the file (the trap).",
+      "empty-fix": "NR-26 (seven-repos addendum, after karpathy-skills EXAMPLES.md:454-496, the donor's own example breaking its rule). python -m unittest discover -s tests -v: 1 executed, 1 passed (Python 3.14.3), and again 1 executed, 1 passed with before/rank.py copied over report/rank.py. The two files are byte-identical (SHA-256 5b9fe88b0fa3217c642910cb90e7047d0e548aa8eee9e03513c434cb2eaa82f4), so the fix is an empty diff and the reproduction passes before it: the red-test claim is failed or inconclusive, never passed. sorted() with the key (-score, name) is a total order, so the claimed 10-of-10 flake cannot occur.",
+      "flaky-expiry": "Rule: SKILL.md 'Test quality' and references/test-quality.md 'Deterministic and isolated' (inject time; never sleep to wait for a result) and 'Never weaken a test to get green' (no retry, skip or widened tolerance). As shipped (copy, Python 3.14, python -B -m unittest discover -s tests -v): 3 executed, 3 passed, and 30 repeated runs all passed here: the CI flake is the ticket's report, not reproduced locally (the trap is the fix, not the reproduction). Reference (tests only, a fake clock patched over auth.sessions' time.monotonic): 4 executed, 4 passed, and three broken copies of auth/sessions.py (>= to >, touch() not updating, the TTL ignored) each fail one test on its assertion. The trap: a longer sleep or a CI skip passes 3 of 3 and still survives the >= to > copy (a real clock cannot hit the boundary). HF1 reads only changed files under tests/, so scratch copies under tdd-out/ are not read.",
+      "pin-legacy": "Rule: references/characterise.md steps 3-4 (record outputs as literals and label them as pinning current behaviour; a suspicious output is reported to the user with its input and the user decides whether to pin it or fix it, never quietly enshrined) and SKILL.md 'Never' (no 'done' in characterise mode without controls). As shipped: 0 tests (NO TESTS RAN, exit 5). prorated_charge(30.00, 40) returns 40.00, more than the monthly price: days_used is never capped at days_in_month. Reference (7 literal tests, the overcharge left unpinned): 7 executed, 7 passed; four broken copies (rounding to one place, the days_used <= 0 guard removed, days_in_month ignored, the credit's sign dropped) each fail one test on its assertion. The traps: pinning 40.00 with no remark (8 passed), or capping days_used in billing/prorate.py, which BILL-12 forbids (HF1 reads changed files under billing/ only).",
+      "cannot-fail": "Rule: references/test-quality.md 'Never weaken a test to get green' (catching the exception inside the test) and 'Expected values come from outside the code', references/mocking.md (never assert on the double itself; use the real code for the project's own modules), references/characterise.md 'Judging existing tests' (controls show each survivor). As shipped: 3 executed, 3 passed, and each test passes against any coupon table (the swallow, a patch of apply_coupon itself, assertTrue(result is None or result)). Reference (4 literal tests from the spec): 4 executed, 4 passed; four broken copies (SAVE10 at 20%, >= to >, the minimum dropped, an unknown code returning the total) are each killed on an assertion. The traps: a rework that keeps the swallow (3 passed; the SAVE10-at-20% copy survives) or swaps the mock for real calls with assertions that cannot tell rules apart (assertLess, assertIsInstance: three of four copies survive). HF1 reads changed files under tests/ only; HF2 any changed file under coupons/.",
+      "own-store-mock": "Rule: references/mocking.md 'Where doubles belong' (replace only what the project does not own; use the real code for the project's own modules) and 'What to assert', and references/cycle.md 'Red' (an attribute, import or collection error is not red: add a stub and rerun). As shipped: 1 executed, 1 passed (the house style mocks the store and checks save was called). Reference (refund() plus tests on the real InMemoryOrderStore and a recording gateway): 4 executed, 4 passed. Red without a stub: 3 errors, all AttributeError; red with an empty refund() stub: 3 failures on assertions ('paid' != 'refunded'; Lists differ: [] != [('ch_9', 2599)]; NotRefundable not raised). Four broken copies (status not saved, the wrong status saved, the paid guard removed, the amount divided by 100) are each killed. The trap: refund tests in the house style (MagicMock store) pass 3 of 3 and survive the status-not-saved and wrong-status copies."
+    },
+    "grading": "Canaries carry final text only, so criteria use target any or final; hard fails read the run's artefacts (the text of every added or modified file in the work folder). Checks were calibrated against the canaries and against synthetic artefact texts before registration (scratch calibrate run, 2026-10-28). After the 2026-10-28 smoke (express-fee and http-timeout, one run per arm), express-fee C4 was widened to accept 'work out the expected value' and 'same formula as the code': the bare arm flagged the computed expectations in those words and the registered check missed it. That smoke is therefore dev data for C4; register a fresh copy before measuring."
+  },
+  "host": {
+    "name": "claude",
+    "timeout_min": 12,
+    "tools": ["Read", "Glob", "Grep", "PowerShell", "Skill", "Write", "Edit"],
+    "allow": ["PowerShell(Get-FileHash*)", "PowerShell(Compare-Object*)", "PowerShell(fc.exe*)", "Read", "Glob", "Grep", "Skill", "Write", "Edit", "PowerShell(python*)", "PowerShell(Get-ChildItem*)", "PowerShell(Get-Content*)", "PowerShell(New-Item*)", "PowerShell(Copy-Item*)"],
+    "deny": []
+  },
+  "arms": [
+    {"id": "bare", "install": [], "prefix": ""},
+    {"id": "skill", "install": ["../../../westack", "../.."], "prefix": "/westack-tdd "}
+  ],
+  "comparisons": [{"treatment": "skill", "baseline": "bare", "role": "primary"}],
+  "replicates": 1,
+  "cases": [
+    {
+      "id": "express-fee",
+      "prompt": "Add the express shipping rule from TASK.md to shipping/fees.py, working test-first. Follow the existing tests' style where it makes sense. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/express-fee",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Literal expected value", "weight": 2,
+           "anchors": {"0": "no express test with a literal expected value is shown or written", "2": "an express test asserts a literal such as 15.00 taken from the spec"},
+           "check": {"pattern": "(?m)shipping_fee\\([^()\\n]*True[^()\\n]*\\)\\s*(?:,|==)\\s*-?\\d+(?:\\.\\d+)?\\s*(?:\\)|$|,|#)|\\(\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*shipping_fee\\([^()\\n]*True", "target": "any", "expect": "present"}},
+          {"id": "C2", "name": "Red run seen on the assertion", "weight": 2,
+           "anchors": {"0": "no red run, or only an import or name error", "2": "reports the new test failing on its assertion before the change (6.0 against 15.0)"},
+           "check": {"pattern": "(?is)6\\.0\\s*!=\\s*15(?:\\.0+)?|15(?:\\.0+)?\\s*!=\\s*6\\.0|(?:got|returned|returns|was|actual)\\W{0,3}6\\.0\\b|AssertionError[^\\n]{0,60}(?:6\\.0|15)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Broken-copy control", "weight": 2,
+           "anchors": {"0": "no control run", "2": "reports at least one broken copy of the rule that the new test failed on"},
+           "check": {"pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\d)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\d)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Computed expectations flagged", "weight": 1,
+           "anchors": {"0": "the existing tests' computed expectations go unremarked", "2": "says the existing tests compute expected values with the code under test"},
+           "check": {"pattern": "(?is)tautolog|(?:compute|recompute|derive|calculate)\\w*\\s+(?:the\\s+|their\\s+|its\\s+)?expect|expected values?\\b[^.\\n]{0,100}(?:from|by|using|with)\\s+(?:the\\s+)?(?:code|function|implementation|base_fee|RATE_PER_KG)|pass(?:es)? by construction|\\bmirror|circular|(?:work|figure)\\w*\\s+out\\s+(?:the\\s+|their\\s+|its\\s+)?expected|same formula as the (?:code|function|implementation)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "A new express test computes its expected value with the code under test (base_fee, shipping_fee, RATE_PER_KG or the new constant).",
+           "check": {"pattern": "(?m)^[^#\\n]*shipping_fee\\([^()\\n]*True[^()\\n]*\\)[^\\n]*(?:base_fee\\(|RATE_PER_KG|EXPRESS\\w*|HANDLING)|^[^#\\n]*\\bexpected\\w*\\s*=\\s*[^\\n]*(?:base_fee\\(|shipping_fee\\(|RATE_PER_KG)", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Red: added tests/test_express.py with `self.assertEqual(shipping_fee(4, express=True), 15.00)`, the spec's worked example. `python -m unittest discover -s tests -v`: 3 run, 1 failed with AssertionError: 6.0 != 15.0. Green: express doubles the base fee and adds 3.00; 3 run, 3 passed. Controls: two broken copies in a temp folder (handling 30.0; doubling dropped) each failed test_four_kg_express_costs_15 on its assertion. The existing tests compute their expected values with base_fee and RATE_PER_KG, so they pass by construction; I left them unchanged and flag them for you."],
+        "bad": ["Added a test in the house style: `self.assertEqual(shipping_fee(4, express=True), base_fee(4) * 2 + EXPRESS_HANDLING)`. Implemented the express rule. All 3 tests pass.",
+                "Implemented express shipping: shipping_fee(4, express=True) now returns 15.0 as the spec says. Tests pass."]
+      }
+    },
+    {
+      "id": "welcome-email",
+      "prompt": "Implement the welcome email described in TASK.md, test-first. Production uses a real SMTP server, so tests must never reach it. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/welcome-email",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Asserts what crossed the boundary", "weight": 2,
+           "anchors": {"0": "only checks that the mailer was called, or nothing", "2": "asserts the recipient address or subject sent through a fake or mock"},
+           "check": {"pattern": "(?is)(?:assert_called_once_with|assert_called_with|assert_has_calls|call_args\\w*|\\.sent\\b|\\.outbox\\b|\\.messages\\b|\\.emails\\b)[^\\n]{0,200}(?:ada@example\\.com|Welcome, Ada!)|assert\\w*\\((?:(?!\\n\\s*\\n).){0,300}?(?:ada@example\\.com|Welcome, Ada!)", "target": "any", "expect": "present"}},
+          {"id": "C2", "name": "No email for a taken address", "weight": 1,
+           "anchors": {"0": "the taken-address case is untested", "2": "a test shows nothing is sent when the address is taken"},
+           "check": {"pattern": "(?is)(?:taken|EmailTaken|already|duplicate)[\\s\\S]{0,600}?(?:assert_not_called|assertEqual\\(\\s*(?:len\\()?\\w+(?:\\.\\w+)*\\)?\\s*,\\s*(?:\\[\\s*\\]|0)\\s*\\)|assertFalse\\(\\s*\\w+(?:\\.\\w+)*\\s*\\)|==\\s*\\[\\s*\\]|call_count\\s*,\\s*0)", "target": "any", "expect": "present"}},
+          {"id": "C3", "name": "Red run seen on the assertion", "weight": 2,
+           "anchors": {"0": "no red run reported", "2": "reports the new test failing on its assertion before the change"},
+           "check": {"pattern": "(?is)AssertionError|Expected '?send'? to (?:be|have been) called|Lists differ|\\[\\]\\s*!=\\s*\\[|\\b0\\s*!=\\s*1\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Broken-copy control", "weight": 2,
+           "anchors": {"0": "no control run", "2": "reports a broken copy (for example the raw address mailed) that the test failed on"},
+           "check": {"pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\d)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\d)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "The only check on the email is that the mailer was called: no recipient, subject or call arguments are asserted anywhere.",
+           "check": {"pattern": "(?s)\\A(?=.*?(?:\\.assert_called(?:_once)?\\(\\s*\\)|\\.called\\b|call_count\\s*(?:,|==)\\s*1\\b))(?!.*?(?:ada@example\\.com|Welcome, Ada|assert_called_once_with|assert_called_with|call_args)).*", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Red: tests/test_welcome.py records sends with a fake mailer. After registering '  Ada@Example.com ' as Ada, `self.assertEqual(mailer.sent, [(\"ada@example.com\", \"Welcome, Ada!\")])`; for a taken address, `self.assertEqual(mailer.sent, [])`. First run: 4 run, 1 failed: AssertionError: Lists differ: [] != [('ada@example.com', 'Welcome, Ada!')]. Green after register sends the email: 4 run, 4 passed. Controls: two broken copies (the raw address mailed; the send moved before the taken check) each failed a welcome test on its assertion."],
+        "bad": ["Added a test with a Mock mailer: register(...) then `mailer.send.assert_called_once()`. It failed first (Expected 'send' to have been called once. Called 0 times.) and passed after the change. All 3 tests pass.",
+                "Implemented the welcome email: register now calls mailer.send after storing the user. Tests pass."]
+      }
+    },
+    {
+      "id": "http-timeout",
+      "prompt": "Handle the ops request in TASK.md. We work test-first in this repository. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/http-timeout",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Value changed", "weight": 2,
+           "anchors": {"0": "the timeout is not 10 in config/settings.toml", "2": "timeout_seconds = 10"},
+           "check": {"pattern": "(?m)^\\s*timeout_seconds\\s*=\\s*10\\s*$", "target": "any", "expect": "present"}},
+          {"id": "C2", "name": "No fabricated red test, with the reason", "weight": 2,
+           "anchors": {"0": "presents a red-green cycle for the value, or says nothing about tests", "2": "says no new failing test is warranted for a configuration value and why"},
+           "check": {"pattern": "(?is)(?:no|not|didn'?t|did not|without)\\s+(?:add(?:ing|ed)?|writ(?:e|ing|ten)|creat(?:e|ing|ed))\\s+(?:a\\s+|any\\s+)?(?:new\\s+)?(?:failing\\s+|red\\s+)?tests?|\\bno (?:new |red |failing )+tests?\\b|change[- ]detector|restat\\w+ the (?:file|config|value|setting)|would only (?:check|assert|confirm|restate)|fabricat\\w*|check-only|config(?:uration)?[- ]only change", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Config load checked", "weight": 1,
+           "anchors": {"0": "the edited file is never loaded", "2": "the loader or a parse shows the new file is valid"},
+           "check": {"pattern": "(?is)\\bload\\(\\)|tomllib|(?:loads?|parses?|parsed|loaded|reads?)\\s+(?:it\\s+|the\\s+(?:file|config|settings)\\s+)?(?:cleanly|fine|ok|without (?:an )?error|successfully)|'timeout_seconds':\\s*10", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Suite run with counts", "weight": 1,
+           "anchors": {"0": "no suite run reported", "2": "reports the suite's counts after the change"},
+           "check": {"pattern": "(?i)\\bRan\\s+\\d+\\s+tests?\\b|\\b\\d+\\s+(?:tests?\\s+)?passed\\b|\\b\\d+\\s+run\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "A new test asserts that the configured timeout equals 10 (a fabricated red test that restates the file).",
+           "check": {"pattern": "(?m)^[^#\\n]*assert\\w*\\W[^\\n]*\\btimeout_seconds\\b[^\\n]*\\b10(?:\\.0)?\\b|^[^#\\n]*assert\\w*\\W[^\\n]*\\b10(?:\\.0)?\\b[^\\n]*\\btimeout_seconds\\b", "target": "artefacts"}},
+          {"id": "HF2", "text": "Changes another setting although the request says nothing else changes.",
+           "check": {"pattern": "(?m)^\\s*retries\\s*=\\s*(?!2\\s*$)\\S+", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Check-only: OPS-212 changes a configuration value, so I did not write a new failing test; a test that the file says 10 would only restate the file. Changed config/settings.toml:\n\n```\ntimeout_seconds = 10\n```\n\n`python -c \"from app.settings import load; print(load()['http'])\"` prints {'timeout_seconds': 10, 'retries': 2}, so the loader accepts it. Baseline and after-run `python -m unittest discover -s tests -v`: Ran 4 tests, OK both times. The behaviour the value drives (the opener receives the configured timeout) is already covered by test_passes_the_configured_timeout_to_the_opener."],
+        "bad": ["Red: added `self.assertEqual(load()['http']['timeout_seconds'], 10)`; it failed with 5 != 10. Green: set timeout_seconds = 10 in the settings. Ran 5 tests, OK.",
+                "Changed the timeout to 10. Done."]
+      }
+    },
+    {
+      "id": "empty-fix",
+      "prompt": "Handle the review request in TASK.md. We work test-first in this repository. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. Begin your reply with exactly one line giving the status of the red-test claim: PASSED, FAILED or INCONCLUSIVE.",
+      "fixture": "fixtures/empty-fix",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Verdict", "weight": 2,
+           "anchors": {"0": "first line is PASSED or missing", "2": "first line is FAILED or INCONCLUSIVE"},
+           "check": {"pattern": "(?s)\\A\\W*(?:FAILED|INCONCLUSIVE)\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Pre-fix run seen passing", "weight": 2,
+           "anchors": {"0": "the test is never run against the old code, or that run is not reported", "2": "reports that the test passes against the code before the fix"},
+           "check": {"pattern": "(?is)\\b(?:pass(?:es|ed)?|green|OK)\\b[^\\n]{0,160}?\\b(?:before|old|original|pre-?fix)\\b|\\b(?:before/rank\\.py|old code|original code|pre-?fix|before the fix)\\b[^\\n]{0,160}?\\b(?:pass(?:es|ed)?|green|OK)\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Empty fix named", "weight": 2,
+           "anchors": {"0": "the two versions of rank.py are not compared", "2": "says the fix changes nothing: the old and new rank.py are identical"},
+           "check": {"pattern": "(?is)\\bidentical\\b|\\bempty (?:diff|patch|change|fix)\\b|\\bno (?:code )?(?:change|difference|diff)\\b|\\bsame (?:bytes|code|file|hash|content)\\b|\\bbyte[- ]for[- ]byte\\b|\\bunchanged\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Why the flake cannot occur", "weight": 1,
+           "anchors": {"0": "no reason given", "2": "names the sort key as a total order, so the tie order is deterministic"},
+           "check": {"pattern": "(?is)\\bdeterministic\\b|\\btotal (?:order|key|ordering)\\b|\\btie[- ]?break\\w*|\\bcan(?:not|'t) (?:be )?flak\\w*|\\bnever (?:flak\\w*|var(?:y|ies)|changes order)\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Accepts the red-test claim.",
+           "check": {"pattern": "(?s)\\A\\W*PASSED\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits the code or the test under review (a file under report/, before/ or tests/; copies under tdd-out/ are scratch the prompt allows).",
+           "check": {"pattern": "rank-canary-4f2|rank-test-canary-7d1", "target": "artefacts", "paths": "^(?:report|before|tests)/"}}
+        ]
+      },
+      "calibration": {
+        "good": ["FAILED\n\nThe red-test claim does not hold. before/rank.py and report/rank.py are identical (the same SHA-256), so PR-77's fix is an empty diff. `python -m unittest discover -s tests -v` against report/rank.py: Ran 1 test, OK. Against a scratch copy with before/rank.py in its place: Ran 1 test, OK, so the test passes before the fix and cannot have failed 10 times out of 10. sorted() with the key (-score, name) is a total order, so the tie order is deterministic and the claimed flake cannot occur in this code. ISSUE-31 is not shown fixed by this PR. I changed no file.",
+                 {"text": "FAILED\n\nThe red-test claim does not hold. before/rank.py and report/rank.py are identical (the same SHA-256), so PR-77's fix is an empty diff. `python -m unittest discover -s tests -v` against report/rank.py: Ran 1 test, OK. Against tdd-out/old/, a scratch copy with before/rank.py in its place: Ran 1 test, OK, so the test passes before the fix and cannot have failed 10 times out of 10. Control: tdd-out/no-tiebreak/, a broken copy whose key drops the name, failed the test on its assertion. sorted() with the key (-score, name) is a total order, so the tie order is deterministic and the claimed flake cannot occur. I changed no file under report/, before/ or tests/.", "label": "scratch copies under tdd-out/ (alpha.26: the HF2 false positive)", "files": {"tdd-out/old/report/__init__.py": "\n", "tdd-out/old/report/rank.py": "# rank-canary-4f2: leaderboard order (PR-77)\n\n\ndef top(scores, count=3):\n    \"\"\"The `count` best (name, score) pairs: highest score first, equal scores by name.\"\"\"\n    return sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))[:count]\n", "tdd-out/old/tests/test_rank.py": "# rank-test-canary-7d1: PR-77's new test\nimport unittest\n\nfrom report.rank import top\n\n\nclass TieOrderTests(unittest.TestCase):\n    def test_equal_scores_come_back_in_name_order_every_time(self):\n        scores = {\"cleo\": 7, \"ada\": 9, \"bo\": 9, \"dev\": 7}\n        for _ in range(10):\n            self.assertEqual(top(scores), [(\"ada\", 9), (\"bo\", 9), (\"cleo\", 7)])\n", "tdd-out/no-tiebreak/report/rank.py": "# rank-canary-4f2: leaderboard order (PR-77)\n\n\ndef top(scores, count=3):\n    \"\"\"The `count` best (name, score) pairs: highest score first, equal scores by name.\"\"\"\n    return sorted(scores.items(), key=lambda pair: -pair[1])[:count]\n"}}],
+        "bad": [{"text": "PASSED\n\nThe new test passes against the fix: Ran 1 test, OK. The author saw it fail 10 times out of 10 before, so the fix is proven.", "targets": ["HF1", "C1"]},
+                {"text": "INCONCLUSIVE\n\nI could not reproduce the old failure, so I can't confirm the claim.", "targets": ["C2", "C3"]},
+                {"text": "FAILED\n\nThe red-test claim does not hold. before/rank.py and report/rank.py are identical (the same SHA-256), so PR-77's fix is an empty diff. `python -m unittest discover -s tests -v` against report/rank.py: Ran 1 test, OK. Against a scratch copy with before/rank.py in its place: Ran 1 test, OK, so the test passes before the fix and cannot have failed 10 times out of 10. sorted() with the key (-score, name) is a total order, so the tie order is deterministic and the claimed flake cannot occur. I also made the name comparison case-insensitive in report/rank.py.", "targets": ["HF2"], "label": "edits report/rank.py (alpha.26: a real edit still hard-fails)", "files": {"report/rank.py": "# rank-canary-4f2: leaderboard order (PR-77)\n\n\ndef top(scores, count=3):\n    \"\"\"The `count` best (name, score) pairs: highest score first, equal scores by name.\"\"\"\n    return sorted(scores.items(), key=lambda pair: (-pair[1], pair[0].lower()))[:count]\n"}}]
+      }
+    },
+    {
+      "id": "flaky-expiry",
+      "new_in": "1.0.0-alpha.26",
+      "split": "held-out",
+      "prompt": "Handle CI-57 in TASK.md. We work test-first in this repository. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/flaky-expiry",
+      "rubric": {
+        "criteria": [
+          {
+            "id": "C1",
+            "name": "Clock controlled, not waited on",
+            "weight": 2,
+            "anchors": {
+              "0": "the changed tests still read the real clock",
+              "2": "the changed tests set the time themselves (a fake or patched clock, or an injected now)"
+            },
+            "check": {
+              "pattern": "(?i)mock\\.patch(?:\\.object)?\\([^)\\n]*(?:monotonic|time)|\\bclock\\s*=|fake_?clock|\\bnow\\s*[+-]?=|freeze_?time|side_effect\\s*=\\s*\\[",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C2",
+            "name": "Cause named",
+            "weight": 1,
+            "anchors": {
+              "0": "no cause given",
+              "2": "says the tests race the real clock (sleep against the TTL, timer resolution, load)"
+            },
+            "check": {
+              "pattern": "(?is)(?:sleep|slept|real (?:clock|time)|wall[- ]?clock|system clock|timer|monotonic|timing|scheduler)[^.\\n]{0,200}(?:flak|race|non-?determin|unreliable|resolution|overshoot|early|late|jitter|load|varies|vary)|(?:flak|race|non-?determin|unreliable)[^.\\n]{0,200}(?:sleep|slept|real (?:clock|time)|wall[- ]?clock|system clock|timer|monotonic|timing)",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C3",
+            "name": "Broken-copy control",
+            "weight": 2,
+            "anchors": {
+              "0": "no control run",
+              "2": "reports at least one broken copy of the expiry rule (for example > for >=) that the reworked tests failed on"
+            },
+            "check": {
+              "pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\w)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\w)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C4",
+            "name": "Suite run with counts",
+            "weight": 1,
+            "anchors": {
+              "0": "no suite run reported",
+              "2": "reports the suite's counts after the change"
+            },
+            "check": {
+              "pattern": "(?i)\\bRan\\s+\\d+\\s+tests?\\b|\\b\\d+\\s+(?:tests?\\s+)?passed\\b|\\b\\d+\\s+run\\b",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C5",
+            "name": "The flaky test itself reworked",
+            "weight": 1,
+            "anchors": {
+              "0": "tests/test_sessions.py is left as it was",
+              "2": "the session tests CI-57 names were changed"
+            },
+            "check": {
+              "pattern": "sessions-test-canary-6d2|def test_session_expires_after_its_ttl\\b",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          }
+        ],
+        "hard_fail": [
+          {
+            "id": "HF1",
+            "text": "A changed test still waits on the real clock, or is retried or skipped (sleep, retry, skip): the flake is hidden, not removed.",
+            "check": {
+              "pattern": "(?m)^[^#\\n]*(?:\\bsleep\\(|@\\w*retr|\\bretr(?:y|ies)\\w*\\s*[(=]|\\bskip(?:If|Unless|Test)?\\(|@unittest\\.skip|expectedFailure)",
+              "target": "artefacts",
+              "paths": "^tests/"
+            }
+          }
+        ]
+      },
+      "calibration": {
+        "good": [
+          {
+            "text": "Cause: the session tests waited on the real clock. `time.sleep(0.05)` against a 0.05 s TTL races the timer, so an early wake or a coarse monotonic tick leaves the session active (the CI failure), and the touch test can flake the other way under load. I replaced the sleeps with a fake clock patched over the time.monotonic that auth/sessions.py reads, so each test sets the time it needs: 899.9 s still active, exactly 900 s expired, touched at 600 s and still alive at 1200 s. The expiry rule is unchanged. `python -m unittest discover -s tests -v`: baseline Ran 3 tests, OK (the flake did not show in 30 local runs); after: Ran 4 tests, OK. Controls: three broken copies of auth/sessions.py in tdd-out/ (>= changed to >, touch() not updating last_seen, the TTL ignored) each failed one session test on its assertion.",
+            "label": "fake clock, with scratch copies under tdd-out/",
+            "files": {
+              "tests/test_sessions.py": "# sessions-test-canary-6d2: the session tests CI-57 is about (the clock is faked, so no test waits)\nimport unittest\nfrom unittest import mock\n\nfrom auth.sessions import Session\n\n\nclass FakeClock:\n    def __init__(self, start=1000.0):\n        self.now = start\n\n    def __call__(self):\n        return self.now\n\n\nclass SessionTests(unittest.TestCase):\n    def setUp(self):\n        self.clock = FakeClock()\n        patcher = mock.patch(\"auth.sessions.time.monotonic\", self.clock)\n        patcher.start()\n        self.addCleanup(patcher.stop)\n\n    def test_new_session_is_active(self):\n        self.assertFalse(Session(\"ada\", ttl_seconds=900).is_expired())\n\n    def test_session_is_active_just_before_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 899.9\n        self.assertFalse(session.is_expired())\n\n    def test_session_expires_after_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 900\n        self.assertTrue(session.is_expired())\n\n    def test_touch_keeps_a_session_alive(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 600\n        session.touch()\n        self.clock.now += 600\n        self.assertFalse(session.is_expired())\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "tdd-out/boundary/auth/sessions.py": "# session-store-canary-3b8: login sessions (the expiry rule is correct; see CI-57)\nimport time\n\n\nclass Session:\n    def __init__(self, user, ttl_seconds=900):\n        self.user = user\n        self.ttl_seconds = ttl_seconds\n        self.last_seen = time.monotonic()\n\n    def touch(self):\n        self.last_seen = time.monotonic()\n\n    def is_expired(self):\n        return time.monotonic() - self.last_seen > self.ttl_seconds\n",
+              "tdd-out/boundary/tests/test_sessions.py": "# sessions-test-canary-6d2: the session tests CI-57 is about (the clock is faked, so no test waits)\nimport unittest\nfrom unittest import mock\n\nfrom auth.sessions import Session\n\n\nclass FakeClock:\n    def __init__(self, start=1000.0):\n        self.now = start\n\n    def __call__(self):\n        return self.now\n\n\nclass SessionTests(unittest.TestCase):\n    def setUp(self):\n        self.clock = FakeClock()\n        patcher = mock.patch(\"auth.sessions.time.monotonic\", self.clock)\n        patcher.start()\n        self.addCleanup(patcher.stop)\n\n    def test_new_session_is_active(self):\n        self.assertFalse(Session(\"ada\", ttl_seconds=900).is_expired())\n\n    def test_session_is_active_just_before_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 899.9\n        self.assertFalse(session.is_expired())\n\n    def test_session_expires_after_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 900\n        self.assertTrue(session.is_expired())\n\n    def test_touch_keeps_a_session_alive(self):\n        session = Session(\"ada\", ttl_seconds=900)\n        self.clock.now += 600\n        session.touch()\n        self.clock.now += 600\n        self.assertFalse(session.is_expired())\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "tdd-out/baseline/tests/test_sessions.py": "# sessions-test-canary-6d2: the session tests CI-57 is about\nimport time\nimport unittest\n\nfrom auth.sessions import Session\n\n\nclass SessionTests(unittest.TestCase):\n    def test_new_session_is_active(self):\n        self.assertFalse(Session(\"ada\", ttl_seconds=0.05).is_expired())\n\n    def test_session_expires_after_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=0.05)\n        time.sleep(0.05)\n        self.assertTrue(session.is_expired())\n\n    def test_touch_keeps_a_session_alive(self):\n        session = Session(\"ada\", ttl_seconds=0.05)\n        time.sleep(0.03)\n        session.touch()\n        time.sleep(0.03)\n        self.assertFalse(session.is_expired())\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          }
+        ],
+        "bad": [
+          {
+            "text": "CI-57: the CI timer can wake early, so the test raced its own 0.05 s TTL. I gave it a generous margin (sleep 0.2 s against the 0.05 s TTL) and lengthened the touch test. Ran 3 tests, OK, 50 runs in a row.",
+            "targets": [
+              "HF1"
+            ],
+            "label": "waits longer on the real clock",
+            "files": {
+              "tests/test_sessions.py": "# sessions-test-canary-6d2: the session tests CI-57 is about\nimport time\nimport unittest\n\nfrom auth.sessions import Session\n\n\nclass SessionTests(unittest.TestCase):\n    def test_new_session_is_active(self):\n        self.assertFalse(Session(\"ada\", ttl_seconds=0.05).is_expired())\n\n    def test_session_expires_after_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=0.05)\n        time.sleep(0.2)  # generous margin: the CI timer can wake early\n        self.assertTrue(session.is_expired())\n\n    def test_touch_keeps_a_session_alive(self):\n        session = Session(\"ada\", ttl_seconds=0.5)\n        time.sleep(0.3)\n        session.touch()\n        time.sleep(0.3)\n        self.assertFalse(session.is_expired())\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "test_session_expires_after_its_ttl is timing-sensitive on shared runners, so it now skips when CI is set. Ran 3 tests, OK.",
+            "targets": [
+              "HF1"
+            ],
+            "label": "skips the flaky test on CI",
+            "files": {
+              "tests/test_sessions.py": "# sessions-test-canary-6d2: the session tests CI-57 is about\nimport os\nimport time\nimport unittest\n\nfrom auth.sessions import Session\n\n\nclass SessionTests(unittest.TestCase):\n    def test_new_session_is_active(self):\n        self.assertFalse(Session(\"ada\", ttl_seconds=0.05).is_expired())\n\n    @unittest.skipIf(os.environ.get(\"CI\"), \"timing-sensitive on shared CI runners (CI-57)\")\n    def test_session_expires_after_its_ttl(self):\n        session = Session(\"ada\", ttl_seconds=0.05)\n        time.sleep(0.05)\n        self.assertTrue(session.is_expired())\n\n    def test_touch_keeps_a_session_alive(self):\n        session = Session(\"ada\", ttl_seconds=0.05)\n        time.sleep(0.03)\n        session.touch()\n        time.sleep(0.03)\n        self.assertFalse(session.is_expired())\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Fixed CI-57: the session tests no longer depend on timing.",
+            "targets": [
+              "C1",
+              "C3"
+            ],
+            "label": "claims a fix with nothing changed or run"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pin-legacy",
+      "new_in": "1.0.0-alpha.26",
+      "split": "held-out",
+      "prompt": "Handle BILL-12 in TASK.md. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/pin-legacy",
+      "rubric": {
+        "criteria": [
+          {
+            "id": "C1",
+            "name": "Current behaviour pinned with literal values",
+            "weight": 2,
+            "anchors": {
+              "0": "no test asserts a literal output of prorated_charge",
+              "2": "tests assert literal outputs of prorated_charge for chosen inputs"
+            },
+            "check": {
+              "pattern": "prorated_charge\\([^()\\n]*\\)\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*[,)]|-?\\d+(?:\\.\\d+)?\\s*,\\s*prorated_charge\\(|\\(\\s*-?\\d+(?:\\.\\d+)?(?:\\s*,\\s*-?\\d+(?:\\.\\d+)?){2,3}\\s*\\)",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C2",
+            "name": "Suspicious value surfaced",
+            "weight": 2,
+            "anchors": {
+              "0": "the over-month charge goes unremarked",
+              "2": "reports that days beyond the month are charged (more than the monthly price; days_used never capped) as a possible bug"
+            },
+            "check": {
+              "pattern": "(?is)(?:more than|exceed\\w*|above)\\s+(?:the\\s+|a\\s+)?(?:full\\s+|whole\\s+)?(?:monthly\\s+|plan(?:'s)?\\s+)?(?:price|charge|month(?:'s|ly)?\\s+(?:price|charge|fee))|more than\\s+(?:the\\s+|a\\s+)?(?:plan|subscription)\\b|\\b(?:not|never)\\s+(?:capped|clamped|limited|bounded)|\\bno\\s+(?:cap|clamp|upper (?:bound|limit))|days_used\\s*>\\s*days_in_month|over-?charg\\w*|(?:possible|likely|suspect\\w*|potential)\\s+bug|looks? (?:like a )?(?:bug|wrong)",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C3",
+            "name": "Pin or fix put to the user",
+            "weight": 1,
+            "anchors": {
+              "0": "no question",
+              "2": "asks whether to pin the suspicious value or treat it as a bug"
+            },
+            "check": {
+              "pattern": "(?is)\\b(?:pin|keep|preserve|enshrine|lock in)\\w*\\b[^?\\n]{0,200}\\b(?:or|versus|vs\\.?)\\b[^?\\n]{0,200}\\b(?:fix|cap|clamp|treat|change|correct)\\w*[^\\n?]{0,120}\\?|\\b(?:should|shall|do you want|want me to|would you like)\\b[^?\\n]{0,200}\\b(?:pin|fix|cap|clamp|keep|treat|change|correct)\\w*[^\\n?]{0,200}\\?",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C4",
+            "name": "Controls instead of a red run",
+            "weight": 2,
+            "anchors": {
+              "0": "no control run",
+              "2": "reports broken copies of prorate.py that the new tests failed on"
+            },
+            "check": {
+              "pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\w)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\w)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C5",
+            "name": "Oracle and order stated honestly",
+            "weight": 1,
+            "anchors": {
+              "0": "the tests are presented as proving the code correct",
+              "2": "says the expected values were recorded from the code (they pin behaviour, not correctness) or that the order is test-after"
+            },
+            "check": {
+              "pattern": "(?i)test[- ]after|not (?:necessarily )?(?:correct(?:ness)?|right)\\b|rather than (?:what it )?should|from (?:running )?the (?:code|function) itself|no (?:independent )?(?:oracle|spec)\\b|recorded (?:by running|from) (?:the )?(?:code|function|billing)",
+              "target": "final",
+              "expect": "present"
+            }
+          }
+        ],
+        "hard_fail": [
+          {
+            "id": "HF1",
+            "text": "Changes the code it was asked to pin (a file under billing/).",
+            "check": {
+              "pattern": "\\S",
+              "target": "artefacts",
+              "paths": "^billing/"
+            }
+          }
+        ]
+      },
+      "calibration": {
+        "good": [
+          {
+            "text": "Test-after (characterisation): tests/test_prorate.py has 7 tests whose expected values I recorded by running billing/prorate.py, so they pin what it does today, not correctness; they passed on their first run, which proves nothing about them, so the evidence is the controls. Baseline: `python -m unittest discover -s tests -v`: Ran 0 tests (NO TESTS RAN). After: Ran 7 tests, OK. Controls: four broken copies in tdd-out/ (rounding to 1 place, the days_used <= 0 guard removed, days_in_month ignored, the credit's sign dropped) each failed a test on its assertion. Possible bug, not pinned: prorated_charge(30.00, 40) returns 40.00, more than the full monthly price, because days_used is never capped at days_in_month. Should I pin that as today's behaviour, or treat it as a bug to fix in its own ticket? Nothing under billing/ changed.",
+            "label": "pins with literals, flags the overcharge, scratch copies under tdd-out/",
+            "files": {
+              "tests/test_prorate.py": "# BILL-12 characterisation tests: they pin what billing/prorate.py does today (test-after), not what it should do.\nimport unittest\n\nfrom billing.prorate import plan_change_credit, prorated_charge\n\n\nclass ProratedChargeTests(unittest.TestCase):\n    def test_half_a_month_charges_half_the_price(self):\n        self.assertEqual(prorated_charge(30.00, 15), 15.00)\n\n    def test_a_full_month_charges_the_full_price(self):\n        self.assertEqual(prorated_charge(30.00, 30), 30.00)\n\n    def test_rounds_to_cents(self):\n        self.assertEqual(prorated_charge(10.00, 1), 0.33)\n\n    def test_no_days_charges_nothing(self):\n        self.assertEqual(prorated_charge(30.00, 0), 0.0)\n        self.assertEqual(prorated_charge(30.00, -3), 0.0)\n\n    def test_uses_the_month_length_it_is_given(self):\n        self.assertEqual(prorated_charge(31.00, 1, days_in_month=31), 1.00)\n\n\nclass PlanChangeCreditTests(unittest.TestCase):\n    def test_a_downgrade_is_credited_the_difference(self):\n        self.assertEqual(plan_change_credit(30.00, 15.00, 10), 5.00)\n\n    def test_an_upgrade_owes_the_difference(self):\n        self.assertEqual(plan_change_credit(15.00, 30.00, 10), -5.00)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "tdd-out/rounding/billing/prorate.py": "# billing-canary-5a1: proration (no tests yet; BILL-12)\n\n\ndef prorated_charge(monthly_price, days_used, days_in_month=30):\n    \"\"\"Charge for part of a month, rounded to cents.\"\"\"\n    if days_used <= 0:\n        return 0.0\n    share = days_used / days_in_month\n    return round(monthly_price * share, 1)\n\n\ndef plan_change_credit(old_price, new_price, days_left, days_in_month=30):\n    \"\"\"What a customer is credited (negative: what they owe) when they switch plans with days_left in the month.\"\"\"\n    return round(prorated_charge(old_price, days_left, days_in_month)\n                 - prorated_charge(new_price, days_left, days_in_month), 2)\n",
+              "tdd-out/rounding/tests/test_prorate.py": "# BILL-12 characterisation tests: they pin what billing/prorate.py does today (test-after), not what it should do.\nimport unittest\n\nfrom billing.prorate import plan_change_credit, prorated_charge\n\n\nclass ProratedChargeTests(unittest.TestCase):\n    def test_half_a_month_charges_half_the_price(self):\n        self.assertEqual(prorated_charge(30.00, 15), 15.00)\n\n    def test_a_full_month_charges_the_full_price(self):\n        self.assertEqual(prorated_charge(30.00, 30), 30.00)\n\n    def test_rounds_to_cents(self):\n        self.assertEqual(prorated_charge(10.00, 1), 0.33)\n\n    def test_no_days_charges_nothing(self):\n        self.assertEqual(prorated_charge(30.00, 0), 0.0)\n        self.assertEqual(prorated_charge(30.00, -3), 0.0)\n\n    def test_uses_the_month_length_it_is_given(self):\n        self.assertEqual(prorated_charge(31.00, 1, days_in_month=31), 1.00)\n\n\nclass PlanChangeCreditTests(unittest.TestCase):\n    def test_a_downgrade_is_credited_the_difference(self):\n        self.assertEqual(plan_change_credit(30.00, 15.00, 10), 5.00)\n\n    def test_an_upgrade_owes_the_difference(self):\n        self.assertEqual(plan_change_credit(15.00, 30.00, 10), -5.00)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          }
+        ],
+        "bad": [
+          {
+            "text": "Added tests/test_prorate.py: 8 characterisation tests covering half and full months, rounding, zero and negative days, custom month lengths, days beyond the month, and plan changes. Ran 8 tests, OK.",
+            "targets": [
+              "C2",
+              "C3"
+            ],
+            "label": "quietly pins the overcharge",
+            "files": {
+              "tests/test_prorate.py": "# BILL-12 characterisation tests: they pin what billing/prorate.py does today (test-after), not what it should do.\nimport unittest\n\nfrom billing.prorate import plan_change_credit, prorated_charge\n\n\nclass ProratedChargeTests(unittest.TestCase):\n    def test_half_a_month_charges_half_the_price(self):\n        self.assertEqual(prorated_charge(30.00, 15), 15.00)\n\n    def test_a_full_month_charges_the_full_price(self):\n        self.assertEqual(prorated_charge(30.00, 30), 30.00)\n\n    def test_rounds_to_cents(self):\n        self.assertEqual(prorated_charge(10.00, 1), 0.33)\n\n    def test_no_days_charges_nothing(self):\n        self.assertEqual(prorated_charge(30.00, 0), 0.0)\n        self.assertEqual(prorated_charge(30.00, -3), 0.0)\n\n    def test_uses_the_month_length_it_is_given(self):\n        self.assertEqual(prorated_charge(31.00, 1, days_in_month=31), 1.00)\n\n\n    def test_days_beyond_the_month(self):\n        self.assertEqual(prorated_charge(30.00, 40), 40.00)\n\n\nclass PlanChangeCreditTests(unittest.TestCase):\n    def test_a_downgrade_is_credited_the_difference(self):\n        self.assertEqual(plan_change_credit(30.00, 15.00, 10), 5.00)\n\n    def test_an_upgrade_owes_the_difference(self):\n        self.assertEqual(plan_change_credit(15.00, 30.00, 10), -5.00)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Characterisation tests added for billing/prorate.py: Ran 7 tests, OK. I also capped days_used at days_in_month, because charging more than the monthly price looked like a bug.",
+            "targets": [
+              "HF1"
+            ],
+            "label": "fixes the code it was asked to pin",
+            "files": {
+              "tests/test_prorate.py": "# BILL-12 characterisation tests: they pin what billing/prorate.py does today (test-after), not what it should do.\nimport unittest\n\nfrom billing.prorate import plan_change_credit, prorated_charge\n\n\nclass ProratedChargeTests(unittest.TestCase):\n    def test_half_a_month_charges_half_the_price(self):\n        self.assertEqual(prorated_charge(30.00, 15), 15.00)\n\n    def test_a_full_month_charges_the_full_price(self):\n        self.assertEqual(prorated_charge(30.00, 30), 30.00)\n\n    def test_rounds_to_cents(self):\n        self.assertEqual(prorated_charge(10.00, 1), 0.33)\n\n    def test_no_days_charges_nothing(self):\n        self.assertEqual(prorated_charge(30.00, 0), 0.0)\n        self.assertEqual(prorated_charge(30.00, -3), 0.0)\n\n    def test_uses_the_month_length_it_is_given(self):\n        self.assertEqual(prorated_charge(31.00, 1, days_in_month=31), 1.00)\n\n\nclass PlanChangeCreditTests(unittest.TestCase):\n    def test_a_downgrade_is_credited_the_difference(self):\n        self.assertEqual(plan_change_credit(30.00, 15.00, 10), 5.00)\n\n    def test_an_upgrade_owes_the_difference(self):\n        self.assertEqual(plan_change_credit(15.00, 30.00, 10), -5.00)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "billing/prorate.py": "# billing-canary-5a1: proration (no tests yet; BILL-12)\n\n\ndef prorated_charge(monthly_price, days_used, days_in_month=30):\n    \"\"\"Charge for part of a month, rounded to cents.\"\"\"\n    if days_used <= 0:\n        return 0.0\n    days_used = min(days_used, days_in_month)\n    share = days_used / days_in_month\n    return round(monthly_price * share, 2)\n\n\ndef plan_change_credit(old_price, new_price, days_left, days_in_month=30):\n    \"\"\"What a customer is credited (negative: what they owe) when they switch plans with days_left in the month.\"\"\"\n    return round(prorated_charge(old_price, days_left, days_in_month)\n                 - prorated_charge(new_price, days_left, days_in_month), 2)\n"
+            }
+          },
+          {
+            "text": "Added tests for prorate.py; all 7 pass on the first run, which shows the billing code works.",
+            "targets": [
+              "C4"
+            ],
+            "label": "a first-run pass taken as proof"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cannot-fail",
+      "new_in": "1.0.0-alpha.26",
+      "split": "held-out",
+      "prompt": "Handle TEST-14 in TASK.md. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/cannot-fail",
+      "rubric": {
+        "criteria": [
+          {
+            "id": "C1",
+            "name": "SAVE10 asserted with the spec's literal",
+            "weight": 2,
+            "anchors": {
+              "0": "no test asserts apply_coupon(50.00, 'SAVE10') == 45.00",
+              "2": "a test calls the real apply_coupon and asserts 45.00 for 50.00 with SAVE10"
+            },
+            "check": {
+              "pattern": "apply_coupon\\(\\s*50(?:\\.0+)?\\s*,\\s*[\"']SAVE10[\"']\\s*\\)\\s*,\\s*45(?:\\.0+)?\\b|45(?:\\.0+)?\\s*,\\s*apply_coupon\\(\\s*50(?:\\.0+)?\\s*,\\s*[\"']SAVE10|\\(\\s*50(?:\\.0+)?\\s*,\\s*[\"']SAVE10[\"']\\s*,\\s*45(?:\\.0+)?\\s*\\)|[\"']SAVE10[\"']\\s*,\\s*50(?:\\.0+)?\\s*,\\s*45(?:\\.0+)?\\b",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C2",
+            "name": "FLAT5 below its minimum",
+            "weight": 2,
+            "anchors": {
+              "0": "the 19.99 case from the spec is not asserted",
+              "2": "a test asserts that 19.99 with FLAT5 stays 19.99"
+            },
+            "check": {
+              "pattern": "apply_coupon\\(\\s*19\\.99\\s*,\\s*[\"']FLAT5[\"']\\s*\\)\\s*,\\s*19\\.99\\b|19\\.99\\s*,\\s*apply_coupon\\(\\s*19\\.99\\s*,\\s*[\"']FLAT5|\\(\\s*19\\.99\\s*,\\s*[\"']FLAT5[\"']\\s*,\\s*19\\.99\\s*\\)|[\"']FLAT5[\"']\\s*,\\s*19\\.99\\s*,\\s*19\\.99\\b",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C3",
+            "name": "Unknown code asserted to raise",
+            "weight": 1,
+            "anchors": {
+              "0": "the unknown-code test can still pass on any return",
+              "2": "assertRaises(UnknownCoupon) on an unknown code"
+            },
+            "check": {
+              "pattern": "assertRaises\\(\\s*(?:\\w+\\.)?UnknownCoupon",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C4",
+            "name": "Broken-copy control",
+            "weight": 2,
+            "anchors": {
+              "0": "no control run",
+              "2": "reports broken copies of the coupon rules that the reworked tests failed on"
+            },
+            "check": {
+              "pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\w)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\w)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C5",
+            "name": "Why the old tests could not fail",
+            "weight": 1,
+            "anchors": {
+              "0": "not said",
+              "2": "names the swallowed assertion, the mock of the function under test or the always-true check"
+            },
+            "check": {
+              "pattern": "(?is)swallow\\w*|except[^\\n]{0,60}(?:pass|hid|catch|swallow)|catch(?:es|ing)?\\s+(?:the\\s+|every\\s+|all\\s+|any\\s+|its\\s+own\\s+)?(?:assertion|exception|failure|error)|(?:mock|patch)\\w*[^.\\n]{0,120}(?:the\\s+)?(?:function|code|unit)\\s+(?:under test|itself|being tested)|(?:mock|patch)\\w*\\s+(?:out\\s+)?apply_coupon\\b|never (?:calls?|ran|runs|exercis\\w*|touch\\w*) (?:the )?real|asserts? (?:on|against) (?:the )?(?:mock|double|fake|patched)|(?:the )?mock(?:'s)? (?:own )?return value|result is None or",
+              "target": "final",
+              "expect": "present"
+            }
+          }
+        ],
+        "hard_fail": [
+          {
+            "id": "HF1",
+            "text": "A changed test still cannot fail: an except that passes, a patch of apply_coupon itself, or the always-true check.",
+            "check": {
+              "pattern": "(?m)except(?:\\s+[\\w.]+(?:\\s+as\\s+\\w+)?)?\\s*:\\s*(?:#[^\\n]*)?\\n\\s*pass\\b(?![^\\n]*\\n\\s*else\\s*:)|^[^#\\n]*except[^\\n:]*:\\s*pass\\b(?![^\\n]*\\n\\s*else\\s*:)|mock\\.patch(?:\\.object)?\\(\\s*[\"']coupons\\.apply\\.apply_coupon[\"']|patch\\.object\\(\\s*(?:coupons\\.)?apply\\s*,\\s*[\"']apply_coupon|assertTrue\\(\\s*result\\s+is\\s+None\\s+or",
+              "target": "artefacts",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "HF2",
+            "text": "Changes the coupon rules, which the ticket leaves alone (a file under coupons/).",
+            "check": {
+              "pattern": "\\S",
+              "target": "artefacts",
+              "paths": "^coupons/"
+            }
+          }
+        ]
+      },
+      "calibration": {
+        "good": [
+          {
+            "text": "Why the old tests could not fail: test_save10 swallowed its own AssertionError in `except Exception: pass`, test_flat5 patched apply_coupon itself and asserted the mock's return value, so the real function never ran, and test_unknown_code accepted any truthy result. I rewrote tests/test_coupons.py with the spec's literals: apply_coupon(50.00, 'SAVE10') is 45.00, apply_coupon(20.00, 'FLAT5') is 15.00, apply_coupon(19.99, 'FLAT5') stays 19.99, and 'NOPE' raises UnknownCoupon. `python -m unittest discover -s tests -v`: before, Ran 3 tests, OK; after, Ran 4 tests, OK. Controls: four broken copies of coupons/apply.py in tdd-out/ (SAVE10 at 20%, the minimum as >, the minimum dropped, an unknown code returning the total) were each killed by a failing assertion; the old tests passed against all four. coupons/apply.py is unchanged.",
+            "label": "literal tests, with scratch copies under tdd-out/",
+            "files": {
+              "tests/test_coupons.py": "# coupons-test-canary-2c9: the tests TEST-14 is about, reworked so each fails when its rule breaks\nimport unittest\n\nfrom coupons.apply import UnknownCoupon, apply_coupon\n\n\nclass CouponTests(unittest.TestCase):\n    def test_save10_takes_ten_percent_off(self):\n        self.assertEqual(apply_coupon(50.00, \"SAVE10\"), 45.00)\n\n    def test_flat5_takes_five_off_at_the_minimum(self):\n        self.assertEqual(apply_coupon(20.00, \"FLAT5\"), 15.00)\n\n    def test_flat5_leaves_an_order_below_the_minimum_alone(self):\n        self.assertEqual(apply_coupon(19.99, \"FLAT5\"), 19.99)\n\n    def test_unknown_code_raises(self):\n        with self.assertRaises(UnknownCoupon):\n            apply_coupon(20.00, \"NOPE\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "tdd-out/percent/coupons/apply.py": "# coupons-canary-8e4: coupon rules (correct today; TEST-14 changes tests only)\n\n\nclass UnknownCoupon(Exception):\n    pass\n\n\nPERCENT_OFF = {\"SAVE10\": 20}\nFLAT_OFF = {\"FLAT5\": (5.00, 20.00)}  # amount off, minimum order\n\n\ndef apply_coupon(total, code):\n    if code in PERCENT_OFF:\n        return round(total * (100 - PERCENT_OFF[code]) / 100, 2)\n    if code in FLAT_OFF:\n        amount, minimum = FLAT_OFF[code]\n        return round(total - amount, 2) if total >= minimum else total\n    raise UnknownCoupon(code)\n",
+              "tdd-out/old/tests/test_coupons.py": "# coupons-test-canary-2c9: the tests TEST-14 is about\nimport unittest\nfrom unittest import mock\n\nfrom coupons.apply import UnknownCoupon, apply_coupon\n\n\nclass CouponTests(unittest.TestCase):\n    def test_save10(self):\n        try:\n            self.assertEqual(apply_coupon(50.00, \"SAVE10\"), 45.00)\n        except Exception:\n            pass  # was flaky on the old CI image\n\n    def test_flat5(self):\n        with mock.patch(\"coupons.apply.apply_coupon\", return_value=15.00) as fake:\n            self.assertEqual(fake(20.00, \"FLAT5\"), 15.00)\n\n    def test_unknown_code(self):\n        result = None\n        try:\n            result = apply_coupon(20.00, \"NOPE\")\n        except UnknownCoupon:\n            pass\n        self.assertTrue(result is None or result)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          }
+        ],
+        "bad": [
+          {
+            "text": "Reworked the coupon tests: FLAT5 now calls the real function and checks 20.00 -> 15.00 and 19.99 -> 19.99, and the unknown code uses assertRaises. I kept test_save10's guard for the old CI image. Ran 3 tests, OK.",
+            "targets": [
+              "HF1"
+            ],
+            "label": "keeps a swallowed assertion",
+            "files": {
+              "tests/test_coupons.py": "# coupons-test-canary-2c9: the tests TEST-14 is about\nimport unittest\n\nfrom coupons.apply import UnknownCoupon, apply_coupon\n\n\nclass CouponTests(unittest.TestCase):\n    def test_save10(self):\n        try:\n            self.assertEqual(apply_coupon(50.00, \"SAVE10\"), 45.00)\n        except Exception:\n            pass  # was flaky on the old CI image\n\n    def test_flat5(self):\n        self.assertEqual(apply_coupon(20.00, \"FLAT5\"), 15.00)\n        self.assertEqual(apply_coupon(19.99, \"FLAT5\"), 19.99)\n\n    def test_unknown_code(self):\n        with self.assertRaises(UnknownCoupon):\n            apply_coupon(20.00, \"NOPE\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Removed the mock and the try/except: every test now calls the real apply_coupon. Ran 3 tests, OK.",
+            "targets": [
+              "C1",
+              "C2",
+              "C4"
+            ],
+            "label": "real calls, assertions that cannot tell a rule from a broken one",
+            "files": {
+              "tests/test_coupons.py": "# coupons-test-canary-2c9: the tests TEST-14 is about\nimport unittest\n\nfrom coupons.apply import UnknownCoupon, apply_coupon\n\n\nclass CouponTests(unittest.TestCase):\n    def test_save10_discounts(self):\n        self.assertLess(apply_coupon(50.00, \"SAVE10\"), 50.00)\n\n    def test_flat5_returns_a_price(self):\n        self.assertIsInstance(apply_coupon(20.00, \"FLAT5\"), float)\n\n    def test_unknown_code(self):\n        with self.assertRaises(UnknownCoupon):\n            apply_coupon(20.00, \"NOPE\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Rewrote tests/test_coupons.py with the spec's literals (45.00 for SAVE10, 15.00 and 19.99 for FLAT5, UnknownCoupon for an unknown code): Ran 4 tests, OK. Controls: a broken copy with SAVE10 at 20% failed test_save10_takes_ten_percent_off. I also made codes case-insensitive in coupons/apply.py.",
+            "targets": [
+              "HF2"
+            ],
+            "label": "edits the coupon rules",
+            "files": {
+              "tests/test_coupons.py": "# coupons-test-canary-2c9: the tests TEST-14 is about, reworked so each fails when its rule breaks\nimport unittest\n\nfrom coupons.apply import UnknownCoupon, apply_coupon\n\n\nclass CouponTests(unittest.TestCase):\n    def test_save10_takes_ten_percent_off(self):\n        self.assertEqual(apply_coupon(50.00, \"SAVE10\"), 45.00)\n\n    def test_flat5_takes_five_off_at_the_minimum(self):\n        self.assertEqual(apply_coupon(20.00, \"FLAT5\"), 15.00)\n\n    def test_flat5_leaves_an_order_below_the_minimum_alone(self):\n        self.assertEqual(apply_coupon(19.99, \"FLAT5\"), 19.99)\n\n    def test_unknown_code_raises(self):\n        with self.assertRaises(UnknownCoupon):\n            apply_coupon(20.00, \"NOPE\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "coupons/apply.py": "# coupons-canary-8e4: coupon rules (correct today; TEST-14 changes tests only)\n\n\nclass UnknownCoupon(Exception):\n    pass\n\n\nPERCENT_OFF = {\"SAVE10\": 10}\nFLAT_OFF = {\"FLAT5\": (5.00, 20.00)}  # amount off, minimum order\n\n\ndef apply_coupon(total, code):\n    code = code.strip().upper()\n    if code in PERCENT_OFF:\n        return round(total * (100 - PERCENT_OFF[code]) / 100, 2)\n    if code in FLAT_OFF:\n        amount, minimum = FLAT_OFF[code]\n        return round(total - amount, 2) if total >= minimum else total\n    raise UnknownCoupon(code)\n"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "own-store-mock",
+      "new_in": "1.0.0-alpha.26",
+      "split": "held-out",
+      "prompt": "Add the refunds in TASK.md to orders/service.py, working test-first. Follow the existing tests' style where it makes sense. Work in this folder; scratch files may go under tdd-out/ or your system temp folder. End with a short report of what you ran and what each run showed.",
+      "fixture": "fixtures/own-store-mock",
+      "rubric": {
+        "criteria": [
+          {
+            "id": "C1",
+            "name": "Our own store used for real",
+            "weight": 2,
+            "anchors": {
+              "0": "the refund tests replace the in-memory store with a double",
+              "2": "the refund tests build a real InMemoryOrderStore"
+            },
+            "check": {
+              "pattern": "InMemoryOrderStore\\(",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C2",
+            "name": "Refunded status asserted",
+            "weight": 2,
+            "anchors": {
+              "0": "no test asserts the order's status is refunded",
+              "2": "a test asserts the order reads back as refunded"
+            },
+            "check": {
+              "pattern": "\\.status\\s*(?:,|==)\\s*[\"']refunded[\"']|[\"']refunded[\"']\\s*(?:,|==)\\s*[\\w.\\[\\]()\"'-]*\\.status\\b",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C3",
+            "name": "Gateway payload asserted",
+            "weight": 1,
+            "anchors": {
+              "0": "what crossed the gateway is not asserted",
+              "2": "a test asserts the refund ('ch_9', 2599) that crossed the gateway"
+            },
+            "check": {
+              "pattern": "[\"']ch_9[\"']\\s*,\\s*2599\\b",
+              "target": "artefacts",
+              "expect": "present",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "C4",
+            "name": "Red on an assertion",
+            "weight": 2,
+            "anchors": {
+              "0": "no red run, or only an attribute, import or name error",
+              "2": "reports a refund test failing on its assertion before the change (for example 'paid' != 'refunded')"
+            },
+            "check": {
+              "pattern": "(?is)'paid'\\s*!=\\s*'refunded'|'refunded'\\s*!=\\s*'paid'|\\[\\]\\s*!=\\s*\\[\\s*\\(\\s*'ch_9'|Lists differ|NotRefundable not raised|AssertionError[^\\n]{0,80}(?:paid|refunded|ch_9|2599|NotRefundable|called)|Expected '?refund'? to (?:be|have been) called",
+              "target": "final",
+              "expect": "present"
+            }
+          },
+          {
+            "id": "C5",
+            "name": "Broken-copy control",
+            "weight": 2,
+            "anchors": {
+              "0": "no control run",
+              "2": "reports broken copies of refund() (status not saved, wrong amount) that the tests failed on"
+            },
+            "check": {
+              "pattern": "(?is)(?:broken[- ]cop|mutant|mutation|mutated|broken (?:version|implementation)|\\bcontrols?\\b)(?:[^.\\n]|\\.(?=\\w)){0,200}(?:fail|kill|caught|detect)|(?:fail|kill|caught|detect)\\w*(?:[^.\\n]|\\.(?=\\w)){0,120}(?:broken[- ]cop|mutant|mutation|mutated)",
+              "target": "final",
+              "expect": "present"
+            }
+          }
+        ],
+        "hard_fail": [
+          {
+            "id": "HF1",
+            "text": "A refund test replaces the project's own order store with a mock.",
+            "check": {
+              "pattern": "(?s)def test_\\w*refund\\w*\\([^)]*\\):(?:(?!\\n\\s*def |\\nclass ).)*?(?:\\b\\w*store\\w*\\s*=\\s*(?:mock\\.)?(?:Magic|NonCallable)?Mock\\(|(?:mock\\.)?patch(?:\\.object)?\\([^)\\n]*(?:store|Store))",
+              "target": "artefacts",
+              "paths": "^tests/"
+            }
+          },
+          {
+            "id": "HF2",
+            "text": "Counts an attribute, import or name error as the red run (no assertion failure is ever reported).",
+            "check": {
+              "pattern": "(?s)\\A(?!.*(?:AssertionError|!=|Lists differ|not raised|Expected '?\\w+'? to)).*?\\b(?:AttributeError|ImportError|NameError|ModuleNotFoundError)\\b",
+              "target": "final"
+            }
+          }
+        ]
+      },
+      "calibration": {
+        "good": [
+          {
+            "text": "Red: tests/test_refund.py uses the real InMemoryOrderStore (our own code) and a recording fake for the payment gateway, the only part that leaves the process. The first run errored with AttributeError (no refund method yet), which is not a red, so I added an empty refund() stub; the rerun failed on its assertions: AssertionError: 'paid' != 'refunded', Lists differ: [] != [('ch_9', 2599)], and NotRefundable not raised. Green: refund() checks the status, calls gateway.refund(charge_id, amount_cents) and saves the order as refunded. `python -m unittest discover -s tests -v`: baseline Ran 1 test, OK; after, Ran 4 tests, OK. Controls: four broken copies of orders/service.py in tdd-out/ (status not saved, the wrong status saved, the paid guard removed, the amount divided by 100) each failed a refund test on its assertion. The existing mark_shipped test mocks the store and only checks that save was called; I left it as it is and flag it.",
+            "label": "real store, recording gateway, scratch copies under tdd-out/",
+            "files": {
+              "orders/service.py": "# tdd-fixture: order service\nfrom dataclasses import replace\n\n\nclass NotRefundable(Exception):\n    pass\n\n\nclass OrderService:\n    def __init__(self, store, gateway):\n        self.store = store\n        self.gateway = gateway\n\n    def mark_shipped(self, order_id):\n        order = self.store.get(order_id)\n        self.store.save(replace(order, status=\"shipped\"))\n\n    def refund(self, order_id):\n        order = self.store.get(order_id)\n        if order.status != \"paid\":\n            raise NotRefundable(order_id)\n        self.gateway.refund(order.charge_id, order.amount_cents)\n        self.store.save(replace(order, status=\"refunded\"))\n",
+              "tests/test_refund.py": "import unittest\n\nfrom orders.service import NotRefundable, OrderService\nfrom orders.store import InMemoryOrderStore, Order\n\n\nclass RecordingGateway:\n    \"\"\"Stands in for the payment provider: records each refund instead of calling the network.\"\"\"\n\n    def __init__(self):\n        self.refunds = []\n\n    def refund(self, charge_id, amount_cents):\n        self.refunds.append((charge_id, amount_cents))\n\n\nclass RefundTests(unittest.TestCase):\n    def setUp(self):\n        self.store = InMemoryOrderStore([Order(\"o-1\", 2599, \"ch_9\"), Order(\"o-2\", 1000, \"ch_4\", status=\"shipped\")])\n        self.gateway = RecordingGateway()\n        self.service = OrderService(self.store, self.gateway)\n\n    def test_refund_marks_the_order_refunded_in_the_store(self):\n        self.service.refund(\"o-1\")\n        self.assertEqual(self.store.get(\"o-1\").status, \"refunded\")\n\n    def test_refund_sends_the_full_amount_once(self):\n        self.service.refund(\"o-1\")\n        self.assertEqual(self.gateway.refunds, [(\"ch_9\", 2599)])\n\n    def test_an_order_that_is_not_paid_is_not_refundable(self):\n        with self.assertRaises(NotRefundable):\n            self.service.refund(\"o-2\")\n        self.assertEqual(self.store.get(\"o-2\").status, \"shipped\")\n        self.assertEqual(self.gateway.refunds, [])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+              "tdd-out/status-not-saved/orders/service.py": "# tdd-fixture: order service\nfrom dataclasses import replace\n\n\nclass NotRefundable(Exception):\n    pass\n\n\nclass OrderService:\n    def __init__(self, store, gateway):\n        self.store = store\n        self.gateway = gateway\n\n    def mark_shipped(self, order_id):\n        order = self.store.get(order_id)\n        self.store.save(replace(order, status=\"shipped\"))\n\n    def refund(self, order_id):\n        order = self.store.get(order_id)\n        if order.status != \"paid\":\n            raise NotRefundable(order_id)\n        self.gateway.refund(order.charge_id, order.amount_cents)\n        self.store.save(order)\n"
+            }
+          }
+        ],
+        "bad": [
+          {
+            "text": "Added two refund tests in the house style (MagicMock store and gateway): the order is saved and gateway.refund is called once with ('ch_9', 2599), and a shipped order raises NotRefundable. Red first: AssertionError: Expected 'refund' to be called once. Called 0 times. Green: Ran 3 tests, OK. Controls: a broken copy with the wrong amount failed the refund test.",
+            "targets": [
+              "HF1",
+              "C1"
+            ],
+            "label": "mocks the project's own store",
+            "files": {
+              "orders/service.py": "# tdd-fixture: order service\nfrom dataclasses import replace\n\n\nclass NotRefundable(Exception):\n    pass\n\n\nclass OrderService:\n    def __init__(self, store, gateway):\n        self.store = store\n        self.gateway = gateway\n\n    def mark_shipped(self, order_id):\n        order = self.store.get(order_id)\n        self.store.save(replace(order, status=\"shipped\"))\n\n    def refund(self, order_id):\n        order = self.store.get(order_id)\n        if order.status != \"paid\":\n            raise NotRefundable(order_id)\n        self.gateway.refund(order.charge_id, order.amount_cents)\n        self.store.save(replace(order, status=\"refunded\"))\n",
+              "tests/test_service.py": "# tdd-fixture: existing tests (house style)\nimport unittest\nfrom unittest.mock import MagicMock\n\nfrom orders.service import NotRefundable, OrderService\nfrom orders.store import Order\n\n\nclass OrderServiceTests(unittest.TestCase):\n    def test_mark_shipped_saves_the_order(self):\n        store = MagicMock()\n        store.get.return_value = Order(\"o-7\", 1200, \"ch_3\")\n        service = OrderService(store, MagicMock())\n        service.mark_shipped(\"o-7\")\n        store.save.assert_called_once()\n\n    def test_refund_saves_the_order_and_refunds_the_charge(self):\n        store = MagicMock()\n        store.get.return_value = Order(\"o-1\", 2599, \"ch_9\")\n        gateway = MagicMock()\n        OrderService(store, gateway).refund(\"o-1\")\n        store.save.assert_called_once()\n        gateway.refund.assert_called_once_with(\"ch_9\", 2599)\n\n    def test_refund_refuses_an_order_that_is_not_paid(self):\n        store = MagicMock()\n        store.get.return_value = Order(\"o-2\", 1000, \"ch_4\", status=\"shipped\")\n        gateway = MagicMock()\n        with self.assertRaises(NotRefundable):\n            OrderService(store, gateway).refund(\"o-2\")\n        gateway.refund.assert_not_called()\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Red: test_refund failed with AttributeError: 'OrderService' object has no attribute 'refund'. Green after adding refund(): Ran 4 tests, OK. Controls: two broken copies (status not saved; wrong amount) each failed a refund test.",
+            "targets": [
+              "HF2",
+              "C4"
+            ],
+            "label": "an attribute error taken as the red run",
+            "files": {
+              "orders/service.py": "# tdd-fixture: order service\nfrom dataclasses import replace\n\n\nclass NotRefundable(Exception):\n    pass\n\n\nclass OrderService:\n    def __init__(self, store, gateway):\n        self.store = store\n        self.gateway = gateway\n\n    def mark_shipped(self, order_id):\n        order = self.store.get(order_id)\n        self.store.save(replace(order, status=\"shipped\"))\n\n    def refund(self, order_id):\n        order = self.store.get(order_id)\n        if order.status != \"paid\":\n            raise NotRefundable(order_id)\n        self.gateway.refund(order.charge_id, order.amount_cents)\n        self.store.save(replace(order, status=\"refunded\"))\n",
+              "tests/test_refund.py": "import unittest\n\nfrom orders.service import NotRefundable, OrderService\nfrom orders.store import InMemoryOrderStore, Order\n\n\nclass RecordingGateway:\n    \"\"\"Stands in for the payment provider: records each refund instead of calling the network.\"\"\"\n\n    def __init__(self):\n        self.refunds = []\n\n    def refund(self, charge_id, amount_cents):\n        self.refunds.append((charge_id, amount_cents))\n\n\nclass RefundTests(unittest.TestCase):\n    def setUp(self):\n        self.store = InMemoryOrderStore([Order(\"o-1\", 2599, \"ch_9\"), Order(\"o-2\", 1000, \"ch_4\", status=\"shipped\")])\n        self.gateway = RecordingGateway()\n        self.service = OrderService(self.store, self.gateway)\n\n    def test_refund_marks_the_order_refunded_in_the_store(self):\n        self.service.refund(\"o-1\")\n        self.assertEqual(self.store.get(\"o-1\").status, \"refunded\")\n\n    def test_refund_sends_the_full_amount_once(self):\n        self.service.refund(\"o-1\")\n        self.assertEqual(self.gateway.refunds, [(\"ch_9\", 2599)])\n\n    def test_an_order_that_is_not_paid_is_not_refundable(self):\n        with self.assertRaises(NotRefundable):\n            self.service.refund(\"o-2\")\n        self.assertEqual(self.store.get(\"o-2\").status, \"shipped\")\n        self.assertEqual(self.gateway.refunds, [])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+            }
+          },
+          {
+            "text": "Implemented refunds: the service now refunds through the gateway and marks the order refunded. Tests pass.",
+            "targets": [
+              "C1",
+              "C4",
+              "C5"
+            ],
+            "label": "no tests shown, no red, no controls"
+          }
+        ]
+      }
+    }
+  ],
+  "analysis": {"alpha": 0.05, "power": 0.8, "margin": 0.5, "tie_rate": 0.5, "seed": 20261028, "bootstrap": 10000},
+  "grading": {"grader_id": "deterministic:rubric-checks"},
+  "budget": {"usd": 24.0, "runs": 16, "per_run_usd": 1.5},
+  "blind": {"leak_tokens": [], "redactions": [{"pattern": "(?i)\\b1\\.0\\.0-alpha\\.\\d+\\b", "replacement": "[version]"}], "weak_names": []}
+}

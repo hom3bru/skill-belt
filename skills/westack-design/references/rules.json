@@ -1,0 +1,186 @@
+{
+  "format": "westack-design-rules-1",
+  "updated": "2026-10-30",
+  "notes": {
+    "tiers": "DG-8. floor: never waivable. reflex: waivable on the record only, by a waiver whose evidence (a file and the exact text) designcheck.py re-checks against the rule and whose reason names the page; boilerplate, page-free or copied reasons are rejected and the finding stays. finish: answered in the report, never blocking.",
+    "registry": "DG-10. Rules marked tell are a dated registry of template tells: status flagged, warned or retired; basis measured, taste or brand. A tell is listed, not flagged, when the brief asks for that look (brief_terms: every word of one group appears in the brief). A message says what was found and never names a replacement font or colour.",
+    "suppressions": "DG-13. In source, a comment `designcheck: ignore <rule or code> value=<the value> by=<who> because <evidence>` silences that one value. An agent may add only these. `designcheck: ignore-rule <rule> by=user turn=<the user's turn> because <evidence>` (rule-wide in one file) and `designcheck: ignore-file by=user turn=<turn> because <evidence>` need the user's decision; without by=user and a turn they are findings and silence nothing. Every applied ignore is listed in the report (DG-12).",
+    "examples": "Each rule carries must_match and must_not_match examples in the shape of the core's scripts/ruletest.py; designcheck.py refuses the whole file when one rule disagrees with its own examples.",
+    "shared_kinds": "regex: the pattern over source with comments blanked. colour-pair: one colour in each named band anywhere in a file. card-chrome: card selectors sharing one border-radius and one box-shadow, counted against the threshold. gradient-hue: a CSS gradient with a stop in each band, or a class list with both from- and to- classes. font-size-min: a font-size below the threshold."
+  },
+  "rules": [
+    {
+      "id": "honesty-success-no-endpoint", "tier": "floor", "kind": "regex", "items": ["DG-17"],
+      "pattern": "(?is)<form\\b(?![^>]*\\b(?:action\\s*=\\s*[\"']?[^\"'\\s>#]|on:?submit|@submit|v-on:submit|\\(ngsubmit\\)|hx-post))[^>]*>(?:(?!</form>).){0,2000}?\\b(?:thank you|thanks|success(?:fully)?|subscribed|you're in|you are in|submitted|welcome aboard)\\b",
+      "message": "a form that posts nowhere (no action and no submit handler) shows success text: never print success for a submission that goes nowhere",
+      "source": "Nutlope/hallmark skills/hallmark/references/gates.md:124,134,225", "basis": "measured", "since": "2026-10-30",
+      "must_match": ["<form><input name=\"email\"><button>Join</button><p class=\"ok\">Thanks, you're on the list!</p></form>", "<form action=\"\"><input name=\"email\"><p>Subscribed!</p></form>"],
+      "must_not_match": ["<form action=\"/api/subscribe\" method=\"post\"><input name=\"email\"><button>Join</button><p class=\"ok\" hidden>Thanks, you're on the list!</p></form>", "<form onsubmit=\"save(event)\"><input name=\"email\"><p>Thanks!</p></form>"]
+    },
+    {
+      "id": "honesty-unsourced-stat", "tier": "floor", "kind": "regex", "items": ["DG-17"],
+      "pattern": "(?i)<(?:p|span|div|strong|b|li|dd|dt|h[1-6])\\b(?![^>]*\\bdata-source\\s*=)[^>]*>\\s*(?:over |more than |up to )?\\d[\\d,.]*\\s*(?:%|\\+|x\\b|k\\+?(?=\\s|<)|m\\+?(?=\\s|<))",
+      "message": "a statistic with no recorded source: give it data-source naming where the number comes from, or make it a labelled slot such as [metric: active teams]; never invent a figure",
+      "source": "Nutlope/hallmark skills/hallmark/references/craft.md:92-100", "basis": "measured", "since": "2026-10-30",
+      "must_match": ["<p class=\"stat\">10,000+ teams ship with it</p>", "<span>99.9% uptime</span>"],
+      "must_not_match": ["<p class=\"stat\" data-source=\"metrics/2026-10.csv\">10,000+ teams ship with it</p>", "<p class=\"stat\">[metric: active teams, source pending]</p>", "<li>3 steps to set up</li>"]
+    },
+    {
+      "id": "substance-placeholder-copy", "tier": "floor", "kind": "regex", "items": ["DG-6", "DG-17"],
+      "pattern": "(?i)\\blorem ipsum\\b|\\byour (?:tagline|headline|company name|product name) here\\b|\\bfeature (?:one|two|three)\\b|\\bacme (?:inc|corp)\\b",
+      "message": "placeholder copy in a built page: use the client's real content, or a labelled slot that says what is missing",
+      "source": "Leonxlnx/taste-skill skills/taste-skill/SKILL.md:34-38,268-274", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<p>Lorem ipsum dolor sit amet.</p>", "<h3>Feature one</h3>"],
+      "must_not_match": ["<p>Invoices reconcile against the bank feed every night.</p>"]
+    },
+    {
+      "id": "frame-false-empty", "tier": "floor", "kind": "regex", "items": ["DG-22"],
+      "pattern": "(?s)(?:\\.length\\s*===?\\s*0|\\.length\\s*<\\s*1|!\\s*[\\w$.?]+\\.length\\b).{0,600}?\\b(?:isLoading|isPending|isFetching|status\\s*===?\\s*[\"']pending)\\b",
+      "message": "the empty state is tested before the pending state, so the empty sentence shows while data is still loading, which says something false: branch pending, then error, then empty, then rows",
+      "source": "CopilotKit/OpenBot .claude/skills/openbot-data-access/SKILL.md:179-200", "basis": "measured", "since": "2026-10-30",
+      "must_match": ["if (rows.length === 0) return <Empty text=\"No invoices yet\" />;\nif (isLoading) return null;"],
+      "must_not_match": ["if (isLoading) return null;\nif (error) return <Failed error={error} />;\nif (rows.length === 0) return <Empty text=\"No invoices yet\" />;\nreturn <Rows rows={rows} />;"]
+    },
+    {
+      "id": "frame-derived-px", "tier": "reflex", "kind": "regex", "items": ["DG-22"],
+      "pattern": "\\b(?:innerWidth|outerWidth|clientWidth|offsetWidth|scrollWidth|innerHeight|clientHeight|offsetHeight)\\s*(?:[<>]=?|===?|!==?)\\s*\\d{3,4}\\b|matchMedia\\(\\s*[\"'`][^\"'`]*?\\b\\d{3,4}px",
+      "message": "a pixel value derived from a token or breakpoint is hardcoded: measure the drawn element or read the token, since a changed root size or token leaves the number wrong",
+      "source": "CopilotKit/OpenBot .claude/skills/openbot-screen-layout/SKILL.md:189-199,231", "basis": "measured", "since": "2026-10-30",
+      "must_match": ["if (window.innerWidth < 768) setCompact(true);", "const wide = window.matchMedia(\"(min-width: 1024px)\").matches;"],
+      "must_not_match": ["if (panel.offsetWidth < frameWidth) setCompact(true);"]
+    },
+    {
+      "id": "motion-hover-box", "tier": "reflex", "kind": "regex", "items": ["DG-25"],
+      "pattern": "(?is):hover\\b[^{]*\\{[^}]*\\b(?:width|height|min-width|min-height|padding[\\w-]*|margin[\\w-]*|border(?:-\\w+)?-width|font-size|letter-spacing|top|left|right|bottom|transform\\s*:[^;}]*\\bscale)\\s*[:(]|\\bhover:(?:-?scale-\\d+|[wh]-|p[xytrbl]?-\\d|m[xytrbl]?-\\d|text-(?:xs|sm|base|lg|\\d?xl)\\b)",
+      "message": "a hover changes the target's box (size, spacing or scale): hover may change colour and opacity only; a recorded exception goes through a waiver",
+      "source": "web-physics-animation.md:182-183 (the brief's F2, a hover test where 31 of 76 hovers shifted); emilkowalski/skills skills/review-animations/STANDARDS.md:160-169", "basis": "measured", "since": "2026-10-30",
+      "must_match": [".btn:hover { transform: scale(1.05); }", ".card:hover { padding: 14px; }", "<a class=\"hover:scale-105\">Go</a>"],
+      "must_not_match": [".btn:hover { background: #0B5; opacity: .9; }", "<a class=\"hover:text-blue-600\">Go</a>"]
+    },
+    {
+      "id": "motion-per-frame-layout", "tier": "reflex", "kind": "regex", "items": ["DG-25"],
+      "pattern": "(?s)\\b(?:getBoundingClientRect|offset(?:Width|Height|Top|Left)|client(?:Width|Height)|getComputedStyle|setState)\\b(?:(?!\\bfunction\\b).){0,300}?\\brequestAnimationFrame\\b|\\brequestAnimationFrame\\s*\\((?:(?!\\bfunction\\b).){0,300}?\\b(?:getBoundingClientRect|offset(?:Width|Height|Top|Left)|client(?:Width|Height)|getComputedStyle|setState)\\b",
+      "message": "a layout read or a framework state update runs every animation frame: read layout once, animate transform and opacity, and pause work offscreen",
+      "source": "advanced-web-physics-reactive-environments.md:26,171,316 (the brief's F4); emilkowalski/skills skills/review-animations/STANDARDS.md:110-128", "basis": "measured", "since": "2026-10-30",
+      "must_match": ["function tick() { const r = el.getBoundingClientRect(); el.style.left = r.x + 1 + 'px'; requestAnimationFrame(tick); }"],
+      "must_not_match": ["const r = el.getBoundingClientRect();\nfunction tick() { x += 1; el.style.transform = 'translateX(' + x + 'px)'; requestAnimationFrame(tick); }"]
+    },
+    {
+      "id": "motion-per-frame-lerp", "tier": "reflex", "kind": "regex", "items": ["DG-39"],
+      "pattern": "(?s)\\b(?:requestAnimationFrame|useFrame|setAnimationLoop)\\b(?:(?!\\bfunction\\b).){0,300}?(?:\\b([A-Za-z_$][\\w$.]*)\\s*\\+=\\s*\\([^()\\n;]+?-\\s*\\1\\s*\\)\\s*\\*\\s*\\d*\\.?\\d+(?![\\w.]|\\s*[*/])|\\b([A-Za-z_$][\\w$.]*)\\s*=\\s*\\2\\s*\\+\\s*\\([^()\\n;]+?-\\s*\\2\\s*\\)\\s*\\*\\s*\\d*\\.?\\d+(?![\\w.]|\\s*[*/])|\\blerp\\s*\\((?:\\s*[^,()\\n]+,){1,2}\\s*\\d*\\.?\\d+\\s*\\))|(?:\\b([A-Za-z_$][\\w$.]*)\\s*\\+=\\s*\\([^()\\n;]+?-\\s*\\3\\s*\\)\\s*\\*\\s*\\d*\\.?\\d+(?![\\w.]|\\s*[*/])|\\b([A-Za-z_$][\\w$.]*)\\s*=\\s*\\4\\s*\\+\\s*\\([^()\\n;]+?-\\s*\\4\\s*\\)\\s*\\*\\s*\\d*\\.?\\d+(?![\\w.]|\\s*[*/])|\\blerp\\s*\\((?:\\s*[^,()\\n]+,){1,2}\\s*\\d*\\.?\\d+\\s*\\))(?:(?!\\bfunction\\b).){0,300}?\\b(?:requestAnimationFrame|useFrame|setAnimationLoop)\\b",
+      "message": "a correctness rule, not project policy: easing toward a target by a fixed fraction every animation frame settles faster on faster screens; scale it by elapsed time (a = 1 - exp(-k * dt), dt clamped) and keep springs for motion whose inertia is the point",
+      "source": "scottstts/Threejs-Awesome-Graphics-Agent-Skills@53eb5a24 skills/threejs-procedural-animation/references/procedural-motion-and-docking-systems.md:314-333, :341 (ideas only; the pack ships GPL-3.0 material)", "basis": "measured", "since": "2026-10-31",
+      "must_match": ["function tick() { x += (target - x) * 0.1; el.style.transform = 'translateX(' + x + 'px)'; requestAnimationFrame(tick); }", "useFrame(() => { mesh.position.lerp(goal, 0.08); });"],
+      "must_not_match": ["function tick(now) { const dt = Math.min((now - last) / 1000, 0.1); last = now; const a = 1 - Math.exp(-dt * 8); x += (target - x) * a; requestAnimationFrame(tick); }", "button.onclick = () => { x += (target - x) * 0.5; render(); };"]
+    },
+    {
+      "id": "policy-overshoot", "tier": "reflex", "kind": "regex", "policy": "overshoot", "items": ["DG-25"],
+      "pattern": "(?i)cubic-bezier\\(\\s*-?[\\d.]+\\s*,\\s*(?:-\\d[\\d.]*|-\\.\\d+|1\\.\\d*[1-9]\\d*|[2-9][\\d.]*)\\s*,|cubic-bezier\\(\\s*-?[\\d.]+\\s*,\\s*-?[\\d.]+\\s*,\\s*-?[\\d.]+\\s*,\\s*(?:-\\d[\\d.]*|-\\.\\d+|1\\.\\d*[1-9]\\d*|[2-9][\\d.]*)\\s*\\)|\\bbounce\\s*:\\s*(?:0?\\.\\d*[1-9]|[1-9])|\\b(?:back|elastic|bounce)\\.(?:in|out|inout)\\b",
+      "message": "an easing that overshoots its end (a cubic-bezier outside 0 to 1, a spring with bounce, a back or elastic curve), and the project's motion policy says never",
+      "source": "the project's design record (DG-25); emilkowalski/skills skills/review-animations/STANDARDS.md:61-75", "basis": "brand", "since": "2026-10-30",
+      "must_match": ["transition: transform 300ms cubic-bezier(.34, 1.56, .64, 1);", "animate(el, { x: 100 }, { type: \"spring\", bounce: 0.4 })"],
+      "must_not_match": ["transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);"]
+    },
+    {
+      "id": "policy-scale", "tier": "reflex", "kind": "regex", "policy": "scale", "items": ["DG-25"],
+      "pattern": "(?i)\\bscale(?:3d|x|y)?\\(\\s*(?!1(?:\\.0+)?\\s*[,)])-?[\\d.]+|\\bscale\\s*:\\s*(?!1\\b)[\\d.]+|(?<![\\w-])(?:[a-z-]+:)?scale-(?!100\\b)\\d+\\b",
+      "message": "an element scales, and the project's motion policy says never outside its recorded exceptions",
+      "source": "the project's design record (DG-25)", "basis": "brand", "since": "2026-10-30",
+      "must_match": [".card:hover { transform: scale(1.05); }", "<div class=\"hover:scale-105\">x</div>"],
+      "must_not_match": [".card:hover { transform: translateY(-2px); }", ".x { transform: scale(1); }"]
+    },
+    {
+      "id": "policy-pointer-following", "tier": "reflex", "kind": "regex", "policy": "pointer_following", "items": ["DG-25"],
+      "pattern": "(?is)\\b(?:mousemove|pointermove|onMouseMove|onPointerMove)\\b.{0,300}?(?:\\btransform\\b|\\btranslate|\\bstyle\\.(?:left|top)\\b|\\.[xy]\\s*=[^=]|\\bset(?:X|Y|Position)\\()",
+      "message": "an element follows the pointer, and the project's motion policy says never",
+      "source": "the project's design record (DG-25)", "basis": "brand", "since": "2026-10-30",
+      "must_match": ["window.addEventListener(\"pointermove\", e => { blob.style.transform = \"translate(\" + e.clientX + \"px, \" + e.clientY + \"px)\"; });"],
+      "must_not_match": ["window.addEventListener(\"pointermove\", e => { hint.textContent = e.clientX; });"]
+    },
+    {
+      "id": "substance-thin-section", "tier": "reflex", "kind": "regex", "items": ["DG-6"],
+      "pattern": "(?is)<section\\b[^>]*>\\s*<h[2-4]\\b[^>]*>[^<]*</h[2-4]>\\s*<p\\b[^>]*>[^<]*</p>\\s*</section>",
+      "message": "a section holding only a heading and one paragraph: a page that passes every ban can still be thin; give it real substance or fold it into another section",
+      "source": "Leonxlnx/taste-skill skills/taste-skill/references/tells.md:109-115", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<section><h2>Security</h2><p>We take security seriously.</p></section>"],
+      "must_not_match": ["<section><h2>Security</h2><p>Keys never leave your account.</p><ul><li>SOC 2 report on request</li></ul></section>"]
+    },
+    {
+      "id": "type-below-functional-floor", "tier": "reflex", "kind": "font-size-min", "threshold": "functional-text-min-px", "items": ["DG-9"],
+      "message": "text below the functional size floor (thresholds.json functional-text-min-px); legal small print may be waived on the record",
+      "source": "pbakaus/impeccable crates/foundation/src/rules/text.rs:45-107", "basis": "taste", "since": "2026-10-30",
+      "must_match": [".legal { font-size: 10.9px; }", "<small class=\"text-[10px]\">Terms</small>"],
+      "must_not_match": [".legal { font-size: 11px; }"]
+    },
+    {
+      "id": "tell-cream-terracotta", "tier": "reflex", "kind": "colour-pair", "bands": ["band-cream", "band-terracotta"], "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["cream", "terracotta"]],
+      "message": "cream paper with a terracotta accent, a common template pairing (the terracotta near #D97757 is also one vendor's house accent); keep it only when the brief asks for this look",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:25-34; Leonxlnx/taste-skill skills/taste-skill/scripts/lib/rules.mjs:7-15", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["body { background: #F4F1EA; }\n.cta { background: #D97757; }"],
+      "must_not_match": ["body { background: #F4F1EA; }\n.cta { background: #1F4E79; }"]
+    },
+    {
+      "id": "tell-uniform-card-chrome", "tier": "reflex", "kind": "card-chrome", "threshold": "card-chrome-max-identical", "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["uniform", "cards"], ["identical", "cards"]],
+      "message": "one radius and one shadow on every card, a template tell; vary the treatment by what each card holds unless the brief asks for uniform cards",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:25-34", "basis": "taste", "since": "2026-10-30",
+      "must_match": [".card-a { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }\n.card-b { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }\n.card-c { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }"],
+      "must_not_match": [".card-a { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }\n.card-b { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }\n.card-c { border-radius: 4px; box-shadow: none; }"]
+    },
+    {
+      "id": "tell-eyebrow", "tier": "reflex", "kind": "regex", "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["eyebrow"], ["kicker"], ["overline"]],
+      "pattern": "(?is)<(p|span|div|small)\\b[^>]*class\\s*=\\s*[\"'][^\"']*\\b(?:uppercase|eyebrow|kicker|overline)\\b[^\"']*[\"'][^>]*>[^<]{1,48}</\\1>\\s*<h[1-3]\\b",
+      "message": "an uppercase eyebrow label above a heading, a template tell",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:36-45; pbakaus/impeccable skill/reference/craft-floor.md:27", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<p class=\"text-xs uppercase tracking-widest\">Why teams switch</p>\n<h2>Built for the month-end close</h2>"],
+      "must_not_match": ["<h2>Built for the month-end close</h2>\n<p class=\"uppercase\">SKU 1042</p>"]
+    },
+    {
+      "id": "tell-headline-accent-word", "tier": "reflex", "kind": "regex", "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["accent", "word"], ["highlighted", "word"]],
+      "pattern": "(?is)<h[12]\\b[^>]*>[^<]*<(span|em|mark|i)\\b[^>]*>\\s*[\\w'-]+\\s*</\\1>",
+      "message": "one word of the headline set apart in an accent style, a template tell",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:36-45", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<h1>Close the books <span class=\"text-accent\">faster</span></h1>"],
+      "must_not_match": ["<h1>Close the books in two days</h1>"]
+    },
+    {
+      "id": "tell-spaced-em-dash-label", "tier": "reflex", "kind": "regex", "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["em", "dash"]],
+      "pattern": ">[^<>\\n]{1,40}\\s(?:\\u2014|&mdash;|&#8212;)\\s[^<>\\n]{1,80}<",
+      "message": "a label split by a spaced em dash, a template tell (UI copy rules are westack-docs WD-16)",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:36-45", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<li>Reconciliation \u2014 every night at 2am</li>"],
+      "must_not_match": ["<li>Reconciliation: every night at 2am</li>"]
+    },
+    {
+      "id": "tell-arrow-in-button", "tier": "reflex", "kind": "regex", "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["arrow"]],
+      "pattern": "(?is)<(button|a)\\b[^>]*>[^<]*?(?:\\u2192|&rarr;|&#8594;|-&gt;|->)\\s*</\\1>",
+      "message": "an arrow glyph inside a button label, a template tell",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:36-45", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<a class=\"button\" href=\"/signup\">Start free \u2192</a>"],
+      "must_not_match": ["<a class=\"button\" href=\"/signup\">Start free</a>"]
+    },
+    {
+      "id": "tell-purple-blue-gradient", "tier": "reflex", "kind": "gradient-hue", "bands": ["band-violet", "band-blue"], "items": ["DG-10"],
+      "tell": true, "status": "flagged", "brief_terms": [["purple", "gradient"], ["violet", "gradient"]],
+      "from_classes": "\\bfrom-(?:purple|violet|indigo|fuchsia)-\\d{2,3}\\b",
+      "to_classes": "\\bto-(?:blue|sky|cyan)-\\d{2,3}\\b",
+      "message": "a purple-to-blue gradient, a template tell",
+      "source": "anthropics/skills skills/frontend-design/SKILL.md:25-34; Nutlope/hallmark gates tier 2a (design-a.md:20)", "basis": "taste", "since": "2026-10-30",
+      "must_match": [".hero { background: linear-gradient(135deg, #7C3AED, #2563EB); }", "<div class=\"bg-gradient-to-r from-violet-600 to-blue-500\">"],
+      "must_not_match": [".hero { background: linear-gradient(180deg, #F8FAFC, #E2E8F0); }", "<div class=\"bg-gradient-to-r from-amber-200 to-orange-300\">"]
+    },
+    {
+      "id": "finish-inline-style", "tier": "finish", "kind": "regex", "items": ["DG-11"],
+      "pattern": "(?i)\\bstyle\\s*=\\s*[\"'][^\"']*\\b(?:color|background|margin|padding|font-size)\\s*:",
+      "message": "an inline style sets a design value outside the stylesheet and theme; answer whether it belongs in a class or a token",
+      "source": "shadcn-ui/lint docs/rules/no-inline-styles.md:1-60", "basis": "taste", "since": "2026-10-30",
+      "must_match": ["<p style=\"color: #555\">Note</p>"],
+      "must_not_match": ["<p class=\"note\">Note</p>"]
+    }
+  ]
+}

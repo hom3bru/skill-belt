@@ -1,0 +1,6 @@
+.settings { max-width: 640px; margin: 40px auto; font-family: Arial, sans-serif; }
+.settings h1 { font-size: 30px; }
+.settings h2 { font-size: 17px; margin-top: 30px; border-bottom: 1px solid #ccc; }
+.settings label { display: block; margin: 10px 0; font-size: 13px; }
+.settings input[name] { display: block; width: 100%; padding: 5px; border: 1px solid #aaa; }
+.save { margin-top: 25px; padding: 7px 15px; background: #3a7; color: #fff; border: none; }

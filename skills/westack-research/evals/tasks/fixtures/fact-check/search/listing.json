@@ -1,0 +1,13 @@
+{
+  "_token": "listing-6a2",
+  "retrieved": "2026-10-30",
+  "from": "a paper aggregator's search listing for 'tool call caching agent cost'",
+  "results": [
+    {
+      "arxiv": "2409.01234",
+      "title": "Caching Tool Calls for Agents",
+      "authors": ["Ana Rivera", "Bo Chen"],
+      "snippet": "... we show that caching tool calls cuts agent cost by up to 60% ..."
+    }
+  ]
+}

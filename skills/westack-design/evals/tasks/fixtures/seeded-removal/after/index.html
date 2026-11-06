@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Invoices</title></head>
+<body class="calm">
+<!-- rm-after-8d5 -->
+<header id="top" class="bar"><a href="/">Home</a> <a href="/invoices">Invoices</a></header>
+<main id="invoices" class="sheet">
+  <form id="filter" action="/invoices" method="get" class="filters">
+    <input name="q" type="search" placeholder="Search invoices" class="field">
+    <select name="status" class="field"><option>All</option><option>Paid</option><option>Overdue</option></select>
+    <button type="submit" class="quiet">Filter</button>
+  </form>
+  <table class="rows"><tr><th>Number</th><th>Client</th><th>Due</th></tr><tr><td>INV-104</td><td>Harbor Co</td><td>Nov 12</td></tr></table>
+</main>
+<script src="/invoices.js"></script>
+</body>
+</html>

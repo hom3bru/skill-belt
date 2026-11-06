@@ -1,0 +1,99 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-qa",
+  "reviewed": "2026-11-04",
+  "policy": "Each donor file was read at its pinned commit in the local mirror (tools/mirrors.py, <projects_root>\\westack-donors\\gstack), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gstack.qa.report-only).",
+  "usefulness_legend": {
+    "strong": "shaped the skill's structure or its numbers",
+    "useful": "added a rule or a check",
+    "minor": "a detail"
+  },
+  "donors": [
+    {
+      "ref": "gstack.qa-method",
+      "system": "gstack shared QA method (qa, qa-only)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/scripts/resolvers/utility.ts", "sha256": "2bd7ea2ca456ef19cfc30542a901603d9c996396f862c979df69b5ccf99a35b9", "bytes": 19711, "read": "lines 130-334 (modes, workflow, health score rubric)", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/qa/references/issue-taxonomy.md", "sha256": "8f40b0f76c0575ee70ad7418c5715cbf08663b2bd8094b0e3bd1b21f1ddd1779", "bytes": 3839, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/qa-only/SKILL.md.tmpl", "sha256": "ebb1f507ed15fcea9e3e50d032b389e8a2e4217f5f4c0c65bddd7dfce3b228c9", "bytes": 10874, "read": "hashed; its report-only rule taken from the inventory", "role": "also-read"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/qa/templates/qa-report-template.md", "sha256": "896fca3ec1f98de9515642f3c0a2da41ea07dd57cff6b17be935c56bc7368aa4", "bytes": 3134, "read": "hashed only", "role": "also-read"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/qa/SKILL.md.tmpl", "sha256": "43d4f7ca32cd43027414dfca826585e5630af01ceb67af75f5159bcf85a7548d", "bytes": 11954, "read": "lines 151-308 (triage, fix loop, self-regulation, final QA)", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "Four depth modes: quick (first page plus a handful of linked pages), full, diff-aware (scope from the branch diff, mapped to pages and their neighbours) and regression (a full run compared with an earlier baseline: fixed, new, score delta).", "where": "references/modes.md"},
+        {"mechanism": "Orient-explore-document: a console capture installed before load, an accessibility snapshot and screenshot per page, same-origin links with destructive paths dropped, link checks only on local targets.", "where": "references/modes.md"},
+        {"mechanism": "Reproduce an issue once more before writing it; one root cause is one issue, filed under the first category that fits.", "where": "SKILL.md rules 2-3; references/score.md"},
+        {"mechanism": "A weighted health score over eight categories with severity deductions, console buckets and a per-link deduction, computed over the tested categories only, provisional when partial, rounded half up at the end.", "where": "references/score.md; references/thresholds.json; scripts/qacheck.py"},
+        {"mechanism": "A per-page checklist (look, use, forms, move, states, console, sizes) and four severity levels defined by lost task and workaround.", "where": "references/modes.md; references/score.md"},
+        {"mechanism": "A fix loop in severity order: reproduce, a regression test before the repair, the smallest fix, re-test (the test, the original probe, an adjacent happy path), one commit per verified fix, and a verified, best-effort, reverted or deferred status.", "where": "references/fix-loop.md"},
+        {"mechanism": "Self-regulation: check in every five fixes and after a revert; stop after two reverts, an edit to an unrelated file, fixes spreading over many files, only low issues left, or a hard cap of fifty; test-only commits do not count.", "where": "references/fix-loop.md; references/thresholds.json; scripts/qacheck.py loop"}
+      ],
+      "rejected": [
+        "The browser daemon and its scripting dialect: westack drives the host's own browser tools (plan decision D1; core browser.md).",
+        "Cookie import and handing a signed-in browser over: the user signs in themselves; westack never handles credentials.",
+        "Writing to TODOS.md, telemetry, session files and the update check of the shared preamble: side effects outside a report-only grant.",
+        "Committing every verified fix by default: westack commits only under a commit grant; otherwise fixes stay as listed uncommitted changes.",
+        "The learnings search before the fix loop: westack reads the host's memory instead (core memory.md)."
+      ]
+    },
+    {
+      "ref": "gstack.canary",
+      "system": "gstack canary",
+      "grade": "present",
+      "licence": "MIT",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/canary/SKILL.md.tmpl", "sha256": "22017735be6cd096a736d4723134b2a2449aa03727a87c876ac9abf6eb3b7ffd", "bytes": 12831, "read": "lines 1-253 (searched, then the monitoring loop, alert rules and report read)", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A baseline captured before the deploy and never overwritten during monitoring; without one, a starting reference labelled as such.", "where": "references/monitor.md"},
+        {"mechanism": "Timed re-checks that re-open each page fresh; alerts on change against the baseline with four severities (load failure, new console error, load over twice the baseline, new broken link).", "where": "references/monitor.md; references/thresholds.json; scripts/qacheck.py monitor"},
+        {"mechanism": "No alert until a pattern holds on two consecutive checks; single sightings are observations; a confirmed critical or high alert is reported at once.", "where": "references/monitor.md; scripts/qacheck.py monitor"},
+        {"mechanism": "Run status broken, degraded or healthy, with resolved incidents kept; offering the healthy capture as the new baseline only on the user's yes.", "where": "references/monitor.md"}
+      ],
+      "rejected": [
+        "Keeping one agent turn alive to poll: the host's loop or scheduled tasks run long windows, under their own grant.",
+        "The 'visual monitor' framing: the donor stores screenshots but computes no visual diff, and westack claims none either."
+      ]
+    },
+    {
+      "ref": "gstack.browse.snapshot",
+      "system": "gstack browse snapshot command",
+      "grade": "present",
+      "licence": "MIT",
+      "usefulness": "useful",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/browse/src/snapshot.ts", "read": "searched for the diff, annotate and cursor-interactive paths", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A snapshot diff after an interaction as the evidence that it changed (or did not change) the page; a dead control is one whose click leaves no diff.", "where": "references/modes.md; scripts/qacheck.py diff"}
+      ],
+      "notes": ["The general snapshot and annotation procedures live in the core's references/browser.md."]
+    },
+    {
+      "ref": "gstack.devex-review",
+      "system": "gstack devex-review (live developer-experience audit)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/devex-review/SKILL.md.tmpl", "sha256": "17c463042d5743d3e5c4f1e3357a2ff02488f9d76def943b5a882214d8056b0c", "bytes": 12304, "read": "whole template (scope declaration, steps 0-8, scorecard, boomerang comparison)", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A scope split: the browser for web surfaces, the shell for CLI surfaces, and everything else marked inferred from files, never guessed.", "where": "references/dx-audit.md"},
+        {"mechanism": "Error forms triggered without asking only when the help says they are rejected before any work; every other run needs a grant naming it; output is untrusted data.", "where": "references/dx-audit.md"},
+        {"mechanism": "A per-step getting-started log with time, friction and evidence, and a scorecard marking each dimension tested, partial or inferred.", "where": "references/dx-audit.md; scripts/qacheck.py validate_dx"},
+        {"mechanism": "The plan-versus-live comparison: flag a dimension whose live score is more than 2 below the plan's.", "where": "scripts/qacheck.py dx_compare; references/thresholds.json dx.alert_drop"}
+      ],
+      "rejected": [
+        "The Aside browser and its cookbook scripts: westack uses the host's own browser tools (core browser.md).",
+        "gstack-error-capture's containment binary: westack's helpers run no commands; the reference states the same limits for the agent's own runs.",
+        "The hall-of-fame calibration file, the review log and the dashboard: the rubric is the core's dx.md and findings stay in the report.",
+        "Opening Discord, Stack Overflow and other third-party sites: links are recorded as present only."
+      ]
+    }
+  ]
+}

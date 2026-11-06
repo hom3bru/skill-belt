@@ -1,0 +1,8 @@
+{
+  "_token": "idx-oa-2d5",
+  "index": "OpenAlex",
+  "query": "arXiv 2409.01234",
+  "results": [
+    {"id": "W4402123456", "title": "Caching tool calls for agents", "year": 2024, "first_author": "Rivera, Ana", "type": "preprint"}
+  ]
+}

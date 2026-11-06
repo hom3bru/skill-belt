@@ -1,0 +1,14 @@
+<!-- spec13-s4d -->
+<html><body>
+<h1>Hookline Webhook Specification 1.3</h1>
+<p>Status: Draft 2, 2026-09-15. This document is a work in progress and may change before it is final. Do not
+implement against it.</p>
+<p>The key words MUST, SHOULD and MAY are to be read as requirement levels.</p>
+<h2>5.1 Signatures</h2>
+<p>Senders MUST sign each delivery with the shared secret and send the signature in the Hookline-Signature header.</p>
+<h2>5.2 Timestamps</h2>
+<p>Each delivery carries a Hookline-Timestamp header. Receivers MUST reject a delivery whose timestamp is more than
+300 seconds older than the receiver's clock.</p>
+<h2>5.3 Retries</h2>
+<p>Senders MAY retry a failed delivery up to 10 times.</p>
+</body></html>

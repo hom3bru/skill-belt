@@ -1,0 +1,8 @@
+lic-c3c
+gridcalc
+Copyright 2023-2026 the gridcalc authors
+
+From version 3.0.0, gridcalc is licensed under the GNU Affero General Public License, version 3 only
+(SPDX: AGPL-3.0-only). The full licence text is published at https://www.gnu.org/licenses/agpl-3.0.txt.
+
+Releases before 3.0.0 remain available under the MIT licence they were published with.

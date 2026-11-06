@@ -1,0 +1,9 @@
+# workflow-ci-1e7
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m unittest -v
