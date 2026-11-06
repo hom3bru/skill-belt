@@ -29,3 +29,5 @@ claim a scheduled check, save or reminder exists merely because this file says s
 6. Verify edits and supported automation changes, then report what changed and
    what remains unverified. A successful fetch or old search snippet is not proof
    a job is open. Never submit an application or contact an employer from this skill.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

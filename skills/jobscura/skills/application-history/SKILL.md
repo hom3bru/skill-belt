@@ -43,3 +43,5 @@ verified; do not claim durable registration or a save.
 Only save an update to the user's existing chosen destination when authorized and
 supported. Keep corrections contextual; do not create new lasting permissions,
 rewrite source messages or turn inferred interest into canonical career history.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

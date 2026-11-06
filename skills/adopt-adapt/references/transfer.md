@@ -45,6 +45,8 @@ Classify each dependency as retained existing target facility, rewritten locally
 
 In `alternatives`, account for **current behavior → expected/observed improvement → smallest transfer → burden added/removed → smallest local alternative**. Consider dependencies, state/configuration, operations, maintenance, security and cognitive overhead; credit removed code and complexity. Measure material costs where feasible; label estimates/unknowns. Donor size or language alone is not bloat; actual dependency closure and semantic work can be. A quick call needs only a sentence; add no numeric bloat score or reporting system.
 
+A cost/bloat rejection must cite facts about the proposed transfer unit, current behavior and expected benefit. Missing measurements alone are not evidence of excessive burden or zero value. Qualitative estimates may support a small pilot with labelled unknowns; numeric performance/cost claims need actual measurement receipts.
+
 A paid/service/prohibited dependency blocks that integration; preserve the original DISCARD. Continue only if an independently useful zero-cost unit can be specified without the blocked behavior. If a particular closure becomes larger than its benefit or cannot be inspected, stop that extraction with the reason; continue the other required axes/parts unless blocked. Inaccessible areas remain BLOCKED/UNPROCESSED rather than a completed negative result.
 
 ## 3. Define the semantic contract
@@ -80,3 +82,5 @@ Declare the receiving baseline, representative workload, acceptance/falsificatio
 ## Stop conditions and useful output
 
 Readiness needs value, closure, contract, receiving seam, smallest test and accounted-for mining coverage. Report unread boundaries; a first hit does not complete coverage. For a conditional transfer, name the missing evidence and next probe as its prerequisite. Finding nothing worth transferring is valid. Use the existing dossier, not a new reporting system.
+
+Keep the opportunity for a worthwhile experiment open, including after DISCARD or ALREADY-COVERED. When value or gain is uncertain, state a falsifiable hypothesis, current baseline, smallest isolated comparison, quality/correctness and cost criteria, and the result that would change the verdict. A quick call can do this in one sentence. Do not require proven runtime gain before proposing the experiment, or invent a positive mechanism to justify one. If no discriminating lawful test is currently identifiable, state the missing condition/evidence that would reopen the question. `DISCARD (promising)` retains a research lead; distinguish it from demonstrated lack of value in summaries. Evaluation proposes the test; donor execution still needs its separately authorized scope.

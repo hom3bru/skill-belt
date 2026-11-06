@@ -1,4 +1,4 @@
-# Frankenmine 0.2.0
+# Frankenmine 0.2.1
 
 Frankenmine is a standalone, source-led skill. It mines useful mechanisms from several repositories or sources to create a NEW product, or to continue such a synthesis through design, authorized implementation and evaluation.
 
@@ -60,7 +60,8 @@ python -B "<skill-directory>/tests/run_tests.py" --output "<new-results-director
 
 **Outputs and exit codes.**
 - Choose unused output names; init, inventory, report, handoff, scaffold, stamp and review-packet never replace a file or folder. To resume, edit your own run record with ordinary file tools and run `check` again.
-- `scaffold` appends a candidate stub (seam, rights, protocol for process/rpc, and the 13 deltas across languages) whose values are `TODO(scaffold)` placeholders, plus an unresolved line; the record stays blocked until they are filled.
+- `scaffold` appends a candidate stub (seam, rights, protocol for process/rpc, and the 13 deltas across languages) whose values are `TODO(scaffold)` placeholders, plus an unresolved line; the record stays blocked until they are filled. A pattern-only stub gets the short seam: evidence and adaptation.
+- `check` derives `independent` for a selected pair whose declared, non-empty touches share no key, so only pairs that share a key need interaction records; `report` lists the derived pairs.
 - `stamp` fills every missing file hash, and missing evidence revisions, into a new record. A recorded hash that disagrees with its file is reported (exit 2) and never rewritten: a changed oracle or snapshot needs a new decision, not a new hash.
 - `review-packet` writes a new folder for a fresh reviewer: `PACKET.md`, copied evidence and oracles, `REVIEW-TEMPLATE.md` and `packet.json`. It withholds the decision, rationale, tradeoff prose and readiness verdict. See [verification](references/verification.md).
 - `check-lite` exits **0** for `lite-complete` and **2** for `lite-incomplete` or `escalate-to-full`. `stamp` on a `.md` dossier fills its empty SHA-256 cells into a new file beside its source and never rewrites a recorded hash; it refuses any other folder, where the dossier's file paths would not resolve. `scaffold-lite` takes one to three donors.

@@ -135,7 +135,7 @@ class PackageTests(unittest.TestCase):
 
     def test_documented_aa_commands_parse(self):
         parsed = check_documented_aa_commands(self.source)
-        self.assertEqual({args.command for args in parsed}, {"validate", "render", "check-output"})
+        self.assertEqual({args.command for args in parsed}, {"finalize", "validate", "render", "check-output"})
 
     def test_documented_aa_command_typo_fails_after_manifest_regeneration(self):
         doc = self.source / "references" / "records.md"
@@ -170,7 +170,7 @@ class PackageTests(unittest.TestCase):
     def test_documented_aa_commands_do_not_dispatch(self):
         with mock.patch.object(aa, "load", side_effect=AssertionError("Command dispatch reached")) as load:
             parsed = check_documented_aa_commands(self.source)
-        self.assertEqual(len(parsed), 3)
+        self.assertEqual(len(parsed), 4)
         load.assert_not_called()
 
     def test_documented_aa_parser_interception_must_be_reached(self):

@@ -595,6 +595,7 @@ rule-or-reason/
     evaluation.md
     research.md
     skill-usage.md
+    user-profile.md
   scripts/
     compare.py
   assets/

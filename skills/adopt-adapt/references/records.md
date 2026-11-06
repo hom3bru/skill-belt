@@ -6,13 +6,13 @@ Use Python 3.10+ from the actual host. Run helpers with `python -B` to avoid wri
 
 ## Practical flow
 
-For a bounded manual source review, the skill permits a concise ledger with `machine validation not run`. A helper validation of QUEUED inputs confirms only those inputs; it does not validate narrative completion or change their state. When using full records, store the actual transitions and generate/check the published report from that completed record. Proposed behavior can remain untested without blocking a source-grounded adaptation with an inspected receiving seam and explicit prerequisites.
+Choose manual or structured mode before writing. A bounded manual review may finish `READY (manual assessment); machine validation not run`. `python -B "<skill-directory>/scripts/aa.py" status <run-dir>/run.json` reports saved states. Input validation certifies only inputs. For structured reviews, save transitions and render/check the actual record. Source-grounded proposals may remain untested with an inspected seam and explicit prerequisites. Report only commands run. Apply [narrative review](narrative-review.md).
 
-Choose manual or structured mode before creating files. Manual mode needs no machine record and may finish `READY (manual assessment)`. If a record exists, `python -B "<skill-directory>/scripts/aa.py" status <run-dir>/run.json` reports its actual states and whether it contains any ready records or only inputs; it never certifies a separate narrative. Keep manual completion and saved record state separate, and report only commands actually run. Apply [narrative review](narrative-review.md) before publication.
-
-`init <run-dir> --source <locator> --recipient <stable-id>=<profile>` creates `run.json` and `inputs.json`. Repeat options for several inputs/recipients. IDs `s1...` and `q1...` preserve supplied input order. Source and recipient IDs must be distinct. A bare `<stable-id>` gets profile `unspecified`; no pair for that recipient can be READY until a `routing` row records its chosen profile (for a run with no recipient, a row for `unspecified` with its evidence). Input-only and incomplete runs still validate, so `status` and `handoff` keep working.
+`init <run-dir> --source <locator> --recipient <stable-id>=<profile>` creates schema-3 `run.json`, immutable `inputs.json` and required `intake.json`. Repeat options for multiple inputs. Distinct `s1...` and `q1...` IDs preserve input order. Bare recipient IDs get profile `unspecified` until routing is recorded. See [coverage gates](gates.md). Incomplete records remain resumable. Schema 1 and 2 remain readable under their original contracts.
 
 **Several mechanisms from one source.** A record carries one decision per source/recipient pair, scored on its best mechanism. To give a second good mechanism its own verdict, value, transfer contract and acceptance test now, register the source again with a fragment naming the mechanism (`--source <locator>#mechanism-<name>`), capture the same bytes for that source ID, and keep each pair's claims about its own mechanism; the map and coverage may repeat. Per-mechanism decisions inside one pair are later work. The input manifest guards accidental source deletion; it is not a tamper-proof external log. Record `request` and actual host name. Keep the fixed host capabilities: renderer validation true, host prevention `unavailable`, detection `exported-report-only`.
+
+New runs set `report_format: decision-frontier-v1`. Older reports keep their original rendering. The frontier groups checks per recipient and preserves each ledger and stored verdict.
 
 Resolve each source's `locator`, `revision` and `kind`. The input locator is preserved in the manifest; put the canonical resolved locator into an additional source field `resolved_locator` rather than replacing the original. Revisions are full commits or explicit captured document identities, never silently substituted HEAD. Kinds are meaningful source types (`repo`, `paper`, `docs`, etc.). Recipient rows contain `id`, `profile`, `revision`, `snapshot`. An unspecified recipient uses profile `unspecified`; no target-specific fit score or ADAPT is permitted. Every recipient with a READY pair needs a `routing` row for its profile, and `score.rubric` must be that profile's rubric: its own `## … Rubric` section where it has one, else `generic` (`tooling` stays an alias of `coding-workflow`).
 
@@ -29,7 +29,7 @@ Each source/recipient item retains `id`, `source`, `recipient`, `state`, `transi
 `ledger` contains:
 
 - `primary`: nonempty read evidence IDs for this source.
-- `map`: provider codewiki/deepwiki/self-synthesized/not-applicable; content; evidence IDs; limitations (unknown edges and diagram extraction go here). Self-synthesized from code, releases and independent references is the default; a hosted wiki is a donor-steerable hint, recorded only when used. Repos cannot use not-applicable. Inadequate raw material means BLOCKED, not a fabricated complete map.
+- `map`: provider codewiki/deepwiki/self-synthesized/not-applicable; content; evidence IDs; limitations (unknown edges and diagram extraction go here). Follow [trees and forest](trees-and-forest.md) for default repository source checks. Synthesize the final map from inspected code, releases and checked references; hosted wikis remain donor-steerable hints. Record consulted sources, availability, revision uncertainty and material skips in limitations/coverage, preserving the existing provider vocabulary. Repos cannot use not-applicable. Inadequate raw material means BLOCKED, not a fabricated complete map.
 - `coverage`: examined names, total integer or null, refutation_targets, blind_spots (empty allowed), overlap_claims IDs, adequate boolean. Explain blind spots, not only names. Each refutation target names the observation that would refute the claim, as a sentence or `{target, outcome: confirmed|refuted|unknown}`; placeholders such as `-` or `n/a` are rejected.
 - Optional `coverage.subsystems`: rows with unique `id`, `scope`, `mapped`, `inspected`, `exercised`, `evidence` IDs, `execution` IDs and `limitations`. Each stage is `complete|partial|unknown|not-run|not-applicable`. Inspected rows cite read donor evidence; exercised rows cite captured runs. A partial or unrun provider does not block a narrower ready assessment. Older records without rows remain selected-file coverage; they cannot imply subsystem qualification.
 - `salvage`: requires algorithms/error_handling/data_structures/security_compliance/performance; additional areas use nonempty text keys. Legacy five-axis records remain valid. Every row needs result found/none/not-applicable, note and nonempty read source evidence IDs. Explain not-applicable; unknown requires incomplete state. Additional findings retain the same rendering and doubt controls.
@@ -50,13 +50,21 @@ For such target results, `inventory` has implemented/wired/tested/observed objec
 
 ## Check and output
 
+Use `finalize` after saving to combine readback, rendering and exact output checking. Add `--complete` when claiming complete coverage, or `--index INDEX.json` for an actual captured index receipt. Output must be new; failures never certify completion. The checker reuses immutable checked captures within that operation and rechecks freshness/concurrent changes before success. No saved validation result is trusted by a later command.
+
+```text
+python -B "<skill-directory>/scripts/aa.py" finalize <run-dir>/run.json --output <run-dir>/report.md
+```
+
+Separate commands remain available for inspection or an existing report:
+
 ```text
 python -B "<skill-directory>/scripts/aa.py" validate <run-dir>/run.json
 python -B "<skill-directory>/scripts/aa.py" render <run-dir>/run.json --output <run-dir>/report.md
 python -B "<skill-directory>/scripts/aa.py" check-output <run-dir>/run.json <run-dir>/report.md
 ```
 
-Render refuses existing output files and invalid records. It emits the full manifest, then each completed ledger before its result, and visibly incomplete items without results. It escapes source-controlled text so it cannot inject report markers or rows. `check-output` compares a supplied report to deterministic rendering; it catches changed order/missing items/content. It does **not** monitor chat or prevent the agent writing an early verdict elsewhere. Emit the report's ledger before the result in the actual chat, too.
+Render refuses existing output files and invalid records. It emits the full manifest, then each completed ledger before its result, and visibly incomplete items without results. Its contract header, outstanding work, source/recipient matrix, link accounting and measurement labels preserve incomplete research. `validate`, `render` and `check-output` accept `--complete` to require closed discovery, coverage, every pair and checked saved-record readback; default validation permits honest partial work. Use `record-readback <run-dir>/run.json` after saving. It escapes source-controlled text so it cannot inject report markers or rows. `check-output` compares a supplied report to deterministic rendering; it catches changed order/missing items/content. It does **not** monitor chat or prevent the agent writing an early verdict elsewhere. Emit the report's ledger before the result in the actual chat, too.
 
 The renderer prints exact shared donor facts once, before every dependent recipient verdict. Different mapping/coverage/salvage variants are retained and name their pairs. Recipient gates, legal route, doubt and transfer conditions remain per pair; compact output is not permission to omit them.
 

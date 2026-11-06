@@ -1,6 +1,6 @@
 # What verification establishes
 
-The collection verifier runs the root rejection controls and all six bundled toolkit suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
+The collection verifier runs the root rejection controls and all seven bundled toolkit suites. It checks published-byte manifests and local references before and after those tests. The package fixtures are authored local cases; no model service, donor runtime, credentials or external product is needed.
 
 | Layer | Evidence | Limit |
 | --- | --- | --- |
@@ -31,3 +31,9 @@ controls, private-file and corrupted-package rejection, deterministic archive ch
 and the existing packet-helper regression suite. XLSX uses an already-installed
 optional dependency; without it, the suite verifies the explicit unsupported-input
 error. Passing instruction/link checks do not prove future reminder delivery.
+
+## Local-profile checks
+
+`user_profile.check_files` reads the local profile at verification and staged-build time. It rejects configured identifiers, personal paths in plain or JSON-escaped forms, and a real profile file in the publication. Diagnostics omit matched values. Synthetic broken-copy controls cover case, path separators, Unicode escapes, malformed profiles and filename leakage. A missing local profile leaves the generic privacy checks active and is recorded as unconfigured.
+
+Deep-dive runs its retained suite with `DEEP_DIVE_CP_VALIDATOR` set explicitly to this collection's retained Carrier Pigeon validator. Missing validators and empty, failing or skipped suites fail verification. These are schema, instruction and link checks.

@@ -57,3 +57,5 @@ appropriate. Preserve expected revisions, original attempts, assistance and unce
 outcomes. Do not invent native start/answer/feedback tools or a recovery save.
 Follow the user's current permissions for recording, reminders, scheduling, sending
 follow-ups or other external actions. Respect the actual assessment rules.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

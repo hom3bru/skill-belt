@@ -11,7 +11,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_HASHES = {
-    "FRANKENMINE_DESIGN_SPEC.md": "3670e37cc1b764d9cd47dcde13140a573e8168bd20bea642eebdfa4fc18f31a3",
+    "FRANKENMINE_DESIGN_SPEC.md": "2362e2747a64af7c8004365bed8940d43da17bb5da740ba6f058baa487c5537e",
     "prior_art.json": "9da39037f96be4d1e579d64187e69a0577c57e63be7b22ad9d8b15e7c3c99b6b",
     "translation-research.json": "d4dcab448abebd0d4dbd38ad0558714bde6fac22349855ae800710935eef5bd6",
     "tool_map.json": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23",
@@ -55,7 +55,9 @@ def validate():
                 # Rename guard: the old name appears only in the allowlisted receipts and records.
                 "tests/westack_rename_tests.py",
                 # Fix round after the 2026-10-28 blind comparison: proportionality budget, wording and defaults.
-                "tests/v0_2_fix_round_tests.py"]
+                "tests/v0_2_fix_round_tests.py",
+                # Speed round: derived independent pairs and the short pattern-only seam.
+                "tests/speed_round_tests.py"]
     errors = ["Missing " + x for x in required if not (ROOT / x).is_file()]
     for name, sha in SOURCE_HASHES.items():
         source = ROOT / "research" / name

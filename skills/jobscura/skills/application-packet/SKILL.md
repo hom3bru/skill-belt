@@ -77,3 +77,5 @@ canonical files; packaging does not authorize changes to them.
 - Do not package private career materials in this plugin, its tests or source.
   Work packets stay in the user's authorized workspace/destination. Hashes detect
   accidental changes against recorded artifacts; they are not digital signatures.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

@@ -1,17 +1,17 @@
 <!-- Each check names its public source; per-donor evidence for the risk codes is archived in historical-findings.md section B. -->
 # Due-diligence block (repos and packages)
 
-Pin everything to the commit SHA you read. Record the command or URL used for each line.
+Pin everything to the commit SHA you read. Record each line's command or URL. Name each artifact on its own. When a source bundles, wraps, ports or cites another tool, give each its own source, pin and licence; credit none with another's parts. A port or directory listing is not the original. Record a GitHub 404 as "not found or not visible to this account": GitHub answers 404, not 403, for private resources a caller cannot see. Never write "does not exist" from a 404.
 
-On either route, skip Scorecard, OSV, maintenance and registry lines (and the whole-tool fit score) when nothing executable or copyable from the donor enters the recipient (an idea-only transfer), or when the whole tool is already DISCARD on a hard gate; write `not applicable (reason)`. Licence and source identity are still checked, and any plan that names a package or copies code needs the full block.
+For idea-only transfers (nothing executable or copyable enters the recipient), or whole tools already DISCARD on a hard gate, skip Scorecard, OSV, maintenance, registry and whole-tool fit scoring. Write `not applicable (reason)`. Licence and source identity are still checked. Plans naming packages or copying code require the full block.
 
 | Check | How (read-only, no install on the recipient machine) | What it does not prove |
 |---|---|---|
-| OpenSSF Scorecard | `https://api.securityscorecards.dev/projects/github.com/<o>/<r>`. Compare its `repo.commit` with your pinned SHA; if they differ, say so. | Code quality or fitness for the recipient |
+| OpenSSF Scorecard | `https://api.securityscorecards.dev/projects/github.com/<o>/<r>`. Compare its `repo.commit` with your pinned SHA; if they differ, say so. | Code quality or recipient fitness |
 | Vulnerabilities | `POST https://api.osv.dev/v1/query` with exact ecosystem/name/version. Check `MAL-` IDs separately. | Absence of unknown bugs |
 | License | Read the LICENSE file at the SHA, and the header of every file you would salvage. GitHub "NOASSERTION" usually means several license blocks (feedparser: BSD-style code plus a separate docs license). No license is not permission. AGPL is not an automatic DISCARD, but whole-tool reuse needs the user's call. | Legal clearance |
 | Maintenance | Last commit, last release, open-issue trend over 12 months (GitHub API). CHAOSS Contributor Absence Factor if bus-factor matters. | Future maintenance |
-| Registry existence | For every package a plan names: `https://pypi.org/pypi/<name>/json` or `https://registry.npmjs.org/<name>`. 404 means the plan names a package that does not exist (slopsquatting guard; USENIX Sec '25 found 5.2% / 21.7% hallucinated package names). | That the package is safe |
+| Registry existence | For every package a plan names: `https://pypi.org/pypi/<name>/json` or `https://registry.npmjs.org/<name>`. 404 means the plan names a package that does not exist (slopsquatting guard; USENIX Sec '25 found 5.2% / 21.7% hallucinated package names). | Package safety |
 
 ## Donor-risk audit (required for skill / hook / MCP / agent-config donors, recommended for all)
 Record `ledger.donor_risks[] = {code, evidence, status: present|absent|unknown, scope}`. Any `present` risk on the salvaged mechanism forces ADAPT-with-prerequisite (fix named) or excludes that part; never ADOPT. Score penalty: one `present` high risk = −1 on the whole-tool score; two or more = −2 (single strongest penalty rule still applies).

@@ -1,3 +1,93 @@
+# adopt-adapt 3.0.0-grok-draft.r24.2 — local publication preparation
+
+Merge the optional Palette log, relocate its section 8 pointer to the review record to meet word ceilings, and resolve personal values through the local user profile. Published text uses the user and configurable path placeholders. Privacy checks derive personal deny-list values locally and retain the forbidden private-repository guard for any owner. Approved word ceilings remain fixed. Formal behavioral and multi-host qualification remains incomplete.
+
+# adopt-adapt 3.0.0-grok-draft.r24.1 — source identity and visibility, unreleased
+
+the user approved selective salvage of Claude's source-identity and GitHub-404 rules from commits 1e97955 and 5025f1f. Each bundled, wrapped, ported or cited tool receives its own source, pin and licence. GitHub 404 responses retain account-visibility uncertainty. The due-diligence page's existing applicability and limitation wording is tightened to keep the added rules within the approved instruction ceilings.
+
+The original five source-identity checks and seven GitHub-404 checks, including their broken-copy controls, are required package resources. They check the instructions' wording. Behavioral qualification remains pending.
+
+# adopt-adapt 3.0.0-grok-draft.r24 — grounded frontier checks
+
+Schema 3 binds retained leads to recipient seam evidence, a possible result and a consistent experiment cluster. Mismatch rejections identify the concrete assumption and cite both sides. Historical reports keep their prior validation and rendering. The release tests enforce approved word ceilings and the narrative review calls for evidence before drawing license conclusions about re-expression.
+
+Equivalent checks for one recipient now share a frontier row even when leads cite different read captures. The row preserves every citation. Different criteria and reopening conditions stay separate. Manual reports surface the most actionable retained check with its cited seam and the observation that could reopen the verdict.
+
+Manual guidance explicitly preserves session-bound evidence and citation checks and requires prerequisites that could change the verdict or plan. The instruction ceilings still apply.
+
+Manual mismatch rejections explain whether restoring a donor precondition would change the assessed mechanism or recipient contract. A distinct workaround receives its own assessment. Multi-lead reports give shared recipient questions one frontier check and reference its ID from separate pair verdicts and summaries. They preserve each pair's evidence and observe unconfirmed recipient burden before prototyping. Template consolidation keeps the existing word ceilings.
+
+WIRED now explicitly requires an incoming normal-entrypoint path. Shared checks can collect distinct observations from one recipient capture or entrypoint/workload, keeping separate criteria and reopening decisions. Independent actions remain separate checks. Evaluation guidance distinguishes rejection of a malicious operational donor from a lawful isolated idea retained as a research lead.
+
+Development follow-up clarifies that internal calls or instruction links need an evidenced normal entrypoint before receiving WIRED. The shared-capture report keeps each pair's criterion and reopening outcome distinct.
+
+Wiring review now requires two cited proofs before assigning WIRED: normal activation established separately from the fragment, then its incoming path into the exact mechanism. Missing either proof caps the claim at PRESENT. Budget-neutral wording consolidation preserves raw mechanism/caller/configuration inspection and every listed failure mode.
+
+Manual WIRED claims now expose separate activation and incoming-path citations per donor or recipient. A callable body or proposed invocation cannot stand in for activation; missing either proof caps the level at PRESENT. Template consolidation pays for the proof row while retaining collection scope, pair criteria, reopening decisions and ledger-before-verdict ordering.
+
+## Unreleased — Palette log (2026-11-05)
+
+The owner asked that adopt-adapt leave a note in Palette, the owner's cross-project research library, for each source it assesses. Palette's uses table already serves as that per-project record. The §8 review-record sentence gains one link token, `([Palette](references/palette.md))`. The new `references/palette.md` holds the instructions:
+
+- one `palette log-use … --purpose assessed` row per READY pair, carrying the report path and, for structured runs, an `adopt-adapt:<run.json>#<item id>` pointer, but never the result, value, confidence or fit (§0.8);
+- one `adopted`, `adapted` or `rejected` row after the owner accepts or declines, and none on defer;
+- "Palette absent: not logged" when the CLI is missing;
+- earlier Palette uses are pointers, never inputs to a fresh judgment.
+
+Size: SKILL.md goes from 3,323 to 3,324 words against the approved 3,325 ceiling, and the bounded route from 10,989 to 10,990 of 10,991. No ceiling changed. The reference file sits outside every loaded set, so the link is a light trigger. Whether agents follow it is a live-agent question.
+
+Checked by hand against a throwaway Palette library and a real `aa.py init` run:
+
+- the documented `assessed` and `adapted` rows logged;
+- `palette pointers check --strict` resolved `q1`;
+- a wrong item ID was reported missing, with exit 1;
+- `palette check` showed `assessed: true` with no verdict field.
+
+No package test pins this wording. No version bump: one is owed when this merges with the pending r24.1 work.
+
+# adopt-adapt 3.0.0-grok-draft.r23 — decision frontier, 2026-11-04 PT
+
+Claude's audit of the Carrier Pigeon assessment found that a long checked report buried the next decisions in repeated promising-lead prose. New structured reports bring the next checks forward, including success conditions and what would reopen the decision. Checks stay scoped to the same recipient. An explicit shared prerequisite can cover multiple leads when it cites read recipient evidence. Each donor experiment remains in its own ledger.
+
+The report shows retained leads separately from rejection. Existing saved reports keep their byte-for-byte rendering. The stored result vocabulary, evidence ladder, coverage gates and authorization rules are unchanged. This is a local DRAFT.
+
+# adopt-adapt 3.0.0-grok-draft.r22 — efficient acquisition and checking, 2026-11-02 PT
+
+the user authorized the largest useful run-speed upgrade while preserving the r21 coverage/measurement standards. Independent read-only acquisition now runs in bounded batches and shares confirmed pinned donor captures/maps across recipients. A standalone, read-only `acquisition.py` emits deterministic task waves, including both wiki checks for confirmed public repositories, inspection of unread captures and explicit identity/background/discovery work. It preserves all source IDs, parent links, versions and source/recipient pairs; it fetches nothing, carries no historical verdicts and never certifies a read. Unknown/private identity is not permission to submit data to hosted providers. The host continues actual retrieval through existing authorized tools and follows newly discovered artifacts in subsequent waves.
+
+The checker reuses verified capture bytes and parsed URLs/content tests only within one operation. Public APIs remain independently validating; CLI commands avoid a second identical validation through their projection functions. No persistent successful-validation cache, timestamp-only freshness check or verdict reuse is introduced. `finalize` combines actual saved-record readback and checked local rendering with exclusive output and concurrent-change checks. Existing standalone commands and legacy labels remain supported. Unknown measurements, qualitative estimates, open tests, unread scope and incomplete queues keep their distinct states; performance never supplies a shortcut to completion or rejection.
+
+Protected section 0, paid policy, evidence ladder, default DeepWiki/CodeWiki checks, primary-source verification, multi-recipient judgment and persistent alternative retrieval remain intact. No dependency, automatic networking, donor execution or remote publication is added. Qualification uses an independently frozen r21 baseline, paired helper timings/counts, exact report/outcome comparisons and negative mutation controls. Detailed results and installation readback are retained in canonical `research/2026-11-02/run-efficiency`. Helper speed and preservation controls do not establish an end-to-end research multiplier or general semantic superiority. This remains a local DRAFT.
+
+# adopt-adapt 3.0.0-grok-draft.r21 — coverage and measurement gates, 2026-11-02 PT
+
+the user authorized implementing the coverage and measurement proposal, while explicitly retaining tests of donor methods and forbidding rejection for missing measurements. New structured runs use record schema 2 and a required, input-bound `intake.json`. Partial and blocked research remains valid, resumable and visible. `--complete` requires accounted captured links, source-type reading scope, every selected source/recipient pair and saved-record readback. Schema-1 records remain readable, explicitly labelled legacy with unverified coverage; they cannot certify completeness.
+
+Coverage checks preserve linked-artifact and named-work queues, require background lookup for social posts without resource links, reject recognizable error/login shells and abstract-only paper coverage, and keep failed retrieval attempts distinct from successful reads. A fresh `queue-extend` revision preserves old IDs, history and captures while adding new artifacts for every recipient. It archives parent snapshots rather than rewriting the previous run. These are local structural checks over supplied evidence and declared discovery, not certification of exhaustive live-web retrieval or semantic relevance.
+
+Every READY pair records its smallest transfer unit, benefit/burden basis and a proposed experiment or explicit reopening condition. Unknown, estimated, source-reported, static-footprint and measured quantities retain distinct labels, including on incomplete pairs. Missing measurements never justify DISCARD. Qualitative estimates and pilot proposals remain possible without proven runtime gains or universal cost thresholds. Measured comparisons bind units, workload, denominator, sample size, revisions and values to an eligible execution's actual positive-check payload; derived wording binds the claim to that metric and direction. Estimates accept interior range values alongside unrelated unknown costs. Experiment targets stay unvalidated/CLAIMED and need no measurement receipt.
+
+`record-readback` checks actual saved bytes; optional captured index receipts bind all source/item IDs without authenticating an external catalog update. Status/validation remain read-only. Rendered reports retain contract limits, unresolved work, links, the full source/recipient grid, measurement labels and test proposals; `check-output` detects stripped or changed content. Protected section 0, paid policy, evidence levels and donor-execution restrictions are unchanged. No dependencies or automatic donor/network execution are added. Scoped tests, independently reproduced failures and retests, measured instruction loads and installation receipts are retained in canonical `research/2026-11-02/coverage-measurement-gates`. This remains a local DRAFT; native-host activation and improved donor effectiveness are not established by these checks.
+
+# adopt-adapt 3.0.0-grok-draft.r20 — social intake, persistence and selection, 2026-11-02 PT
+
+the user requested mandatory social-post reading plus discovery and evaluation of every substantive associated repository, paper and other linked artifact, persistent alternative retrieval methods, and no selection/score penalty for original intent, purpose, domain or language. He also required keeping a discriminating experiment path open and accurately recording everything evaluated. The source-intake guide now governs social expansion before review depth and failed-retrieval fallbacks. Coverage retains post/artifact/recipient states, canonical aliases, secondary load-bearing references and explicit unresolved work. A failed first fetch never completes a read or supports a negative verdict. Repository/paper evidence must come from the underlying work.
+
+Multiple selected recipients remain separate assessments. The generic rubric clarifies mechanism benefit rather than product-category relevance. Qualitative cost estimates remain permitted; cost/bloat rejection must cite transfer-unit facts and missing measurements alone are not evidence of poor value. Numeric claims require measurement receipts. Paid-policy and evidence levels are unchanged; research records audit their limits and propose separately scoped machine coverage/measurement enforcement. The current validator does not discover unregistered links or certify narrative cost judgments. Protected section 0 and the record schema are unchanged.
+
+The test path states what experiment or changed evidence could reopen a verdict, without requiring proven gains before suggesting a pilot. Every review, including a quick call, retains an accurate durable entry in the existing authorized research system or run dossier; source/recipient coverage, attempts, estimates, measured receipts, proposed tests, unresolved states and actual write/indexing status remain distinct. This is the sole record exception to quick calls' no-extra-files rule. Missing links/details trigger searches for project names, developer handles, repositories, papers and official sources; useful background research also runs when the original links work.
+
+This local DRAFT update is validated and installed through the existing release/recovery process. Scoped checks and limitations are retained in canonical `research/2026-11-02/social-intake-and-selection`; no native-host or general effectiveness qualification is claimed.
+
+# adopt-adapt 3.0.0-grok-draft.r19 — trees and forest defaults, 2026-11-02 PT
+
+the user explicitly requested checking DeepWiki and CodeWiki by default when available, then broadened the request to a complementary source suite using a trees-and-forest approach. Repository reviews now check both hosted wikis for existing public pages and consult applicable official design/history, code-navigation and structural/digest views. The workflow moves from overview to pinned implementation traces and back to a reconciled source-built map.
+
+Hosted summaries remain CLAIMED-level hints. Decisive claims and map edges still require pinned raw-source verification; repeated summaries are not independent corroboration. Unavailable tools get recorded with source-browsing fallbacks. Private repositories use authorized local views; public local clones still get the public checks. The suite does not authorize uploads, hosted indexing, installation, donor execution or paid elements. Quick calls remain proportional. The existing record schema carries coverage/availability notes without new fields.
+
+The repository-specific procedure is a linked required resource, included in measured repository-route instruction loads. The main-entrypoint word budget and protected section 0 are preserved. This is a local DRAFT update; scoped validation and installation receipts are retained in canonical `research/2026-11-02/trees-and-forest-defaults`. Native host qualification and improved discovery quality are not established by documentation/package checks. Only the active Codex .agents installation is updated; removed duplicate locations remain absent.
+
 # adopt-adapt 3.0.0-grok-draft.r18 - scoped publication 2026-11-02 PT
 
 Captured local legal citations can reference read donor/recipient source evidence with checked bytes and revision. HTTP(S) citations remain supported. Captured references do not clear legal flags or transfer gates. Regression controls cover invalid provenance, mutated evidence, rendering integrity and blocked transfers.

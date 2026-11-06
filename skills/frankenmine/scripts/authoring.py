@@ -26,6 +26,8 @@ SEAM_PROMPTS = {
     "permissions_effects": "permissions, network, process and filesystem effects",
     "tests": "the acceptance test and negative control that cover the seam",
     "licensing": "licence, notices and obligations for this unit"}
+# A pattern-only lesson crosses no code boundary: its seam is the evidence plus this one judgement.
+ADAPTATION_PROMPT = "the assumptions the pattern relied on in the donor, and why they hold in the product"
 PROTOCOL_FIELDS = ("version_rejection", "authentication", "idempotency", "reordering_duplicates", "backpressure",
                    "shutdown_restart_identity", "performance_budget")
 WITHHELD = ("decision choice and rationale", "alternatives' tradeoff prose", "lesson stage, disposition and rationale",
@@ -124,7 +126,8 @@ def scaffold(source, output, donor, unit, route, ident, source_language=None, ba
         implementation="not-started",
         closure=[todo("retained dependencies as {name, pin, category, disposition}, or none: <reason>")],
         touches=[todo("state, policy, resource or interface key")],
-        seam=dict({k: todo(v) for k, v in SEAM_PROMPTS.items()}, evidence=[]),
+        seam=(dict(adaptation=todo(ADAPTATION_PROMPT), evidence=[]) if route == "pattern-only" else
+              dict({k: todo(v) for k, v in SEAM_PROMPTS.items()}, evidence=[])),
         rights=dict(status="unknown", route="unresolved", category="unknown", license=todo("licence of this unit"),
                     unit=unit, evidence=[], obligations=[], rationale=todo("why this rights route fits")),
         source_language=language, target_language=target,
@@ -236,10 +239,17 @@ def review_packet(source, output):
                      "; evidence " + inert(", ".join(c["evidence"])) + "; contract: " + inert(c["contract"]) +
                      "; rights: " + inert(c["rights"]["route"]) + " / " + inert(c["rights"].get("category", "?")) +
                      " (" + inert(c["rights"]["license"]) + ")")
+        lines.append("  - Seam claims (author; check against evidence):")
+        for key, value in c["seam"].items():
+            lines.append("    - " + inert(key) + ": " +
+                         inert(", ".join(value) if isinstance(value, list) else value))
     lines += ["", "## Ownership and interactions", ""]
     lines += ["- " + inert(x["key"]) + " -> " + inert(x["owner"]) for x in run["ownership"]]
     lines += ["- " + inert(" / ".join(x["components"])) + ": " + inert(x["status"]) + " (test " +
               inert(x.get("test", "none")) + ")" for x in run["interactions"]]
+    lines += ["- " + inert(a) + " / " + inert(b) +
+              ": independent (derived: declared touches are disjoint; no record)"
+              for a, b in fm.derived_independent_pairs(run)]
     lines += ["", "## Alternatives to compare", ""]
     for a in run["alternatives"]:
         lines.append("- " + inert(a["kind"]) + ": " + inert(a["name"]) + "; evidence " + inert(", ".join(a["evidence"])) +

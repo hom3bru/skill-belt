@@ -33,7 +33,7 @@
 - `brief.question` is `product-led` or `exploratory`. Only an exploratory brief may start without requirements.
 
 **Selected candidates.** A selected candidate needs:
-- **Seam.** Every seam dimension, plus `seam.evidence` that includes source evidence from its own donor.
+- **Seam.** Every seam dimension, plus `seam.evidence` that includes source evidence from its own donor. A pattern-only part crosses no code boundary, so it may record only `seam.evidence` and `seam.adaptation`: the assumptions the pattern relied on in the donor, and why they hold in the product. Every other route needs every dimension, selected or not.
 - **Basics.** Evidence, a need and a falsifier. `need` may be one requirement ID or a list.
 - **Reuse.** Closure, a route and rights. A `reimplementation` declares `basis`: `code` (rewritten from the donor's source) or `idea` (rebuilt from the documented behaviour).
 - **Placement.** Contract, owner, caller, recovery, update plan, and acceptance and negative-control tests.
@@ -47,8 +47,8 @@
 **Ownership and interactions.**
 - Ownership keys are unique after normalising case, whitespace and separators.
 - A candidate's `owner` must appear in `ownership`. Each key it `touches` needs an ownership entry.
-- Every selected pair needs an interaction record:
-  - `independent`: every part declares non-empty `touches`, the touches share no key, and a rationale is given.
+- A selected pair whose declared, non-empty `touches` share no key is independent without a record: `check` derives it and `report` lists it. Every other selected pair needs an interaction record:
+  - `independent`: every part declares non-empty `touches`, the touches share no key, and a rationale is given (optional where the pair is derived).
   - `compatible` or `resolved`: evidence, plus a required test whose purpose is `interaction` or `integration`.
   - `conflict` or `unknown`: blocks readiness.
 - A key touched by three or more selected parts needs one group record whose `components` include all of them, `compatible` or `resolved`, verified by an `integration` test. Pairwise records do not cover it.
@@ -73,7 +73,7 @@
 - Each receipt has its own raw output, unless every receipt sharing it declares `raw_shared: <reason>`.
 - `artifacts` lists the product files with `path`, `sha256`, `origin` (reused, adapted or authored) and the `candidates` they implement; reused or adapted files name their donor `unit` and need a part on a code route. Receipts list the `artifacts` (path and sha256) they tested; `check` re-hashes them, and a latest receipt whose files changed is stale. A `tested` or `demonstrated` part needs artifacts of its own, listed by the latest receipts of its acceptance test and negative control.
 
-**Authoring helpers.** `stamp RUN --output NEW` fills every missing file hash (evidence, supporting evidence, oracles, raw outputs, artifacts, review report) and missing evidence revisions into a new record; a recorded hash that disagrees with its file is reported, never rewritten. `scaffold` appends a candidate stub (seam, rights and, across languages, the 13 deltas) whose values are `TODO(scaffold)` placeholders and adds an unresolved line, so the record stays blocked until it is filled.
+**Authoring helpers.** `stamp RUN --output NEW` fills every missing file hash (evidence, supporting evidence, oracles, raw outputs, artifacts, review report) and missing evidence revisions into a new record; a recorded hash that disagrees with its file is reported, never rewritten. `scaffold` appends a candidate stub (seam, rights and, across languages, the 13 deltas) whose values are `TODO(scaffold)` placeholders and adds an unresolved line, so the record stays blocked until it is filled; a pattern-only stub gets the short seam (evidence and adaptation).
 
 ## Upgrading a 1.0 record
 
@@ -81,7 +81,7 @@ There is no migrate command. Upgrade by hand, then run `check`:
 1. Set `schema_version` to `"1.1"`.
 2. Add `review.author` and `review.independence`, and drop or align the `independent` boolean.
 3. For each selected candidate, add `seam.evidence`, `rights.category`, `touches`, and `basis` on a reimplementation.
-4. Give interactions an `interaction` or `integration` test, or mark a disjoint pair `independent`.
+4. Give each pair that shares a key an `interaction` or `integration` test; a pair whose declared touches are disjoint needs no record.
 5. Add `requirement_coverage` for any requirement no selected candidate's `need` covers.
 6. For an accepted review, save the reviewer's report in the run root and add `review.report`.
 7. In implementation mode, add `artifacts` and the `artifacts` each latest receipt tested.

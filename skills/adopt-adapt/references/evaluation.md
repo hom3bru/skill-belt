@@ -2,6 +2,8 @@
 
 Release and evaluation history is retained in [CHANGES](../CHANGES.md) and the canonical research archive. Current package identity and scope come from the live manifest and scoped records.
 
+The approved [word ceilings](../evals/approved-word-ceilings.json) cap declarations in `test_r16.py`. Carry lower caps forward. Before raising one, preregister a blind paired comparison and obtain owner approval with its results. The local ratchet checks declared ceilings. It cannot authenticate approval or model quality.
+
 For an explicitly authorized draft update: (1) frontmatter passes Agent Skills validation; (2) all relative links resolve (`tests/test_package.py::test_local_reference_links_resolve`); (3) `python -B -m unittest discover -s tests` run from the skill directory passes, with any environment skip named; (4) `python -B "<skill-directory>/scripts/package.py" verify "<skill-directory>"` passes against `release.json`, plus focused forward checks for the changed behavior. These scoped checks allow ordinary use while limitations remain visible.
 
 Formal cross-host release qualification additionally requires (5) trigger + routing evals in `evals/trigger-evals.json` on each claimed host with repeated queries and a held-out split; (6) paired with/without-skill runs on cases written by someone other than the skill's author; (7) planted ledger-order and injected-README cases. Choose repetition based on observed variability rather than treating a fixed large run count as proof. Keep tuning, selection and final holdouts separate. A small forced-load/single-model check is useful evidence and does not complete native host activation or general effectiveness qualification.
@@ -20,6 +22,9 @@ candidate on the same cases when feasible. Record elapsed/token effort only when
 actually measured. Better format or longer reports alone do not prove better
 discovery. Keep final cases separate from tuning and do not reuse them as fresh
 holdouts after feedback.
+- **Fixture validity**: an independent reviewer derives outcomes from requests and evidence before comparing gold. Check source/recipient rungs and each proposed benefit against actual wiring.
+- **Lawful salvage**: grade the operational donor and each isolated part separately. A grounded lawful non-operational idea may remain a promising lead while the malicious operational donor is DISCARD. Check permissions, actions and evidence support. Pair this with a control whose proposed salvage still carries the planted risk.
+- **Shared checks**: one capture or recipient entrypoint/workload may yield several observations with separate pair criteria. A wrapper around independent probes still contains multiple checks. Preserve all pair evidence, dispositions and reopening outcomes.
 - **Claim-ID manifest grading**: the graded answer lists requested claim IDs + values + evidence IDs; gold values never appear in the prompt; missing/extra/contradictory/unsupported claims fail; include a boundary test that a fabricated answer fails.
 - **Three sets**: tuning, selection, and a never-used final set. Picking the best iteration by the held-out set spends it.
 - **Oracle liveness**: two captures a moment apart + a liveness check before trusting a passing comparison.
