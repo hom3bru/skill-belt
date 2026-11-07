@@ -3,17 +3,24 @@
     "developerName": "Skill Belt",
     "displayName": "Jobscura",
     "shortDescription": "Job search and applications",
-    "longDescription": "Jobscura: source-grounded intake, tracking, application history, writing, reviewed packets and interview preparation with explicit private user context.",
+    "longDescription": "Jobscura: source-grounded job search from discovery and fit assessment through tracking, evidence-checked writing, reviewed packets, outreach, interview practice and offer negotiation, with deterministic offline helpers and explicit private user context.",
     "category": "Other",
     "capabilities": [],
     "defaultPrompt": null
   },
   "name": "application-assistant-workflows",
-  "version": "0.4.1",
-  "description": "Jobscura: source-grounded intake, tracking, application history, writing, reviewed packets and interview preparation with explicit private user context.",
+  "version": "0.5.0",
+  "description": "Jobscura: source-grounded job search from discovery and fit assessment through tracking, evidence-checked writing, reviewed packets, outreach, interview practice and offer negotiation, with deterministic offline helpers and explicit private user context.",
   "author": {
     "name": "Skill Belt"
   },
-  "keywords": [],
+  "keywords": [
+    "job search",
+    "resume",
+    "cover letter",
+    "interview",
+    "offer negotiation",
+    "application tracking"
+  ],
   "skills": "./skills"
 }

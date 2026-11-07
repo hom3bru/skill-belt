@@ -3,11 +3,23 @@ import argparse
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
+import re
 import stat
 from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parents[1]
 INVENTORY = "package-files.json"
+LOCAL_OUTPUT = ("__pycache__",)
+EVAL_RESULTS = ("evals", "results")
+
+
+def declared_version(root=ROOT):
+    """The toolkit version is declared once, in SKILL.md metadata."""
+    text = (Path(root) / "SKILL.md").read_text(encoding="utf-8")
+    found = re.search(r'^\s+version:\s*"(\d+\.\d+\.\d+)"\s*$', text, re.M)
+    if not found:
+        raise ValueError("Toolkit version missing from SKILL.md metadata")
+    return found.group(1)
 
 
 def payload(root=ROOT):
@@ -20,8 +32,9 @@ def payload(root=ROOT):
         info = path.lstat()
         if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
             raise ValueError("Linked package path")
-        if "__pycache__" in path.relative_to(root).parts:
-            continue
+        parts = path.relative_to(root).parts
+        if any(p in LOCAL_OUTPUT for p in parts) or parts[:2] == EVAL_RESULTS:
+            continue  # local caches and model-eval results are never packaged
         if path.is_file():
             actual.add(path.relative_to(root).as_posix())
     if actual != set(expected["files"]) | {INVENTORY}:
@@ -35,15 +48,16 @@ def payload(root=ROOT):
             raise ValueError("Private package path")
         if path.name.startswith(".env") and path.name != ".env.example":
             raise ValueError("Private environment file")
-        if path.name.endswith((".local.json", ".zip")) or path.name == "user-context.json":
+        if path.name.endswith((".local.json", ".zip")) or path.name == "user-context.json" or path.parts[:2] == EVAL_RESULTS:
             raise ValueError("Private or generated file")
         data = (root / name).read_bytes()
         if hashlib.sha256(data).hexdigest() != digest:
             raise ValueError("Public file hash mismatch")
         result[name] = data
+    version = declared_version(root)
     for name in ("plugin.json", ".codex-plugin/plugin.json"):
         metadata = json.loads(result[name])
-        if metadata["name"] != "application-assistant-workflows" or metadata["version"] != "0.4.1":
+        if metadata["name"] != "application-assistant-workflows" or metadata["version"] != version:
             raise ValueError("Plugin identity or version mismatch")
     return result
 

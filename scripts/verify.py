@@ -22,7 +22,9 @@ SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura",
 # Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
 SUB_SKILLS = {"deep-dive": ("deeper-dive", "check-work"),
               "carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research"),
-              "jobscura": ("application-intake", "application-tracking", "application-history", "application-writing", "application-packet", "interview-preparation")}
+              "jobscura": ("opportunity-discovery", "application-intake", "application-tracking", "application-history",
+                           "application-writing", "application-packet", "networking-outreach", "interview-preparation",
+                           "offer-negotiation")}
 WINDOWS_SKIP = ("test_research.ResearchTests.test_linked_source_entry_is_rejected", "symlink creation unavailable")
 # The adopt-adapt suite alone takes about three minutes on an idle Windows machine.
 DEFAULT_TIMEOUT = 900

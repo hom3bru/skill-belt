@@ -18,6 +18,12 @@ or infer causality from a later organizational outcome. Equally, do not diminish
 real scope merely to sound modest. Concrete activities, beneficiaries, constraints
 and decisions can make a contribution clear without a statistic.
 
+Keep credit attached to its recipient: funding, an institution's award and a team
+result are not the user's personal award or individual result. Describe the user's
+supported contribution separately. Preserve publication or patent status exactly
+as supported, such as published, under review or internal; never promote author
+position or imply a later status without evidence.
+
 Ask: what supported work connects these experiences, what differs between them,
 and why does this matter for the present role? Avoid inventing a seamless career
 arc, reasons for a move or a longstanding personal mission.
