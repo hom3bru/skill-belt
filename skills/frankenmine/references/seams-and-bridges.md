@@ -42,7 +42,7 @@ Prefer an in-process modular monolith. Add a process, service, database or orche
 | rpc | A remote boundary is justified | Process terms plus auth, deadlines, duplicates/reordering and side effects (checked) |
 | wasm | Toolchain, platform and host capabilities fit | Bindings, resources, host grants, conversion and budgets |
 | reimplementation | Behavior is understood and the rights route fits | `basis`: code (rewritten from the source) or idea; independent requirements and oracles; intentional deviations |
-| pattern-only | A schema, test or operating lesson carries the gain | Provenance, adaptation assumptions, falsifier; no deltas |
+| pattern-only | A schema, test or operating lesson carries the gain | Provenance, adaptation assumptions, falsifier; no deltas. The seam is `seam.evidence` plus `seam.adaptation`; other dimensions are optional |
 | defer | Unknown semantics, rights or cost dominate | Exact blocker and reopening evidence |
 
 The helper enforces the process and rpc protocol rows and, for every route, the rights that route needs. Review alone checks the other extra contracts.

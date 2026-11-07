@@ -21,7 +21,10 @@ def fixture(root, two_recipients=False):
     recipient.mkdir()
     (recipient / "entry.py").write_text("def send(payload):\n    return client.send(payload)\n", encoding="utf-8")
     run = root / "run"
-    record = aa.init_run(run, [str(donor)], ["target", "target2"] if two_recipients else ["target"])
+    record = aa.init_run(run, [str(donor)], ["target", "target2"] if two_recipients else ["target"], schema_version=2)
+    # These pre-v2 checks exercise the legacy contract; gate controls use explicit schema-2 fixtures.
+    record["schema_version"] = 1
+    record.pop("report_format", None)
     record["request"] = "Evaluate the documented retry pattern for target's sender."
     record["host"]["name"] = "unit-test"
     record["sources"][0].update(revision=aa.digest(donor.read_bytes()), kind="docs")

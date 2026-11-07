@@ -1,0 +1,10 @@
+{
+  "user_name": "<user_name>",
+  "user_handle": "<user_handle>",
+  "research_root": "<research_root>",
+  "palette_home": "<palette_home>",
+  "plans_dir": "<plans_dir>",
+  "cp_home": "<cp_home>",
+  "projects_root": "<projects_root>",
+  "notes": "Local preferences and context. Keep personal values outside this repository."
+}

@@ -816,6 +816,10 @@
           "type": "string",
           "minLength": 1
         },
+        "adaptation": {
+          "type": "string",
+          "minLength": 1
+        },
         "evidence": {
           "type": "array",
           "items": {
@@ -824,19 +828,6 @@
           }
         }
       },
-      "required": [
-        "exports_consumers",
-        "closure",
-        "initialization",
-        "state_transactions",
-        "resources_lifetime",
-        "concurrency_cancellation",
-        "errors_retries",
-        "serialization",
-        "permissions_effects",
-        "tests",
-        "licensing"
-      ],
       "additionalProperties": false
     },
     "protocol": {

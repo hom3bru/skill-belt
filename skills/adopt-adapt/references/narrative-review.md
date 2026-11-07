@@ -1,8 +1,7 @@
 # Case-local narrative review
 
-Use before publishing a source assessment, especially a batch or verifier review.
-This is a short entailment check, not another mandatory scoring system. Read the
-decisive source lines and actual request; do not infer them from a previous case.
+Before publishing, check the assessment against this case's decisive source lines
+and actual request, especially for batches or verifier reviews.
 
 1. **Choose and name the output mode.** A bounded manual review may say `READY
    (manual assessment); machine validation not run`. Its inline queue is enough;
@@ -17,13 +16,14 @@ decisive source lines and actual request; do not infer them from a previous case
    facts. Reuse empty field names, not another case's paragraphs. An argument may
    compare another queued donor when relevant; it may not borrow another
    recipient's behavior, permission, or state. The helper checks evidence subject
-   relationships; a reviewer still checks whether the words follow from them.
+   relationships. For assumption-mismatch, cite the donor precondition and
+   conflicting recipient fact. Explain whether restoring that precondition changes
+   the assessed mechanism or recipient contract. Assess a distinct workaround
+   separately. Ground re-expression obligations in the reuse route and rights.
 
-3. **Separate instructions, claims and wiring.** `Run python verify.py` is a
-   suggested invocation. `Can be used before merging` describes possible use.
-   Neither asserts that CI calls it, nor proves it ran. An absent runner remains
-   UNKNOWN, not CLAIMED wiring. Call something CLAIMED only when the donor
-   actually asserts that capability, and identify the assertion.
+3. **Separate instructions, claims and wiring.** Trace WIRED separately for donor
+   and recipient (§4). Suggested invocations prove neither CI wiring nor execution.
+   An absent runner is UNKNOWN. CLAIMED needs a cited donor assertion.
 
 4. **Preserve the exact permission scope.** Distinguish forbidden, authorized but
    unrun, and unrequested/unrun actions. `Do not run donor scripts` does not mean
@@ -52,3 +52,5 @@ Practical final check: do the mechanism names, receiving seam, runtime caveats,
 permissions and completion labels all describe this case? If a statement has no
 support, remove it or label the missing evidence. No wording matcher certifies
 this semantic review, and no correct-looking verdict excuses a wrong ledger.
+
+For social inputs, apply [source intake](source-intake.md): account for every substantive linked artifact and each selected recipient. A read post or a failed fetch is not completed underlying-source coverage. Check every negative judgment for an intent/purpose/domain/language shortcut; require a concrete mechanism/recipient reason. Existing instruction-word budgets govern this skill's own loads, never donor selection or a recipient's permissible implementation size.

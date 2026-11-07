@@ -6,7 +6,7 @@ import re
 import stat
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason")
+NAMES = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason", "deep-dive")
 
 
 def files(root):

@@ -18,3 +18,6 @@ user-context.json
 user-context.local.json
 *.local.json
 packets/
+
+# Local identity profiles never ship.
+skill-belt-profile.json

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 
@@ -116,6 +117,12 @@ class PublicationTests(unittest.TestCase):
         (self.root / "README.md").write_text("[missing](absent.md)", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "Broken/escaping"):
             verify.structure()
+
+    def test_skill_entrypoint_overlay_is_not_an_installed_entrypoint(self):
+        overlay = self.root / "public-overlays/jobscura/SKILL.md"
+        overlay.parent.mkdir(parents=True)
+        overlay.write_text("# Reviewed entrypoint overlay\n", encoding="utf-8")
+        self.assertGreater(verify.structure(), 0)
 
     def test_undeclared_nested_skill_is_rejected(self):
         extra = self.root / "skills/carrier-pigeon/skills/co-stray"
@@ -451,6 +458,19 @@ class BuildTests(unittest.TestCase):
     def assert_public_copy_unchanged(self):
         self.assertEqual(tree(self.public), self.before)
         self.assertFalse((self.root / self.build.STAGING_NAME).exists(), "staging directory left behind")
+
+    def test_profile_leak_blocks_both_build_modes_before_replacement(self):
+        home = self.outside / "home"
+        profile = home / ".claude/skill-belt-profile.json"
+        profile.parent.mkdir(parents=True)
+        profile.write_text(json.dumps(dict(user_name="SyntheticOwner")), encoding="utf-8")
+        entrypoint = self.canonical / "SKILL.md"
+        entrypoint.write_bytes(entrypoint.read_bytes() + b"Owner SyntheticOwner\n")
+        for check_only in (True, False):
+            with self.subTest(check=check_only), patch.object(Path, "home", return_value=home):
+                with self.assertRaisesRegex(ValueError, "Local profile deny-list match"):
+                    self.build.build({"frankenmine": self.canonical}, root=self.root, check=check_only)
+                self.assert_public_copy_unchanged()
 
     def test_excluded_file_is_absent_from_output(self):
         report = self.run_build()

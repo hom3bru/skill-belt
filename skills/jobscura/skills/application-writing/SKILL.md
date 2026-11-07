@@ -68,3 +68,5 @@ out of employer-facing copy unless the question specifically asks for them. Save
 or edit through an available authorized tool when requested; otherwise provide the
 work directly without inventing persistence. Drafting does not authorize sending,
 submitting or contacting an employer.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

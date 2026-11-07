@@ -1,4 +1,10 @@
-# adopt-adapt r18: scoped verification
+# Current and historical adopt-adapt verification
+
+The local release advances the edition to `3.0.0-grok-draft.r24.2` with Palette logging and a local-profile reference. Its current package and helper gates are recorded in the release receipts. Formal behavior and multi-host qualification remain incomplete. The r18 evidence below applies to the exact earlier bytes and host conditions it names.
+
+## Historical r18 evidence
+
+# Historical adopt-adapt r18: scoped verification
 
 Published edition: `3.0.0-grok-draft.r18`, from canonical commit `4d3322dd52e6ff2057ac53e22b0267ac6f0a736e`. The tested canonical package remains unchanged. The public source additionally retains the concurrent base's anonymous owner labels in SKILL.md and the SELF profile, and its two structural ownership-privacy tests. The declared overlays, omissions and regenerated manifest then produce the public edition; proprietary terms are preserved. The skill retains DRAFT status and incomplete formal multi-host qualification.
 
@@ -14,7 +20,7 @@ The collection's required `python -B scripts/verify.py` checks this public editi
 
 The original failures had two concrete causes: Carrier Pigeon co-skill metadata still declared `0.15.0` while the parent declared `0.15.1`, and Windows short-path aliases were compared using inconsistent canonicalization. Commit `7935abe` synchronizes the metadata and uses native path resolution for repository, run and existing-worktree roots. Its regressions cover short/long alias equivalence, resume behavior, subdirectory/containment/link rejection, UTF-8/binary publication and inherited environment isolation. The portable Git/fixture corrections remain intact; no assertion or test was weakened to obtain a pass.
 
-PR #1 incorporates those fixes and the current six-toolkit base `8869d6759031850f6f3b73df0d659b4afc0daafc`. All five other toolkit trees are preserved exactly from that base. The focused repository suite passes all 20 tests. Full collection CI for integrated code `fa5b104df6b2100da27d276390138f0d3796a16e` passes on [Ubuntu and Windows](https://github.com/hom3bru/skill-belt/actions/runs/41554070430). The complete local verifier also passes all 11 stages with the documented Windows symlink exception: adopt-adapt collects 340 tests (339 passed, one skipped), and Carrier Pigeon passes all 330. The local command uses the documented `--timeout 1800` allowance for the busy Windows host; fixture assertions and per-test safeguards are unchanged. The original local timeout and failed hosted runs remain retained as historical evidence in the canonical research archive; they were not relabeled as passes. The pre-integration public adopt-adapt suite ran 339 tests, including one documented Windows skip. The build, 67 collection controls, 26 focused privacy/version/budget checks and manifest verification also passed before this follow-up.
+PR #1 incorporates those fixes and the current six-toolkit base `8869d6759031850f6f3b73df0d659b4afc0daafc`. All five other toolkit trees are preserved exactly from that base. The focused repository suite passes all 20 tests. Full collection CI for integrated code `fa5b104df6b2100da27d276390138f0d3796a16e` passes on Ubuntu and Windows (historical CI run `41554070430` in this repository). The complete local verifier also passes all 11 stages with the documented Windows symlink exception: adopt-adapt collects 340 tests (339 passed, one skipped), and Carrier Pigeon passes all 330. The local command uses the documented `--timeout 1800` allowance for the busy Windows host; fixture assertions and per-test safeguards are unchanged. The original local timeout and failed hosted runs remain retained as historical evidence in the canonical research archive; they were not relabeled as passes. The pre-integration public adopt-adapt suite ran 339 tests, including one documented Windows skip. The build, 67 collection controls, 26 focused privacy/version/budget checks and manifest verification also passed before this follow-up.
 
 ## Initial native host results (2026-11-02)
 

@@ -46,6 +46,8 @@ ROUTING block (profiles, confidence, evidence)
 
 No bleed: a recipient's rule, flag, perimeter or rubric is applied only to that recipient. Refuse, for example: one recipient's egress or privacy perimeter applied to another; a no-dependency rule applied to a recipient whose dependency rule differs; one project's rule (such as deterministic extraction) applied lab-wide; a donor scored on another profile's rubric. Recipient-side claims cite only that recipient's files; `aa.py` rejects a `recipient_claims` id whose subject is another recipient, and rejects READY items for one source whose primary donor receipts differ.
 
+Preserve every selected recipient's assessment; a best-fit target does not replace the others. Intent, purpose, domain and language are discovery clues, never grounds to drop a source/recipient pair or apply a score penalty. Negative findings must name a concrete recipient need/assumption, mechanism limitation, evidence gap or actual transfer burden.
+
 Typical conflicts to surface, not resolve silently: an anti-detect crawler → algorithm-only ADAPT where a profile permits it vs not applicable where it forbids it; a Python library → attributed port where dependencies are frozen vs DISCARD where a new framework is banned; a hosted service → DISCARD everywhere unless a profile records it as already paid.
 
 ## 4. Output

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/hom3bru/skill-belt/tree/codex/skill-belt/skills/jobscura/context/user-context.schema.json",
+  "$id": "urn:skill-belt:jobscura:user-context:v1",
   "title": "Jobscura private user context v1",
   "description": "Private source context and preferences. Contains no action grants or credentials.",
   "type": "object",

@@ -31,6 +31,7 @@ For a small opportunity, give a concise finding and a testable next step. Use re
 - For source mechanisms and limits: [research.md](references/research.md).
 - For full requirements, contracts, alternatives, and roadmap: [design-spec.md](references/design-spec.md), when extending or reviewing this skill.
 - Skill lineage and process gaps: [skill-usage.md](references/skill-usage.md).
+- For personal values: [user-profile.md](references/user-profile.md).
 
 Do not load every reference by default.
 

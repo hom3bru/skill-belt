@@ -275,6 +275,24 @@ def norm_name(text):
     return " ".join(str(text).split()).casefold()
 
 
+def derived_independent_pairs(run):
+    """Selected pairs with no interaction record whose declared, non-empty touches share no key.
+
+    The rule an explicit `independent` record must meet, applied without the record: a pair that shares
+    a normalised key, or whose touches are missing or empty, still needs one."""
+    selected = sorted((c for c in run["candidates"] if c["phase"] in ("selected", "design-reviewed")),
+                      key=lambda c: c["id"])
+    recorded = {frozenset(x["components"]) for x in run["interactions"]}
+    pairs = []
+    for left, right in itertools.combinations(selected, 2):
+        if frozenset((left["id"], right["id"])) in recorded:
+            continue
+        keys = [{norm_key(k) for k in c.get("touches") or []} for c in (left, right)]
+        if all(keys) and not keys[0] & keys[1]:
+            pairs.append((left["id"], right["id"]))
+    return pairs
+
+
 _COMMIT = re.compile(r"^(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})$")
 _TAG_DIGEST = re.compile(r"^(?P<tag>[A-Za-z0-9][A-Za-z0-9._+/-]*)@sha256:[0-9a-f]{64}$")
 _FLOATING = frozenset(("main", "master", "head", "latest", "trunk", "develop", "dev", "default", "stable",
@@ -499,6 +517,12 @@ def check(run, root):
                 errors.append(cid + ": unestablished target requirement " + need)
         if run["mode"] == "design" and c["implementation"] != "not-started":
             errors.append(cid + ": design cannot claim implementation")
+        if c["route"] != "pattern-only":
+            # Only a pattern-only lesson may use the short seam; every other route records the full boundary.
+            missing = [d for d in SEAM_DIMENSIONS if d not in c["seam"]]
+            if missing:
+                errors.append(cid + ": route " + c["route"] + " needs every seam dimension; missing " +
+                              ", ".join(missing))
         if c["route"] == "defer" and c in selected:
             errors.append(cid + ": deferred route cannot be selected")
         if c["implementation"] in ("tested", "demonstrated"):
@@ -525,6 +549,10 @@ def check(run, root):
         for label, text in c["seam"].items():
             if label != "evidence" and text_issue(text):
                 errors.append(cid + ": unexplained seam field " + label + ": " + text_issue(text))
+        if c["route"] == "pattern-only" and "adaptation" not in c["seam"] and \
+                not all(d in c["seam"] for d in SEAM_DIMENSIONS):
+            errors.append(cid + ": pattern-only seam needs adaptation (the assumptions the pattern relied on in the "
+                          "donor, and why they hold in the product), or the full seam")
         seam_evidence = c["seam"].get("evidence", [])
         if not seam_evidence:
             errors.append(cid + ": seam lacks evidence links (add seam.evidence; schema 1.1)")
@@ -728,8 +756,9 @@ def check(run, root):
         elif test and len(pair) >= 3 and test["purpose"] != "integration":
             errors.append(label + ": a group interaction needs an integration test exercising every part together, "
                           "not the pairwise " + test["purpose"] + " test " + inter["test"])
+    derived = {frozenset(pair) for pair in derived_independent_pairs(run)}
     for pair in itertools.combinations(sorted(selected_ids), 2):
-        if frozenset(pair) not in covered:
+        if frozenset(pair) not in covered and frozenset(pair) not in derived:
             errors.append("missing interaction review: " + " / ".join(pair))
     # Higher-order sharing: a key touched by three or more selected parts needs one group record.
     touched = collections.defaultdict(set)
@@ -1205,6 +1234,8 @@ def report(run, errors, include_record=False):
         lines.append("- " + " / ".join(plain(c) for c in x["components"]) + ": " + plain(x["status"]) + " — " +
                      plain(x["rationale"]) + " (test: " + plain(x.get("test", "none")) + "; evidence: " +
                      joined(x.get("evidence", [])) + ")")
+    lines.extend("- " + plain(left) + " / " + plain(right) + ": independent (derived: declared touches are disjoint)"
+                 for left, right in derived_independent_pairs(run))
     review = run["global_review"]
     lines.append("- Global review — cycles: " + plain(review["cycles"]) + "; shared versions: " +
                  plain(review["shared_versions"]) + "; resource budget: " + plain(review["resource_budget"]) +

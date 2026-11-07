@@ -31,3 +31,5 @@ context is selected. Ask only for a missing fact that materially affects the wor
 Use the host's real source, document and automation tools. Jobscura includes no
 background scheduler and never establishes application submission, employer
 contact, durable storage or reminder delivery merely by describing a workflow.
+
+Resolve shared local paths through the [user profile](references/user-profile.md). Private application context still requires explicit selection.
