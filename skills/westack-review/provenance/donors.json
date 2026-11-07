@@ -1,0 +1,2856 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-review",
+  "reviewed": "2026-10-30",
+  "policy": "Ideas only; no donor text was copied. Each donor file was fetched as raw bytes at the exact pinned commit with an ordinary HTTPS request (no Firecrawl), saved outside the repository and read as data. Evidence depth for every idea is 'present' (read at the pin) unless the entry says 'claimed'; nothing from a donor was run, so nothing is 'wired' or 'tested'. Trail of Bits material is CC-BY-SA-4.0: ideas only. An n-gram check (runs of 12 or more matching words) compared this package with every fetched file. Records whose ref starts with 'deep:' were added on 2026-10-29 for the P1 adoption (1.0.0-alpha.4): each was read at its pinned commit in the 2026-10-28 deep reads (shallow clones of the pinned repositories, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. The policy above describes the earlier records; a deep: record says for itself how it was read. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. One more record (fy:, FY-6) was read at its pin by the addendum's author. More records (rt:, the review-tools addendum, 2026-10-30) were read at their pins by the addendum's author; the clones were not opened for this change, and Kodus (AGPL) is recorded as ideas only, never quoted.",
+  "usefulness_legend": {
+    "strong": "a main source of this skill's rules and structure (the builder's label)",
+    "useful": "supplied specific mechanisms (the builder's label)",
+    "minor": "one idea taken from a summary of a source that was not read for this package (the builder's label)"
+  },
+  "donors": [
+    {
+      "ref": "harness:plugins-code-review-validated-findings",
+      "system": "anthropics/claude-plugins-official code-review",
+      "licence": "Apache-2.0 (plugins/code-review/LICENSE, read)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/code-review/commands/code-review.md",
+          "sha256": "3f02ea6eed996590348264777b2e324859a6e2c0c5f7dd298617ea21deb3b1b2",
+          "bytes": 7329,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "every candidate finding is validated by its own separate agent before it counts; unvalidated ones are dropped"
+        },
+        {
+          "mechanism": "an explicit false-positive exclusion list: pre-existing, correct on reading, pedantic, linter territory, generic quality, silenced in code"
+        },
+        {
+          "mechanism": "a high-signal bar: flag what will fail, not what might depend on inputs"
+        },
+        {
+          "mechanism": "an empty result still names what was checked"
+        }
+      ],
+      "rejected": [
+        "'all tools work; do not test them': westack treats a tool failure as not assessed, never clean",
+        "skipping review for PRs judged trivial or automated: the scope is the user's call",
+        "posting inline comments when a flag is passed: posting needs an explicit grant for that action",
+        "naming model tiers per step: host-specific; the packet and the context matter, not the tier"
+      ],
+      "where": [
+        "references/rules.md (validation steps 2-6, exclusions 1, 2, 6, 7, 8, 10)",
+        "SKILL.md rule 3; references/every-mode.md rule 1"
+      ]
+    },
+    {
+      "ref": "harness:plugins-pr-review-toolkit-lenses",
+      "system": "anthropics/claude-plugins-official pr-review-toolkit",
+      "licence": "Apache-2.0 (plugins/pr-review-toolkit/LICENSE, read)",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/commands/review-pr.md",
+          "sha256": "5e70c17293a044e1bf9d092c80b5da8b4fd5802ebb07dc53993dec4ba7ce2fc4",
+          "bytes": 4997,
+          "read": "lines 1-80"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/agents/silent-failure-hunter.md",
+          "sha256": "fa9b0daec5a267e7e66435cc48b3328301fc9f70c3af259fe248881327a1babc",
+          "bytes": 7807,
+          "read": "headings and output format"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/agents/pr-test-analyzer.md",
+          "sha256": "fcb1cde9ba7b21694b508766a8d6a79bc91bed9982f828f816210059934f46b4",
+          "bytes": 4560,
+          "read": "fetched; not read for this package"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/agents/code-reviewer.md",
+          "sha256": "019395c3ce457460115cc703e2f4a86fed4bbe560dc58355051c4d877155d366",
+          "bytes": 3635,
+          "read": "fetched; not read for this package"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/agents/comment-analyzer.md",
+          "sha256": "4a9c1f2eb8234a4b9231983e75739663d512e1aed242388964a165a719b84698",
+          "bytes": 4925,
+          "read": "fetched; not read for this package"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/pr-review-toolkit/agents/type-design-analyzer.md",
+          "sha256": "c1cf67843d3c4fd27ddf6b24aa92521414b16c01610e7f7e87212c7b8681198d",
+          "bytes": 4999,
+          "read": "fetched; not read for this package"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "apply a lens only when the diff touches its subject (tests changed, error handling changed, types added)"
+        },
+        {
+          "mechanism": "the silent-failure lens: broad catches, defaults on error, fallbacks outside tests, retries that give up quietly"
+        },
+        {
+          "mechanism": "a test gap counts when it names the behaviour and the regression it would miss (via the westack (then called estack) coverage review's summary of pr-test-analyzer)"
+        }
+      ],
+      "rejected": [
+        "a 'positive observations' or strengths section: not evidence, and it pads the report",
+        "numeric 1-10 ratings as if they were measurements",
+        "a simplification pass inside review: review never edits"
+      ],
+      "where": [
+        "references/code.md section 4 (lenses)"
+      ]
+    },
+    {
+      "ref": "harness:codex-review-rubric",
+      "system": "openai/codex review rubric and review-agent sample skill",
+      "licence": "Apache-2.0 (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex/blob/26ad281fd1ca712e4f0c7920a6273cf18c961b8a/codex-rs/prompts/templates/review/rubric.md",
+          "sha256": "ec60e7f36a1d1c2679ce095c0205ecc56f7dd8fb57707a13ef362072390f219f",
+          "bytes": 7685,
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/openai/codex/blob/26ad281fd1ca712e4f0c7920a6273cf18c961b8a/codex-rs/skills/src/assets/samples/review-agent/SKILL.md",
+          "sha256": "07079efd0dc76f05fade424e5dfb048dce1de2df7626e1a4f56292a4f3f92228",
+          "bytes": 2661,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "flag only defects the change introduced, with a scenario demonstrated from the code"
+        },
+        {
+          "mechanism": "an effect elsewhere must name the code that is provably affected (affected-elsewhere provenance)"
+        },
+        {
+          "mechanism": "P0 to P3 priorities and the smallest line range that overlaps the diff"
+        },
+        {
+          "mechanism": "base-branch review compares against the merge-base, using the upstream when it is ahead"
+        },
+        {
+          "mechanism": "keep going after the first finding; 'no findings' is a valid result, never invent one"
+        },
+        {
+          "mechanism": "cite a repository rule to its smallest supporting line range"
+        }
+      ],
+      "rejected": [
+        "confidence_score as an output field: triage only, never evidence",
+        "an 'overall correctness' verdict: a verdict is not a check and cannot pass one"
+      ],
+      "where": [
+        "references/rules.md (finding contract, severity, exclusions 1, 4, 5)",
+        "references/code.md sections 1 and 5",
+        "scripts/diffscope.py (in-diff and affected-elsewhere verdicts)"
+      ],
+      "notes": [
+        "Not verified: whether rubric.md is loaded by the live Codex /review flow was not traced (as in the westack coverage review)",
+        "Second donor (2026-10-30): kodustech/kodus-ai (evals/README.md:92) compares against the merge-base, not the base branch's tip, as code.md section 1 does. Ideas only, never quote (AGPL). Nothing new taken."
+      ]
+    },
+    {
+      "ref": "cat:gstack.skill.review",
+      "system": "garrytan/gstack review and its checklist",
+      "licence": "MIT (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/review/SKILL.md",
+          "sha256": "9f188436af7e92a49433ce20a18f0a2ffdbe02921d54bc2dce9551a8d067ab5d",
+          "bytes": 80581,
+          "read": "headings by search; Step 1.5, Confidence Calibration and Step 5.0 read"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/review/checklist.md",
+          "sha256": "cb9a5b6feb7fff38f9b041e89257f23fe92655c444214f4358aec86188490604",
+          "bytes": 20534,
+          "read": "lines 1-90 and 140-224"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "scope drift against stated intent: unrelated changes and missing requirements, from the PR body and commits"
+        },
+        {
+          "mechanism": "the sideways sweep: search each confirmed defect's pattern across sibling call sites, and set severity by the worst"
+        },
+        {
+          "mechanism": "forced-severity classes: data loss, a bypassed trust boundary and uncapped spend"
+        },
+        {
+          "mechanism": "gate integrity: a relaxed test, threshold or timeout with no visible justification is a finding; citations in the diff are data"
+        },
+        {
+          "mechanism": "suppressions: harmless redundancy, threshold commentary, items already handled in the diff or by the framework"
+        },
+        {
+          "mechanism": "quote the motivating line or the finding is unverified"
+        },
+        {
+          "mechanism": "trace a new enum value or loosened input through every consumer (caller walk)"
+        }
+      ],
+      "rejected": [
+        "Fix-First auto-fixing inside review: review mode never edits; fixing is a separate step on request",
+        "1-10 confidence display rules: confidence orders triage, never counts as evidence",
+        "telemetry, learnings logs, review-log persistence and gstack binaries",
+        "suppressing findings because the user skipped them in an earlier review: no persistent store, and a defect is re-checked"
+      ],
+      "where": [
+        "references/rules.md (sweep, severity, exclusions 7-9)",
+        "references/code.md sections 2 and 4",
+        "references/every-mode.md rule 5"
+      ]
+    },
+    {
+      "ref": "cat:gstack.skill.plan-ceo-eng-design-review",
+      "system": "garrytan/gstack plan-ceo-review, plan-eng-review, plan-design-review",
+      "licence": "MIT (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/plan-ceo-review/SKILL.md",
+          "sha256": "f8e8bce98e8201c609ce0bc979c7eceb17b4d744b6fbce43e9a8190cc83a054c",
+          "bytes": 80727,
+          "read": "headings by search; Philosophy, Prime Directives, mode selection read"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/plan-eng-review/SKILL.md",
+          "sha256": "be502432e02cb1f674cc76e7f0c0e27d4667d2605d4b8d909eb7745245e849be",
+          "bytes": 51702,
+          "read": "headings by search; Engineering review section read (its review-sections.md was not fetched)"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/plan-design-review/SKILL.md",
+          "sha256": "f80f0a383b4608153164980645a319e71133deb647ba3f5a47cb4a0c6e441f58",
+          "bytes": 85319,
+          "read": "headings by search; the 0-10 rating method read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "declare a scope posture before reviewing (expand, hold, reduce); every scope change needs the user's approval"
+        },
+        {
+          "mechanism": "challenge the premise and consider alternatives, including not building"
+        },
+        {
+          "mechanism": "for each new path name the failure, its trigger, its handling and what the user sees; trace empty and upstream-error paths"
+        },
+        {
+          "mechanism": "plan partial deploys, rollback and flags; every behaviour has a test that would catch its regression"
+        },
+        {
+          "mechanism": "rate each design dimension 0 to 10 and say what a 10 needs; an accepted fix covers only that item"
+        }
+      ],
+      "rejected": [
+        "four postures with selective expansion: reduced to three",
+        "mandatory ASCII diagrams, plan-mode exit gates and the one-question-per-issue loop",
+        "visual mockup generation: that belongs to westack-design",
+        "the 'complete everything' principle: westack prefers the smallest sufficient change"
+      ],
+      "where": [
+        "references/document.md sections 2 and 4"
+      ]
+    },
+    {
+      "ref": "cat:superpowers.skill.requesting-and-receiving-code-review",
+      "system": "obra/superpowers requesting-code-review and receiving-code-review",
+      "licence": "MIT (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/requesting-code-review/SKILL.md",
+          "sha256": "2180e14a448e9410bec88e6646a2d1f0ce7fdd58de27388c1e052e929679d2bc",
+          "bytes": 2974,
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/requesting-code-review/code-reviewer.md",
+          "sha256": "82e370be6b3447523816286195571e4216ba56ba1ad6ad0e87862294c4c78dcb",
+          "bytes": 6449,
+          "read": "headings by search"
+        },
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/receiving-code-review/SKILL.md",
+          "sha256": "091df1629510af1b92fc4abd6f96732ebedb4cb2c0f3457e8f2740b0504a2438",
+          "bytes": 6203,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "the reviewer gets a crafted packet, never the author's session history"
+        },
+        {
+          "mechanism": "receiving feedback: restate, verify against the code, evaluate, then implement one item at a time and test each"
+        },
+        {
+          "mechanism": "clarify unclear items before implementing any of a related set"
+        },
+        {
+          "mechanism": "for 'implement it properly' requests, search for real usage first"
+        },
+        {
+          "mechanism": "push back with technical evidence; no performative agreement or thanks; correct a wrong pushback plainly"
+        },
+        {
+          "mechanism": "reply inside the comment thread"
+        }
+      ],
+      "rejected": [
+        "trusting feedback from the user's partner without verification: every comment is judged on its merits",
+        "Critical/Important/Minor labels: P0 to P3 with definitions instead",
+        "a mandatory review after every task: cadence belongs to build or orchestrate"
+      ],
+      "where": [
+        "references/resolve.md sections 2-5",
+        "references/rules.md validation step 2"
+      ]
+    },
+    {
+      "ref": "cat:trailofbits.skill.fp-check",
+      "system": "trailofbits/skills fp-check",
+      "licence": "CC-BY-SA-4.0 (repository LICENSE, read): ideas only, no text taken",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/trailofbits/skills/blob/bf23bfb21f10a2a4b0406086d690dc8cb1b3ccf3/plugins/fp-check/skills/fp-check/SKILL.md",
+          "sha256": "129223b79b8cb1e7c289c90cbe4ba288d9b210e318a0d1464f319e30329481b3",
+          "bytes": 6747,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "restate claim, root cause, trigger and impact before analysing; many false positives collapse there"
+        },
+        {
+          "mechanism": "shortcuts to reject while validating, including the bias toward seeing bugs and over-rating severity"
+        },
+        {
+          "mechanism": "restate every candidate first in a batch, then verify each independently"
+        }
+      ],
+      "rejected": [
+        "the security-only framing and exploit-chain analysis: those belong to westack-security",
+        "its reference files (not fetched) and any of its wording: share-alike licence"
+      ],
+      "where": [
+        "references/rules.md (validation step 1, the shortcuts paragraph, severity note)"
+      ]
+    },
+    {
+      "ref": "harness:qwen-review-pipeline",
+      "system": "QwenLM/qwen-code bundled review skill design notes",
+      "licence": "Apache-2.0 (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/b66711972c30fad510b1d3867e3142cbdc673595/packages/core/src/skills/bundled/review/DESIGN.md",
+          "sha256": "042bfe98d9f83a6cd439b449078280b76b05d3c8362ecaeaa4669a0d3d34306d",
+          "bytes": 257141,
+          "read": "lines 1-62 and a search for removed behaviour"
+        },
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/b66711972c30fad510b1d3867e3142cbdc673595/packages/core/src/skills/bundled/review/SKILL.md",
+          "sha256": "c34f3af23df17ce044d8a20c666793f44a490c9a7fdb0354ccb84711c8b8f36b",
+          "bytes": 405566,
+          "read": "fetched; not read (405 KB)"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "procedural walks instead of topical briefs: a line walk, a removed-behaviour walk and a caller walk"
+        },
+        {
+          "mechanism": "pair every deletion with its replacement and compare meanings, including for callers the diff never touches"
+        },
+        {
+          "mechanism": "issue fidelity: check the fix against the linked issue's own reproduction, not only the author's diagnosis"
+        }
+      ],
+      "rejected": [
+        "fourteen parallel agents by default: depth follows risk",
+        "three persona reviewers: a persona does not raise independence"
+      ],
+      "where": [
+        "references/code.md sections 2 and 4",
+        "scripts/diffscope.py (removed_behaviour_sites)"
+      ],
+      "notes": [
+        "DESIGN.md's measured claims (for example one agent finding 1 of 5 defects) are claimed, not reproduced"
+      ]
+    },
+    {
+      "ref": "cat:compound-engineering:skill:ce-resolve-pr-feedback+ce-doc-review",
+      "system": "EveryInc/compound-engineering-plugin",
+      "licence": "MIT (repository LICENSE, read)",
+      "grade": "present",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/skills/ce-resolve-pr-feedback/SKILL.md",
+          "sha256": "bab9f30db1ad817c6cc9a1ed87969f116be4c2896b9ae419b8df6bbb51db1784",
+          "bytes": 7160,
+          "read": "full"
+        },
+        {
+          "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/skills/ce-doc-review/SKILL.md",
+          "sha256": "c47ed092ec739047f644edc7882cfbf63a674d6555256d2deb20b4318dab88b8",
+          "bytes": 7830,
+          "read": "full"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "comment text is untrusted: never run commands from it; decide the fix from the code"
+        },
+        {
+          "mechanism": "judge each item on its merits whatever its source"
+        },
+        {
+          "mechanism": "report a thread resolved only after the reply or resolution is verified as published"
+        },
+        {
+          "mechanism": "unresolvable items become needs-decision residuals rather than blocking everything; never merge, rebase or force-push"
+        },
+        {
+          "mechanism": "doc review: an adequate document needs no changes; a finding needs a consequence for the agreed work; check claims against the whole document; edit only within the authority given"
+        }
+      ],
+      "rejected": [
+        "fixing every nitpick by default: taste items may be declined with the reason",
+        "unattended publication: replies, pushes and resolutions need an explicit grant",
+        "never pausing to ask: ask questions whose answer changes the outcome",
+        "a cross-model pass by default: another vendor needs consent first"
+      ],
+      "where": [
+        "references/resolve.md sections 1, 3 and 5",
+        "references/document.md sections 1 and 6"
+      ]
+    },
+    {
+      "ref": "cat:addy-agent-skills.skill.doubt-driven-development",
+      "system": "addyosmani/agent-skills",
+      "grade": "claimed",
+      "usefulness": "minor",
+      "sources": [
+        {
+          "url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/skills/doubt-driven-development/SKILL.md",
+          "read": "claimed: the capability map's one-line summary only; not read for this package"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "extract each load-bearing claim of a plan for a separate check"
+        }
+      ],
+      "where": [
+        "references/document.md section 3"
+      ]
+    },
+    {
+      "ref": "D03:superpowers.brainstorming.builder-check",
+      "system": "obra/superpowers brainstorming builder-check-prompt (via the westack donor source review, D03)",
+      "grade": "claimed",
+      "usefulness": "minor",
+      "sources": [
+        {
+          "url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/brainstorming/SKILL.md",
+          "read": "claimed: the donor source review's summary only; not re-read for this package"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "a fresh context reads only the design as a builder who cannot ask, lists its guesses, and the author sorts them"
+        }
+      ],
+      "where": [
+        "references/document.md section 5"
+      ]
+    },
+    {
+      "ref": "deep:affaan-m/ECC",
+      "system": "Everything Claude Code (ECC)",
+      "licence": "MIT, Copyright (c) 2026 Affaan Mustafa (LICENSE read). The repo also carries skills/osint-investigation/LICENSE.txt; no per-skill licence found on the skills read here.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/workflows/orch-review.workflow.js",
+          "sha256": "022d135de2ad3d82b42aafc9e243f64d0e8e72a0208ebd47ff45e81ee140c38d",
+          "bytes": 15513,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/commands/orch-review.md",
+          "sha256": "31b3f1bbd92fe47f093b9e87302c3aedffcf7fcb149a90f01b1ea585e9bdf990",
+          "bytes": 4560,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/scripts/hooks/config-protection.js",
+          "sha256": "f4483ddea01767a51349f57838904f87934cd3db2d42e94fd43ea370f93760fb",
+          "bytes": 8495,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/hooks/hooks.metadata.json",
+          "sha256": "714d313e37d463e9dd06210652967724fc2b3d91fa13622010652de7ff83cafc",
+          "bytes": 5961,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+          "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-02: A severe finding moves to advisory only when an independent verifier affirmatively shows it false at high confidence; uncertainty or an unrun verifier keeps it blocking, labelled.",
+          "grade": "wired",
+          "evidence": "workflows/orch-review.workflow.js:129-137,260-276; commands/orch-review.md:94-99",
+          "where": "SKILL.md; references/rules.md (validation)"
+        },
+        {
+          "mechanism": "SS-03: Findings from parallel reviewers are merged on a normalised evidence snippet, not title or line, keeping the strictest severity, and verification runs after the merge so duplicates cost one check.",
+          "grade": "wired",
+          "evidence": "workflows/orch-review.workflow.js:194-197,219-240",
+          "where": "references/rules.md (finding identity)"
+        },
+        {
+          "mechanism": "SS-12: Protect check-weakening files: existing linter and formatter configs, shared base configs and ignore files are not edited to make a check pass; first-time creation is allowed; errors fail closed.",
+          "grade": "wired",
+          "evidence": "scripts/hooks/config-protection.js:22-130,171-207; hooks/hooks.metadata.json:35-39",
+          "where": "references/code.md (Tests and gates lens)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-02, SS-03, SS-12 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/claude-code-action",
+      "system": "Claude Code GitHub Action (tag and agent modes, base-action, agent-approval-check)",
+      "licence": "LICENSE, read: MIT, Copyright (c) 2025 Anthropic, PBC. The action runs the closed Claude Code CLI, whose terms differ and were not read. Ideas only.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/agent-approval-check/agent_approval_check.py",
+          "sha256": "43b50380cd1e19e6fda0fa1a9573d64002ccfa2687e9339cc233141af18a5782",
+          "bytes": 66769,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/agent-approval-check/README.md",
+          "sha256": "5c33724ea8a38dcb865ac2080d88a71f23a2a334a2b211ff239391dcc3122b7c",
+          "bytes": 7391,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/src/entrypoints/post-buffered-inline-comments.ts",
+          "sha256": "70b27b0a027ee3915665c23e52591214dbb2d5b8ce27ee0e969ebc57eea13716",
+          "bytes": 6920,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/src/mcp/inline-comment-buffer.ts",
+          "sha256": "fa186710664089ec0280bedaf9b4f3cfa58bef6adcdad2beb0b143f687468b16",
+          "bytes": 1622,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-action/blob/d70510b174a1244958df0b03166a54912811f3e6/LICENSE",
+          "sha256": "cebdde8a8fb9ee59e5eaaed19578bf8085aa7047562259c31f38f225c26f6812",
+          "bytes": 1070,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: Fail closed on missing data: more than 100 commits counts as agent-authored, an empty fetch raises instead of passing, and any unhandled error leaves the required status unsatisfied.",
+          "grade": "wired",
+          "evidence": "agent-approval-check/agent_approval_check.py:17-26, 1277-1304, 1650-1660; agent-approval-check/README.md:113-115",
+          "where": "references/code.md; references/rules.md"
+        },
+        {
+          "mechanism": "EV-60: Model-made review comments are buffered, de-duplicated and posted once at the end; unconfirmed ones never post and a small model drops probes, but all post if it is down.",
+          "grade": "wired",
+          "evidence": "src/entrypoints/post-buffered-inline-comments.ts:1-11, 29-110, 180-208; src/mcp/inline-comment-buffer.ts:10-22",
+          "where": "references/every-mode.md (rule 6); SKILL.md (report); references/code.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-49, EV-60 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/claude-code-security-review",
+      "system": "Claude Code Security Reviewer (GitHub Action and /security-review command)",
+      "licence": "LICENSE, read: MIT, Copyright (c) 2025 Anthropic. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/findings_filter.py",
+          "sha256": "a18eb6a2112093a547a93bfe351691eb7a9866cfc2ffeee1b5d852da09a63d17",
+          "bytes": 15311,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/LICENSE",
+          "sha256": "a9ac868c004c4cce26430b3117767b46397ba4fa25026b1e5ea6694b463baf4b",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-02: Fail-safe filtering: if the model filter errors, the finding is kept with a default high confidence and a note, and a missing keep flag means keep.",
+          "grade": "present",
+          "evidence": "claudecode/findings_filter.py:271-274, 297-306",
+          "where": "SKILL.md; references/rules.md (validation)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-02 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/claude-plugins-official",
+      "system": "Claude Code official plugin marketplace (marketplace CI and policy, security-guidance, receipts, math-proof, hookify, plugin-dev)",
+      "licence": "Mixed. The repository LICENSE is Apache-2.0 and most plugins repeat it. The claude-security plugin is proprietary and bars use of any part of it with or to develop a non-Anthropic product: it is excluded, and nothing from it informed these records. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/security-guidance/README.md",
+          "sha256": "4245a186bb836dff56f0ab5c8453a5508bad9280b7893dfcc6a7d236e88da582",
+          "bytes": 13286,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-60: A review that could not run is announced: told once per session per failure kind, a later push re-checks the commit, and missing credentials are noted at most weekly.",
+          "grade": "present",
+          "evidence": "plugins/security-guidance/README.md:60, 146",
+          "where": "references/every-mode.md (rule 6); SKILL.md (report); references/code.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: harness:plugins-code-review-validated-findings, harness:plugins-pr-review-toolkit-lenses.",
+        "Supports adoption items EV-60 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/skills",
+      "system": "Anthropic Agent Skills examples (skill-creator eval and description-optimization loop, doc-coauthoring, mcp-builder)",
+      "licence": "Mixed. No repository-level LICENSE. The skills used here (skill-creator and similar) carry Apache-2.0 licence files; the docx, pdf, pptx and xlsx skills are source-available, were not read and are not used. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/doc-coauthoring/SKILL.md",
+          "sha256": "2e47d78846faeea4a56e9809c52700087a15a2155a3f293a3efbaded81398ef4",
+          "bytes": 15815,
+          "read": "partial",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-13: Reader testing: predict 5-10 reader questions, answer each with a fresh agent given only the document, run an ambiguity and contradiction check, and loop back to fix gaps.",
+          "grade": "present",
+          "evidence": "skills/doc-coauthoring/SKILL.md:242-286",
+          "where": "references/document.md (section 5, builder check)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-13 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:cloudflare/security-audit-skill",
+      "system": "cloudflare/security-audit-skill (skill: security-audit)",
+      "licence": "MIT (LICENSE read, Copyright 2025-2026 Cloudflare, Inc.)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/HUNTING.md",
+          "sha256": "71c121decea1322c47c718f6e110f1a892980bb4266bd7ac55ef043a213ade09",
+          "bytes": 22446,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/VALIDATION-AND-REPORTING.md",
+          "sha256": "b892470cb89bb31f33403e050d4bdfbe2cdaef940ade1496fa65e32b2e129449",
+          "bytes": 17843,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/validate-findings.cjs",
+          "sha256": "e85f232e36bfac0f866f244da50376692d6b45c690beadcb00608b0e6c8b5283",
+          "bytes": 28806,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+          "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+          "bytes": 22026,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/RECONNAISSANCE.md",
+          "sha256": "02ca887aca84de8ae137f1891bd2f0a54f28d3fa6da92a27f54734382b3381a2",
+          "bytes": 15902,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+          "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+          "bytes": 1078,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-03: One fingerprint names a source-derived root cause in every state and run. It never contains line, wave, agent, severity or verdict; verifiers return the same one unless the cause differs.",
+          "grade": "wired",
+          "evidence": "HUNTING.md:151-156; VALIDATION-AND-REPORTING.md:89; validate-findings.cjs:485-505",
+          "where": "references/rules.md (finding identity)"
+        },
+        {
+          "mechanism": "SS-04: Rejected records are kept so later runs do not repeat an unsupported claim. A rejection suppresses only that exact unchanged claim, never review of its unit; changed evidence reopens it.",
+          "grade": "wired",
+          "evidence": "VALIDATION-AND-REPORTING.md:101; SKILL.md:102; RECONNAISSANCE.md:68",
+          "where": "references/rules.md (settled findings)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-03, SS-04 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:edonadei/caliper",
+      "system": "edonadei/caliper (caliper-eval, Python CLI)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Emrick Donadei)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0029-every-step-runs-under-the-same-rules.md",
+          "sha256": "75e43707493e7e00d575ea6784264e8f9e80fb00be8476a73e14a224e9223d15",
+          "bytes": 2401,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/LICENSE",
+          "sha256": "b2075a7c452faf779e0522579eb07b896b16090363d03c09884d222a55807ee9",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: Every spec-author step runs under one rule set: fixed per-phase time limits as constants, a cancelled step is dropped as a non-result, and evidence keeps the tail of merged output.",
+          "grade": "present",
+          "evidence": "docs/adr/0029-every-step-runs-under-the-same-rules.md:11-48",
+          "where": "references/code.md; references/rules.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-49 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:google/elephant-goldfish-model",
+      "system": "Elephant-Goldfish Model (EGM)",
+      "licence": "Apache-2.0 (LICENSE read: standard Apache License 2.0 text, 11,560 bytes). README states 'not an officially supported Google product'. No riders.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/skills/egm-review-loop/SKILL.md",
+          "sha256": "d99803ad5bf99900e9548491f6ad1ab58a9488bbf7af79f67ead033bb48b7023",
+          "bytes": 9770,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/agents/synthesizer.md",
+          "sha256": "402e661fa44684ce51246575d169f65003981846f318cf13cf124c8895b4ccab",
+          "bytes": 4450,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/skills/egm-review/SKILL.md",
+          "sha256": "5e96e3b586a086c7c87b4f0185303a49adc9486028134d258827e9bbfb89e986",
+          "bytes": 22497,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/docs/designs/review.md",
+          "sha256": "d8d2b680c76073d58522db07f7ff5c54772fa259eb421395555e2187201fadf3",
+          "bytes": 11813,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/agents/comprehension.md",
+          "sha256": "974f4972f717dc7b102a9b1407b3a625749149f2ae905727241e919f43cc3fa5",
+          "bytes": 4748,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-60: A reviewer that times out, fails or returns nothing is 'not run', retried once, never zero findings; a missing per-reviewer status also means not run; the round is not clean.",
+          "grade": "wired",
+          "evidence": "skills/egm-review-loop/SKILL.md:132-136,161-164; agents/synthesizer.md:40,49-53,65",
+          "where": "references/every-mode.md (rule 6); SKILL.md (report); references/code.md (section 3)"
+        },
+        {
+          "mechanism": "SS-03: Re-find the review target each round by a stable header anchor, not remembered line numbers; findings get stable ids reviewer-round-n; one re-audit per stage, then accepted trade-offs.",
+          "grade": "present",
+          "evidence": "skills/egm-review-loop/SKILL.md:101-107,128-131; skills/egm-review/SKILL.md:252-256",
+          "where": "references/rules.md (finding identity)"
+        },
+        {
+          "mechanism": "SS-04: Settled/fixed ledger: contested or accepted findings stay settled; a fixed finding re-raised re-opens; converge after two consecutive clean rounds; cap five; churn escalates to the human.",
+          "grade": "wired",
+          "evidence": "skills/egm-review-loop/SKILL.md:149-173; docs/designs/review.md:164-174",
+          "where": "references/rules.md (settled findings)"
+        },
+        {
+          "mechanism": "SS-13: Paraphrase-first comprehension reviewer: restate what the document proposes and how the existing system works; failure to paraphrase a section is a blocker; the paraphrase is kept.",
+          "grade": "wired",
+          "evidence": "agents/comprehension.md:37,57-62; skills/egm-review/SKILL.md:326-337",
+          "where": "references/document.md (section 5, builder check)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-60, SS-03, SS-04, SS-13 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (google); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:NVIDIA/SkillEvaluator",
+      "system": "NVIDIA/SkillEvaluator 0.6.0",
+      "licence": "Apache-2.0 (pyproject.toml, NOTICE and SPDX headers read; third-party notices separate)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/docs/tier3-live-evaluation.mdx",
+          "sha256": "8536fcb3d3421e393d56389ce2650d3f1bfece35682e80b213c8911eeb9fe78a",
+          "bytes": 48992,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/docs/tier1-validation.mdx",
+          "sha256": "b3290ff363a37aa6143d68447a6bf0187d52eb4d3e7afc25c6c89b39a90359b1",
+          "bytes": 29754,
+          "read": "partial",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: Judge evidence is a bounded bundle added in priority order with an omitted record (count, truncated, reason), led by a deterministic observed or not-observed list for quoted snippets.",
+          "grade": "present",
+          "evidence": "docs/tier3-live-evaluation.mdx:613-642",
+          "where": "references/code.md; references/rules.md"
+        },
+        {
+          "mechanism": "SS-01: A model verifier may downgrade a high-confidence false positive to INFO, which stays visible with verification metadata; a model stage cannot replace static findings or make missing evidence pass.",
+          "grade": "present",
+          "evidence": "docs/tier1-validation.mdx:86,179",
+          "where": "SKILL.md (rule 3, report); references/rules.md (validation steps 5 and 6)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-49, SS-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:NVIDIA/SkillSpector",
+      "system": "NVIDIA/SkillSpector 2.12.0",
+      "licence": "Apache-2.0 (LICENSE and pyproject.toml read; SPDX headers in sources checked)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/docs/ANALYSIS_RESOURCE_BOUNDS.md",
+          "sha256": "55bc4f025cbe663cc60c6e3cd471c08ff87e5119ac147429f371c5f0a487e799",
+          "bytes": 20535,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/src/skillspector/inspection_ledger.py",
+          "sha256": "ffa23b49f0d0ecdde5db548565e7a5672de78133da47081d0ad95ac19e84b10f",
+          "bytes": 49285,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/docs/SUPPRESSION.md",
+          "sha256": "07d2df61abb6b17307387f1952a97a2e7a49c6d40d23f0c7072555a0bcd6b92a",
+          "bytes": 10914,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/.skillspector-baseline.example.yaml",
+          "sha256": "da22b33ae8a6db1514c5bb051b0e861406cb5f36cf37ba36c01eb6cfdc942980",
+          "bytes": 1711,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/LICENSE",
+          "sha256": "9f8785b47596b2993a17a3fa8d747ae63126a2c5e80a9e77195a907273d71839",
+          "bytes": 10782,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: A limit reached means incomplete, never success. Output truncation adds its own output_limit row, and a truncated ledger cannot restore success because the canonical inventory owns each item's disposition.",
+          "grade": "wired",
+          "evidence": "docs/ANALYSIS_RESOURCE_BOUNDS.md:298-336; src/skillspector/inspection_ledger.py:971-991",
+          "where": "references/code.md; references/rules.md"
+        },
+        {
+          "mechanism": "SS-01: Every suppression needs a recorded reason. Suppressed findings leave the score but stay in JSON and SARIF, and appear in reports on request.",
+          "grade": "wired",
+          "evidence": "docs/SUPPRESSION.md:8-16,96-118; .skillspector-baseline.example.yaml:10-38",
+          "where": "SKILL.md (rule 3, report); references/rules.md (validation steps 5 and 6)"
+        },
+        {
+          "mechanism": "SS-01: Deterministic findings are primary evidence: the model-based meta stage may annotate them but cannot select them out, and each finding must trace to exactly one producing work item.",
+          "grade": "wired",
+          "evidence": "src/skillspector/inspection_ledger.py:840-901",
+          "where": "SKILL.md (rule 3, report); references/rules.md (validation steps 5 and 6)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-49, SS-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:open-gsd/gsd-core",
+      "system": "open-gsd/gsd-core (successor lineage of get-shit-done)",
+      "licence": "MIT, Copyright (c) 2026 Open GSD (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/gsd-core/workflows/plan-review-convergence.md",
+          "sha256": "0ffef2e4ae27966f485326f017312a42ed153d8da0f29cf49abb81ac32393798",
+          "bytes": 37703,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/LICENSE",
+          "sha256": "3a160aec61eeb28e75e8017346ee190db07986a09c4bd72555cc706f1d99e27e",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-01: A suppressed finding is never dropped: it stays listed, tagged single-reviewer unconfirmed; reviewers without source access carry a discount marker, and an all-discounted cycle cannot manufacture convergence.",
+          "grade": "present",
+          "evidence": "gsd-core/workflows/plan-review-convergence.md:260-266",
+          "where": "SKILL.md (rule 3, report); references/rules.md (validation steps 5 and 6)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:openai/codex-plugin-cc",
+      "system": "openai/codex-plugin-cc",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; copyright 2026 OpenAI)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/scripts/lib/git.mjs",
+          "sha256": "0f7489e662c952f7be2fa81d53cae2ec9eb15415dc58977a5e3c1bdb845f2114",
+          "bytes": 11800,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/LICENSE",
+          "sha256": "e591c02a0b2ea7717d99e15bd51ea05d879bbf5a4452d66d15b51a7107d3821a",
+          "bytes": 10944,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: Packaging untracked files for review: skip over 24 KiB, binaries, directories and broken symlinks, and write each skip reason into the input; git arguments never pass through a shell.",
+          "grade": "present",
+          "evidence": "plugins/codex/scripts/lib/git.mjs:11-14,197-223",
+          "where": "references/code.md; references/rules.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-49 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:QwenLM/qwen-code",
+      "system": "Qwen Code (differences from Gemini CLI: subagents, skills, approval modes)",
+      "licence": "Apache-2.0 (LICENSE read: standard Apache License 2.0 text, 11,361 bytes). No riders seen.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/61b7fdb1f953ed704612073897239c26fca46192/docs/design/2026-10-02-csi-receipt-checkpoint-evidence.md",
+          "sha256": "af7308f02fc3481f6638b00e1c4f7c5b0ce8e62adfdc4ec221a04b152867a527",
+          "bytes": 13871,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/QwenLM/qwen-code/blob/61b7fdb1f953ed704612073897239c26fca46192/LICENSE",
+          "sha256": "55367b61ccd2a016a0159ad886bd66a3ee6cb5e873d0c75c803c897dd245b075",
+          "bytes": 11361,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-49: Bounded scans report incomplete rather than absence: truncation, missing rows, unsupported formats and incomplete enumeration return an explicit unresolved result, never a partial success.",
+          "grade": "present",
+          "evidence": "docs/design/2026-10-02-csi-receipt-checkpoint-evidence.md:60-64,107-117,140-142",
+          "where": "references/code.md; references/rules.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: harness:qwen-review-pipeline.",
+        "Supports adoption items EV-49 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (google); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:rainlanguage/adversarial-mutation-test",
+      "system": "rainlanguage/adversarial-mutation-test (skill 0.34.0 and a Rust mutation-probe)",
+      "licence": "Ideas only (restrictive). DecentraLicense 1.0, a custom strong-copyleft licence; GitHub reports NOASSERTION. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/skills/adversarial-mutation-test/SKILL.md",
+          "sha256": "a919036621109fec26fe2bdfcfefb4b45ce23f51e7be857b4acda7f0a0c828bf",
+          "bytes": 15050,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/LICENSE",
+          "sha256": "e945453aac226261fc2cd0351cf9ac817343a52a8ff0b731e22765a62196b9f7",
+          "bytes": 17901,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-01: A worker's an all-clear report is input to audit, not a verdict. Union, never vote: every surfaced candidate enters triage, refutations are notes, ambiguity is flagged.",
+          "grade": "present",
+          "evidence": "SKILL.md:129-133,185-193",
+          "where": "SKILL.md (rule 3, report); references/rules.md (validation steps 5 and 6)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:web:palantir.com/evals-as-the-substrate-for-sovereign-ai",
+      "system": "Palantir whitepaper 'Evals as the Substrate for Sovereign AI' (24 pages, vendor paper)",
+      "licence": "Ideas only (© 2026 Palantir, all rights reserved; the paper calls itself proprietary and confidential. Palantir hosts it and one of its staff shared it publicly, so it is not leaked). Nothing quoted or copied.",
+      "grade": "claimed",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "P-2: A user's accept, edit or reject of a proposal is a decision worth capturing, and the delta between the proposal and what was kept is the learning signal; acceptance does not show the change was right.",
+          "grade": "claimed",
+          "evidence": "Summarised under the assessment's 'What they say' section for the Evals paper; the idea is the assessment's table row P-2.",
+          "where": "SKILL.md (3. Report)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items P-2 (westack-research/2026-10-29-palantir-whitepapers.md (outside the repository), SHA-256 c4f64e356a600f28dd4217e86c1a87e603a04ab905fdd32026462245a8013f0e, 5708 bytes).",
+        "Licence status: ideas-only (all rights reserved). Never quote this source.",
+        "Evidence level: claimed. A vendor paper whose customer stories are qualitative, without measured setups. The assessment's author read the paper in full on 2026-10-29; this change was written from that assessment, not from the PDF, which was not fetched again.",
+        "Web document read by the assessment, not a pinned repository file: palantir.com/assets/…/Evals_as_the_Substrate_for_Sovereign_AI.pdf (the assessment elides the middle of the path), 24 pages, SHA-256 beginning b6625753d8ba924d (the assessment records only these 16 hex characters), 343865 bytes, PDF metadata date 2026-10-24.",
+        "Found through https://x.com/chadwahl/status/2115773925476962518, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/chadwahl/status/2115773925476962518 (a copy, not the original); its author works at Palantir."
+      ],
+      "no_source_reason": "Vendor PDF, not a repository file, so there is no commit to pin; the assessment's record of its path, SHA-256 prefix and byte count is in notes."
+    },
+    {
+      "ref": "p2:adr/madr",
+      "system": "MADR (Markdown Architectural Decision Records) 4.0.0 plus the project's own decision records",
+      "licence": "Ideas only (conservative). The repository is dual-licensed MIT or CC0-1.0 (both texts read), but GitHub reports no recognised licence file and the deep read graded its mechanisms ideas-only. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/template/adr-template.md",
+          "sha256": "940d45674563e0a2c6e96b4741b2778b18fdf0d5df1f47cc2a27a841d1b5ea82",
+          "bytes": 3527,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/docs/decisions/0014-allow-neutral-arguments.md",
+          "sha256": "b49906be9c0cbe9424027cff0184955d84ee85e6bb1f4318fad47f4c452c1c50",
+          "bytes": 2256,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/docs/decisions/0012-use-curly-braces-to-denote-placeholder.md",
+          "sha256": "232c401b9607b98cd055ae45983971ef35034ab274a142b42406bf428548bce2",
+          "bytes": 1907,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE",
+          "sha256": "cb9c3a276eb7991be197e401ae38d035f0f0efae425c21f499393f51c9b29ffd",
+          "bytes": 15,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-15: The record names its decision drivers (forces, constraints, wanted qualities) apart, and the outcome says which driver or knock-out criterion the chosen option satisfies, in a fixed sentence form.",
+          "grade": "present",
+          "evidence": "template/adr-template.md:16-21,30-32",
+          "where": "references/document.md (section 4, engineering lens)"
+        },
+        {
+          "mechanism": "WB-15: Each considered option keeps its own good, neutral and bad because-lines, neutral meaning an argument weighing neither way, so a rejected option's reasons stay on record with the chosen one's.",
+          "grade": "present",
+          "evidence": "template/adr-template.md:47-68; docs/decisions/0014-allow-neutral-arguments.md:1-62",
+          "where": "references/document.md (section 4, engineering lens)"
+        },
+        {
+          "mechanism": "WB-20: Template placeholders use curly braces, distinct from guidance comments, because users left bracketed template text in finished records (for example a date left inside square brackets); an unfilled placeholder is a mechanically detectable defect.",
+          "grade": "present",
+          "evidence": "docs/decisions/0012-use-curly-braces-to-denote-placeholder.md:21-58",
+          "where": "references/document.md (section 6)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-15, WB-20 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:affaan-m/ECC",
+      "system": "Everything Claude Code (ECC)",
+      "licence": "MIT, Copyright (c) 2026 Affaan Mustafa (LICENSE read). The repo also carries skills/osint-investigation/LICENSE.txt; no per-skill licence found on the skills read here.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/workflows/orch-review.workflow.js",
+          "sha256": "022d135de2ad3d82b42aafc9e243f64d0e8e72a0208ebd47ff45e81ee140c38d",
+          "bytes": 15513,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+          "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-06: Severe findings must carry proof: the output schema requires a proof field for HIGH and CRITICAL, so an unsupported blocker cannot be emitted.",
+          "grade": "wired",
+          "evidence": "workflows/orch-review.workflow.js:63-96,118",
+          "where": "scripts/diffscope.py (findings); references/rules.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:affaan-m/ECC.",
+        "Supports adoption items SS-06 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-code-security-review",
+      "system": "Claude Code Security Reviewer (GitHub Action and /security-review command)",
+      "licence": "LICENSE, read: MIT, Copyright (c) 2025 Anthropic. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/findings_filter.py",
+          "sha256": "a18eb6a2112093a547a93bfe351691eb7a9866cfc2ffeee1b5d852da09a63d17",
+          "bytes": 15311,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/github_action_audit.py",
+          "sha256": "943e1c5afd7a72d6a481faca1e043432854170127e6b0dc309e30a63755be9ea",
+          "bytes": 25341,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/docs/custom-filtering-instructions.md",
+          "sha256": "4eb9e647c5fcb3ef803f42916561794ec9b324f273459cba8e8d9c5ddcaff506",
+          "bytes": 2469,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/examples/custom-false-positive-filtering.txt",
+          "sha256": "f00fe84a8f5e8378b9ed5a6f508faadd91877864c911965bfc410684faed8246",
+          "bytes": 1971,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/LICENSE",
+          "sha256": "a9ac868c004c4cce26430b3117767b46397ba4fa25026b1e5ea6694b463baf4b",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-66: Excluded findings are never dropped silently: each is kept in the output with its stage, reason and justification, beside counts by stage and an exclusion breakdown.",
+          "grade": "wired",
+          "evidence": "claudecode/findings_filter.py:237-247, 280-287, 318-338; claudecode/github_action_audit.py:617-630",
+          "where": "SKILL.md (report); references/rules.md (validation step 5)"
+        },
+        {
+          "mechanism": "SS-11: Filter rules live in a version-controlled file in three sections (hard exclusions, signal-quality questions, precedents); docs advise documenting why each exclusion exists and having security review changes.",
+          "grade": "present",
+          "evidence": "docs/custom-filtering-instructions.md:20-47; examples/custom-false-positive-filtering.txt:1-33",
+          "where": "references/rules.md (review-rules file)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:anthropics/claude-code-security-review.",
+        "Supports adoption items EV-66, SS-11 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-plugins-official",
+      "system": "Claude Code official plugin marketplace (marketplace CI and policy, security-guidance, receipts, math-proof, hookify, plugin-dev)",
+      "licence": "Mixed. The repository LICENSE is Apache-2.0 and most plugins repeat it. The claude-security plugin is proprietary and bars use of any part of it with or to develop a non-Anthropic product: it is excluded, and nothing from it informed these records. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/security-guidance/README.md",
+          "sha256": "4245a186bb836dff56f0ab5c8453a5508bad9280b7893dfcc6a7d236e88da582",
+          "bytes": 13286,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-11: A project policy file feeds the review prompt under a size budget; truncation keeps user-wide rules and drops project-local ones first; an inline justification counts as an exclusion.",
+          "grade": "present",
+          "evidence": "plugins/security-guidance/README.md:88-109, 150",
+          "where": "references/rules.md (review-rules file)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:anthropics/claude-plugins-official, harness:plugins-code-review-validated-findings, harness:plugins-pr-review-toolkit-lenses.",
+        "Supports adoption items SS-11 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:approvals/ApprovalTests.Python",
+      "system": "ApprovalTests.Python (approval testing, received versus approved files)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0). Its docs folder sits in the same repo and falls under that licence.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/inline/inline_options.py",
+          "sha256": "e469ebabf41bc4a6414291c6f306badc78e54e1ac5838800f1bafc85942c2311",
+          "bytes": 3522,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/reporters/reporter_that_creates_an_approval_script.py",
+          "sha256": "26b21c4e6776382da26a313cf31b5af874ceb99a2428b0e88c3d894eac1875fb",
+          "bytes": 1636,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/LICENSE",
+          "sha256": "73ba74dfaa520b49a401b5d21459a8523a146f3b7518a833eea5efa85130bf68",
+          "bytes": 10273,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-05: Human gate written into the artifact: inline semi-automatic mode rewrites the approved text with a 'delete me to approve' marker, so the check fails until a person removes it.",
+          "grade": "wired",
+          "evidence": "approvaltests/inline/inline_options.py:36-75",
+          "where": "references/code.md (section 4, Tests and gates)"
+        },
+        {
+          "mechanism": "WB-05: Deferred approval as a script: the reporter writes the move commands for every mismatch into a script instead of moving anything, so a person reviews the exact file list first.",
+          "grade": "present",
+          "evidence": "approvaltests/reporters/reporter_that_creates_an_approval_script.py:11-41",
+          "where": "references/code.md (section 4, Tests and gates)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-05 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:cloudflare/security-audit-skill",
+      "system": "cloudflare/security-audit-skill (skill: security-audit)",
+      "licence": "MIT (LICENSE read, Copyright 2025-2026 Cloudflare, Inc.)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/VALIDATION-AND-REPORTING.md",
+          "sha256": "b892470cb89bb31f33403e050d4bdfbe2cdaef940ade1496fa65e32b2e129449",
+          "bytes": 17843,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+          "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+          "bytes": 22026,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/validate-findings.cjs",
+          "sha256": "e85f232e36bfac0f866f244da50376692d6b45c690beadcb00608b0e6c8b5283",
+          "bytes": 28806,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/report-schema.json",
+          "sha256": "6575c9de4a62255699ea052ebf9a49ebfb373a32891bcd89af6f55cc84b35519",
+          "bytes": 14494,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/HUNTING.md",
+          "sha256": "71c121decea1322c47c718f6e110f1a892980bb4266bd7ac55ef043a213ade09",
+          "bytes": 22446,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+          "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+          "bytes": 1078,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-67: A late replacement that raises a verdict or changes cause, impact or result needs another fresh verifier who did not hunt, validate or propose it; otherwise drop it, run incomplete.",
+          "grade": "wired",
+          "evidence": "VALIDATION-AND-REPORTING.md:145-147",
+          "where": "references/rules.md (validation step 7)"
+        },
+        {
+          "mechanism": "HD-10: Budget counts agent invocations. Critic and verifier calls are reserved before hunters; if the minimum cannot be funded, launch nothing and mark the run incomplete with a named reason.",
+          "grade": "wired",
+          "evidence": "skills/security-audit/SKILL.md:119-134",
+          "where": "references/rules.md (validation step 8)"
+        },
+        {
+          "mechanism": "SS-06: Three finding verdicts with mutually exclusive field sets: needs_validation has blockers and a plan but no severity; rejected has a reason, no remediation. Code rejects forbidden and extra fields.",
+          "grade": "wired",
+          "evidence": "VALIDATION-AND-REPORTING.md:103-109; validate-findings.cjs:548-583; report-schema.json (oneOf, three branches)",
+          "where": "scripts/diffscope.py (findings); references/rules.md"
+        },
+        {
+          "mechanism": "SS-06: Final-record verification covers needs_validation as well as confirmed records, because a misleading hand-off wastes an owner's time and can keep a false premise alive.",
+          "grade": "wired",
+          "evidence": "VALIDATION-AND-REPORTING.md:135-149",
+          "where": "scripts/diffscope.py (findings); references/rules.md"
+        },
+        {
+          "mechanism": "SS-09: Coverage-critic waves: a fresh critic reads the ledger and returns missing units and reassignments; a separate final critic must also find nothing. The parent's loop rule decides stopping.",
+          "grade": "wired",
+          "evidence": "skills/security-audit/HUNTING.md:221-251",
+          "where": "references/code.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:cloudflare/security-audit-skill.",
+        "Supports adoption items EV-67, HD-10, SS-06, SS-09 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:google/elephant-goldfish-model",
+      "system": "Elephant-Goldfish Model (EGM)",
+      "licence": "Apache-2.0 (LICENSE read: standard Apache License 2.0 text, 11,560 bytes). README states 'not an officially supported Google product'. No riders.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/skills/egm-resolve/SKILL.md",
+          "sha256": "6bb1909b42b815e074bd486c6244b56eef8d61669abb3302c764a16be05af472",
+          "bytes": 8539,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/docs/designs/review.md",
+          "sha256": "d8d2b680c76073d58522db07f7ff5c54772fa259eb421395555e2187201fadf3",
+          "bytes": 11813,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/elephant-goldfish-model/blob/f0ba151b252c9abf1318d9fe857a43265d06de89/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-15: Author triage into four buckets: contest (needs evidence the reviewer could read), escalate (evidence outside readable files), propose fix, decline nit. Comprehension gaps cannot be contested.",
+          "grade": "present",
+          "evidence": "skills/egm-resolve/SKILL.md:54-82; docs/designs/review.md:135-149",
+          "where": "references/resolve.md (sections 3 and 5)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:google/elephant-goldfish-model.",
+        "Supports adoption items SS-15 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (google); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:google/eng-practices",
+      "system": "Google Engineering Practices: code review guidelines (reviewer guide, change author guide, emergencies)",
+      "licence": "Ideas only. The documents are CC BY 3.0 Unported, which requires attribution for any reuse of the text; the deep read graded them ideas-only. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/google/eng-practices/blob/3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c/review/reviewer/pushback.md",
+          "sha256": "a6eeefeee0f786c57f74b69125605f08eb2d948daed7cce001b4fa56d0f82963",
+          "bytes": 4369,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/google/eng-practices/blob/3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c/review/reviewer/navigate.md",
+          "sha256": "6742ba45208ef35af6dd5d0a70529ef5f489cfbb96fa673eb5e29f30600007ac",
+          "bytes": 4157,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/google/eng-practices/blob/3bb3ec25b3b0199f4940b1aa75f0ac5c5753301c/LICENSE",
+          "sha256": "11dbf7126ae9794e4a7dc54334f3c82a67efcf22df888d396dc2ed707b2a3f9b",
+          "bytes": 19466,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-24: A deferral promise is not accepted for complexity the change itself introduces; only problems it merely exposes may wait, with a filed, self-assigned follow-up that the code references.",
+          "grade": "present",
+          "evidence": "review/reviewer/pushback.md:42-63",
+          "where": "references/rules.md (adjudication row)"
+        },
+        {
+          "mechanism": "WB-27: Review order is design first: does the change belong at all (reject early, with an alternative), then the main file; design problems are sent at once, before finishing line-level review.",
+          "grade": "present",
+          "evidence": "review/reviewer/navigate.md:16-77",
+          "where": "references/code.md (section 4, step 0)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-24, WB-27 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (records-incidents-review); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:mitsuhiko/insta",
+      "system": "insta (Rust snapshot testing) plus cargo-insta review tool",
+      "licence": "Ideas only. The code repository is Apache-2.0, but the documentation repository some ideas came from has no licence file (all rights reserved). Nothing quoted or copied.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/cargo-insta/src/cli.rs",
+          "sha256": "9f3f4ee68246e2b626499a7bc760f1c1b1114a5807c5e72ea349d094bdfbec04",
+          "bytes": 65858,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/LICENSE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+          "bytes": 10847,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-05: Agent-safe review: list pending items as JSON with old and new content, accept or reject one by key, warn when a key matches nothing, refuse interactive review without a terminal.",
+          "grade": "wired",
+          "evidence": "cargo-insta/src/cli.rs:324-334",
+          "where": "references/code.md (section 4, Tests and gates)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-05 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (proprietary). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:mrtooher/fable-mode",
+      "system": "fable-mode (mrtooher)",
+      "licence": "Ideas only (no licence). The tree has no LICENSE file and GitHub reports none, so all rights are reserved. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/SKILL.md",
+          "sha256": "b13e40ae3abd401fd12cb23682985552a9b60e1be22ec588c6eb848f6eb41ebf",
+          "bytes": 17387,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/bench/judgment/README.md",
+          "sha256": "9647b77088470ed44e63bc7542bf0c6172a8b28eaad7a1217d9bdd0aa1cc28d3",
+          "bytes": 2327,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/double-check/SKILL.md",
+          "sha256": "2182e4dfbc609c888775af2270afb87bea30939655a280be7144554f035f699c",
+          "bytes": 11861,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/execution-guardrails/SKILL.md",
+          "sha256": "78b5a969c7ff18239cebb8b0ebd622f689755d03a3b23d21ea0879cbaa7e6b60",
+          "bytes": 3694,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/fable-opus/SKILL.md",
+          "sha256": "8bc517e1b3c3959f6757829e9650e3d2948b75a782dd4889cc3299519128774a",
+          "bytes": 8525,
+          "read": "partial",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-68: Error-first check for prose with no answer key: list every factual or logical error first, cap the verdict by the list, and require a fair case against the recommendation.",
+          "grade": "present",
+          "evidence": "SKILL.md:151-176; bench/judgment/README.md:4-24",
+          "where": "references/document.md (section 4)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-68 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:openai/codex-plugin-cc",
+      "system": "openai/codex-plugin-cc",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; copyright 2026 OpenAI)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/schemas/review-output.schema.json",
+          "sha256": "7acea366c7ca8deb86c6f3106676fe2a83bbc30840e9e8c0110cccb85bfdf476",
+          "bytes": 1757,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/scripts/lib/render.mjs",
+          "sha256": "189e2e9a2179a40a35596629e4fff4ff2aed63db0ee2d7349e3d4c0b953ffb92",
+          "bytes": 13833,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/scripts/lib/codex.mjs",
+          "sha256": "7d5324073c0479ec4cab8b1c1fb1fe401addebb7c64130118df7350fca0f6466",
+          "bytes": 37499,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/plugins/codex/prompts/adversarial-review.md",
+          "sha256": "f3b28a6c4c7501fd03ebab228050ac53c552a8f43c8aa517e924cb348aaefe0f",
+          "bytes": 3438,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-plugin-cc/blob/db52e28f4d9ded852ab3942cea316258ae4ef346/LICENSE",
+          "sha256": "e591c02a0b2ea7717d99e15bd51ea05d879bbf5a4452d66d15b51a7107d3821a",
+          "bytes": 10944,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-06: Review output schema: verdict enum approve or needs-attention; findings with severity, file, line range, confidence 0-1, recommendation; no extra properties. A shape check runs after the JSON parse.",
+          "grade": "wired",
+          "evidence": "plugins/codex/schemas/review-output.schema.json; plugins/codex/scripts/lib/render.mjs:24-41,211-248; plugins/codex/scripts/lib/codex.mjs:1188-1213",
+          "where": "scripts/diffscope.py (findings); references/rules.md"
+        },
+        {
+          "mechanism": "SS-10: Adversarial review prompt: assume the change fails, ranked attack surface, four-question finding bar, ground every claim, label inference, prefer one strong finding, approve only if none is supportable.",
+          "grade": "present",
+          "evidence": "plugins/codex/prompts/adversarial-review.md:1-80",
+          "where": "references/code.md (section 4, lenses)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:openai/codex-plugin-cc.",
+        "Supports adoption items SS-06, SS-10 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:openai/symphony",
+      "system": "openai/symphony",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; NOTICE says copyright 2025 OpenAI; README calls it a low-key engineering preview for trusted environments)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/elixir/AGENTS.md",
+          "sha256": "e1ec93508b74b40061386f8b9e16288560e99cacb2e5b80ee47a2b45cef5171b",
+          "bytes": 3118,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/.codex/skills/land/SKILL.md",
+          "sha256": "64b5b6e1c613bcf89c32711ef7bb81c2e370ad93b3d3139902aeea3071ad75d2",
+          "bytes": 10064,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-46: Spec and code stay aligned: code may be a superset but never conflicts, a behaviour change updates the spec in the same change, and non-trivial work gets early adversarial review.",
+          "grade": "present",
+          "evidence": "elixir/AGENTS.md:14-19,25-27,36-38",
+          "where": "references/code.md (section 2, Spec drift; Adversarial lens)"
+        },
+        {
+          "mechanism": "SS-15: Review-comment ledger: classify each comment (correctness, design, style, clarification, scope), state accept, clarify or push back before changing code, and close correctness items only with concrete validation.",
+          "grade": "present",
+          "evidence": ".codex/skills/land/SKILL.md:42-56,204-223",
+          "where": "references/resolve.md (sections 3 and 5)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-46, SS-15 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:x.com/Voxyz_ai/status/2105434062676431306",
+      "system": "X post by @Voxyz_ai (2026-09-30): Nightly failing-test-first bug routine",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-68: Bug-claim anchor: an unattended scan counts a defect only when a comment, doc, type or existing test states the intended behaviour; apparent intentional changes are noted, not fixed.",
+          "grade": "present",
+          "evidence": "post text, prompt paragraphs 3-5",
+          "where": "references/code.md (section 2, No stated intent)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-68 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2105434062676431306, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2105434062676431306 (a copy, not the original; SHA-256 29141fb4429995806ab786f7b9d7225053c10f07e68eb203207eb428ccb40058, 8772 bytes). Media not viewed: none listed.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "fy:Companion-Inc/feynman",
+      "system": "Companion-Inc/feynman (an open research agent: a lead prompt with researcher, verifier and reviewer subagents)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/.feynman/agents/reviewer.md",
+          "sha256": "11a995656a20250ccfec8312dae2564e54aa68716d1cac778701528324ba442a",
+          "bytes": 3676,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/LICENSE",
+          "sha256": "a108cc5a8e90d79d1daea6a7891db062537af9587f8eb10f81702137bbc192d5",
+          "bytes": 1072,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "FY-6: After finding a P0 or P1 problem, keep reviewing the rest of the scope; when a result looks suspiciously clean, ask what raw data or computation produced it; do not predict outcomes such as acceptance or approval.",
+          "grade": "present",
+          "evidence": ".feynman/agents/reviewer.md, as read for the addendum",
+          "where": "references/rules.md (Same-pattern sweep)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption item FY-6 (Feynman, daily-arXiv and ChatPaper addendum, 2026-10-30).",
+        "Already held and not repeated: the P0 to P3 severity levels and the root-cause identity of a finding (SS-03). The review description (exactly 450 characters) was not touched.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-feynman-daily-arxiv-chatpaper.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (MIT), as read for the addendum.",
+        "Second donor (2026-10-30): alibaba/open-code-review's delegate skill (SKILL.md:111) also keeps reviewing after the first high-severity issue; recorded in the rt: record for that repository. Nothing new taken."
+      ]
+    },
+    {
+      "ref": "rt:alibaba/open-code-review",
+      "system": "alibaba/open-code-review (OCR, an AI code-review tool whose delegation mode picks files and per-language rules and calls no model)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/plugins/open-code-review/skills/open-code-review-delegate/SKILL.md",
+          "sha256": "26b5badb00381839f0b25e6cdb5bad4a44dbb10b58fd49ebafd697fda461628f",
+          "bytes": 9345,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/README.md",
+          "sha256": "e90ddd2234de7d1b3608ed9107287cf94a9c574fb5d5d1c9e3133a83d4556bd6",
+          "bytes": 13447,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/cmd/opencodereview/delegate_cmd.go",
+          "sha256": "5870a1f04badb041f1d211ee3d35cc1221ceaa0852ed974121b8a8f8031c6545",
+          "bytes": 10041,
+          "read": "head",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/internal/agent/grouping.go",
+          "sha256": "2f55ebd1728aee8bd210055b978464fb84e75406074836bf3dbba547b9f7f7ff",
+          "bytes": 14011,
+          "read": "comments",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/internal/telemetry/config.go",
+          "sha256": "f50d36db39715ea1d10018bbe0bb7a078fb68db27106fb48ae13aa7484550d7b",
+          "bytes": 3693,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/alibaba/open-code-review/blob/216dcf513593055a70165f793e96b52589d71b1b/LICENSE",
+          "sha256": "1945665fdb6968a66ea29438ddee0aee23035365c862e5c4a75b62b303340acf",
+          "bytes": 11356,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RT-1: List every file of the saved diff as reviewed, or skipped with a concrete reason, keyed by path and change status, and report the total, reviewed and skipped counts; a file with neither mark is a coverage failure, never clean.",
+          "grade": "present",
+          "evidence": "SKILL.md:104, 128, 173 as read for the addendum; grouping.go:67 (if the grouping call fails, every file becomes its own group, so a failure costs efficiency, never coverage)",
+          "where": "references/code.md (sections 1 and 6); scripts/diffscope.py coverage"
+        },
+        {
+          "mechanism": "RT-2: Save review diffs with git's external diff programs and text converters turned off, so configured drivers cannot change the bytes under review or run programs.",
+          "grade": "present",
+          "evidence": "SKILL.md:68 as read for the addendum",
+          "where": "references/code.md (section 1 table)"
+        }
+      ],
+      "rejected": [
+        "Silent drops (SKILL.md:136): the delegate skill tells its model to discard likely false positives silently. Rejected as a pattern; westack-review rule 3 lists every drop with its claim, reason and deciding evidence.",
+        "A vendor benchmark claim (README.md:55): higher precision than Claude Code at about a ninth of the tokens, as the authors state it. Not carried; graded claimed, because it is the authors' own claim."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RT-1 and RT-2 (review-tools addendum, 2026-10-30).",
+        "RT-10 (REFERENCE, not applied): the delegation mode could be a westack-review helper that picks files and per-language rules and calls no model itself. Its side effects are a global npm install, telemetry that stays off unless OCR_ENABLE_TELEMETRY is set (internal/telemetry/config.go:23, delegate_cmd.go:39), and, in its normal mode, sending the code to the configured model, which needs consent. For a defer.md entry; the P2 backlog holds it.",
+        "Second donor (2026-10-30): SKILL.md:111 keeps reviewing after the first high-severity issue (FY-6, the fy: record) and SKILL.md:181 never silently truncates oversized context but summarises it faithfully or reads the original (CM-02, held in the core). Nothing new taken.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "rt:The-PR-Agent/pr-agent",
+      "system": "The-PR-Agent/pr-agent (a PR review agent; earlier recorded here as considered, not read)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/pr_agent/algo/review_finding_state.py",
+          "sha256": "3d6d76314e25944aa38618757c0b6e81b1e3b350778b99b4eaa13e9363ff6f2b",
+          "bytes": 16294,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/pr_agent/settings/pr_reviewer_prompts.toml",
+          "sha256": "94add87cbdc7c9e45866fc05e547299ef9224787ad32132980f63bb3d3fb8eda",
+          "bytes": 20441,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/pr_agent/algo/review_merge.py",
+          "sha256": "37de37488d97f1198e11a8e5c33dbe0be7cc1b334de46c27da00ac2ef7153e10",
+          "bytes": 19212,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/pr_agent/algo/inline_comment_dedup.py",
+          "sha256": "67f8f3460250878d1b1c1a94dd4acc71d3a877b299f4ee6f385f821d86f25776",
+          "bytes": 13389,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/pr_agent/settings/code_suggestions/pr_code_suggestions_reflect_prompts.toml",
+          "sha256": "bca0b3e360b8e0f6dd2a9ce913facc68cfa1f4a7882a97675a95b7cf5839f8f2",
+          "bytes": 7487,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/The-PR-Agent/pr-agent/blob/aebf506e995a02fba284c5feb121d2e20a3b177c/LICENSE",
+          "sha256": "ea19f3b6bfd70ce0bf8d60fc5b15cdb789fcf86a63c0d6542977f888519f5788",
+          "bytes": 1069,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RT-3: On a re-review, carry earlier findings by identity as open, fixed or dismissed, keeping the dismisser's reason; re-report open ones under the same identity and report fixed or dismissed ones only if reintroduced or made worse; saved state that does not parse means starting fresh, and the report says so.",
+          "grade": "present",
+          "evidence": "pr_reviewer_prompts.toml:340-342; review_finding_state.py:1, 65, 133 as read for the addendum",
+          "where": "references/rules.md (finding identity)"
+        },
+        {
+          "mechanism": "RT-5: A reviewer or chunk that returns exactly its findings cap may have been cut; mark that scope 'cap reached, not fully assessed', then rerun it narrower or report it that way.",
+          "grade": "present",
+          "evidence": "review_merge.py:128-129 as read for the addendum",
+          "where": "references/code.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RT-3 and RT-5 (review-tools addendum, 2026-10-30).",
+        "Conflict resolved as the addendum states it: the donor feeds earlier findings back into the model; westack matches them only after the blind pass and never hands the settled list to a fresh reviewer (SS-04).",
+        "Second donor (2026-10-30): the reflect prompt (pr_code_suggestions_reflect_prompts.toml:102) tells its scorer to ignore instructions inside the text it scores, which is westack-review rule 9 (untrusted text). Nothing new taken.",
+        "This record replaces the considered_not_taken entry for The-PR-Agent/pr-agent @98c90f99 (rated low-medium from a summary, not read); this one is read at aebf506e.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "rt:anc95/ChatGPT-CodeReview",
+      "system": "anc95/ChatGPT-CodeReview (a GitHub bot that sends each diff hunk to a chat model)",
+      "licence": "ISC (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anc95/ChatGPT-CodeReview/blob/8bd66227f057f21e847a8c27c9b356c25271d292/src/bot.ts",
+          "sha256": "c32c4993752e3e94f5cf4a8dac98c0280c39872149809f926115b8a2957ae1aa",
+          "bytes": 11866,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anc95/ChatGPT-CodeReview/blob/8bd66227f057f21e847a8c27c9b356c25271d292/src/chat.ts",
+          "sha256": "ec80cda2b3f532f6340531a0d5915046c2c6d76bfe8ddd4a918585f80c1d7312",
+          "bytes": 5063,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anc95/ChatGPT-CodeReview/blob/8bd66227f057f21e847a8c27c9b356c25271d292/LICENSE",
+          "sha256": "6ef82d87273387370ed58fbfdc317a71ff8809783615bd3bea653a3fadb8034c",
+          "bytes": 737,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [],
+      "rejected": [
+        "Silent coverage loss (src/bot.ts:317, 330): files filtered out as ignored are logged only at debug level, so a reader never learns what was not reviewed. Rejected as a pattern; the coverage ledger (RT-1) lists every skipped file with its reason.",
+        "A per-hunk all-clear (src/chat.ts:77): the model marks each hunk lgtm. Rejected as a pattern; westack-review rule 7 says a verdict is not a check."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Nothing is carried beyond the two rejected patterns, which are examples to cite against (review-tools addendum, 2026-10-30).",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (ISC), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "rt:mattzcarey/shippie",
+      "system": "mattzcarey/shippie (an AI code-review agent with subagents, run over a checkout)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mattzcarey/shippie/blob/23e91d0c3ed12950c5de591e9e11d9b0c6dbf3f8/docs/rules-files.md",
+          "sha256": "addbca32d347fe4eb6515f01af4fed8468ae68985d8f47ee06f9f75fd2becd54",
+          "bytes": 1590,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mattzcarey/shippie/blob/23e91d0c3ed12950c5de591e9e11d9b0c6dbf3f8/src/agents/reviewer.ts",
+          "sha256": "3a79254f3ef858e4051a32ed1401d1c7595ed61f7abd8ef6843174a39d4fdbea",
+          "bytes": 1670,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mattzcarey/shippie/blob/23e91d0c3ed12950c5de591e9e11d9b0c6dbf3f8/docs/subagent-tool.md",
+          "sha256": "4ca5a60887695a5cb7ed25a9981158940a3ef41602600fa08f52b2264292bf40",
+          "bytes": 2910,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mattzcarey/shippie/blob/23e91d0c3ed12950c5de591e9e11d9b0c6dbf3f8/LICENSE",
+          "sha256": "7811cdbc2e8ca3cdc88cd8ebd0495ff00466db0675f5cc881a2afe05da67bc8a",
+          "bytes": 1067,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RT-4 (the case for it): The project's instruction files for a review come from the base revision; the donor injects the root AGENTS.md, AGENT.md and CLAUDE.md from the checkout under review into its reviewer's instructions, which is the hazard.",
+          "grade": "present",
+          "evidence": "docs/rules-files.md:7; src/agents/reviewer.ts:10 as read for the addendum",
+          "where": "references/code.md (section 2)"
+        }
+      ],
+      "rejected": [
+        "Instructions from the change under review (docs/rules-files.md:7): the instruction files are read from the checkout being reviewed, so the change can rewrite its own reviewer's rules. Rejected as a pattern; the case for RT-4.",
+        "Reviewers that can write (docs/subagent-tool.md:35): the reviewer and its subagents have write, edit and shell tools. Rejected as a pattern; westack's reviewers are read-only."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption item RT-4 as a counter-example (review-tools addendum, 2026-10-30).",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "rt:kodustech/kodus-ai",
+      "system": "kodustech/kodus-ai (a code-review service; its evals folder describes how it measures review rounds)",
+      "licence": "AGPL-3.0, plus the Kodus Enterprise Code License for ee/ and .ee. files (license.md:5-6). Ideas only: never quote it and never copy its code.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/evals/review-rounds/README.md",
+          "sha256": "16239f61dff2a50012806012b92b8d453e7f57669455524985284b6f74dddef2",
+          "bytes": 14883,
+          "read": "Answers line",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/evals/README.md",
+          "sha256": "1956c14a5689dd9b3009d7ff57f3a91199844df87d64faf0badc6ed71dc6bcef",
+          "bytes": 16339,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/license.md",
+          "sha256": "f405e5fc41f4d4884d2de92b87baca93c7fef9a958dfa93abd7b4a71ed0f1aeb",
+          "bytes": 947,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RT-3: Carry findings from one review round to the next so a re-review can tell new, open and fixed findings apart.",
+          "grade": "present",
+          "evidence": "evals/review-rounds/README.md:3 (the Answers line) as read for the addendum",
+          "where": "references/rules.md (finding identity)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. The service is AGPL: never quote it and never copy its code.",
+        "Supports adoption item RT-3 (review-tools addendum, 2026-10-30); the evaluation ideas are in westack-eval's record of the same ref.",
+        "Kodus as a service is not a defer candidate without consent: its hosted product would receive the code under review.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: AGPL-3.0 with an enterprise licence for some files; ideas only."
+      ]
+    },
+    {
+      "ref": "rv:openai/codex-security",
+      "system": "openai/codex-security (OpenAI's security review skills, CLI and GitHub Action)",
+      "licence": "Apache-2.0 (LICENSE head read by the 2026-10-30 read; the plugin manifest says the same)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/validation/references/validation-guidance.md",
+          "sha256": "48439b292c9e92195ef9905062b1c948df7202ddc1a99aa9192c71e54c46d6ab",
+          "bytes": 4408,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/assess-patch-risk/references/risk-rubric.md",
+          "sha256": "078a71175191580791685808980cb1815dc97265cfee8c0ddad1f4d3b8203b4a",
+          "bytes": 5049,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/assess-patch-risk/SKILL.md",
+          "sha256": "5e115b0ba2f346e52efd2033a191da4aa40f1ff3f7b1ff5e2bde586e48eabf0d",
+          "bytes": 8299,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/finding-detail-fields.md",
+          "sha256": "313e87e924d14f3d4d6d8f8cc5317f928c4d64d420b4105ea0e140964dd58484",
+          "bytes": 10998,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/evals/secret-discovery/README.md",
+          "sha256": "e00de093cf1438333cb8e6adf1505b5bc129ab7768d05a0d08269dbaf90fd3dd",
+          "bytes": 6268,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/core-scan.md",
+          "sha256": "7690b6c854de07ff15984f6d2c25ddfa1f6ae65f65876cadf2f904054b4f0679",
+          "bytes": 11078,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/skills/validation/SKILL.md",
+          "sha256": "aac2d8598af99fc27c163c24204b264427100b89f15e203822b108262fcb7876",
+          "bytes": 4619,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/standalone-validation.md",
+          "sha256": "a2357b01e308bea046a4cfa65a7734f2b7e2e2d84ef72dcb9efade68ff76f5b3",
+          "bytes": 2134,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/scan-contract.md",
+          "sha256": "27ed098ea86c991e3460b966d099271196d2cf2ceb605e3c4d043f76a61d8c2f",
+          "bytes": 16052,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/plugins/codex-security/references/final-report.md",
+          "sha256": "32a9833ec0ac811fdb39a523f54ddc5e139f3a8aee33ccf64dae91032fb011f5",
+          "bytes": 11593,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/codex-security/blob/eeb969e87b464d67b963f109233bda3d692f4e88/LICENSE",
+          "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+          "bytes": 10926,
+          "read": "partial (as recorded by the 2026-10-30 read)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RV-1: Check each control where its value is used: it must cover the exact value the sink consumes, through redirects, re-encoding, mutation after the check, retries and re-resolution.",
+          "grade": "wired",
+          "evidence": "validation-guidance.md:21; risk-rubric.md:49-57",
+          "where": "references/code.md (section 4, walk 4)"
+        },
+        {
+          "mechanism": "RV-3: Back a traced trigger with snippets labelled by role, ordered from input to outcome, and let a checker compare each with the cited lines.",
+          "grade": "wired",
+          "evidence": "finding-detail-fields.md:7-19; evals/secret-discovery/README.md:32-36",
+          "where": "references/rules.md (after the finding table); scripts/diffscope.py findings and snippets"
+        },
+        {
+          "mechanism": "RV-4: Rate a patch on separate axes (impact if wrong, regression likelihood, protection, recoverability, confidence); tests never lower impact.",
+          "grade": "wired",
+          "evidence": "assess-patch-risk/SKILL.md:10-16,29,77; risk-rubric.md:1-36,74",
+          "where": "references/code.md (section 6)"
+        },
+        {
+          "mechanism": "RV-5: A prior dismissal holds only while its stated reason holds against the current source; a bare false-positive label never dismisses.",
+          "grade": "wired",
+          "evidence": "core-scan.md:9; validation/SKILL.md:14; standalone-validation.md:7",
+          "where": "references/rules.md (finding identity)"
+        },
+        {
+          "mechanism": "RV-10: Identify a finding by rule family, root-control anchor without line numbers and an instance key per independently attackable sibling; group only on matching control and fix.",
+          "grade": "present",
+          "evidence": "scan-contract.md:74-92; final-report.md:23",
+          "where": "references/rules.md (finding identity); scripts/diffscope.py findings (identity)"
+        },
+        {
+          "mechanism": "RV-11: Hold for evidence only when it could change the decision, with at most three actions each saying what it would settle; a known defect is never held.",
+          "grade": "wired",
+          "evidence": "assess-patch-risk/SKILL.md:31-50,81-84",
+          "where": "references/rules.md (after the findings check); scripts/diffscope.py findings (verdict, evidence_plan)"
+        }
+      ],
+      "rejected": [
+        "Credential auto-acquisition for GitHub intake (connector token, gh auth token, GH_TOKEN, GITHUB_TOKEN, git credential fill; triage-finding/references/github-rest-intake.md:66-76): westack never acquires credentials (core authority.md).",
+        "Reading SECURITY.md guidance from the PR head in the Action example (github-action/README.md:316-317): a change could rewrite the policy that judges it; westack reads such files from the base (RV-6, code.md section 2).",
+        "Embedding-based finding dedupe that sends finding text to api.openai.com/v1/embeddings, and three model votes per finding for severity: an outside service and a vote stand in for evidence.",
+        "The MCP workbench with sealed SQLite state and a 97-hour tool timeout (.mcp.json:59): runtime, not discipline."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RV-1, RV-3, RV-4, RV-5, RV-10, RV-11 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Read at the pinned commit by the 2026-10-30 reads session (westack-research/2026-10-30-sub-skill-reads/security-review.json, donor repo:openai/codex-security); the SHA-256 and byte counts are those it recorded. The builder of this change read the read notes and the brief, not the repository, and ran nothing.",
+        "Flags from the read: usage analytics on by default in the CLI (off in the Action); request-attribution metadata rides on every model request even with analytics off; local dedupe sends finding text to OpenAI.",
+        "Licence status: permissive (Apache-2.0); copying text would need notice and a statement of changes, and none was copied."
+      ]
+    },
+    {
+      "ref": "rv:anthropics/claude-code-security-review",
+      "system": "Claude Code Security Reviewer (GitHub Action and /security-review command)",
+      "licence": "MIT, Copyright (c) 2025 Anthropic (LICENSE read in full by the 2026-10-30 read)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/prompts.py",
+          "sha256": "a779b599d3badeddff9d01f9a1cbe7828c03a4eb17b4717782131963c825d5d0",
+          "bytes": 7079,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/.claude/commands/security-review.md",
+          "sha256": "dd1d451f909dbb8798f4a4de010c35e7dd9152f02bb2f7988442cdd138f29e39",
+          "bytes": 10837,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/claudecode/findings_filter.py",
+          "sha256": "a18eb6a2112093a547a93bfe351691eb7a9866cfc2ffeee1b5d852da09a63d17",
+          "bytes": 15311,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/action.yml",
+          "sha256": "22dbc162466fc31f66336537db01dfb20e3eb72dd52aa58e093b8d3eb4730138",
+          "bytes": 14003,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code-security-review/blob/0c6a49f1fa56a1d472575da86a94dbc1edb78eda/LICENSE",
+          "sha256": "a9ac868c004c4cce26430b3117767b46397ba4fa25026b1e5ea6694b463baf4b",
+          "bytes": 1065,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RV-2: Before judging a change, find how the codebase already handles the same risk (sanitiser, auth helper, framework) and flag a changed path that bypasses it, citing the helper.",
+          "grade": "wired",
+          "evidence": "claudecode/prompts.py:106-124; .claude/commands/security-review.md:87-105",
+          "where": "references/code.md (section 4, sibling-control lens)"
+        }
+      ],
+      "rejected": [
+        "A filter that stamps confidence 10.0 on a finding when the filter call fails or is off (claudecode/findings_filter.py:297-316): the opposite of not validated.",
+        "The step output reading findings_count=0 when the audit errors or the results file is empty (action.yml:268-291): a tool failure looks like a clean scan; westack rule 1 calls it not assessed.",
+        "A numeric confidence floor of 8 of 10 (.claude/commands/security-review.md:189): a self-report gating results."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:anthropics/claude-code-security-review and p2:anthropics/claude-code-security-review. Those cite the same files with other byte counts (LICENSE 1085 there, 1065 here), most likely line endings at checkout; this record keeps the 2026-10-30 read's hashes as recorded.",
+        "Supports adoption items RV-2 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Read at the pinned commit by the 2026-10-30 reads session (westack-research/2026-10-30-sub-skill-reads/security-review.json, donor repo:anthropics/claude-code-security-review); the SHA-256 and byte counts are those it recorded. The builder of this change read the read notes and the brief, not the repository, and ran nothing.",
+        "Licence status: permissive (MIT); nothing copied."
+      ]
+    },
+    {
+      "ref": "rv:coderabbitai/skills",
+      "system": "coderabbitai/skills (CodeRabbit's code-review and autofix agent skills, subagents and Claude Code mod; the review itself runs on CodeRabbit's service behind a closed CLI)",
+      "licence": "MIT, Copyright (c) 2026 CodeRabbit AI (LICENSE read in full by the 2026-10-30 read). The CodeRabbit service and CLI fall under CodeRabbit's separate terms and privacy policy.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/mods/coderabbit/hooks/review.js",
+          "sha256": "f8678a6effc8caa3c71954304999062cda4bcb1c0e18e4d61a0f5c6b98772e20",
+          "bytes": 11584,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/skills/code-review/SKILL.md",
+          "sha256": "bc8e2e6b378bec9509cfb7b3f2e289e7df7da620bf51f25341f8df5cc8205116",
+          "bytes": 7767,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/evals/review-stream-outcome/case.yaml",
+          "sha256": "a033757757fdba709151514fb02a057cc5112cfd24fef9714d9bb194a21da0fa",
+          "bytes": 1569,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/skills/autofix/SKILL.md",
+          "sha256": "2fb880f0b4baadcfdd8e9fd97731805c7a4f00d3b0d631168f7c201663ec9d92",
+          "bytes": 12105,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/skills/autofix/github.md",
+          "sha256": "466780fcf8c883a5f30532956b5b08645691a79d6755c8a02cc879de14649aff",
+          "bytes": 4222,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/.coderabbit.yaml",
+          "sha256": "c6e52d1bde3e27c96fb21b18c461002cfeda5de151a05848551df5af32f2dcbd",
+          "bytes": 4645,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/skills/code-review/references/auth-recovery.md",
+          "sha256": "8f9a516965754eb77382e5684f5ddcfdd12b0c722617aad6236abc481cecf167",
+          "bytes": 3652,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/mods/coderabbit/README.md",
+          "sha256": "6046aaf7ffecb4b194711b64fb83ff5751fbf4ac92b20b65257608bb3f944fcc",
+          "bytes": 21458,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/coderabbitai/skills/blob/8eef1037a977f2bc54368affb3b0d650f368e42a/LICENSE",
+          "sha256": "eb7e076c386e9863a5309fb30dda1a695c0447e6b1a45325634ab84bfe9377f7",
+          "bytes": 1070,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RV-6: Project review checks have a name, a mode (error or warning), an applicability condition and requirements; a check that does not apply is not-applicable, never passed; the rules file is read from the base revision.",
+          "grade": "present",
+          "evidence": ".coderabbit.yaml:13-42 (config read; the checks run on the vendor's side)",
+          "where": "references/rules.md (project review rules)"
+        },
+        {
+          "mechanism": "RV-7: A delegated reviewer's output is complete only with one completion event, a finding count equal to the records received, a clean exit and no truncation; skipped with zero findings means no review ran.",
+          "grade": "wired",
+          "evidence": "mods/coderabbit/hooks/review.js:175-221; skills/code-review/SKILL.md:85-87; evals/review-stream-outcome/case.yaml:10-37",
+          "where": "references/outside.md (Outside reviewers, moved from rules.md in 1.0.0-alpha.13); core defer-map.json review-coderabbit-cli (post)"
+        },
+        {
+          "mechanism": "RV-8: Keep a vendor's severity label verbatim in its own field; missing is unknown, never low; assign westack levels only after validation.",
+          "grade": "present",
+          "evidence": "skills/autofix/SKILL.md:189-195; skills/code-review/SKILL.md:85",
+          "where": "references/outside.md (Outside reviewers, moved from rules.md in 1.0.0-alpha.13); scripts/diffscope.py findings (vendor, vendor_severity)"
+        },
+        {
+          "mechanism": "RV-9: Act only on unresolved, not-outdated threads started by the expected reviewer; keep each thread's identity; wait while the reviewer runs; warn about unpushed commits.",
+          "grade": "present",
+          "evidence": "skills/autofix/SKILL.md:52-65,150-177; skills/autofix/github.md:92-98",
+          "where": "references/resolve.md (section 1)"
+        },
+        {
+          "mechanism": "RV-13: Path-scoped review instructions and checks that pass as not-applicable outside their scope.",
+          "grade": "present",
+          "evidence": ".coderabbit.yaml:70-103",
+          "where": "references/rules.md (project review rules)"
+        }
+      ],
+      "rejected": [
+        "The autofix skill's commit, push, PR creation and summary comment (skills/autofix/SKILL.md:62; skills/autofix/github.md:122): delivery steps inside westack's fence; only `coderabbit review --agent` is deferred to.",
+        "A six-label severity set as westack's own: a vendor label stays the vendor's (RV-8).",
+        "Poem, fortune and praise extras, request-changes workflow, draft and incremental auto-review: vendor service behaviour, not review discipline."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RV-6, RV-7, RV-8, RV-9, RV-13 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "RV-14 (canonical binary path, auth-recovery.md:5-32 and mods/coderabbit/README.md:222-241) and RV-15 (sign-in in the running context, auth-recovery.md:34-64) are core: recorded in the core's rv_addendum.",
+        "Read at the pinned commit by the 2026-10-30 reads session (westack-research/2026-10-30-sub-skill-reads/security-review.json, donor repo:coderabbitai/skills); the SHA-256 and byte counts are those it recorded. The builder of this change read the read notes and the brief, not the repository, and ran nothing.",
+        "Installed on this machine (read by the brief's author on 2026-10-30, nothing run): plugin coderabbit 1.1.1 at ~/.claude/plugins/cache/claude-plugins-official/coderabbit/1.1.1/. skills/code-review/SKILL.md 5,411 bytes, sha256 3b820cf7e2f8d64a3637f015d63e4963274e30ca4f28abc9bfd84394f8489b22; skills/autofix/SKILL.md 11,928 bytes, 1fbd40032164f63c75aa0b8754de339b5bc88dfb0e3b484b6934039733f9a487; agents/code-reviewer.md 3,216 bytes, dc0a0b091fd640f9f5de7ee582750c168663e3df55018f6742d69281a170659d; .claude-plugin/plugin.json 506 bytes, 603194ee8efbef8aeba3a35c7437d3c4404447cdfe628f90d705b456e95a238e. The installed files differ from the pinned repository's (its skills/code-review/SKILL.md is 7,767 bytes). The CLI is installed as coderabbit.exe with a cr.exe alias; neither was read or run.",
+        "Flag: the installed code-review skill describes itself as starting unprompted when the agent judges a review worthwhile, and its CLI uploads the diff to CodeRabbit's API; the core defer entry review-coderabbit-cli records this as an external-service side effect graded present and asks consent before any call.",
+        "Flag: in a local sandbox the skills ask for host-level execution of the review, which leaves the sandbox.",
+        "Licence status: permissive (MIT); nothing copied. An 8-word overlap check of this build's added text against the installed plugin's Markdown files found no shared run."
+      ]
+    },
+    {
+      "ref": "rv:thedotmack/claude-mem",
+      "system": "thedotmack/claude-mem (a memory plugin for coding agents; its merge rubric is the donor here)",
+      "licence": "Apache-2.0 (LICENSE read in part and NOTICE read by the 2026-10-30 read; hosted cloud, team sync and enterprise features are reserved by docs/license.md)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/docs/merge-rubric.md",
+          "sha256": "dc04dbfd05bf9d6a8f62dcc2a9799596bfcda6007d3428e59f51dd8dc8dba966",
+          "bytes": 5118,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial (as recorded by the 2026-10-30 read)",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/NOTICE",
+          "sha256": "35003c303ee484c77872fd45eb5d590ce679d1ae7ac5bb672d33069cca66685b",
+          "bytes": 242,
+          "read": "full (as recorded by the 2026-10-30 read)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RV-12: Admit a fix only if it corrects the logic at the cause, sized to the defect, not by adding guards, fallbacks, retries, watchdogs or truncation.",
+          "grade": "present",
+          "evidence": "docs/merge-rubric.md:8-90",
+          "where": "references/resolve.md (section 4)"
+        }
+      ],
+      "rejected": [
+        "The rubric as a blanket merge gate: many projects need retries and fallbacks, so it is a fix-admission rule in resolve mode beside the silent-failure lens, not a ban."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items RV-12 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Read at the pinned commit by the 2026-10-30 reads session (westack-research/2026-10-30-sub-skill-reads/new-a.json, donor repo:thedotmack/claude-mem); the SHA-256 and byte counts are those it recorded. The builder of this change read the read notes and the brief, not the repository, and ran nothing.",
+        "Flags from the read: telemetry to PostHog is on unless the user opts out; the observer sends tool inputs, outputs and prompts to a model provider by default; secret redaction is off by default. None of it is used.",
+        "Licence status: permissive (Apache-2.0); nothing copied."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2603.26130",
+      "system": "SWE-PRBench (arXiv 2603.26130, https://arxiv.org/abs/2603.26130)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; its abstract was read in full by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [
+        {
+          "mechanism": "RV-16: Keep the reviewer's packet to the diff, a written summary of intent and the files on the path; a model review's silence never means the scope was covered.",
+          "grade": "claimed",
+          "evidence": "abstract, as read by the brief's author",
+          "where": "references/rules.md (validation step 2); references/code.md (section 1)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Supports adoption items RV-16 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Figures from the abstract are the authors' measurements, graded claimed: 8 models found 15 to 31% of human-flagged issues, all got worse as context grew, and a structured diff with a summary beat a fuller-context prompt. Westack does not claim that shorter is better: that needs a westack-eval case comparing the two packets on seeded defects.",
+        "dot notes the model run used 100 of the 350 PRs and an LLM judge."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2607.03316",
+      "system": "Is Agentic Code Review Helpful? Mining Developers' Feedback to CodeRabbit Reviews in the Wild (arXiv 2607.03316, https://arxiv.org/abs/2607.03316)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; its abstract was read in full by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [
+        {
+          "mechanism": "RV-17: Treat vendor-review comments as candidates, validate each against the cited lines and their callers, and report the vendor's drop rate per run.",
+          "grade": "claimed",
+          "evidence": "abstract, as read by the brief's author",
+          "where": "references/outside.md (Outside reviewers, moved from rules.md in 1.0.0-alpha.13); scripts/diffscope.py findings (vendor counts)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Supports adoption items RV-17 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Figures from the abstract are the authors' measurements, graded claimed: of 31,073 CodeRabbit comments, 56.3% were rejected and 36.4% accepted, mainly as invalid, redundant or out of scope. The rule does not use the figure; it counts each run's own drops."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2609.37216",
+      "system": "CRJudgeBench: Can AI Detect Plausible but Invalid Code Reviews? (arXiv 2609.37216, https://arxiv.org/abs/2609.37216)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; its abstract was read in full by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [
+        {
+          "mechanism": "RV-17: Judging whether a review comment is valid needs repository evidence, not the comment alone.",
+          "grade": "claimed",
+          "evidence": "abstract, as read by the brief's author",
+          "where": "references/outside.md (Outside reviewers, moved from rules.md in 1.0.0-alpha.13)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Supports adoption items RV-17 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Figures from the abstract are the authors' measurements, graded claimed: general models struggled to tell valid comments from plausible invalid ones; a judge that gathered repository evidence did best (76.6%)."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2610.33509",
+      "system": "Can Agentic Code Review Catch Vulnerabilities Before They Are Merged? (SecPRBench) (arXiv 2610.33509, https://arxiv.org/abs/2610.33509)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; its abstract was read in full by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [
+        {
+          "mechanism": "RV-18: A security finding that names the right file but argues the wrong mechanism is not credited; the validator checks the trigger and mechanism, not the location.",
+          "grade": "claimed",
+          "evidence": "abstract, as read by the brief's author",
+          "where": "references/rules.md (validation step 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Supports adoption items RV-18 (RV build: westack-review, CodeRabbit-style checks, 2026-10-30).",
+        "Figures from the abstract are the authors' measurements, graded claimed: recall ranged from 32.5% to 78.1% over 265 tasks, and 68% of misses pointed at the file holding the flaw but argued a different mechanism."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2608.09290",
+      "system": "OpenCodeReview: Determinism over Non-Determinism (arXiv 2608.09290, https://arxiv.org/abs/2608.09290)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; its abstract was read in full by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Second donor only (RV build, 2026-10-30): no new rule.",
+        "Figures from the abstract are the authors' measurements, graded claimed: up to 2.17x higher SEM-F1 than Claude Code or Codex on AACR-Bench with 5 to 15x fewer tokens; author-run, as dot notes, so not a general result.",
+        "Second donor to rt:alibaba/open-code-review (RT-1, RT-2): rule-guided deterministic dispatch and grounded file review; OCR was assessed in westack-research/2026-10-30-review-tools.md."
+      ]
+    },
+    {
+      "ref": "rv:arxiv:2604.24525",
+      "system": "Understanding the Limits of Automated Evaluation for Code Review Bots in Practice (EASE 2026) (arXiv 2604.24525, https://arxiv.org/abs/2604.24525)",
+      "licence": "arXiv paper; licence not read. Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an arXiv paper, not a pinned repository file; only its title was read by the brief's author on 2026-10-30 (BRIEF-westack-review-coderabbit.md section 2b); the builder of this change did not read it",
+      "taken": [],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. Never quote this source.",
+        "Second donor only (RV build, 2026-10-30): no new rule.",
+        "Figures from the abstract are the authors' measurements, graded claimed: none used; only the title was read.",
+        "Second donor to SKILL.md section 3 (acceptance is not evidence a finding was right): whether developers resolve or ignore a comment is a poor ground truth for its quality."
+      ]
+    },
+    {
+      "ref": "rv:danger/danger-js",
+      "system": "danger/danger-js (programmable PR rules; https://github.com/danger/danger-js)",
+      "licence": "MIT, as listed in the 2026-10-30 review lists (LICENSE not read). Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "not read at a pinned commit: named in the user's 2026-10-30 review lists (research/2026-10-30-oss-review-and-security) and the brief, section 2b",
+      "taken": [],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Second donor only (RV build, 2026-10-30) for RV-6 and RV-13: project rules written as code that run on every PR. No new rule; nothing taken beyond what coderabbitai/skills supplied."
+      ]
+    },
+    {
+      "ref": "rv:reviewdog/reviewdog",
+      "system": "reviewdog/reviewdog (posts linter output as inline review comments; https://github.com/reviewdog/reviewdog)",
+      "licence": "MIT, as listed in the 2026-10-30 review lists (LICENSE not read). Ideas only.",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "not read at a pinned commit: named in the user's 2026-10-30 review lists (research/2026-10-30-oss-review-and-security) and the brief, section 2b",
+      "taken": [],
+      "rejected": [
+        "Posting review comments to the PR: a message, inside westack's fence; reference only."
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Reference only (RV build, 2026-10-30): no rule taken."
+      ]
+    },
+    {
+      "ref": "ds:deepseek-ai/dsh-superagent-prototype",
+      "system": "deepseek-ai/dsh-superagent-prototype at 6337fc82 (a research prototype, not an official DeepSeek product), through the dsh-superagent brief",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/prompts/team/communication.md",
+          "sha256": "af77247e0c757bc136f77fae23be79a887b4d250bbf86579bb9a1a44da833653",
+          "bytes": 9629,
+          "read": "lines 70-95",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/004-prompts.md",
+          "sha256": "186ec9307249deae11f7aec68ff21bf58fb0601a204ada0d2688253d58627bf7",
+          "bytes": 9603,
+          "read": "lines 84-89",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/003-execution.md",
+          "sha256": "049aa22a717f75b9dec4cd6969356db6f736c127de4501c3ce1f6d846217f6eb",
+          "bytes": 17389,
+          "read": "lines 86-88",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/prompts/team/delivery.md",
+          "sha256": "aff7c953ce8dfc6e6838f843a5980b4d7c844a517e2d05f89560e8984a9bf55d",
+          "bytes": 4104,
+          "read": "lines 1-30",
+          "role": "also-read"
+        },
+        {
+          "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/LICENSE",
+          "sha256": "6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550",
+          "bytes": 1078,
+          "read": "lines 1-3",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "DS-1: address at most three review rounds per pull request from each automated reviewer; a round is one distinct bot run, not one comment; record each run's id and the count so a later session continues it.",
+          "grade": "present",
+          "evidence": "communication.md:92-93 (three rounds per reviewer across workers and restarts, a round being one distinct run and not each inline comment, the run id and round count recorded for the next worker); 004-prompts.md:88",
+          "where": "references/resolve.md (section 1, section 6); references/threads.md; scripts/diffscope.py (resolve)"
+        },
+        {
+          "mechanism": "DS-2: reply to each comment in its own thread; a top-level comment or a PR-body table never replaces thread replies; read the thread first and never repeat an existing answer or resolve a person's valid open finding.",
+          "grade": "present",
+          "evidence": "communication.md:74, :76, :79",
+          "where": "references/resolve.md (section 5); references/threads.md; scripts/diffscope.py (resolve)"
+        },
+        {
+          "mechanism": "DS-3: push review fixes through ship's pre-push check, so an armed auto-merge or merge-queue entry stops the push until the user decides.",
+          "grade": "present",
+          "evidence": "delivery.md:15; 003-execution.md:88; GitHub's auto-merge page (docs.github.com, fetched 2026-10-31, SHA-256 26d53e60a354442aa79431934c38a76b92c6bc1f682485cc42c20215f5d92f16, text line 104): auto-merge is disabled only when someone without write access pushes",
+          "where": "references/resolve.md (section 5); references/threads.md (the push)"
+        }
+      ],
+      "rejected": [
+        "Resolving fixed threads silently (communication.md:72): westack's reply states the change and its receipt (resolve.md section 5).",
+        "Crediting reviewers by rewriting the branch with filter-branch and a forced push (delivery.md:17-25): westack never force-pushes.",
+        "The disclosure line on posts from the bot account (communication.md:57): westack posts under the user's account with their grant.",
+        "The donor's step of withdrawing auto-merge before a push (delivery.md:15): westack stops the push and leaves disarming to the user, as westack-ship's rule 1 and deliver.md already do."
+      ],
+      "licence": "MIT, DeepSeek Harness Team (LICENSE:1-3, SHA-256 6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550); ideas only, nothing copied",
+      "notes": [
+        "Supports adoption items DS-1, DS-2, DS-3 (dsh-superagent brief, 2026-10-31). Three is the donor's default for the round cap; here it is the default of the cap field, basis taste.",
+        "Ideas only, in westack's words: nothing was quoted, copied or run. An 8-word overlap check of every added line and file against the twelve donor files read found no shared run.",
+        "The donor files were fetched into memory from the pinned commit on 2026-10-31 and their SHA-256 matched the brief's; nothing was written to disk. the user approved the items ('Brief and send all', 2026-10-31)."
+      ]
+    },
+    {
+      "ref": "gstack.plan-devex-review",
+      "system": "gstack plan-devex-review and its shared DX rubric",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/plan-devex-review/SKILL.md.tmpl",
+          "sha256": "f0d02de8202b18613e33fd634d2d5bc0124998e08e3aa6f3e5e7ed9de2d01686",
+          "bytes": 20735,
+          "read": "headings, then step 0 (persona, empathy narrative, benchmark, magic moment, mode, journey, roleplay)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/plan-devex-review/sections/review-sections.md.tmpl",
+          "sha256": "a93a0409787864f18bac9a05d00a85287028f8a03b8d26b322a97c9760746bc7",
+          "bytes": 23710,
+          "read": "the eight pass headings and the required outputs",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/scripts/resolvers/dx.ts",
+          "sha256": "0429fd232e12a954204361750cd1362589b1bc24b98e3bf567c656908fcd3b01",
+          "bytes": 6272,
+          "read": "lines 40-84 (patterns, the 0-10 rubric, TTHW tiers)",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "A developer persona first, then a first-time walk of the journey (discover to scale) with each friction point located.",
+          "where": "references/dx-lens.md; core references/dx.md"
+        },
+        {
+          "mechanism": "Eight dimensions (getting started, API or CLI, errors, docs, upgrade, environment, community, measurement), each scored 0 to 10 with what a 10 looks like for this product and the gap.",
+          "where": "core references/dx.md; scripts/dxcheck.py"
+        },
+        {
+          "mechanism": "Time to hello world in four tiers (under 2, 2 to 5, over 5 to 10, over 10 minutes).",
+          "where": "core references/dx.md; scripts/dxcheck.py tier_for"
+        },
+        {
+          "mechanism": "Evidence marks per score (tested, partial, inferred), with a plan review inferred throughout, and a stored record a live audit compares with later.",
+          "where": "references/dx-lens.md; scripts/dxcheck.py"
+        }
+      ],
+      "rejected": [
+        "The hall-of-fame company examples and named best-in-class products in the rubric: westack's rubric describes what a 10 does, not who.",
+        "Writing to TODOS.md and the gstack review log: findings stay in the review report and the task record.",
+        "Competitor benchmarking by default: only on the user's yes, through westack-research."
+      ]
+    },
+    {
+      "ref": "gstack.deslop-shared-libs",
+      "system": "gstack deslop-shared-libs (shared-code extractions)",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "useful",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/deslop-shared-libs/SKILL.md.tmpl",
+          "sha256": "1c533efb8ccdb3bfb0ed148a9abe65b28a9da3f7d9810137c975dae29577de5b",
+          "bytes": 10808,
+          "read": "lines 1-40 and 100-182: the read-only boundary, recent work first, work already underway, the output (five ideas, three recommendations, line accounting, the main risk never 'none')",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "Report-only extraction proposals from recent work: up to five ideas, the best three recommended, with estimated lines removed, added and saved, and a concrete main risk.",
+          "where": "references/shared-code.md"
+        },
+        {
+          "mechanism": "Recent work as the starting point, searching the surrounding code for differently named or formatted copies; none is a valid answer and callers are never invented.",
+          "where": "references/shared-code.md; scripts/sharedcode.py scan (--changed, renamed matching)"
+        }
+      ],
+      "rejected": [
+        "The GitHub API pagination budget for older open PRs: the host's tools read open work; the helper reads files only.",
+        "SAFE_GIT wrappers and transport rules: westack's helpers run no git at all."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {
+      "system": "The-PR-Agent/pr-agent @98c90f99",
+      "why": "rated low-medium in the westack coverage review from a summary and not read then; read on 2026-10-30 at aebf506e (see rt:The-PR-Agent/pr-agent), which took RT-3 and RT-5"
+    },
+    {
+      "system": "CodeRabbit (installed plugin)",
+      "why": "an external service receives the code: not a donor of review intelligence (that runs on CodeRabbit's servers). Since 2026-10-30 its open skills repository is a donor of discipline (rv:coderabbitai/skills) and its CLI a consent-gated defer (core defer-map.json, review-coderabbit-cli)"
+    },
+    {
+      "system": "gstack autoplan",
+      "why": "auto-decisions are kept only as the reversible, reported case in document mode (map conflict resolution); not read"
+    },
+    {
+      "system": "compound-engineering ce-code-review",
+      "why": "its coverage-limits idea is already in the core review.md; not read"
+    }
+  ]
+}

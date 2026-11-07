@@ -1,0 +1,9 @@
+$ python -m unittest -v
+test_empty_invoice_is_zero (test_invoice.InvoiceTests.test_empty_invoice_is_zero) ... ok
+test_per_line_tax_is_rounded_half_up (test_invoice.InvoiceTests.test_per_line_tax_is_rounded_half_up) ... skipped 'flaky on CI, see FIN-41'
+test_single_line (test_invoice.InvoiceTests.test_single_line) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK (skipped=1)

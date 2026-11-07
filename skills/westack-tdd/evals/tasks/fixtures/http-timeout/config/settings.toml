@@ -1,0 +1,4 @@
+# tdd-fixture: service settings
+[http]
+timeout_seconds = 5
+retries = 2

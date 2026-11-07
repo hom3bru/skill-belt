@@ -1,0 +1,5 @@
+# Changelog
+
+## 1.0.0-alpha.0 (first build: measuring speed), unreleased
+
+The first westack-perf: measuring when something is slow or must get faster, for a web page (through the host's browser), a request or a command. A claim written before measuring, at least five alternating runs per side with errors counted, a named limiter, seven vetting questions, comparison by unit with "no measurable difference" inside the run-to-run spread and "inconclusive" when the evidence is short, and page budgets with a grade. `scripts/perfcheck.py` summarizes, compares, checks budgets, validates run files and shows a history. Ideas from gstack's benchmark and its "vet the number" section (itself from pstack's benchmark-checklist) at the mirror pin, in westack's words; westack adds CLS and request and command targets. Read-only: fixes go through westack-build and are measured again here. `tests/test_perfcheck.py`: 11 tests; a thresholds copy with the regression and warning limits raised past any delta fails the regression test. `evals/fixtures/site` has a fast page and the same page with a one-second main-thread block.

@@ -1,0 +1,14 @@
+{
+  "format": "westack-index-config-1",
+  "about": "The numbers behind westack-onboard's index (references/index.md). scripts/codeindex.py reads them; change them here, never in the script.",
+  "weights": {"title": 4.0, "symbol": 3.0, "body": 1.0},
+  "rrf_k": 60,
+  "pool": 200,
+  "boosts": {"title": 1.25, "recency": 1.1, "recency_days": 30, "backlink_step": 0.02, "backlink_cap": 10},
+  "budgets": {"conservative": 4000, "balanced": 12000},
+  "chunks_per_page": 3,
+  "chunking": {"window_words": 300, "overlap_words": 50, "max_tokens": 2000, "chars_per_token": 4},
+  "max_file_bytes": 5242880,
+  "lock_stale_seconds": 300,
+  "skip_dirs": [".git", "node_modules", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", "dist", "build"]
+}

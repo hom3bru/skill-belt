@@ -1,37 +1,36 @@
-# westack 0.3.1 — experimental portable skill
+# westack core 1.0.0-alpha.0
 
-A manually usable engineering workflow with one discoverable [SKILL.md](SKILL.md), nine selectively loaded modules and a shared task/evidence/review contract. It uses the host's tools and permissions. It installs no runtime, hooks, model routing, telemetry or donor packs.
+The router and shared core of the westack skill stack: one discoverable [SKILL.md](SKILL.md) (explicit invocation only), the facility references it loads on demand, the optional task-record contract and its standard-library helpers. It uses the host's own tools and permissions. It installs no runtime, hooks, services, telemetry or third-party skills.
 
-Maturity: phase 1 skill with a small phase 2 consistency validator and deterministic local fixtures. Live model evaluations, independent human rubrics and actual host qualification are not-run. No comparative efficacy or multi-host behavior claim.
+Maturity: alpha. Wave 0 built this core; wave 1 added `westack-eval`, `westack-verify`, `westack-debug`, `westack-review`, `westack-build` and `westack-tdd` beside it, then `westack-plan` and `westack-ship`, and `westack-orchestrate` (wave 3, manual only), `westack-research`, `westack-docs`, `westack-security` and `westack-design` (wave 3) followed; [stack.json](stack.json) lists these and the planned skills. Deterministic local tests cover the helpers and the contract. One Claude Code probe loaded the router; Codex is blocked and Cursor not-run ([hosts](hosts/README.md)). No efficacy or multi-host claim.
 
-0.3.1 is the 0.3.0 build of westack (then called estack), renamed with no behaviour change (see [lineage](provenance/lineage.json)). It binds records to the observed repository: `validate.py fingerprint` hashes a stored set of observed paths (minus caches and dependencies) and reads Git HEAD from disk, `snapshot` keeps tested files as hash-named evidence, `receipt` and `refresh` write the next numbered record version without hand-editing, and `reconcile` exposes the uncertain-action recommendation. Staleness follows content (patch and scope), so a commit does not invalidate evidence. Finish conditions only get stricter within a scope, negative controls must rerun the same check, and `task --chain` checks every version in order. Counts and per-case mapping are in [acceptance results](tests/acceptance-results.json). All 20 pilot cases retain their deterministic fixture mapping; full independent pilot qualification remains 19 not-run, with the host denied-path case blocked/unsupported. Bounded development trials are separate evidence.
+## Layout
 
-## Manual installation (not performed)
+| Path | What it is |
+| --- | --- |
+| `SKILL.md` | the router: owner choice, stack commands, shared rules, sub-skill invocation policy |
+| `references/` | facility references (evidence, isolation, authority, guards, handoff, durable, delegation, critique, context, memory, craft, defer) and the core workflow modules (route, frame, inspect, plan, build, review, verify, finish, learn) |
+| `references/minimum-core.md` | source of the Minimum Core block embedded in every sub-skill |
+| `references/defer-map.json` | when a sub-skill may hand work to an installed third-party skill ([defer](references/defer.md)) |
+| `contracts/` | the task-record contract (schema 1) and the defer-map schema |
+| `scripts/` | helpers, standard library only, never running commands: `validate.py` (task-record CLI over `record.py`, `evidence.py`, `skillmeta.py`), `checks.py`, `registry.py`, `core_check.py`, `ruletest.py`, `build_core_block.py` |
+| `hosts/` | host adapters and the capability matrix |
+| `provenance/` | donor decisions, facility donors, rights, and the rename record (`lineage.json`) |
+| `tests/` | the core suite (`python tests/run.py`) |
 
-Inspect [rights/provenance](provenance/RIGHTS.md) and [host limits](hosts/README.md). Unzip the release into a temporary location and review it. In a project you choose, copy the entire `westack` folder into one supported skill location:
+## Helpers
 
-- Codex: `<project>/.agents/skills/westack/`.
-- Claude Code: `<project>/.claude/skills/westack/`.
-- Cursor: `<project>/.cursor/skills/westack/` (or its documented `.agents/skills/` location).
+- `python scripts/validate.py package .` checks this package; the eight record commands are in [handoff](references/handoff.md) and [build](references/build.md).
+- `python scripts/checks.py diff <baseline> <after>` compares saved test-runner outputs by test name ([evidence](references/evidence.md)).
+- `python scripts/registry.py` lists installed skills from the documented host roots, as JSON.
+- `python scripts/core_check.py --skill <sub-skill folder>` checks a sub-skill's core range.
+- `python scripts/ruletest.py <rules.json>` checks that each guard rule matches its own must-match example and not its must-not example, and that a deny or ask rule also matches its unresolved, alternate and twin examples ([guards](references/guards.md)).
+- `python scripts/build_core_block.py check` checks every sub-skill's embedded Minimum Core block byte for byte; `inject` rewrites them.
 
-Keep `SKILL.md`, references, contracts and scripts together. Check for an existing westack folder first; do not overwrite unrelated work. Reload discovery as your installed host requires and inspect the skill picker. Claude/Cursor document slash selection; Codex supports its skill selection surface. If discovery is unavailable, explicitly ask the host to read `westack/SKILL.md` and follow the relevant references; label this as manual loading, not a successful native installation. No global installation is needed. Remove only the copied folder to uninstall.
+Python 3.10 or later runs the helpers; the suite also needs an installed Node with node:test support. This build used Python 3.14.3 and Node 24 on Windows. Scripts execute no recorded task commands, and an exit of zero means consistency, not semantic proof.
 
-These locations were checked against [OpenAI](https://learn.chatgpt.com/docs/build-skills), [Claude Code](https://code.claude.com/docs/en/skills) and [Cursor](https://cursor.com/docs/skills) documentation on 2026-10-26; installation/invocation has not been tested.
+## Install
 
-## Use
+Use `tools/install.py` in the repository (dry run by default). By hand: copy this folder, without `tests/`, to one host skill root as `westack` (see [hosts](hosts/README.md)), after checking that no folder of that name exists. Remove only the copied folder to uninstall.
 
-Examples: “Use westack to fix this one failing arithmetic test”; “westack investigate: find the cause without editing”; “westack review this patch against the supplied acceptance criteria.” Clear tiny work takes the short path. Missing independent reviewers or sandbox boundaries remain explicit limitations.
-
-Python 3.10+ is optional for the validator; the test suite also requires an already installed Node with node:test support. This build used Python 3.14.3 and Node 24.13.1 on Windows. The instruction skill can be read without either. No dependencies are installed. From this folder run:
-
-```text
-python scripts/validate.py package .
-python tests/run.py
-```
-
-To check a persistent task, use the command in [SKILL.md](SKILL.md): `validate.py task` with `--repo` recomputes patch and revision from disk, and you supply the scope label and an authorized evidence root. Scripts execute no recorded task commands. An exit of zero means consistency-only, not semantic proof.
-
-See [examples](examples/tiny-repair.md), [contract](contracts/README.md), [evaluation](tests/EVALUATION.md), [source decisions](provenance/decisions.json), [acceptance results](tests/acceptance-results.json), and [changelog](CHANGELOG.md). The full donor corpus is intentionally absent.
-
-For a persistent build, [start a canonical task](examples/start-task.md) with `validate.py init`; it records context without granting permissions or inventing completed work. New source qualification for three of the twenty decision units is in [continuation findings](provenance/continuation.md). The remaining units retain their previous inspection depth.
-
+See the [contract](contracts/README.md), [source decisions](provenance/decisions.json) and [changelog](CHANGELOG.md). The evaluation notes (`tests/EVALUATION.md`) and the suite stay in the repository; an installed copy leaves out `tests/`.

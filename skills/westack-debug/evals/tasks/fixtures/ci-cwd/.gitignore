@@ -1,0 +1,4 @@
+# cwd-ign-5b2
+__pycache__/
+data/*.json
+!data/rates.json

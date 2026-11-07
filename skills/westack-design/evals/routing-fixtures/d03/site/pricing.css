@@ -1,0 +1,9 @@
+body { font-family: Arial, sans-serif; background: #fff7e6; }
+.title { text-align: center; font-size: 56px; color: #ff3366; text-shadow: 3px 3px 0 #ffd400; }
+.plans { display: flex; gap: 20px; justify-content: center; }
+.plan { border: 3px solid #ff3366; border-radius: 20px; padding: 30px; background: #fff; }
+.plan-featured { transform: scale(1.1); background: linear-gradient(135deg, #ff3366, #ffd400); color: #fff; }
+.badge { background: #000; color: #ffd400; padding: 4px 10px; font-weight: bold; }
+.price { font-size: 40px; font-weight: 900; }
+.cta { display: block; margin-top: 20px; padding: 14px; background: #ff3366; color: #fff; text-align: center; }
+.faq-question { margin: 60px auto; max-width: 480px; }

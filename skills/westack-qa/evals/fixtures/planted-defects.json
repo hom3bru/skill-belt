@@ -1,0 +1,15 @@
+{
+  "format": "westack-qa-planted-1",
+  "about": "Defects planted in evals/fixtures/site. A live quick or full run against that site, served on localhost, must report each one; `qacheck.py expect <report.json> <this file>` checks it. Matching: same category, the page path ends with `page`, and one `match` word appears in the issue's title or evidence.",
+  "serve": "python -m http.server <port> --bind 127.0.0.1 --directory skills/westack-qa/evals/fixtures/site",
+  "defects": [
+    {"id": "console-error", "category": "console", "page": "/index.html", "match": ["undefinedHelper", "ReferenceError"],
+     "why": "a load handler calls a function that does not exist"},
+    {"id": "broken-link", "category": "links", "page": "/index.html", "match": ["missing.html"],
+     "why": "the Pricing link points at a page that is not there (404)"},
+    {"id": "dead-button", "category": "functional", "page": "/index.html", "match": ["save"],
+     "why": "the Save button has no handler: clicking it changes nothing on the page"},
+    {"id": "missing-alt", "category": "accessibility", "page": "/about.html", "match": ["alt"],
+     "why": "the team image has no alt attribute"}
+  ]
+}

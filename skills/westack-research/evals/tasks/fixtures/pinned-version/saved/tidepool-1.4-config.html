@@ -1,0 +1,10 @@
+<!-- doc14-7a1 -->
+<html><body>
+<h1>tidepool 1.4 configuration</h1>
+<h2>pool_mode</h2>
+<p>One of session, transaction or statement. Default: session.</p>
+<h2>Transaction mode</h2>
+<p>In transaction mode a server connection goes back to the pool after each transaction. Prepared statements are not supported in transaction mode in 1.4: a statement prepared on one server connection is unknown on the next one.</p>
+<h2>default_pool_size</h2>
+<p>Server connections per user and database pair. Default: 20.</p>
+</body></html>

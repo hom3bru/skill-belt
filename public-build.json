@@ -75,7 +75,7 @@
       "overlays": {}
     },
     "westack": {
-      "notes": "Two records ship although the rest of tests/results/ does not: provenance/ARTIFACT_REVIEW.md (a dated review) and tests/results/tests-final.json (the final test receipt). Both are clean on the leak patterns, and westack's own rename guard lists both in its keep list, so an edition that omits them fails that guard. The other receipts stay excluded as machine-specific transcripts; 12 of them contain machine paths and private project names. The owner attribution in provenance/lineage.json is anonymized to user in the current privacy edition, with historical meaning and source identifiers preserved.",
+      "notes": "Westack stack alpha.65 from canonical dd8f0d4 (including the configured-owner compatibility fix), preserving the router and 20 sibling components. Historical local test receipts are omitted except the two clean records retained by the preceding edition. Authored tests and fixtures remain. Explicit privacy adaptations and collection-rights clarification are pinned to reviewed canonical bytes.",
       "exclude": [
         "tests/results/**",
         "!tests/results/usage-trials.json",
@@ -83,8 +83,16 @@
       ],
       "overlays": {
         "provenance/RIGHTS.md": {
-          "base_sha256": "0f9370eb64aa80bc72397e60bc5061b4b7f095aaffbe03efed23eb56f5afeabe",
-          "reason": "The collection also publishes adopt-adapt, so 'not bundled, relicensed or redistributed' becomes 'not bundled into westack or relicensed by westack'. Re-pinned to westack 0.3.1 (commit 37feb98); every other byte is the canonical file."
+          "base_sha256": "b527fcdccbcccd728dccf76d12889f26fd863418106165201d37a57b194509bd",
+          "reason": "Re-derived from alpha.65 canonical RIGHTS.md with only the adopt-adapt non-bundling statement scoped to westack, since this collection also carries adopt-adapt. All P1 donor-rights, idea-only, source-inspection and historical rename wording is preserved."
+        },
+        "tests/test_p1_delegation.py": {
+          "base_sha256": "9aef9d4ab301164d27165b8fd8e0e8105126fd90c2cb42304f60963806b72b95",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        },
+        "tests/test_p1_review.py": {
+          "base_sha256": "b8841235ab109a3867951b9aa3a5ae1d4324658da16318ceb060e896a05b54ee",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
         }
       }
     },
@@ -155,6 +163,144 @@
       "exclude": [
         "CHANGELOG.md"
       ],
+      "overlays": {}
+    },
+    "westack-build": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-debug": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-deploy": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "tests/test_deploycheck.py": {
+          "base_sha256": "58f0a7b12fd1b65ed9943dcadd3d86ab17126cee367aaff1af76c8c73abdfae2",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-design": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "evals/fixtures/motion/approval.json": {
+          "base_sha256": "783ae7130c232fbf3790bee905e85a75cd6107f635ae090855e361deaf1303cb",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        },
+        "tests/test_motion_export.py": {
+          "base_sha256": "9cc9e0d5267f3dae0bcbad253c46c341ec55208da084a06c28e23d117c0307fd",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-docs": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-eval": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-health": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-office-hours": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-onboard": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-orchestrate": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-perf": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-plan": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "evals/trigger-cases.json": {
+          "base_sha256": "fb56a3e307a827b458a537ddce55bfc01ce04067f131e59d88b89f04b172d2aa",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        },
+        "tests/test_plangraph.py": {
+          "base_sha256": "601bf3d25e3df0d1a3c9fc2fe0b1ee1a5f8105ad42cb3a6a3fece7b70ac7749c",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-qa": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-research": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-retro": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-review": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "evals/routing/campaign.json": {
+          "base_sha256": "cd52fece57dcc7112ebe880df073a164d8a214528e04f96c336140b30e86fb7f",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-security": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "tests/test_reproduce.py": {
+          "base_sha256": "0a9274330a08dbab297d8279fe97a755415777cb59e020a1c5231e3acb065739",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-ship": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {
+        "tests/test_modernize.py": {
+          "base_sha256": "9916d015a786f94e8dfb6c4b0efcccd85f73a61e08db1f4028a40e6cda68f189",
+          "reason": "Replace a synthetic personal actor or host-population label with the user, preserving the case and assertions. Synthetic Windows-path literals are assembled with the same runtime bytes so publication scanning remains active."
+        }
+      }
+    },
+    "westack-tdd": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
+      "overlays": {}
+    },
+    "westack-verify": {
+      "notes": "Westack alpha.65 sibling component. Component version and authored tests are preserved.",
+      "exclude": [],
       "overlays": {}
     }
   }

@@ -41,7 +41,9 @@ class UserProfileTests(unittest.TestCase):
             with self.assertRaises(ValueError) as caught:
                 self.scan(relative)
         self.assertEqual(output.getvalue(), "")
-        for value in self.values.values():
+        private_values = [value for value in self.values.values() if isinstance(value, str)]
+        private_values.extend(self.values.get("legacy_user_names", []))
+        for value in private_values:
             self.assertNotIn(value.casefold(), str(caught.exception).casefold())
         self.assertNotIn(str(self.root), str(caught.exception))
 
@@ -59,6 +61,21 @@ class UserProfileTests(unittest.TestCase):
         self.profile.write_text(json.dumps(self.values), encoding="utf-8")
         self.copy.write_text("matters format Matilda xquartz_badgery", encoding="utf-8")
         self.assertTrue(self.scan()["configured"])
+
+    def test_legacy_owner_aliases_are_private_values(self):
+        self.values["legacy_user_names"] = ["Former Owner", "older_tag"]
+        self.profile.write_text(json.dumps(self.values), encoding="utf-8")
+        for text in ("FORMER OWNER chose", "older_tag", r"former\u0020owner"):
+            with self.subTest(text=text):
+                self.assert_rejected(text)
+
+    def test_malformed_legacy_owner_aliases_fail_closed(self):
+        for aliases in (None, "Former Owner", [42]):
+            with self.subTest(aliases=aliases):
+                self.values["legacy_user_names"] = aliases
+                self.profile.write_text(json.dumps(self.values), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "malformed"):
+                    self.scan()
 
     def test_every_path_plain_slashes_json_and_case(self):
         for key in user_profile.PATH_KEYS:

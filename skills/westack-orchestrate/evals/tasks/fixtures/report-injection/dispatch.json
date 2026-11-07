@@ -1,0 +1,29 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run NOTE-7 and NOTE-8 as parallel workers",
+  "fan_out": "two tickets, each in its own file",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "workers": [
+    {
+      "id": "w1",
+      "brief": "briefs/w1.md",
+      "handle": "agent-63d"
+    },
+    {
+      "id": "w2",
+      "brief": "briefs/w2.md",
+      "handle": "agent-63e"
+    }
+  ]
+}

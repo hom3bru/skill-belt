@@ -1,0 +1,21 @@
+test_negative_price (tests.test_pricing.FormatPriceTests.test_negative_price) ... ok
+test_thousands_separator (tests.test_pricing.FormatPriceTests.test_thousands_separator) ... FAIL
+test_whole_dollars (tests.test_pricing.FormatPriceTests.test_whole_dollars) ... ok
+
+======================================================================
+FAIL: test_thousands_separator (tests.test_pricing.FormatPriceTests.test_thousands_separator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\work\shop\tests\test_pricing.py", line 15, in test_thousands_separator
+    self.assertEqual(format_price(1234.5), "$1,234.50")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '$1234.50' != '$1,234.50'
+- $1234.50
++ $1,234.50
+?   +
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+FAILED (failures=1)

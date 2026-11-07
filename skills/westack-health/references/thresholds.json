@@ -1,0 +1,17 @@
+{
+  "format": "westack-health-thresholds-1",
+  "about": "The numbers behind the health score (references/run.md). scripts/healthcheck.py reads them; change them here, never in the script. Weights are relative: a skipped category's weight is shared among the scored ones in proportion.",
+  "weights": {"typecheck": 22, "lint": 18, "tests": 28, "deadcode": 13, "shell": 9, "index": 10},
+  "index": {"OK": 10, "WARN": 7, "ERR": 0},
+  "count_bands": {
+    "typecheck": {"count": "errors", "below": [[10, 7], [50, 4]], "else": 0},
+    "lint": {"count": "warnings", "below": [[5, 7], [20, 4]], "else": 0},
+    "deadcode": {"count": "unused", "below": [[5, 7], [20, 4]], "else": 0},
+    "shell": {"count": "issues", "below": [[5, 7]], "else": 4}
+  },
+  "tests": {"pass_rate_above": [[0.95, 7], [0.80, 4]], "else": 0, "passed_without_count": 7},
+  "failed_without_count": 4,
+  "labels": [[10, "CLEAN"], [7, "WARNING"], [4, "NEEDS WORK"], [0, "CRITICAL"]],
+  "priorities": ["high", "medium", "low"],
+  "history_rows": 10
+}

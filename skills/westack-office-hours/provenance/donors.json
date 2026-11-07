@@ -1,0 +1,35 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-office-hours",
+  "reviewed": "2026-11-04",
+  "policy": "Donor files were read at their pinned commit in the local mirror (tools/mirrors.py), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gstack.office-hours).",
+  "usefulness_legend": {"strong": "shaped the skill's structure or its rules", "useful": "added a rule or a check", "minor": "a detail"},
+  "donors": [
+    {
+      "ref": "gstack.office-hours",
+      "system": "gstack office-hours",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/office-hours/SKILL.md.tmpl", "sha256": "b57fd49e9439339437eb4e80bd237130a0b6eda2eb1f49ef8cca7b2079a36cb8", "bytes": 18980, "read": "lines 76-290 (context, modes, landscape, premise challenge, approaches)", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/office-hours/sections/phase-2a-startup-diagnostic.md.tmpl", "sha256": "b1867ed9a84ff5a2698b59490fe2b437af1b6193385ccf23aa0b9cc5be5afc08", "bytes": 13548, "read": "lines 1-82, then the question headings", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/office-hours/sections/phase-2b-builder-brainstorm.md.tmpl", "sha256": "604794b75cb79230ce728a70cab9bf02747cb2deafbcd6899ade0c39bc550f3e", "bytes": 3295, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/office-hours/sections/design-and-handoff.md.tmpl", "sha256": "c27af3f4fc054bcd90f23732594202536994de7fe47abbfed9899cd1faf6b2c4", "bytes": 32535, "read": "the design-document template headings", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "Two modes chosen from the user's stated goal, with a switch from builder to demand when customers, revenue or a sponsor appear.", "where": "SKILL.md, Pick the mode"},
+        {"mechanism": "Six demand questions (demand, status quo, who exactly, narrowest wedge, surprise, future fit) routed by product stage, with an internal-project variant; five generative builder questions.", "where": "references/questions.md"},
+        {"mechanism": "Asking one question at a time, pushing a vague answer, accepting a second refusal, naming failure patterns, brief acknowledgment of a specific answer, and a list of hedging phrases never to use.", "where": "SKILL.md rules 1-2; references/questions.md"},
+        {"mechanism": "A premise challenge with numbered premises the user marks; two or three approaches (smallest, best long-term, lateral) with effort, risk, pros, cons and reuse; a hard stop until the user chooses.", "where": "references/design-doc.md; SKILL.md steps 3-4"},
+        {"mechanism": "A design document per mode and one concrete next action; a private-by-default search of the space using general terms only.", "where": "references/design-doc.md; scripts/ohcheck.py"}
+      ],
+      "rejected": [
+        "YC branding, the personal plea, the founder resource links, the YC application nudge and the tiered relationship closing: content, not mechanism.",
+        "The builder and developer profiles, telemetry and the learnings log: westack uses the host's memory with an explicit save.",
+        "A second opinion from the codex CLI or a fresh subagent by default: westack-review's different-model reviewer, when installed and wanted.",
+        "Searching through the donor's own browser runtime: the host's search tool, on the user's yes."
+      ]
+    }
+  ]
+}

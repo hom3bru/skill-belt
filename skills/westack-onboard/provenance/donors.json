@@ -1,0 +1,135 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-onboard",
+  "reviewed": "2026-11-04",
+  "policy": "Donor files were read at their pinned commits in the local mirrors (tools/mirrors.py), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gbrain.search.*, gbrain.chunking, gbrain.sync, gbrain.schema, gbrain.keyword-only-mode, gbrain.doctor, gstack.gbrain.sync-orchestrator).",
+  "usefulness_legend": {"strong": "shaped the skill's structure or its numbers", "useful": "added a rule or a check", "minor": "a detail"},
+  "donors": [
+    {
+      "ref": "gbrain.index",
+      "system": "gbrain keyword search, chunking, sync and doctor",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/schema.sql", "sha256": "2821394d7d05c1087999aa14e05abb6f089136fc9f02c6073d3aaf6fc64b9d55", "bytes": 207354, "read": "searched for the sources, pages, chunks and links tables and the chunker version", "role": "primary"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/search/hybrid.ts", "sha256": "61350946b0ce06bf9cce2436731d18793ce94a003ad2321619cac9ac4c7bdb25", "bytes": 73303, "read": "header and constants: RRF k 60, fusion then boosts, token budget", "role": "primary"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/chunkers/code.ts", "sha256": "6ddd596bc676f558e0505505110e286947ad3a8bd4e441818050d880a6f6f347", "bytes": 72731, "read": "from the 2026-11-04 inventory: one chunk per symbol with a token cap", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/commands/sync.ts", "sha256": "b6b5e9da31d04ceccf7934cfa014055b0bbc165469c33717ba9516b0a89338af", "bytes": 32472, "read": "from the 2026-11-04 inventory: watermark, failure ledger, renames, soft deletes", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/embedding-disabled.ts", "sha256": "656c2116dd820301fa2b08d56692e33e858523a3cd92a39cd7b73f8c2826f788", "bytes": 2038, "read": "whole file: keyword-only mode", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/commands/doctor.ts", "sha256": "79896498804987a10811c595dc83addc2b8e41c7fa5bc016581868360e5824bc", "bytes": 31262, "read": "from the 2026-11-04 inventory: index health report", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "Sources, pages, chunks and links tables with content hashes and a chunker version whose change re-walks every file.", "where": "scripts/codeindex.py connect, sync"},
+        {"mechanism": "Weighted keyword search with title and symbol fields above body text, fused by reciprocal rank (k 60) with a title arm, then title, recency and backlink boosts, inside token budgets.", "where": "scripts/codeindex.py search; references/index.json"},
+        {"mechanism": "One chunk per code symbol with a token cap, Markdown heading chunks, and a word-window fallback.", "where": "scripts/codeindex.py chunk_page"},
+        {"mechanism": "A watermark never advanced on a partial run, a failure list the user can acknowledge, rename identity by content and soft deletes.", "where": "scripts/codeindex.py sync"},
+        {"mechanism": "A keyword-only mode as a first-class default, and a doctor that reports index health.", "where": "scripts/codeindex.py search, doctor"}
+      ],
+      "rejected": [
+        "Postgres, PGLite and the hosted engines: Python's sqlite3 serves one user on one machine.",
+        "Embeddings, rerankers and synopses at search time: opt-in local extensions wait for S18; the paid ones are excluded.",
+        "Running git for the file list and the delta: westack's helpers run no command, so the index reads .git files and detects renames by content."
+      ]
+    },
+    {
+      "ref": "gstack.gbrain.sync-orchestrator",
+      "system": "gstack's gbrain sync orchestrator",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "useful",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/bin/gstack-gbrain-sync.ts", "sha256": "372940d29b114ebd182c06d8130bb4d3defb12ebf6fd4f0508db4353ae507796", "bytes": 100723, "read": "header (lines 1-30) and the stage result type: lock, stale takeover after 5 minutes, tmp-and-rename state, OK/WARN/ERR", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/sync-gbrain/SKILL.md.tmpl", "sha256": "77a638c131ff9b9d8064b19d65537d998d2770f54b69a2048f588bb27f472512", "bytes": 31932, "read": "hashed; its guidance-block steps wait for S17", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "A lock file with a stale takeover after five minutes, released in a finally block.", "where": "scripts/codeindex.py acquire_lock, release_lock"},
+        {"mechanism": "A state file written to a temporary file and renamed into place, and an OK, WARN or ERR verdict for each run.", "where": "scripts/codeindex.py write_state, sync"}
+      ],
+      "rejected": [
+        "Signal traps: Python's finally covers the release on an interrupt; a killed process leaves a lock the next run takes over.",
+        "The memory-ingest and artifact stages: gstack's own state, not an index of the repository."
+      ]
+    },
+    {
+      "ref": "gbrain.code-graph",
+      "system": "gbrain code intelligence and context engine",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "useful",
+      "sources": [
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/commands/code-callers.ts", "sha256": "1a90e9ce0d2bed7969a05238f300e93dfebfbfd2c417223e7e14df90a2ec38b6", "bytes": 5382, "read": "from the 2026-11-04 inventory: callers from symbol edges", "role": "primary"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/commands/code-callees.ts", "sha256": "874a44c216a060f0d6db425c7ef431a8ffe5296d013ff781fdba725f71b9de55", "bytes": 4561, "read": "from the 2026-11-04 inventory: callees from symbol edges", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/chunkers/edge-extractor.ts", "sha256": "97ad4d7c0eed4a905164dd6bc025d65d8861428b93d03ee93f995bdabc0c9236", "bytes": 34421, "read": "from the 2026-11-04 inventory: call edges per chunk", "role": "supporting"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/context-engine.ts", "sha256": "0fbbbdf84cdd7735a75d26452283d3e0b85de2ef02255c538026736a9a420bb8", "bytes": 67723, "read": "from the 2026-11-04 inventory: a budgeted context pack and a since-watermark delta", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "Call edges recorded per chunk at index time, so definitions, references, callers and callees are queries, not re-reads.", "where": "scripts/codeindex.py python_chunks, regex_chunks, store_page, definitions, callers, callees, references"},
+        {"mechanism": "A context pack for one symbol filled to a token budget, and the files changed since a watermark.", "where": "scripts/codeindex.py context_pack, delta"}
+      ],
+      "rejected": [
+        "Tree-sitter edge extraction by default: Python's ast and call patterns run with the standard library; tree-sitter is S18's opt-in.",
+        "Serving these as MCP verbs: S18's opt-in."
+      ]
+    },
+    {
+      "ref": "gstack.gbrain.trust-policy",
+      "system": "gstack gbrain repository policy and sync guidance block",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "useful",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/bin/gstack-gbrain-repo-policy", "sha256": "6484e0042fadafa81113bb8ccf606e5a5eb3dbdee33dfcb50dcc9ab8c0f696f4", "bytes": 20983, "read": "from the 2026-11-04 inventory: tiers, URL normalisation, a quarantined corrupt file, and lines 34-36 where read-only is not enforced", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/sync-gbrain/SKILL.md.tmpl", "sha256": "77a638c131ff9b9d8064b19d65537d998d2770f54b69a2048f588bb27f472512", "bytes": 31932, "read": "from the 2026-11-04 inventory: the guidance block written after a put-search-delete round trip and removed when it fails", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "Per-repository read-write, read-only and deny tiers keyed by a normalised remote URL, with a corrupt policy file moved aside.", "where": "scripts/codeindex.py load_policy, tier_for, enforce, set_tier; references/governance.md"},
+        {"mechanism": "A marked search-guidance block in the instruction file, written only after a put-search-delete round trip within three tries and removed when the round trip fails.", "where": "scripts/codeindex.py ping, guidance"}
+      ],
+      "rejected": [
+        "Unenforced read-only: westack's helper refuses build, update and the ping under read-only, and everything under deny.",
+        "Treating a corrupt policy as empty: westack fails closed (read-only) until the file is restored or replaced.",
+        "Writing the block as part of every sync: here it is its own command, a dry run unless the user grants the instruction-file edit."
+      ]
+    },
+    {
+      "ref": "gbrain.opt-in",
+      "system": "gbrain local embeddings, secret scan and MCP server",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "useful",
+      "sources": [
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/embedding.ts", "sha256": "cfbafb665719e425f7ab9f65a8374e9267612fd248dfa1f32943e16f58bb167b", "bytes": 9964, "read": "from the 2026-11-04 inventory: an OpenAI-compatible local endpoint", "role": "primary"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/core/secret-scan.ts", "sha256": "f38e8e264b3ac46165e5035a9e3ac1b57e7aba2945ff28d3ee935828cfd4f124", "bytes": 69265, "read": "from the 2026-11-04 inventory: secrets scanned before content leaves", "role": "primary"},
+        {"url": "https://github.com/garrytan/gbrain/blob/7188703ace17681d48d06329f04c6bac1bbf7a41/src/mcp/server.ts", "sha256": "322a67abae2f2f9db44b82ae7feb6f26e774470b00d2564b71f496931627ad81", "bytes": 40091, "read": "from the 2026-11-04 inventory: the read verbs over MCP", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A vector arm through a local embedding endpoint, fused by rank with the keyword arms, off by default.", "where": "scripts/codeindex.py Embedder, embed_pages, vector_ranking, search"},
+        {"mechanism": "A secret scan of everything that would leave the machine, refusing the whole export on one finding.", "where": "scripts/indexsync.py scan, export"},
+        {"mechanism": "The read verbs served over MCP stdio, write verbs left out.", "where": "scripts/mcpserver.py"}
+      ],
+      "rejected": [
+        "Hosted embedding providers: paid, excluded (absorption.json).",
+        "The local reranker: not built in S18, no acceptance check covers it.",
+        "Write verbs over MCP: index writes stay on the command line, under the trust tier."
+      ]
+    },
+    {
+      "ref": "gstack.brain-sync.git",
+      "system": "gstack's private-git brain sync",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "minor",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/bin/gstack-brain-sync", "sha256": "d249670bdcd8ab54ead04f775f133ed73fc646935ce0c6e9d511e75639d73618", "bytes": 89128, "read": "from the 2026-11-04 inventory: allowlist, secret scan before commit, JSONL merge", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "Sharing derived state through a private git repository as sorted JSONL, scanned for secrets first, merged by key.", "where": "scripts/indexsync.py; references/extensions.md"}
+      ],
+      "rejected": [
+        "Running git from the script: the agent runs git under the user's grant; the script only exports and imports.",
+        "Union merge of markdown: the index exports no markdown state."
+      ]
+    }
+  ]
+}

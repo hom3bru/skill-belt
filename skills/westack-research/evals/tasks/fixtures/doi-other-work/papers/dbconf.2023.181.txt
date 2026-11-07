@@ -1,0 +1,15 @@
+paper-d7a
+Tenant Sharding at Scale
+Samir Haddad, Claire Moreau
+Proceedings of DBConf 2023, doi:10.5555/dbconf.2023.181
+
+Abstract
+We move a multi-tenant OLTP database from one shared cluster to one shard per tenant group and measure write latency
+under a mixed read and write load.
+
+5 Results
+Under the mixed load, p99 write latency fell from 84 ms on the shared cluster to 41 ms with tenant sharding (Figure 4).
+Median write latency barely moved (6 ms to 5 ms).
+
+7 Limitations
+One workload from one company; tenants were roughly equal in size.

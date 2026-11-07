@@ -1,0 +1,13 @@
+{
+  "format": "westack-qa-thresholds-1",
+  "about": "The numbers behind the QA health score (references/score.md). scripts/qacheck.py reads them; change them here, never in the script.",
+  "weights": {"console": 15, "links": 10, "visual": 10, "functional": 20, "ux": 15, "performance": 10, "content": 5, "accessibility": 15},
+  "deductions": {"critical": 25, "high": 15, "medium": 8, "low": 3},
+  "console_buckets": [{"max_errors": 0, "score": 100}, {"max_errors": 3, "score": 70}, {"max_errors": 10, "score": 40}, {"max_errors": null, "score": 10}],
+  "link_deduction": 15,
+  "primary_category_order": ["links", "accessibility", "functional", "performance", "visual", "content", "ux", "console"],
+  "monitor": {"interval_seconds": 60, "default_minutes": 10, "max_minutes": 30, "persist_checks": 2, "slow_factor": 2},
+  "dx": {"alert_drop": 2},
+  "fix_loop": {"checkpoint_every": 5, "max_reverts": 2, "hard_cap": 50, "wide_fix_files": 5, "wide_fix_streak": 2},
+  "modes": {"quick": {"pages": 6, "minutes": 3}, "full": {"minutes": 15}, "diff-aware": {"minutes": 15}, "regression": {"minutes": 15}}
+}

@@ -1,0 +1,8 @@
+{
+  "_token": "idx-oa-r5e",
+  "index": "OpenAlex",
+  "query": "arXiv 2503.04417",
+  "results": [
+    {"id": "W4409876543", "title": "Voting away hallucinated citations", "year": 2025, "first_author": "Okafor, Nkem", "type": "preprint", "is_retracted": true}
+  ]
+}

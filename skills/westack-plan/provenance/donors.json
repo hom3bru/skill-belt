@@ -1,0 +1,1022 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-plan",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only, in our own words. Each donor file was fetched from raw.githubusercontent.com at the exact commit below on 2026-10-28 (no Firecrawl), hashed, and read as data; fetched text gave no instructions and no donor code was run. Every mechanism is graded 'present' (read at a pinned revision and path). The n-gram overlap check against every fetched file is recorded under overlap_check. Records whose ref starts with 'deep:' were added on 2026-10-29 for the P1 adoption (1.0.0-alpha.4): each was read at its pinned commit in the 2026-10-28 deep reads (shallow clones of the pinned repositories, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. The policy above describes the earlier records; a deep: record says for itself how it was read. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. One more record (ap:, the Aura Autopilot addendum, 2026-10-30) was read at its pin by the addendum's author; the clone was not opened for this change, and the benchmark in the Aura post is the authors' claim, graded claimed.",
+  "usefulness_legend": {
+    "A": "several mechanisms taken; shaped the skill's structure",
+    "B": "one or two mechanisms taken, or one that defines a rule",
+    "C": "read; little taken beyond what stronger donors gave, or mostly rejected"
+  },
+  "retrieval": {
+    "method": "urllib GET of https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>; paths for fatstack-skills and openai/codex from the GitHub tree listing at the same commit",
+    "retrieved": "2026-10-28",
+    "local_copies": "builder scratch westack-w1-plan/donor-raw (not shipped)",
+    "firecrawl": "not used"
+  },
+  "donors": [
+    {
+      "ref": "r2:N04",
+      "system": "openai/openai-cookbook (ExecPlans article, PLANS.md)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/openai/openai-cookbook/blob/a8132ca2f7a5de3a6cf15d9e79d172787b42b697/articles/codex_exec_plans.md",
+         "sha256": "a8f7bac9c378e853e09268518a2b4e59b8113c9f95cd53cb4144ca0d9534dc52", "bytes": 16521, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A plan is a living document that a reader with only the plan and the working tree can resume from; it is revised as work moves rather than written once.", "where": "references/living.md"},
+        {"mechanism": "Required living sections: progress split into done and remaining at every stop, surprises and discoveries backed by a short piece of evidence, and a decision log that says why the plan changed.", "where": "references/living.md"},
+        {"mechanism": "Acceptance phrased as behaviour someone can observe, for an internal change a test that fails before and passes after.", "where": "references/slices.md"},
+        {"mechanism": "Idempotent steps with a retry or rollback path for anything risky, backups before destructive steps, and additive changes with a parallel old path during a migration.", "where": "references/slices.md (rollback table, expand-migrate-contract)"},
+        {"mechanism": "Prototype milestones that de-risk an unknown, with explicit criteria for promoting or discarding the prototype.", "where": "references/research.md (spike)"}
+      ],
+      "rejected": [
+        "'Resolve ambiguities autonomously' and 'do not prompt the user for next steps': product choices belong to the user, and westack's authority rules govern; open questions are asked with a recommended answer.",
+        "Prose-only plans with checklists only in Progress: the plangraph format needs per-slice fields, so slices are structured and the narrative sits in Context.",
+        "Progress checkboxes as the record of done: done comes from receipts, never a ticked box."
+      ]
+    },
+    {
+      "ref": "r2:N05",
+      "system": "humanlayer/humanlayer (create_plan, implement_plan, validate_plan, research_codebase commands)",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/create_plan.md",
+         "sha256": "2a4b16e8050a3c96042727532f72231875efdcced14f4c76c0ba9a42524fc647", "bytes": 14687, "read": "full", "role": "primary"},
+        {"url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/implement_plan.md",
+         "sha256": "1e682b990898e1c9f040f88766f8a91ac06e51f056db6d15dd78c7837d785046", "bytes": 3165, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/validate_plan.md",
+         "sha256": "5f28ac5c0671063563920ae5d607b875df69f5cf98677f850fb3d53dd6b00e02", "bytes": 5226, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/humanlayer/humanlayer/blob/77c7fe99ee2b5016f897437ef70c9726efc86092/.claude/commands/research_codebase.md",
+         "sha256": "92adbe8276e81cd0ce1d53193a947b79b696a793e3c4febeb9f40e6e23158890", "bytes": 11181, "read": "headings and the rules section", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "Research the codebase before asking the user anything, and ask only what investigation cannot answer; check a user's correction against the code before accepting it.", "where": "references/research.md"},
+        {"mechanism": "Each phase's success criteria split into automated checks an agent can run and manual checks only a person can confirm; manual ones stay open until the person confirms.", "where": "references/steps.md (acceptance), references/slices.md, scripts/plangraph.py (human receipts)"},
+        {"mechanism": "An explicit list of what the plan will not do, against scope creep.", "where": "references/living.md (Non-goals)"},
+        {"mechanism": "Deviations from the plan reported separately from defects.", "where": "references/living.md (Deviations)"},
+        {"mechanism": "Research that describes the system as it is, with file:line references, before judging it.", "where": "references/research.md"},
+        {"mechanism": "When reality differs from the plan, stop and state expected, found and why it matters, rather than pressing on.", "where": "references/living.md (Surprises, Deviations)"}
+      ],
+      "rejected": [
+        "On resume, trust checked-off work and verify only if something seems off (r2:N20): done comes from current receipts; the last done slice's check is re-run on resume.",
+        "No open questions at all in the final plan: a plan may carry an assumption the user explicitly accepted, labelled; an approved plan carries no open decision (plangraph enforces it).",
+        "Tool-specific steps (thoughts sync, named research agents, make targets)."
+      ]
+    },
+    {
+      "ref": "ext:fatstack-tickets",
+      "system": "Coblong/fatstack-skills (fatstack-tickets, fatstack-setup tracker adapters)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-tickets/SKILL.md",
+         "sha256": "6673854560c71c1e8b71edf09eac159605a46dd62fe739ec09be72855c7bc66e", "bytes": 9728, "read": "full", "role": "primary"},
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-setup/tracker-local.md",
+         "sha256": "b0ae47bcc527528124e99ae9a967f0ba0f8806fb9da07291388e9fe69d45cafe", "bytes": 2735, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-setup/tracker-github.md",
+         "sha256": "62e2fd52fc233796bba8cdec9c6690a4a604d8ed8bfe7a699e855dee2995bcb4", "bytes": 2716, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-setup/tracker-jira.md",
+         "sha256": "05bcc78b8834e76a53f51d1145d3b43047028142d0f4340eed8315d6d0efeff0", "bytes": 2997, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-setup/tracker-linear.md",
+         "sha256": "ab25e68c7ee504c9387fedff497633e48f15a9c0bf285615c5bec1a435c91877", "bytes": 2915, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "Tracer-bullet tickets: each a narrow slice across the layers it touches that can be demonstrated alone; prefactoring in its own first ticket; sized for one fresh session.", "where": "references/slices.md"},
+        {"mechanism": "Requirement coverage: a breakdown counts as complete only once each requirement still in force has a ticket delivering it, and each constraint is carried or explicitly deferred.", "where": "references/slices.md, scripts/plangraph.py (uncovered-requirement)"},
+        {"mechanism": "Milestones as ordered phases with a goal, each leaving the product working; a blocker may not sit in a later phase than the work it blocks.", "where": "references/slices.md, scripts/plangraph.py (milestone-order)"},
+        {"mechanism": "Stable identities across re-runs: existing tickets and milestone names are kept, changed requirements are pointed out, native tracker ids are recorded separately from phase numbers and never assumed from a name match.", "where": "references/living.md (Identity), references/trackers.md, scripts/plangraph.py --previous"},
+        {"mechanism": "Nothing is created in the tracker until the user approves the breakdown; creation in dependency order so blockers carry real ids; read back to verify; on an uncertain call stop, report and reconcile before retrying.", "where": "references/trackers.md"},
+        {"mechanism": "Local markdown tickets as the fallback (one file per ticket, numbered in dependency order, Status and Blocked-by lines), with per-tracker mappings for dependencies and phases on GitHub, Jira and Linear.", "where": "references/trackers.md"}
+      ],
+      "rejected": [
+        "Setting created tickets to a 'ready' status and treating tracker status as progress: status is a marker; done comes from receipts.",
+        "Requirements and tickets kept in a feature requirements.md registry: the plan file is the one record; westack adds no second store."
+      ]
+    },
+    {
+      "ref": "cat:superpowers:skill:writing-plans",
+      "system": "obra/superpowers (writing-plans)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/writing-plans/SKILL.md",
+         "sha256": "a6c67c1900064347c2a329990dd3c555657c51c3ec53b259a08aa01a2c26139a", "bytes": 10335, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "A plan records the decisions the implementer cannot make alone (files, names, signatures, pinned values, the tests that prove each task) and leaves out what the signature and test already fix; a plan longer than its code has written the code, and lines that decide nothing are gaps.", "where": "references/slices.md"},
+        {"mechanism": "Per-task interfaces: what a task consumes from earlier tasks and produces for later ones, with exact names, checked for consistency across the plan.", "where": "references/slices.md (Interfaces, self-check)"},
+        {"mechanism": "A self-review pass before handing over: requirement coverage, name consistency and proportion.", "where": "references/slices.md (self-check)"}
+      ],
+      "rejected": [
+        "Two-to-five-minute steps with full code bodies for every task: granularity follows size here (tiny none, bounded a slice list, cross-cutting a living plan).",
+        "A commit at every step: commits are the user's grant, not a planning default."
+      ]
+    },
+    {
+      "ref": "r2:N15",
+      "system": "gastownhall/beads (beads skill and README)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/gastownhall/beads/blob/e46de42b3c598661a5e2f40e68401c17d85f3564/plugins/beads/skills/beads/SKILL.md",
+         "sha256": "01555fe65d19be401d820d9dec029cd048fb0791d433b4b575374477d6f1d827", "bytes": 4864, "read": "full", "role": "primary"},
+        {"url": "https://github.com/gastownhall/beads/blob/e46de42b3c598661a5e2f40e68401c17d85f3564/README.md",
+         "sha256": "cbd5ea3cf69d7fb5df6a93310d24e9dbf5f8d8cb617c668d0af1a65b76ae90be", "bytes": 20261, "read": "headings, features and command table", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "A computed ready set: the work whose blockers are all finished, derived from the dependency graph rather than kept by hand.", "where": "scripts/plangraph.py (ready, waiting)"},
+        {"mechanism": "Work discovered mid-task is filed as a new item linked to where it was found, instead of silently widening the current item.", "where": "references/living.md (Found during)"}
+      ],
+      "rejected": [
+        "Closing an item with a free-text reason as the record of done: in westack-plan a slice is done only with a receipt per criterion; the ready set counts only those.",
+        "A separate issue database: when a repository already uses Beads, the core defer map's convention entry applies; otherwise the plan file is the record."
+      ]
+    },
+    {
+      "ref": "harness:codex-plan-mode-template",
+      "system": "openai/codex (collaboration-mode plan template)",
+      "licence": "Apache-2.0",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/openai/codex/blob/26ad281fd1ca712e4f0c7920a6273cf18c961b8a/codex-rs/collaboration-mode-templates/templates/plan.md",
+         "sha256": "d6d46c2d460a9d91ada2167605a8dfc56efde6b2ab61e101444c736c6fd6960a", "bytes": 9184, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "Planning is non-mutating: reading, searching and checks that write only caches are allowed; edits to tracked files are not, and a request to execute while planning is handed on rather than done.", "where": "SKILL.md, references/research.md"},
+        {"mechanism": "Two kinds of unknown: discoverable facts are explored before asking; preferences and trade-offs are asked early with a few options and a recommended default, which may stand as a recorded assumption.", "where": "references/research.md"}
+      ],
+      "rejected": [
+        "Plan mode that persists until the host ends it and a special proposed-plan block: host-specific; the report's first line carries the plan state instead.",
+        "Discouraging file paths in the plan: slices name their paths so scope and diff audits can be checked."
+      ]
+    },
+    {
+      "ref": "deep:code-yeongyu/oh-my-openagent",
+      "system": "oh-my-openagent (OmO; previously oh-my-opencode)",
+      "licence": "Ideas only (restrictive). Sustainable Use License v1.0, source-available and not open source: internal business, non-commercial or personal use only, free non-commercial distribution only. Documentation read only; no code or prompt text read or carried.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/docs/guide/orchestration.md",
+          "sha256": "3a90525beaf14ab09b0776b73c8d9e65dcd61242723bd56c4b61e7ac2dbccab6",
+          "bytes": 21494,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/LICENSE.md",
+          "sha256": "b61ac928f152d13517328263e6bee9175b928f9ab696a2d2ca2b6cfd961ddc32",
+          "bytes": 3973,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-05: Approval-biased plan review: reject only verified blockers (files exist, no contradictions, QA names tool, steps, expected result); notes alone still approve; ask the user when a round finds nothing new.",
+          "grade": "present",
+          "evidence": "docs/guide/orchestration.md:122-134",
+          "where": "references/living.md (revise loop)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-05 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:leonxlnx/unlazy",
+      "system": "leonxlnx/unlazy (source targets 2.1.0, untagged)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Leonxlnx; GitHub shows the owner as Leonxlnx)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SKILL.md",
+          "sha256": "0ea144724398f9df5ce4cb880ff472c8afee0193179eb2f2a5d82f1a0f633450",
+          "bytes": 10520,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/references/orchestration.md",
+          "sha256": "812d909c60b7cf717839a6ae685d138f501e5577edf8df378d7e10b9c2e4fc79",
+          "bytes": 7324,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/SECURITY.md",
+          "sha256": "1d3995733df3e0512d974f476bad3537b56aa3fc9b89fb1367b9b61f7f18cc80",
+          "bytes": 12742,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Ownership claims for concurrent leaves: each declares OWNS globs, plan and leaf ledgers must match, and a refused claim means an unsafe split. Leases coordinate, not isolate.",
+          "grade": "present",
+          "evidence": "SKILL.md:40; references/orchestration.md:21-27; SECURITY.md:34-38",
+          "where": "scripts/plangraph.py (overlapping-paths); references/living.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:mrtooher/fable-mode",
+      "system": "fable-mode (mrtooher)",
+      "licence": "Ideas only (no licence). The tree has no LICENSE file and GitHub reports none, so all rights are reserved. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/SKILL.md",
+          "sha256": "b13e40ae3abd401fd12cb23682985552a9b60e1be22ec588c6eb848f6eb41ebf",
+          "bytes": 17387,
+          "read": "full",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-05: Replan budget: at most two full replans; a third means the requirements are ambiguous, so stop and ask the user. Renumbering or splitting one stage does not count.",
+          "grade": "present",
+          "evidence": "SKILL.md:92-96",
+          "where": "references/living.md (revise loop)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-05 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:naw103/foremerge",
+      "system": "Foremerge (naw103)",
+      "licence": "Apache-2.0 (LICENSE read, standard Apache 2.0 text)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/docs/conflict-detection.md",
+          "sha256": "e7a18bd43a1739aefa6ec152c1cf8afb9b38191251156627aa8db60032f95e38",
+          "bytes": 15867,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/docs/protocol.md",
+          "sha256": "05ceabe43bf8383722b70b303f307d0431cc2cc48aa62e8bc52bad39276b26c6",
+          "bytes": 19551,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/src/conflict.rs",
+          "sha256": "6fda844b693d29a8f792abdeb13944a2787dc0a6d6026bb2a69835335651032c",
+          "bytes": 44217,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Each scope carries a declared operation: add, extend, modify preserve dependents; replace, remove, rename, migrate do not. Prose inference was dropped after catching 1 of 10 conflicts.",
+          "grade": "present",
+          "evidence": "docs/conflict-detection.md:13-43; docs/protocol.md:140-165; src/conflict.rs:610-651",
+          "where": "scripts/plangraph.py (overlapping-paths); references/living.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:open-gsd/gsd-core",
+      "system": "open-gsd/gsd-core (successor lineage of get-shit-done)",
+      "licence": "MIT, Copyright (c) 2026 Open GSD (LICENSE read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/gsd-core/workflows/plan-review-convergence.md",
+          "sha256": "0ffef2e4ae27966f485326f017312a42ed153d8da0f29cf49abb81ac32393798",
+          "bytes": 37703,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/open-gsd/gsd-core/blob/ceef6898be2f3b09b4c55c51a524fde49803bb54/LICENSE",
+          "sha256": "3a160aec61eeb28e75e8017346ee190db07986a09c4bd72555cc706f1d99e27e",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-05: Convergence reads counts from a machine-readable cycle summary, not by grepping an accumulating review file; stalls if unresolved count does not fall, escalates at three cycles, open conflicts block 'converged'.",
+          "grade": "present",
+          "evidence": "gsd-core/workflows/plan-review-convergence.md:36-37,384-390,428-433,511-521",
+          "where": "references/living.md (revise loop)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-05 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:OpenHands/software-agent-sdk",
+      "system": "OpenHands software-agent-sdk",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 OpenHands contributors)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/openhands-sdk/openhands/sdk/conversation/resource_lock_manager.py",
+          "sha256": "cfbe93b802b3aabe816d5d9ffe574ee33f0220a95cfe36f2d42a43ca732f2dfa",
+          "bytes": 4115,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/OpenHands/software-agent-sdk/blob/47bbc5e8392c4c75b7f77a1da38bed4a9f53d6a5/LICENSE",
+          "sha256": "14a9b631c658eee682c6c2973525fbdf808c3457176bc47513052c559cc5ce86",
+          "bytes": 1079,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-14: Parallel tool calls lock per resource key (file, terminal, browser, MCP) in sorted order with type-specific timeouts, so different resources run together and the same one is serialised.",
+          "grade": "present",
+          "evidence": "openhands-sdk/openhands/sdk/conversation/resource_lock_manager.py:21-117",
+          "where": "scripts/plangraph.py (overlapping-paths); references/living.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-14 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "p2:a2aproject/A2A",
+      "system": "Agent2Agent (A2A) protocol, specification 1.0.0",
+      "licence": "Apache License 2.0 (LICENSE header read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/docs/topics/life-of-a-task.md",
+          "sha256": "1186a4153be5dab010ce2a03a664bbd7dcdd2329ec3dd6c5b6b52ef72b6f6d8e",
+          "bytes": 10216,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/docs/specification.md",
+          "sha256": "8af843abb347083d175945c9c3e340a68288fdf3a5eee8b38514fa1a158d7e88",
+          "bytes": 157901,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/a2aproject/A2A/blob/89699392a324fb24ac19824041f3bbda131789ad/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-19: A terminal task never restarts: a follow-up is a new task in the same context that references the earlier one, and messages sent to a terminal task are refused.",
+          "grade": "present",
+          "evidence": "docs/topics/life-of-a-task.md:68-92; docs/specification.md:175,305",
+          "where": "references/living.md (Keeping it current)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-19 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (platforms-memory); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:argoproj/argo-rollouts",
+      "system": "Argo Rollouts (argoproj/argo-rollouts)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License, Version 2.0, January 2004)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/argoproj/argo-rollouts/blob/6e9f105c1b506c2862806c49838397bd5477f120/rollout/stepplugin.go",
+          "sha256": "e88a7d1be7b15ab8dd8b565b6fb62d3319b9d31c36a12f0465ac936a2b5875c6",
+          "bytes": 9765,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/argoproj/argo-rollouts/blob/6e9f105c1b506c2862806c49838397bd5477f120/docs/features/rollback.md",
+          "sha256": "3133b14ccde9e1163049935d5230c58ab077e45748e5273f1da52056596c262a",
+          "bytes": 1111,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/argoproj/argo-rollouts/blob/6e9f105c1b506c2862806c49838397bd5477f120/LICENSE",
+          "sha256": "c996fc213c94f4a4a838407d355b081226caa7b103a4f239bb87fb8f1d8e3a60",
+          "bytes": 11352,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-14: Compensating abort: abort walks the completed steps in reverse and calls each step's own undo; terminate only stops the still-running step cleanly.",
+          "grade": "present",
+          "evidence": "rollout/stepplugin.go:34-90",
+          "where": "references/slices.md (Rollback)"
+        },
+        {
+          "mechanism": "WA-51: Rollback to the last verified stable revision is the one fast path; any other target is a new rollout with full steps unless it sits inside a declared rollback window.",
+          "grade": "present",
+          "evidence": "docs/features/rollback.md:7-11",
+          "where": "references/slices.md (Rollback)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-14, WA-51 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (progressive-delivery); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:cloudflare/security-audit-skill",
+      "system": "cloudflare/security-audit-skill (skill: security-audit)",
+      "licence": "MIT (LICENSE read, Copyright 2025-2026 Cloudflare, Inc.)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/RECONNAISSANCE.md",
+          "sha256": "02ca887aca84de8ae137f1891bd2f0a54f28d3fa6da92a27f54734382b3381a2",
+          "bytes": 15902,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/validate-coverage-ledger.cjs",
+          "sha256": "2eb280bd2e33c002916f86db9b29f9edfedb6454e5db973c766290465b868ac8",
+          "bytes": 33522,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+          "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+          "bytes": 1078,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-19: A critic reopening a unit archives its prior terminal state append-only with a reason. The next owner must be fresh and cannot reuse earlier owners' checks or artifacts.",
+          "grade": "wired",
+          "evidence": "RECONNAISSANCE.md:139; validate-coverage-ledger.cjs:568-644",
+          "where": "references/living.md (Keeping it current)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-19 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:code-yeongyu/oh-my-openagent",
+      "system": "oh-my-openagent (OmO; previously oh-my-opencode)",
+      "licence": "Ideas only (restrictive). Sustainable Use License v1.0, source-available and not open source: internal business, non-commercial or personal use only, free non-commercial distribution only. Documentation read only; no code or prompt text read or carried.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/docs/reference/mass-ulw-protocol.md",
+          "sha256": "29abe7e7abaab549f98a4825f0c240065b9a7922e0942247c1a041790577de94",
+          "bytes": 14451,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/code-yeongyu/oh-my-openagent/blob/f134eac1123204d7b28aabc8df04a66f09127f5b/LICENSE.md",
+          "sha256": "b61ac928f152d13517328263e6bee9175b928f9ab696a2d2ca2b6cfd961ddc32",
+          "bytes": 3973,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-37: Amending a running plan records previous and new fingerprints and which nodes changed, were added or are invalidated, so completed work affected by an amendment is not trusted.",
+          "grade": "present",
+          "evidence": "docs/reference/mass-ulw-protocol.md:74",
+          "where": "references/living.md (Resume)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:code-yeongyu/oh-my-openagent.",
+        "Supports adoption items HD-37 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:fluxcd/flagger",
+      "system": "Flagger (fluxcd/flagger)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License, Version 2.0, January 2004; source headers say Copyright The Flux authors, Apache 2.0)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/fluxcd/flagger/blob/c781cdc199d44cf84e21e90aedd8ff14c1df450e/pkg/controller/scheduler.go",
+          "sha256": "a1787b39090b4e02f614028e43558290f515495078a471e620e72a4713bfd99b",
+          "bytes": 37128,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/fluxcd/flagger/blob/c781cdc199d44cf84e21e90aedd8ff14c1df450e/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-51: Choose the revert target by phase: if the old stable copy is unhealthy mid-promotion, keep the new copy serving and mark the run failed.",
+          "grade": "present",
+          "evidence": "pkg/controller/scheduler.go:296-310",
+          "where": "references/slices.md (Rollback)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-51 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (progressive-delivery); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:github/spec-kit",
+      "system": "GitHub Spec Kit (spec-driven development toolkit)",
+      "licence": "MIT, Copyright GitHub, Inc. (LICENSE read, standard MIT text)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/github/spec-kit/blob/99e047e9b48c3ecbbc5c3e530fb45bed671960bc/templates/commands/converge.md",
+          "sha256": "4fb017b2869ad02d58aafe272a90077187ce4231f08effee6f340b0f3a07fc16",
+          "bytes": 13219,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/github/spec-kit/blob/99e047e9b48c3ecbbc5c3e530fb45bed671960bc/src/specify_cli/integrations/base.py",
+          "sha256": "83efc93b50f7b7bc4bc211557a837cedb9ca8c37b1772dea267120c6025c1b99",
+          "bytes": 77304,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/github/spec-kit/blob/99e047e9b48c3ecbbc5c3e530fb45bed671960bc/LICENSE",
+          "sha256": "2510b446bc1f0cf9702453075d20cd88631e20e5642658edb7325d9c1eb534f7",
+          "bytes": 1060,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-69: Append-only convergence: compare code with spec, plan and tasks, then append tasks tagged with source requirement and gap type (missing, partial, contradicts, unrequested); never renumber; a clean result changes nothing.",
+          "grade": "wired",
+          "evidence": "templates/commands/converge.md:73-83,156-166,214-231; registered at src/specify_cli/integrations/base.py:47-53",
+          "where": "references/living.md (Keeping it current)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-69 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:leonxlnx/unlazy",
+      "system": "leonxlnx/unlazy (source targets 2.1.0, untagged)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Leonxlnx; GitHub shows the owner as Leonxlnx)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/scripts/gate-lint.mjs",
+          "sha256": "12fedaa4ad7bcfacf6da8d66f4ead0d186115e03fe941d3d20efd361dec7ee7e",
+          "bytes": 9540,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/references/gates.md",
+          "sha256": "83a70b12f1b5058d1f1554fe42f350307bcb83fd33e8c102c60d20955def423c",
+          "bytes": 15368,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/leonxlnx/unlazy/blob/16671491f6679ad9378f52604d3bc2415b4120c7/LICENSE",
+          "sha256": "4575a543ab88dad12ccea7d97e563d0bce5b448b06072e65d3264497dad326df",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-45: A gate linter audits whether gates can fail, without running them: fixed-output commands, weak expectations such as ok or done, path read as regex, activity titles, unmeasured numbers, mostly-manual ledgers.",
+          "grade": "wired",
+          "evidence": "scripts/gate-lint.mjs:109-201; references/gates.md:106-126",
+          "where": "scripts/plangraph.py (criterion lint)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:leonxlnx/unlazy.",
+        "Supports adoption items SS-45 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:rainlanguage/adversarial-mutation-test",
+      "system": "rainlanguage/adversarial-mutation-test (skill 0.34.0 and a Rust mutation-probe)",
+      "licence": "Ideas only (restrictive). DecentraLicense 1.0, a custom strong-copyleft licence; GitHub reports NOASSERTION. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/skills/adversarial-mutation-test/SKILL.md",
+          "sha256": "a919036621109fec26fe2bdfcfefb4b45ce23f51e7be857b4acda7f0a0c828bf",
+          "bytes": 15050,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/LICENSE",
+          "sha256": "e945453aac226261fc2cd0351cf9ac817343a52a8ff0b731e22765a62196b9f7",
+          "bytes": 17901,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-16: Size work groups by behaviours, not module: cost is behaviours times mutants times a probe cycle, and an oversized group does not degrade, it dies and needs a successor.",
+          "grade": "present",
+          "evidence": "SKILL.md:47-56",
+          "where": "references/slices.md"
+        },
+        {
+          "mechanism": "HD-16: The orchestrator slices work in code from a schema-validated survey carrying behaviour counts; agents never self-select. Agents editing a shared TODO list is the known failure mode.",
+          "grade": "present",
+          "evidence": "SKILL.md:172-178",
+          "where": "references/slices.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-16 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:temporalio/documentation",
+      "system": "Temporal documentation (docs.temporal.io source)",
+      "licence": "MIT (LICENSE.md read in full: Temporal documentation, MIT License, Copyright (c) 2022 Temporal Technologies Inc. and Copyright (c) 2017 Uber Technologies, Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/temporalio/documentation/blob/773ece858393a68f35312a05c8b63259a9e7a1e9/docs/design-patterns/saga-pattern.mdx",
+          "sha256": "7477bf641590250314be157827f25bc8f4981bccb757a8e0bfa28f94b5097c1c",
+          "bytes": 19045,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/temporalio/documentation/blob/773ece858393a68f35312a05c8b63259a9e7a1e9/LICENSE.md",
+          "sha256": "e807d852b395ebd320881f256ac22d15631e0004617fbf8b3450e04651fa0b7a",
+          "bytes": 1172,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-14: Register each step's compensation before running the step, make it idempotent and safe if the step never ran, run them in reverse past any failure, then report the original failure.",
+          "grade": "present",
+          "evidence": "docs/design-patterns/saga-pattern.mdx:62-65,333-346",
+          "where": "references/slices.md (Rollback)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-14 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (durable-execution); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:Yeachan-Heo/oh-my-claudecode",
+      "system": "oh-my-claudecode (OMC)",
+      "licence": "MIT, Copyright (c) 2025 Yeachan Heo (LICENSE read)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/skills/graph/SKILL.md",
+          "sha256": "c0ebe6ddc52436779a04bb0fd9fcd98f694e52e6b156279895825cfb0dd1bf8d",
+          "bytes": 5383,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/src/cli/graph.ts",
+          "sha256": "b8213dbb8165afa384ae41db112c31b5c6bb3c527c058f0bd9914538bdf55e27",
+          "bytes": 13431,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/src/graph/descriptor.ts",
+          "sha256": "9a3cfffbc6ecc7e254a1217b778fcc890a35631d30a20034b73b1ca4dde2bdcf",
+          "bytes": 26538,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Yeachan-Heo/oh-my-claudecode/blob/e10206d8789b0ac4e5214eddbfbd203c1b757dea/LICENSE",
+          "sha256": "1d2b966f93feaa8928a57a69868388ee9016c86a341299fc5261ded44249af79",
+          "bytes": 1068,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "HD-37: A pipeline is a frozen plan: canonical JSON with a sha256 over its contract fields; a resumed run must match the stored copy exactly or refuse, never mixing revisions.",
+          "grade": "wired",
+          "evidence": "skills/graph/SKILL.md:39-58; src/cli/graph.ts:57-117; src/graph/descriptor.ts:53,102-142,718-745",
+          "where": "references/living.md (Resume)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items HD-37 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:x.com/Voxyz_ai/status/2107153846904451534",
+      "system": "X post by @Voxyz_ai (2026-10-05): Blind second plan and test-first reviewer",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-73: Blind second plan: two planners draft separately without seeing each other; the lead lists where they disagree with a recommendation and waits for the user's choice before building.",
+          "grade": "present",
+          "evidence": "post text, three-step tree and CLAUDE.md rule in the setup prompt",
+          "where": "references/steps.md (section 3)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-73 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2107153846904451534, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2107153846904451534 (a copy, not the original; SHA-256 86514633a16b60484b9c5065445709a290fae2bd9afb3434f78d0307b57d816b, 6717 bytes). Media not viewed: https://pbs.twimg.com/media/HTzuQCNbwAASdKe.png?name=orig.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "p2:web:x.com/Voxyz_ai/status/2115841132169183513",
+      "system": "X post by @Voxyz_ai (2026-10-29): Plan-change broadcast to running agents",
+      "licence": "none stated (public X post; text paraphrased, not copied; ideas only)",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "WA-78: Plan-change broadcast: update the plan file first, tell every running delegate, ask what each built on the old plan, require rereading the plan before starting and reporting, then list redo.",
+          "grade": "present",
+          "evidence": "post text, five-step coordinator prompt",
+          "where": "references/living.md (Hand-off)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-78 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "X post read as text, not a pinned repository file: original https://x.com/Voxyz_ai/status/2115841132169183513, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/Voxyz_ai/status/2115841132169183513 (a copy, not the original; SHA-256 f7d656c5d24c4ee440e55f1ce26a5aeb10d8cef575afd6da57ef73c3aabe8e0f, 11045 bytes). Media not viewed: none listed.",
+        "The post promotes a third-party product; only its do-it-yourself prompt idea is carried.",
+        "Licence status: none stated (public post). Never quote this source."
+      ],
+      "no_source_reason": "Public X post, not a repository file, so there is no commit to pin; its URL, retrieval copy, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "ap:ramenvr/autopilot",
+      "system": "ramenvr/autopilot (Aura Autopilot: an in-editor playtesting agent for Unreal, Unity and Godot in which a coding agent writes a per-game harness and a separate decision model plays through real input events)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/agents/session.py",
+          "sha256": "e1add2659d4c57bea85b819ecdc1154f13034612d44f3738d9837c62fd30c858",
+          "bytes": 99386,
+          "read": "lines 105–195: the agent's instructions",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/research.py",
+          "sha256": "f434dde8dd0bf997b810e4f789232ddc23f2280c917b7d187296fe68275dff66",
+          "bytes": 44618,
+          "read": "outline",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AP-4: Before building, try every step of the plan once, the last one included, with the numbers that decide it; scale it to the request, so a one-step claim gets one probe and no plan. The plan records a probe receipt for its last step.",
+          "grade": "present",
+          "evidence": "session.py:115, 128-132 as read for the addendum; the reason is at research.py:8 (47 model turns spent searching data tables while the goal's last step was never tested)",
+          "where": "references/research.md (Unknown feasibility)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AP-4 (Aura Autopilot addendum, 2026-10-30).",
+        "The existing spike rule (a small labelled experiment when reading cannot settle feasibility) is kept; AP-4 adds the probe of every step and the receipt for the last.",
+        "Flag, run data: sharing is on unless the user opts out (telemetry.py:43-48: share defaults to true and AUTOPILOT_SHARE=0 turns it off). When on, every model call is written whole (the request without picture data, and the full response), redacted for secrets, paths, user and host names and emails, but game-code excerpts in prompts stay; runs through Aura also sync notes, reusable code and traces to Aura's storage per team, and the game's code is never uploaded (aura_memory.py:4-9). The setup screen asks and invites a yes (README.md:36). westack takes no run data from it and sends none.",
+        "Flag, isolation: only Linux with bubblewrap gets no network and a read-only disk (sandbox.py:5); elsewhere the child merely lacks secrets, which a westack control label would call a heuristic, not a sandbox.",
+        "Benchmark, claimed (the Aura post, Nyx Iskandar and Andy Tsen, dated October 31, 2026 as served; retrieved 2026-10-30; HTML 133,994 bytes, sha256 7ad1721563dbacde619b5496697b2f42f722ca622b92080ee20325694762aac3): Pass@1 within 1800 s, Claude Opus 5.5 at medium effort, empty memory, cheating runs marked unsuccessful. Autopilot 7/7 at 262 s, Claude Code 5/7 at 437 s, an unnamed competitor 4/7 at 508 s. That is 7 tasks on one template game with one run each: the authors' claim, graded claimed, and no number from it is used.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-autopilot.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "nr:mvschwarz/openrig",
+      "system": "mvschwarz/openrig (a multi-agent rig: a daemon, tmux seats and skills for delegating work)",
+      "licence": "Apache-2.0 (LICENSE read by the 2026-10-30 read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/docs/reference/planning-dial.md",
+          "sha256": "cee6147122a78abca2833353e6aa0666adcb90c175547c9760e67d535ff8a2f0",
+          "bytes": 3374,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mvschwarz/openrig/blob/b25dd19a5a818e8cba7bfe2b0267093c0305cb4e/LICENSE",
+          "sha256": "c92a33920bf0cd3aa07ca2c479932ec900931ca1449948a4dc01d3bf979f45e3",
+          "bytes": 10763,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-11: Plan size and plan rigour are separate; when a wrong plan would be expensive, hard to undo and invisible from inside, add research before freezing and a non-author review, and record the choice and its reason in the plan.",
+          "grade": "present",
+          "evidence": "docs/reference/planning-dial.md:8-54",
+          "where": "references/steps.md (Rigour)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-11 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-a.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "The dial's last rung (a blind design compared with the first) is already held as the blind second plan (SKILL.md, section 3, WA-73).",
+        "Flags (recorded, not carried): it writes ~/.claude.json, ~/.codex/config.toml, hooks, tmux configuration and skill folders with no preview and no rollback guarantee; some seats run with full access and no approvals."
+      ]
+    },
+    {
+      "ref": "nr:thedotmack/claude-mem",
+      "system": "thedotmack/claude-mem (a persistent-memory plugin for Claude Code: capture hooks, a worker daemon, recall skills)",
+      "licence": "Apache-2.0 (LICENSE read in part by the 2026-10-30 read; NOTICE names the copyright holder); open core",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/plugin/skills/make-plan/SKILL.md",
+          "sha256": "31452dd10451e6930278809396701321e89772595d706f9b718051946841fff7",
+          "bytes": 4888,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/thedotmack/claude-mem/blob/70aa40042cfb8157a0d84954b9c0d2b30b50af80/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-12: A plan opens with the user-visible outcome, and each slice says in one line how it serves it; a slice that cannot is cut or flagged as drift.",
+          "grade": "present",
+          "evidence": "plugin/skills/make-plan/SKILL.md:26-37",
+          "where": "references/steps.md (3. Slice)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-12 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-a.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "The optional plangraph.py check for the purpose line is not built; the rule is text.",
+        "Flags (recorded, not carried): telemetry to PostHog is on by default, with a one-time backfill after an upgrade; redaction is off by default; it reads Claude Code's OAuth token from the operating system's credential store; content goes to Anthropic or cmem.ai, plus an optional sync; it hooks every tool call, runs a Bun daemon and adds a launcher on PATH."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {"ref": "r2:N10 / r2:N14", "system": "OthmanAdi/planning-with-files",
+     "url": "https://github.com/OthmanAdi/planning-with-files/blob/dcdfb278de53fdb69b2067ea173dbb1de45345a3/.agents/skills/planning-with-files/SKILL.md",
+     "sha256": "28830ab715fa18d2782157f73fa5116ea4533539a8d509a4b8e8e378980f9969", "bytes": 37890,
+     "why": "Read (rules, reboot test, attestation, security boundary). Its three-file split and hook injection are runtime machinery westack does not install; its retry rule and reboot test are already in the core (durable.md, handoff.md cold-resume test), and its honest note that a format check is not completion is the core validator's own stance."},
+    {"ref": "cat:pstack.playbook.multi-phase-plan", "system": "cursor/plugins (pstack multi-phase-plan playbook)",
+     "url": "https://github.com/cursor/plugins/blob/99b609a72323b70204eab407c622f436e858e112/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md",
+     "sha256": "5f239457bfdec3345c92caa06c59bf0257c662b89353f25a1c02ea942dcd00b1", "bytes": 13217,
+     "why": "Read (headings and checklist). PR-per-phase programs with cloud verification lanes are delivery machinery for its own tool chain; the useful part (phases with explicit dependencies and independent lanes) is already covered by milestones and the ready set."}
+  ],
+  "inherited_from_core": [
+    "the Minimum Core block (authority, evidence, baseline, broken-copy control, honest results, report)",
+    "the core plan reference: authority bound to scope and target, consumers included or covered by a verified adapter, the task record's work graph (references/plan.md)",
+    "the task record's work_units, acceptance (verifier human), decisions and observations, and validate.py task (contract C5)",
+    "the handoff note and cold-resume test, and the resume rule that re-runs the cheapest check first (references/handoff.md)",
+    "tracer bullets and the smallest sufficient change (references/craft.md); memory read before asking (references/memory.md); the defer map's Beads and Spec Kit convention entries"
+  ],
+  "own_additions": [
+    "Done never comes from ticket text, enforced in the checker: a done slice needs a receipt reference for every criterion, and a human-only criterion a person's confirmation; anything else is reported as claimed_done and its dependants stay waiting.",
+    "Consumers as a first-class slice field, found by searching the whole repository for the changed contract, each with its own acceptance criterion.",
+    "A rollback table in proportion to the kind of change, with 'none' refused and 'irreversible' needing approval at build time.",
+    "An approved plan may carry no open decision (checked).",
+    "One vocabulary with the task record: slice statuses are the contract's work_unit statuses, read from the core contract when present, so a markdown plan maps onto work_units, acceptance and decisions.",
+    "A one-slice hand-off note to westack-build or westack-tdd, so a chain does not carry the whole planning conversation."
+  ],
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/plangraph.py",
+    "reason": "Three of this skill's rules are claims about a plan's structure that drift as a plan is edited and re-planned: the dependency graph (cycles, missing or out-of-phase blockers), completeness (every slice has acceptance and rollback, every requirement a slice) and done-from-receipts (the ready set may count only slices with a receipt per criterion). A standard-library reader checks them deterministically, runs nothing and writes nothing, and computes the ready set the map-review asked to derive from evidence rather than status text.",
+    "reuse": "A task record (.json) is read through the core's record.py: record.shape checks it against contract.json, and slice statuses come from the contract's work_unit enum. The cycle check is not reused because record.py keeps it inside check_task, which needs a complete record and an evidence root; markdown plans have no record, so the checker carries a small graph routine of its own and leaves the record's full consistency to validate.py task.",
+    "tests": "tests/test_plangraph.py, 40 tests: red against a signature-only stub (34 failed, 1 error, 5 absence checks passed), then green; five broken copies (cycle check off, done from status text, human-only rule off, coverage off, ready set ignoring dependencies) each killed on assertions, judged by westack-tdd controls.py (verdict supported)."
+  },
+  "overlap_check": {
+    "method": "lower-cased word 12-grams of every text file in this package (SKILL.md, references, scripts, tests, provenance, evals) against all 22 fetched donor files, licences included; any shared 12-gram is a flag, extended to its full run",
+    "script": "builder scratch westack-w1-plan/scripts/ngram_overlap.py (not shipped); its control, a planted sentence from the ExecPlans article, was flagged as a 13-word run",
+    "result": "clean on 2026-10-28: no shared run of 12 or more words across 31 package files. The first pass flagged two 12-word runs (the superpowers line about a plan longer than its code, in references/slices.md; the fatstack local-ticket numbering rule, in references/trackers.md); both were reworded, as were a 10-word and a 9-word run found by a 9-gram scan. Longest remaining shared run: 8 words, a donor URL in this file."
+  }
+}

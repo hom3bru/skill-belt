@@ -1,0 +1,24 @@
+patch-w1-8b3
+--- a/src/slug.py
++++ b/src/slug.py
+@@ -5,5 +5,4 @@
+ def slugify(text):
+     """Lower-case words joined by hyphens, with no hyphen at either end."""
+     text = text.strip().lower()
+-    text = re.sub(r"[^a-z0-9]", "-", text)
+-    return text.strip("-")
++    return re.sub(r"[^a-z0-9]+", "-", text)
+--- /dev/null
++++ b/tests/test_slug_collapse.py
+@@ -0,0 +1,11 @@
++import unittest
++
++from src.slug import slugify
++
++
++class CollapseTests(unittest.TestCase):
++    def test_runs_of_spaces_collapse(self):
++        self.assertEqual(slugify("a  b"), "a-b")
++
++    def test_mixed_separators_collapse(self):
++        self.assertEqual(slugify("a - b"), "a-b")

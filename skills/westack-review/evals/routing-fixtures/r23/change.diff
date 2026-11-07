@@ -1,0 +1,26 @@
+diff --git a/inventory.py b/inventory.py
+index 2b4c6d8..f0a1b3c 100644
+--- a/inventory.py
++++ b/inventory.py
+@@ -1,13 +1,18 @@
+ STOCK = {}
+ 
+ 
+ def add(sku, qty):
+     STOCK[sku] = STOCK.get(sku, 0) + qty
+ 
+ 
+-def remove(sku, qty):
+-    STOCK[sku] = STOCK[sku] - qty
++def remove(sku, qty):
++    have = STOCK.get(sku, 0)
++    if qty > have:
++        raise ValueError("not enough %s: have %d, asked for %d" % (sku, have, qty))
++    STOCK[sku] = have - qty
++    if STOCK[sku] == 0:
++        del STOCK[sku]
+ 
+ 
+ def low(threshold=5):
+-    return [s for s, q in STOCK.items() if q < threshold]
++    return sorted(s for s, q in STOCK.items() if q <= threshold)

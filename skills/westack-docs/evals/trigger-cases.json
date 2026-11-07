@@ -1,0 +1,29 @@
+{
+  "format": "westack-docs-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases. `mode` is the mode the skill should name for a docs case; a routing campaign scores only `expect`.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-docs, westack-review, westack-ship, westack-research and westack-build from this repository. The user's real population also holds installed writing skills (the iceberg plugin's edit and score), the likeliest competitors for docs requests; keep them in. westack-eval is manual-only, so a request to measure a skill expects NONE from a model-invoked router.",
+  "pending_note": "westack-onboard was built at alpha.55 and n07's pending_until_built marker is gone; add westack-onboard to the campaign's population.",
+  "cases": [
+    {"id": "d01", "split": "dev", "expect": "westack-docs", "mode": "revise-wording", "prompt": "Tighten this README. It rambles and says the same thing twice in the install section.", "fixture": "routing-fixtures/d01"},
+    {"id": "d02", "split": "dev", "expect": "westack-docs", "mode": "sync", "prompt": "Check AGENTS.md is still right now that the payments module has moved under services/.", "fixture": "routing-fixtures/d02"},
+    {"id": "d03", "split": "held-out", "expect": "westack-docs", "mode": "audit", "prompt": "Go through docs/setup.md for leftover template text and anything a new hire couldn't act on. Don't change the file, just tell me.", "fixture": "routing-fixtures/d03"},
+    {"id": "d04", "split": "dev", "expect": "westack-docs", "mode": "draft", "prompt": "Draft the runbook for rotating the API signing key from these notes; leave a marker wherever a step's expected output is missing.", "fixture": "routing-fixtures/d04"},
+    {"id": "d05", "split": "dev", "expect": "westack-docs", "mode": "drift", "prompt": "Which pages under docs/ no longer match the code? Only report the differences, and say which pages you checked.", "fixture": "routing-fixtures/d05"},
+    {"id": "d06", "split": "held-out", "expect": "westack-docs", "mode": "revise-wording", "prompt": "Rewrite the error messages in strings.json so each one says what failed and what to do next.", "fixture": "routing-fixtures/d06"},
+    {"id": "d07", "split": "dev", "expect": "westack-docs", "mode": "sync", "prompt": "Our CLAUDE.md files repeat the same build commands at three levels. Clean that up so each fact lives in one place.", "fixture": "routing-fixtures/d07"},
+    {"id": "d08", "split": "dev", "expect": "westack-docs", "mode": "revise-wording", "prompt": "Make my reply to the reviewer shorter, but keep the benchmark numbers in it.", "fixture": "routing-fixtures/d08"},
+    {"id": "d09", "split": "held-out", "expect": "westack-docs", "mode": "revise-wording", "prompt": "Edit the architecture page so it reads as how the system works now, not as the story of the migration.", "fixture": "routing-fixtures/d09"},
+    {"id": "d10", "split": "dev", "expect": "westack-docs", "mode": "revise-wording", "prompt": "Proofread my PR description before I post it; GitHub shows every line break, and I wrapped it at 72 columns.", "fixture": "routing-fixtures/d10"},
+    {"id": "n01", "split": "dev", "expect": "westack-review", "prompt": "Is this spec sound? docs/specs/export.md, before we start building.", "near_miss_of": "westack-docs (a document's soundness: westack-review's document mode)", "fixture": "routing-fixtures/n01"},
+    {"id": "n02", "split": "dev", "expect": "westack-ship", "prompt": "Write the commit message for the staged changes and commit them.", "near_miss_of": "westack-docs (a commit message: westack-ship)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-ship", "prompt": "Update the CHANGELOG for the 2.4 release and bump the version.", "near_miss_of": "westack-docs (a changelog entry at release: westack-ship)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-research", "prompt": "What does Stripe's API documentation say about idempotency keys for refunds? Cite the page.", "near_miss_of": "westack-docs (outside evidence: westack-research)"},
+    {"id": "n05", "split": "dev", "expect": "westack-review", "prompt": "Review this PR diff for bugs before I merge it.", "near_miss_of": "westack-docs (a diff, not prose)", "fixture": "routing-fixtures/n05"},
+    {"id": "n06", "split": "held-out", "expect": "westack-review", "prompt": "Critique the design doc for the new queue before we build it: what's missing or risky?", "near_miss_of": "westack-docs (critiquing a design: westack-review's document mode)", "fixture": "routing-fixtures/n06"},
+    {"id": "n07", "split": "dev", "expect": "westack-onboard", "prompt": "Explain how the retry decorator in utils/retry.py works and where we use it.", "near_miss_of": "westack-docs (explaining code to the user, not writing a document)"},
+    {"id": "n08", "split": "dev", "expect": "NONE", "prompt": "Summarise this meeting transcript into action items.", "near_miss_of": "westack-docs (writing, but not a document about a codebase)", "fixture": "routing-fixtures/n08"},
+    {"id": "n09", "split": "held-out", "expect": "westack-build", "prompt": "Fix the typo in the error message raised in upload.py and add a test for it.", "near_miss_of": "westack-docs (a code change with a test, though it touches copy)", "fixture": "routing-fixtures/n09"},
+    {"id": "n10", "split": "dev", "expect": "NONE", "prompt": "Measure whether the new docs skill description routes better than the old one across twenty prompts.", "near_miss_of": "westack-docs; westack-eval is manual-only"}
+  ]
+}

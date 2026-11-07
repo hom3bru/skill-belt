@@ -1,0 +1,43 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run the four report-header tickets as parallel workers",
+  "fan_out": "four independent report modules, no shared files",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "budget": {
+    "limit": "4.00 USD, firm",
+    "checks": "settle each return before it counts: one mid-tier review and the unit suite, about 0.40 USD per return"
+  },
+  "workers": [
+    {
+      "id": "w1",
+      "brief": "briefs/w1.md",
+      "estimate": "0.90 USD"
+    },
+    {
+      "id": "w2",
+      "brief": "briefs/w2.md",
+      "estimate": "0.90 USD"
+    },
+    {
+      "id": "w3",
+      "brief": "briefs/w3.md",
+      "estimate": "0.90 USD"
+    },
+    {
+      "id": "w4",
+      "brief": "briefs/w4.md",
+      "estimate": "0.90 USD"
+    }
+  ]
+}

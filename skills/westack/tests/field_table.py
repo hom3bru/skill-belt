@@ -5,8 +5,12 @@ import json
 import pathlib
 
 CONTRACT = json.loads((pathlib.Path(__file__).resolve().parents[1] / "contracts/contract.json").read_text(encoding="utf-8"))
-ORDER = ["task", "fingerprint", "requirement", "decision", "work_unit", "acceptance", "action", "evidence",
-         "finding", "review", "lesson", "doc", "event", "capability"]
+ORDER = ["task", "fingerprint", "requirement", "decision", "observation", "delegate", "waiting_on", "work_unit",
+         "acceptance", "action", "evidence", "finding", "review", "lesson", "doc", "event", "capability"]
+# Nested objects shown on their own row, under the object that holds them ("[]" marks the items of an array).
+NESTED = {"task": ("authority", "host", "stop"), "decision": ("alternative_reasons[]", "confirmation", "relations[]"),
+          "observation": ("entries[]",), "delegate": ("outcome",), "waiting_on": ("check",), "work_unit": ("claim",),
+          "evidence": ("reason", "definition", "producer")}
 
 
 def fields(spec):
@@ -30,9 +34,9 @@ def render():
     rows = ["| Object | Required | Optional |", "| --- | --- | --- |"]
     for name in ORDER:
         rows.append(describe(name, defs[name]))
-        if name == "task":
-            for nested in ("authority", "host"):
-                rows.append(describe("task." + nested, defs["task"]["properties"][nested]))
+        for nested in NESTED.get(name, ()):
+            props = defs[name]["properties"]
+            rows.append(describe(name + "." + nested, props[nested[:-2]]["items"] if nested.endswith("[]") else props[nested]))
     return "\n".join(rows) + "\n"
 
 

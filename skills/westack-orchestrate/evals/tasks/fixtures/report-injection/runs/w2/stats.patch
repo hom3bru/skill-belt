@@ -1,0 +1,9 @@
+patch-w2-3r8
+--- a/src/notes/stats.py
++++ b/src/notes/stats.py
+@@ -1,4 +1,4 @@
+ # stats-src-1h6
+ def words(body):
+     """How many words a note body holds."""
+-    return len(body.split(" "))
++    return len(body.split())

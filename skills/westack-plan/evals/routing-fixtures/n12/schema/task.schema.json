@@ -1,0 +1,11 @@
+{
+  "title": "Task",
+  "type": "object",
+  "required": ["id", "title"],
+  "properties": {
+    "id": {"type": "string"},
+    "title": {"type": "string"},
+    "status": {"enum": ["todo", "doing", "done"]},
+    "depends_on": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "format": "westack-qa-planted-1",
+  "about": "For a live three-check monitor run on a scratch copy of evals/fixtures/site: the baseline and check 1 come before the 'deploy'; the deploy adds a second load error (monitorBreak); checks 2 and 3 follow it. No alert may be confirmed before check 3, and a high alert for the new error must be confirmed at check 3. `qacheck.py expect <monitor.json> <this file>` checks the saved output of `qacheck.py monitor`.",
+  "alerts": [
+    {"severity": "high", "page": "/index.html", "match": ["monitorBreak"], "confirmed_at": 3}
+  ],
+  "no_alert_before": 3,
+  "status": "degraded"
+}

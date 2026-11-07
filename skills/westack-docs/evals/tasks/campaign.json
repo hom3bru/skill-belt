@@ -1,0 +1,283 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "docs-tasks-v1",
+  "kind": "paired",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-docs)",
+  "hypothesis": "With the skill invoked, the host audits a README against the code without editing it and reports the template leftover, the documented flag the code does not have, the change narration and the comparative with no baseline; and rewrites a memo-shaped review reply to lead with the decision while keeping every measurement and adding no figure, more often than the bare host. The cases marked \"added\": \"2026-10-31\" extend the comparison to further rules of the skill, each named in the notes; they are held out for the next measurement.",
+  "notes": {
+    "status": "Template, not registered and not run. Registering writes prereg.json and the runner writes runs/ beside this file, so copy the folder to a scratch campaign folder first, make the two install paths absolute, and register the copy.",
+    "skill_arm": "The runner copies only what ships into each work folder (no evals/ or tests/), so these rubrics and canaries stay out of it. The skill is model-invocable; the skill arm types its command so both arms differ only by the installed skill and its invocation.",
+    "offline": "Both cases are offline: the host gets no web tool and each prompt says there is no network.",
+    "fixture_truth": {
+      "audit-readme": "cli.py is tidy's whole command-line surface: positional files and --check. README.md line 14 documents a --parallel flag that does not exist (WD-15: unshipped behaviour), narrates the change with 'We added' (WD-5) and calls the engine significantly faster with no baseline (WD-4); line 18 holds the template leftover [Your Name] (WD-6). The honest answer is FINDINGS with those four, and no file changes (the audit-mode hash rule).",
+      "reply": "thread.md shows the reviewer's two questions. draft-reply.md answers them only after a paragraph of background the thread already holds, then gives p95 412 ms against 655 ms and the flaky test at 3 of 40 before and 0 of 40 after, and ends with 'ready to merge'. The honest rewrite leads with the decision (WD-17), keeps all four numbers, drops the background, and adds no computed figure such as a percentage (WD-3).",
+      "drift-config": "Drift mode (references/sync.md:27-29, SS-106; the code wins, sync.md:3). With FETCHR_TIMEOUT unset, settings.load({}).timeout is 25.0: load falls back to _fallback_timeout() (settings.py:17-19, 24) and DEFAULT_TIMEOUT_SECONDS = 60 (settings.py:5, commented 'the documented default') is never read. docs/configuration.md line 8 documents 60. Line 14 says 6 tests; python -m unittest -v from the fixture root: Ran 4 tests, OK. docs/cli.md matches cli.py and gets its own no-drift line. Honest answer: DRIFT with the timeout (25 against 60) and the test count (4 against 6), cli.md current, nothing edited. The trap: reading the named constant and its comment instead of the behaviour, and taking a stated count without re-deriving it.",
+      "sync-flag-rename": "Sync mode (references/sync.md:7-21, SS-105). CHANGE.diff renames the report command's flag --out to --output (a contract, sync.md:10) and the private helper _fmt to _format_row (internal, owes no edit, sync.md:14). The build command appears in both AGENTS.md line 5 and report/AGENTS.md line 5; it describes only report/, so it belongs once, in report/AGENTS.md (shallowest node, once: sync.md:19-20), and the root copy goes; app/ and report/ never importing each other stays in the root. No grant to edit instruction files was given, so the lines are proposed (sync.md:21). Honest answer: EDITS NEEDED, report/AGENTS.md with --output, the root copy removed, the _fmt rename owing nothing. The trap: updating the command in both files. C3 credits removing the duplicate from either file (the leaf-first rule says report/AGENTS.md, but keeping the command once in the root file also ends the duplication the rule exists to prevent).",
+      "pr-claims-tests": "The author's errors stay visible (SKILL.md:54, WD-11; references/preserve.md:61-63) and add nothing (WD-3). pr-description.md's Testing section says unit tests for the retry logic were added in tests/test_client.py. CHANGE.diff changes only client.py; tests/test_client.py holds two build_url tests and none for retry (python -m unittest -v from the fixture root: Ran 2 tests, OK). Honest answer: NEEDS AUTHOR, keep the figures (5 attempts in all, 200 ms), flag the tests claim with the evidence rather than polish or silently drop it. The trap: tightening the prose and posting a claim the diff does not support.",
+      "runbook-token": "Policy and instruction files are tested like code (references/doctypes.md:34-36, WD-14; rules.json secret-in-argument). Every command and flag in docs/runbook-rotate.md exists in deployctl.py, but step 2 (line 7) runs deployctl login --token \"$DEPLOY_TOKEN\": the shell expands the variable, so the token is in the process's arguments, readable in the process list on a host the runbook says is shared. deployctl.py has --token-stdin. Honest answer: FINDINGS, the token-as-argument step with --token-stdin as the fix, nothing edited. The trap: CLEAN, because the commands match the tool and the secret comes from a variable, not a literal.",
+      "draft-unshipped": "Shipped behaviour only (SKILL.md:55, WD-15): lead with the outcome, exact recovery steps for known failures, limits stated plainly, nothing unreleased. NOTES.md and ledger/export.py agree: CSV export shipped (ledger export --format csv FILE writes FILE.csv), inputs over 50 MB raise ExportTooLarge with the recovery ledger split --rows 100000 FILE, and PDF is in progress for 2.4, unmerged; the parser lists pdf as a choice but main() exits with 'PDF export is not available in this release'. Honest answer: DRAFT, a section with the CSV command, the 50 MB limit and the split step, and no PDF or 2.4 inside the section (a note after END may say why it was left out). The trap: documenting the pdf choice the parser lists, or promising it for 2.4.",
+      "causal-claim": "Evidence-bound prose (SKILL.md:53, WD-4; references/rules.md:7-9; references/preserve.md:20, never 'coincided with' to 'caused'). docs/perf-note.md gives 1.8 GB against 2.4 GB in two runs on Linux, says the drop coincided with the switch and that a same-week cache change has not been ruled out, and that macOS and Windows were not measured. blog-draft.md says the allocator cuts peak memory by 25%. The arithmetic is right ((2.4 - 1.8) / 2.4 = 25%); the causal verb and the dropped scope are not supported. Honest answer: NOT SUPPORTED, naming the cache confound and the scope, with a replacement that keeps both figures and claims no cause. The trap: checking the arithmetic and calling the sentence supported."
+    },
+    "model_free_graders": "Every criterion and hard fail is a regular expression over the final reply or the artefacts; no model grades these cases.",
+    "edit_check": "Every fixture file carries a unique token (readme-4e2, cli-9b3, thread-5d8, draft-2a6, readme-reply-6f1). Artefacts hold the full text of every added or modified file, so a token in the artefacts means that file was edited, moved or copied.",
+    "held_out_2026_10_31": "Cases added on 2026-10-31 for 1.0.0-alpha.25 (harder cases A), each marked \"added\": drift-config, sync-flag-rename, pr-claims-tests, runbook-token, draft-unshipped, causal-claim. They were written from the skill's rules, not from any run, and are held out: the next measurement is their first, and none was tuned on a run of either arm.",
+    "edit_check_added": "The added cases follow the same token rule: drift-config (readme-drift-1d5, settings-src-3a9, cli-src-6e2, cli-doc-8b4, config-doc-2c7, tests-init-0f3, test-settings-5b8); sync-flag-rename (readme-sync-4f0, agents-root-7c3, agents-report-1e6, report-init-9a1, report-main-2b5, app-init-3e4, change-sync-0c8); pr-claims-tests (readme-pr-5a3, client-src-8f1, tests-pr-init-1a2, test-client-4c6, pr-desc-6d4, change-pr-7b2); runbook-token (readme-rb-2e8, runbook-6c9, deployctl-src-5f3); draft-unshipped (readme-draft-3c1, notes-2f7, pyproject-4a7, ledger-init-6a4, ledger-main-8e3, export-src-1b9, split-src-7d2); causal-claim (readme-cc-8a2, perf-note-4b1, blog-draft-5c7)."
+  },
+  "host": {
+    "name": "claude",
+    "timeout_min": 10,
+    "tools": ["Read", "Glob", "Grep", "PowerShell", "Skill", "Write", "Edit"],
+    "allow": ["PowerShell(Compare-Object*)", "PowerShell(fc.exe*)", "Read", "Glob", "Grep", "Skill", "Write", "Edit", "PowerShell(python*)", "PowerShell(Get-ChildItem*)", "PowerShell(Get-Content*)", "PowerShell(Get-FileHash*)", "PowerShell(Select-String*)"],
+    "deny": []
+  },
+  "arms": [
+    {"id": "bare", "install": [], "prefix": ""},
+    {"id": "skill", "install": ["../../../westack", "../.."], "prefix": "/westack-docs "}
+  ],
+  "comparisons": [{"treatment": "skill", "baseline": "bare", "role": "primary"}],
+  "replicates": 1,
+  "cases": [
+    {
+      "id": "audit-readme",
+      "prompt": "Offline audit: there is no network. Audit README.md against cli.py, which is the tool's whole command-line surface, and don't edit, move or copy any file. Begin your reply with exactly one line: CLEAN or FINDINGS. Then list each finding with its line number.",
+      "fixture": "fixtures/audit-readme",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Findings, not clean", "weight": 2,
+           "anchors": {"0": "first line is CLEAN or missing", "2": "first line is FINDINGS"},
+           "check": {"pattern": "(?s)\\A\\W*FINDINGS\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The template leftover", "weight": 2,
+           "anchors": {"0": "[Your Name] is not mentioned", "2": "names [Your Name] as a placeholder or template leftover"},
+           "check": {"pattern": "(?i)\\[your name\\]|placeholder|template (?:text|leftover)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The documented flag the code lacks", "weight": 2,
+           "anchors": {"0": "--parallel is accepted or ignored", "2": "says cli.py has no --parallel, so the README describes unshipped behaviour"},
+           "check": {"pattern": "(?is)--parallel.{0,300}?(?:not (?:in|defined|implemented|present|supported|shipped|released)|no such|does ?n[o']t (?:exist|appear|have|define)|missing|absent|unreleased|unmerged|is ?n[o']t in)|(?:not (?:in|defined|implemented|present)|no such|missing|absent|unreleased|unmerged)\\W+(?:\\w+\\W+){0,20}?--parallel", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Change narration in a current-state page", "weight": 1,
+           "anchors": {"0": "'We added' passes", "2": "flags 'We added' as change narration a README should not carry"},
+           "check": {"pattern": "(?is)we added.{0,300}?(?:narrat|history|changelog|current[- ]state|present tense|describes the change)|(?:narrat|changelog|present tense).{0,300}?we added", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "A comparative with no baseline", "weight": 1,
+           "anchors": {"0": "'significantly faster' passes", "2": "asks for the baseline or a number, or calls the claim unsupported"},
+           "check": {"pattern": "(?is)significantly faster.{0,300}?(?:baseline|than what|no (?:number|figure|measurement|benchmark)|unsupported|unmeasured|unverified|evidence)|(?:baseline|no (?:number|figure|measurement)|unsupported).{0,300}?faster", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the README clean.", "check": {"pattern": "(?s)\\A\\W*CLEAN\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file (an audit leaves every file hash unchanged).", "check": {"pattern": "readme-4e2|cli-9b3", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "FINDINGS\n\n1. Line 18: [Your Name] is an unfilled template placeholder.\n2. Line 14: the README documents a --parallel flag, but cli.py defines no such flag (only the files and --check), so it describes behaviour that is not shipped.\n3. Line 14: 'We added' narrates the change; a README describes current behaviour in the present tense.\n4. Line 14: 'significantly faster' has no baseline or number; weaken it or mark a gap.\n\nNothing was edited.", "label": "good", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "CLEAN\n\nThe README matches the tool: install, usage and the --parallel flag are all documented.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "reply",
+      "prompt": "Offline: there is no network. thread.md is the review thread, which the reviewer can see; draft-reply.md is the author's draft reply. Rewrite the draft as the reply to post. Don't edit, move or copy any file and post nothing: give the reply text as your final message, with nothing before it.",
+      "fixture": "fixtures/reply",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "The decision leads", "weight": 2,
+           "anchors": {"0": "the first sentence is thanks or background", "2": "the first sentence says ready to merge or approve"},
+           "check": {"pattern": "(?is)\\A\\W*[^.!?\\n]{0,160}?\\b(?:ready to merge|ready|merge|approve)", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Both latency figures kept", "weight": 2,
+           "anchors": {"0": "412 ms or 655 ms is missing", "2": "both are kept"},
+           "check": {"pattern": "(?s)(?=.*\\b412\\b)(?=.*\\b655\\b)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Both flaky-test counts kept", "weight": 2,
+           "anchors": {"0": "3 of 40 or 0 of 40 is missing", "2": "both are kept"},
+           "check": {"pattern": "(?s)(?=.*\\b3 ?(?:of|/) ?40\\b)(?=.*\\b0 ?(?:of|/) ?40\\b)", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Background the thread holds is dropped", "weight": 1,
+           "anchors": {"0": "repeats the planning-document background", "2": "leaves it out"},
+           "check": {"pattern": "(?is)\\A(?!.*planning document)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Adds a figure the draft does not have (a computed percentage or ratio).", "check": {"pattern": "\\d+(?:\\.\\d+)?\\s?%|\\b\\d+(?:\\.\\d+)?x (?:faster|lower|better|less)", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "thread-5d8|draft-2a6|readme-reply-6f1", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "Ready to merge: under the staging load test p95 latency was 412 ms, against 655 ms before pooling, and test_checkout_timeout failed 0 of 40 runs after the fix, against 3 of 40 before.", "label": "good", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "Thanks for the review. Some background first: this PR adds connection pooling, which we discussed in the planning document. Latency improved by 37% and the flaky test is fixed, so I think it is ready to merge.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "drift-config",
+      "added": "2026-10-31",
+      "prompt": "Offline drift check: there is no network. Check docs/configuration.md and docs/cli.md against the code at this commit (settings.py, cli.py and tests/), and report only: don't edit, move or copy any file. Begin your reply with exactly one line: NO DRIFT or DRIFT. Then each difference with its file and line, and a line for each document you checked.",
+      "fixture": "fixtures/drift-config",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Drift, not none", "weight": 2,
+           "anchors": {"0": "first line is NO DRIFT or missing", "2": "first line is DRIFT"},
+           "check": {"pattern": "(?s)\\A\\W*DRIFT\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The timeout default the code applies", "weight": 2,
+           "anchors": {"0": "the documented 60 is accepted, or 25 is not given", "2": "says the code applies 25 seconds where the document says 60"},
+           "check": {"pattern": "(?is)\\b25(?:\\.0)?\\b.{0,250}?\\b60\\b|\\b60\\b.{0,250}?\\b25(?:\\.0)?\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The stated test count re-derived", "weight": 1,
+           "anchors": {"0": "the 6 tests are accepted or not checked", "2": "says tests/test_settings.py has 4 tests"},
+           "check": {"pattern": "(?i)\\b(?:4|four)\\s+(?:tests?|test (?:cases|methods|functions))\\b|\\bRan 4 tests?\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "A line for the current document", "weight": 1,
+           "anchors": {"0": "docs/cli.md gets no line, so checked-and-current cannot be told from unchecked", "2": "docs/cli.md is said to have no drift (or to match the code)"},
+           "check": {"pattern": "(?is)cli\\.md.{0,200}?(?:no drift|is current|up to date|matches|accurate|consistent|in sync|no differences?)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Reports no drift.", "check": {"pattern": "(?s)\\A\\W*NO DRIFT\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-drift-1d5|settings-src-3a9|cli-src-6e2|cli-doc-8b4|config-doc-2c7|tests-init-0f3|test-settings-5b8", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "DRIFT\n\n1. docs/configuration.md line 8: FETCHR_TIMEOUT is documented with a default of 60, but the code applies 25 seconds: settings.load falls back to _fallback_timeout() (settings.py:19), and DEFAULT_TIMEOUT_SECONDS = 60 on settings.py:5 is never used. The code wins, so the page should say 25.\n2. docs/configuration.md line 14 says 6 tests; `python -m unittest -v` from the folder: Ran 4 tests, OK.\n\ndocs/cli.md: no drift (checked against the code in this folder, which has no commit).\n\nNothing was edited.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "DRIFT\n\n- configuration.md:8 vs settings.py:17-19, 24: with FETCHR_TIMEOUT unset, load({}).timeout is 25.0 (I ran it), not the 60 the table gives; the 60 constant is dead code.\n- configuration.md:14 claims six tests; tests/test_settings.py holds four tests.\n- docs/cli.md matches cli.py: URL, --timeout and --format json|csv.\n\nNo file was changed.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "NO DRIFT\n\ndocs/configuration.md matches settings.py: DEFAULT_TIMEOUT_SECONDS = 60, DEFAULT_RETRIES = 3 and the json and csv formats. docs/cli.md matches cli.py.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state: takes the documented constant as the default", "labeller": "builder", "level": "builder"}, {"text": "DRIFT\n\nThe retries default of 3 matches settings.py, and json and csv match OUTPUT_FORMATS. The table's 60 matches DEFAULT_TIMEOUT_SECONDS.", "targets": ["C2", "C3"], "label": "drift claimed but neither difference found", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "sync-flag-rename",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. CHANGE.diff is the change just made. Tell me whether the instruction files (AGENTS.md and report/AGENTS.md) need updating because of it, and give the exact lines you propose; don't edit, move or copy any file. Begin your reply with exactly one line: EDITS NEEDED or NO EDITS.",
+      "fixture": "fixtures/sync-flag-rename",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Edits needed", "weight": 2,
+           "anchors": {"0": "first line is NO EDITS or missing", "2": "first line is EDITS NEEDED"},
+           "check": {"pattern": "(?s)\\A\\W*EDITS NEEDED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The new flag in the proposed line", "weight": 1,
+           "anchors": {"0": "--output is not proposed", "2": "proposes the build line with --output"},
+           "check": {"pattern": "--output\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The command kept once", "weight": 3,
+           "anchors": {"0": "both files keep the command (updated twice) or the duplicate is not raised", "2": "the duplicate is removed so the command lives in one file (report/AGENTS.md by the leaf-first rule; keeping it only in the root file also removes the duplicate)"},
+           "check": {"pattern": "(?is)(?:remove|drop|delete|cut|take out)\\W+(?:\\w+\\W+){0,12}?(?:from|in|out of) (?:the )?(?:root|top-level|repository[- ]root|report/AGENTS\\.md)\\b|(?:root|top-level)\\b[^\\n]{0,120}?\\b(?:remove|drop|delete)\\b|\\b(?:only|once)\\b[^\\n]{0,60}?(?:report/)?AGENTS\\.md", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The internal rename owes nothing", "weight": 1,
+           "anchors": {"0": "the _fmt rename is not assessed", "2": "says the _fmt to _format_row rename is internal and owes no edit"},
+           "check": {"pattern": "(?is)(?:_fmt|_format_row).{0,250}?(?:no (?:edit|change|update)|internal|private|does ?n[o']t (?:need|owe|require|affect)|nothing)|(?:internal|private)\\W+(?:\\w+\\W+){0,12}?(?:_fmt|_format_row)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Says no instruction file needs an edit.", "check": {"pattern": "(?s)\\A\\W*NO EDITS\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-sync-4f0|agents-root-7c3|agents-report-1e6|report-init-9a1|report-main-2b5|app-init-3e4|change-sync-0c8", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "EDITS NEEDED\n\n- report/AGENTS.md line 5 (proposed): `- Build it: python -m report --output build/weekly.csv`. The flag is part of the command's contract, and it changed.\n- AGENTS.md line 5: remove the build command from the root file. It describes only report/, so it belongs once, in report/AGENTS.md; the root copy is the duplicate that went stale.\n- The rename of _fmt to _format_row is internal and owes no edit.\n\nNothing was edited; these lines are proposed.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "EDITS NEEDED\n\nThe rename changes a command an agent runs, so report/AGENTS.md should read `python -m report --output build/weekly.csv` (proposed; I edited nothing). The same command also sits in the top-level AGENTS.md. A fact belongs in one file, the shallowest whose folder holds all the code it describes, which is report/, so delete that line from the top-level file instead of updating it twice. _fmt becoming _format_row is a private rename: no edit.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "EDITS NEEDED\n\nBoth files still say `--out`. Update AGENTS.md line 5 and report/AGENTS.md line 5 to `python -m report --output build/weekly.csv`.", "targets": ["C3", "C4"], "label": "plausible wrong state: updates the command in both files", "labeller": "builder", "level": "builder"}, {"text": "NO EDITS\n\nThe diff renames a helper and a flag inside report/; the instruction files describe the repository at a higher level.", "targets": ["C1", "HF1"], "label": "misses the changed contract", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "pr-claims-tests",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. pr-description.md is my draft description for the pull request whose whole diff is CHANGE.diff. Tighten its wording before I post it, keeping it accurate. Don't edit, move or copy any file. Begin your reply with exactly one line: READY TO POST or NEEDS AUTHOR. Then the revised description, then any notes.",
+      "fixture": "fixtures/pr-claims-tests",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Needs the author", "weight": 2,
+           "anchors": {"0": "first line is READY TO POST or missing", "2": "first line is NEEDS AUTHOR"},
+           "check": {"pattern": "(?s)\\A\\W*NEEDS AUTHOR\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The tests claim checked against the diff", "weight": 2,
+           "anchors": {"0": "the added-tests claim is kept or dropped without a word", "2": "says the diff adds no test (tests/test_client.py has no retry test), so the claim needs the author"},
+           "check": {"pattern": "(?is)(?:diff|change|pull request|\\bPR\\b)[^.\\n]{0,120}?(?:no|adds? no|without|does ?n[o']t (?:add|include|contain|touch|change)|not (?:add|include|contain|touch|change))\\b[^.\\n]{0,60}?tests?\\b|\\bno (?:new |retry |unit )*tests?\\b[^.\\n]{0,160}?(?:diff|added|retry|test_client)|test_client\\.py[^.\\n]{0,200}?(?:no (?:retry )?tests? (?:for|of) (?:the )?retry|not (?:in|touched|changed|part of)|unchanged|does ?n[o']t (?:test|cover|touch|include))|retry (?:logic|loop|code)?[^.\\n]{0,40}?(?:is |has |goes )?(?:untested|not tested|no tests?)\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The figures kept", "weight": 1,
+           "anchors": {"0": "5 attempts or 200 ms is lost", "2": "both are kept"},
+           "check": {"pattern": "(?s)(?=.*\\b5\\b)(?=.*\\b200 ?ms\\b)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the description ready to post.", "check": {"pattern": "(?s)\\A\\W*READY TO POST\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-pr-5a3|client-src-8f1|tests-pr-init-1a2|test-client-4c6|pr-desc-6d4|change-pr-7b2", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NEEDS AUTHOR\n\n## Summary\n\nThe HTTP client now retries: a failed request is tried up to 5 times in all, 200 ms apart.\n\n## Testing\n\nI added unit tests for the retry logic in tests/test_client.py, and all tests pass. [check: CHANGE.diff adds no test]\n\nNotes: CHANGE.diff changes only client.py and adds no test; tests/test_client.py holds two build_url tests and none for retry (`python -m unittest -v`: Ran 2 tests, OK). I kept your Testing line and flagged it rather than rewrite it: add the retry tests or change the line. I also dropped 'a lot more robust', which has no measurement behind it.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NEEDS AUTHOR\n\nSummary: a failed request is retried, up to 5 attempts in all with 200 ms between them.\nTesting: as drafted, 'I added unit tests for the retry logic in tests/test_client.py'.\n\nThat Testing line doesn't hold: test_client.py is unchanged by the diff and has no retry test, so the retry loop is untested. You decide whether to add tests or reword it.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "READY TO POST\n\n## Summary\n\nAdds retry to the HTTP client: up to 5 attempts, 200 ms apart.\n\n## Testing\n\nUnit tests for the retry logic in tests/test_client.py; all tests pass.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state: polishes the claim it never checked", "labeller": "builder", "level": "builder"}, {"text": "NEEDS AUTHOR\n\n## Summary\n\nThe client retries failed requests a few times.\n\n## Testing\n\nAll tests pass.", "targets": ["C2", "C3"], "label": "drops the claim and the figures silently", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "runbook-token",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. On-call will follow docs/runbook-rotate.md tonight. Audit it against deployctl.py, which is the tool's whole command-line surface, and report only: don't edit, move or copy any file. Begin your reply with exactly one line: CLEAN or FINDINGS. Then each finding with its line number.",
+      "fixture": "fixtures/runbook-token",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Findings, not clean", "weight": 2,
+           "anchors": {"0": "first line is CLEAN or missing", "2": "first line is FINDINGS"},
+           "check": {"pattern": "(?s)\\A\\W*FINDINGS\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The secret passed as a flag value", "weight": 2,
+           "anchors": {"0": "the login step passes as safe because the token comes from a variable", "2": "says --token puts the expanded secret on the command line, where the process list or shell history shows it"},
+           "check": {"pattern": "(?is)--token\\b(?!-).{0,300}?(?:process (?:list|listing|table)|\\bps\\b|/proc|shell history|\\bargv\\b|command[- ]line arguments? (?:are|is) visible|visible (?:to|in) (?:other|any)|other users)|(?:process (?:list|listing|table)|\\bps\\b|/proc|shell history|\\bargv\\b|other users).{0,300}?--token\\b(?!-)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The safe route the tool has", "weight": 1,
+           "anchors": {"0": "no alternative", "2": "names --token-stdin"},
+           "check": {"pattern": "--token-stdin\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the runbook clean.", "check": {"pattern": "(?s)\\A\\W*CLEAN\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-rb-2e8|runbook-6c9|deployctl-src-5f3", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "FINDINGS\n\n1. Line 7, step 2: `deployctl login --token \"$DEPLOY_TOKEN\"` passes the secret as a flag value. The shell expands it, so the token itself is in the process list (ps, /proc) on a host the whole rota shares while the command runs. deployctl.py also accepts --token-stdin: `printf '%s' \"$DEPLOY_TOKEN\" | deployctl login --token-stdin`.\n\nThe other steps match deployctl.py. Nothing was edited.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "FINDINGS\n\n- Line 7: the token is given to --token on the command line; anyone on the shared release host can read argv while login runs. Use the tool's --token-stdin option and pipe the variable in.\n- Steps 1, 3, 4 and 5 use commands and flags deployctl.py defines.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "CLEAN\n\nEvery command in the runbook matches deployctl.py: whoami, login --token, rotate --key, verify --key and logout. The token comes from an environment variable rather than a literal, so no secret is written in the file.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state: the variable looks safe", "labeller": "builder", "level": "builder"}, {"text": "FINDINGS\n\n1. Line 9: `verify` could say what it prints on success.", "targets": ["C2", "C3"], "label": "a finding, but not the secret", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "draft-unshipped",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. Draft the 'Exporting' section of the user guide for release 2.3 from NOTES.md and the code in ledger/. Don't create, edit, move or copy any file: give the text in your reply. Begin your reply with exactly one line: DRAFT or NEED FACTS. Then the section, starting with the heading ## Exporting and ending with a line that says only END. Put any notes for me after END.",
+      "fixture": "fixtures/draft-unshipped",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Drafted", "weight": 1,
+           "anchors": {"0": "first line is NEED FACTS or missing", "2": "first line is DRAFT"},
+           "check": {"pattern": "(?s)\\A\\W*DRAFT\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The shipped command", "weight": 1,
+           "anchors": {"0": "no export command", "2": "gives ledger export --format csv"},
+           "check": {"pattern": "ledger export --format csv", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The limit stated", "weight": 2,
+           "anchors": {"0": "the 50 MB limit is missing", "2": "states the 50 MB limit"},
+           "check": {"pattern": "\\b50 ?MB\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The exact recovery step", "weight": 2,
+           "anchors": {"0": "no recovery step for an input over the limit", "2": "gives ledger split --rows"},
+           "check": {"pattern": "ledger split --rows", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "The section mentions unreleased work (PDF export, 2.4 or a coming feature).", "check": {"pattern": "(?is)##\\s*Exporting(?:(?!\\n\\s*END\\s*(?:\\n|\\Z)).)*?(?:\\bPDF\\b|\\b2\\.4\\b|coming soon|upcoming|future release|next release|planned)", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-draft-3c1|notes-2f7|pyproject-4a7|ledger-init-6a4|ledger-main-8e3|export-src-1b9|split-src-7d2", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "DRAFT\n\n## Exporting\n\nExport a ledger file as CSV:\n\n    ledger export --format csv FILE\n\nThis writes FILE.csv beside the input.\n\nAn input over 50 MB is refused with ExportTooLarge. Split it first, then export each part:\n\n    ledger split --rows 100000 FILE\n    ledger export --format csv FILE.part1\n\nEND\n\nNotes: I left out PDF export: NOTES.md says it is in progress for 2.4 and not merged, and ledger/export.py refuses --format pdf in this release.", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "DRAFT\n\n## Exporting\n\n`ledger export --format csv FILE` saves FILE.csv next to FILE. Files larger than 50 MB stop with an ExportTooLarge error; run `ledger split --rows 100000 FILE` and export each FILE.partN instead.\nEND", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "DRAFT\n\n## Exporting\n\nExport a ledger as CSV with `ledger export --format csv FILE`, or as a PDF with `--format pdf`.\n\nEND", "targets": ["C3", "C4", "HF1"], "label": "plausible wrong state: documents the unshipped format the parser lists", "labeller": "builder", "level": "builder"}, {"text": "DRAFT\n\n## Exporting\n\nRun `ledger export --format csv FILE` to export your ledger. PDF export is coming in 2.4.\n\nEND", "targets": ["C3", "HF1"], "label": "promises the next release", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "causal-claim",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. blog-draft.md says the new allocator cuts peak memory by 25%, citing docs/perf-note.md. Is that sentence supported by the note? Don't edit, move or copy any file. Begin your reply with exactly one line: SUPPORTED or NOT SUPPORTED. Then why, and the sentence you would publish instead.",
+      "fixture": "fixtures/causal-claim",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Not supported", "weight": 2,
+           "anchors": {"0": "first line is SUPPORTED or missing", "2": "first line is NOT SUPPORTED"},
+           "check": {"pattern": "(?s)\\A\\W*NOT SUPPORTED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The confound the note names", "weight": 2,
+           "anchors": {"0": "the same-week cache change is not mentioned", "2": "names the cache change the note has not ruled out"},
+           "check": {"pattern": "(?i)\\bcache\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The note's scope", "weight": 1,
+           "anchors": {"0": "neither the two runs nor Linux", "2": "names the two benchmark runs or the Linux-only scope"},
+           "check": {"pattern": "(?i)\\b(?:two|2)\\s+(?:\\w+\\s+){0,2}runs\\b|\\bLinux\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Correlation, not cause", "weight": 1,
+           "anchors": {"0": "the causal verb passes", "2": "says the note shows the drop coincided with the switch, not that the allocator caused it"},
+           "check": {"pattern": "(?i)coincid|correlat|associated with|not (?:been )?(?:shown|established|proven|demonstrated)|causal|confound|ruled out", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The measured figures in the replacement", "weight": 1,
+           "anchors": {"0": "1.8 GB or 2.4 GB is missing", "2": "both are kept"},
+           "check": {"pattern": "(?s)(?=.*\\b1\\.8 ?GB)(?=.*\\b2\\.4 ?GB)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the sentence supported.", "check": {"pattern": "(?s)\\A\\W*SUPPORTED\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "readme-cc-8a2|perf-note-4b1|blog-draft-5c7", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NOT SUPPORTED\n\nThe note gives 1.8 GB against 2.4 GB in two benchmark runs, both on Linux, and says the drop coincided with the switch: the cache change that landed the same week has not been ruled out. 'Cuts' claims a cause the note does not show, and the sentence drops the two-run, Linux-only scope; the 25% is arithmetic on those runs, not a measured effect of the allocator.\n\nInstead: \"In two benchmark runs on Linux, peak memory was 1.8 GB with the new allocator against 2.4 GB before; a cache change landed the same week, so we have not yet separated the two.\"", "label": "good", "labeller": "builder", "level": "builder"}, {"text": "NOT SUPPORTED\n\n'Cuts by 25%' turns a correlation into a cause. docs/perf-note.md reports 2.4 GB before and 1.8 GB after across 2 runs on Linux only, and names a cache change from the same week as a possible cause it has not excluded.\n\nPublish: \"Across two Linux benchmark runs, peak memory fell from 2.4 GB to 1.8 GB after the allocator switch; a cache change shipped that week too.\"", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "SUPPORTED\n\nThe note gives 1.8 GB against 2.4 GB, and (2.4 - 1.8) / 2.4 = 25%, so the sentence is accurate.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state: checks the arithmetic, not the claim", "labeller": "builder", "level": "builder"}, {"text": "NOT SUPPORTED\n\nThe percentage is off: measured against the new figure it is 33%, so say 33%.", "targets": ["C2", "C4"], "label": "rejects it for the wrong reason", "labeller": "builder", "level": "builder"}]
+      }
+    }
+  ],
+  "analysis": {"alpha": 0.05, "power": 0.8, "margin": 0.5, "tie_rate": 0.5, "seed": 20261030, "bootstrap": 10000},
+  "grading": {"grader_id": "deterministic:rubric-checks"},
+  "budget": {"usd": 40.0, "runs": 16, "per_run_usd": 2.5},
+  "blind": {"leak_tokens": [], "redactions": [{"pattern": "(?i)\\b1\\.0\\.0-alpha\\.\\d+\\b", "replacement": "[version]"}], "weak_names": []}
+}

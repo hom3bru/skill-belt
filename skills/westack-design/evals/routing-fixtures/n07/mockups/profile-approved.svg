@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="400" viewBox="0 0 390 400">
+  <rect width="390" height="400" fill="#ffffff"/>
+  <circle cx="195" cy="80" r="40" fill="#e5e7eb"/>
+  <text x="195" y="150" text-anchor="middle" font-family="Inter" font-size="20" font-weight="600" fill="#111827">Sam Doe</text>
+  <text x="195" y="174" text-anchor="middle" font-family="Inter" font-size="14" fill="#6b7280">Product designer, Berlin</text>
+  <rect x="24" y="200" width="342" height="44" rx="8" fill="#2563eb"/>
+  <text x="195" y="227" text-anchor="middle" font-family="Inter" font-size="15" fill="#ffffff">Edit profile</text>
+  <rect x="24" y="264" width="342" height="112" rx="12" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="44" y="296" font-family="Inter" font-size="14" fill="#111827">Projects  12</text>
+  <text x="44" y="326" font-family="Inter" font-size="14" fill="#111827">Followers  248</text>
+  <text x="44" y="356" font-family="Inter" font-size="14" fill="#111827">Joined  March 2024</text>
+</svg>

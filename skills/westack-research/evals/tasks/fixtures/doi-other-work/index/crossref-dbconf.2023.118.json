@@ -1,0 +1,8 @@
+{
+  "_token": "idx-cr-d3c",
+  "index": "Crossref",
+  "query": "10.5555/dbconf.2023.118",
+  "results": [
+    {"doi": "10.5555/dbconf.2023.118", "title": "Adaptive Compaction for Log-Structured Stores", "year": 2023, "authors": ["Lucia Ibarra", "Tomas Weng"], "container": "Proceedings of DBConf 2023"}
+  ]
+}

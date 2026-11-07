@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Invoices</title></head>
+<body>
+<!-- rm-before-4c2 -->
+<header id="top"><a href="/">Home</a> <a href="/invoices">Invoices</a></header>
+<main id="invoices">
+  <form id="filter" action="/invoices" method="get">
+    <input name="q" type="search" placeholder="Search invoices">
+    <select name="status"><option>All</option><option>Paid</option><option>Overdue</option></select>
+    <button type="submit">Filter</button>
+  </form>
+  <button type="button" data-testid="export-csv" onclick="exportCsv()">Export CSV</button>
+  <table><tr><th>Number</th><th>Client</th><th>Due</th></tr><tr><td>INV-104</td><td>Harbor Co</td><td>Nov 12</td></tr></table>
+</main>
+<script src="/invoices.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-retro",
+  "reviewed": "2026-11-04",
+  "policy": "Donor files were read at their pinned commit in the local mirror (tools/mirrors.py), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gstack.retro).",
+  "usefulness_legend": {"strong": "shaped the skill's structure or its metrics", "useful": "added a rule or a check", "minor": "a detail"},
+  "donors": [
+    {
+      "ref": "gstack.retro",
+      "system": "gstack retro and its global discovery script",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/retro/SKILL.md.tmpl", "sha256": "4bdcd69791434451bebf9c1baf9f43ab4e847eba25341ac27ef623bf29efb5bb", "bytes": 41057, "read": "lines 53-327 (window, guard, metric list, sessions, types, hotspots, sizes, focus, team, trends, streaks) and the global-mode headings", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/bin/gstack-global-discover.ts", "sha256": "86e60f072027a3e47ca27c54279c743fbf77f077b4db0b6e17470456f16c6fb5", "bytes": 27682, "read": "from the 2026-11-04 inventory: discovery from Claude Code, Codex and Gemini session logs", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "Windows aligned to local midnight, the date taken from the session rather than the clock, and a stale-window guard that stops instead of reporting a quiet week.", "where": "SKILL.md steps 1 and 4"},
+        {"mechanism": "Metrics from git history: commits with merges apart, lines as context, the test share, commits weighted by files with a cap, active days, sessions split at a 45-minute gap into deep, medium and micro, conventional-commit types and the fix ratio, commit size buckets, the hourly spread, the focus share of the busiest folder, hotspots, the biggest commit, per-contributor rollups, AI co-authors counted apart from people, and streaks anchored at the newest commit.", "where": "scripts/retro.py metrics; references/run.md"},
+        {"mechanism": "Features shipped counted only from the changelog and merged pull requests, unavailable rather than zero without a source.", "where": "references/run.md; SKILL.md rule 2"},
+        {"mechanism": "A comparison with the previous window or the last saved retro, and a global mode that finds repositories from local agent session logs.", "where": "scripts/retro.py compare and discover; references/global.md"},
+        {"mechanism": "Per-person praise tied to a commit and one data-backed growth note; a solo repository skips the team section.", "where": "references/run.md; SKILL.md rule 4"}
+      ],
+      "rejected": [
+        "A metrics script that runs git itself: westack helpers run no command; the agent saves one documented git log and the helper parses it.",
+        "The gbrain context load, the factory scorecard, the review-bot signal, the shortcut-debt ledger and the skill-usage and eureka logs: gstack's own state or services.",
+        "Saving retro history inside the repository by default: history goes where the user says."
+      ]
+    }
+  ]
+}

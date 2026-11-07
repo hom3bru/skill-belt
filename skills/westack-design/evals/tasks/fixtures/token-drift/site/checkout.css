@@ -1,0 +1,16 @@
+/* td-css-5e9 */
+:root {
+  --color-background: #FFFFFF;
+  --color-foreground: #111827;
+  --color-primary: #1D4ED8;
+  --color-on-primary: #FFFFFF;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --radius-md: 6px;
+}
+body { font-family: Inter, sans-serif; color: var(--color-foreground); background: var(--color-background); }
+.summary { display: grid; gap: 18px; padding: var(--space-6); }
+.line { display: flex; justify-content: space-between; padding: var(--space-2) 0; }
+.link { color: var(--color-primary); }
+.pay-button { background: #1E40AF; color: var(--color-on-primary); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); }

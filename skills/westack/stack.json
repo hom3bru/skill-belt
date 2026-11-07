@@ -1,0 +1,81 @@
+{
+  "format": "westack-stack-1",
+  "about": "The stack manifest: one entry per westack sub-skill that is built or planned. The router's section 5 table must agree with it (skills/westack/tests/test_stack.py), and tools/tests/test_skills_stack.py derives what must be on disk from it: a built entry has its folder, a planned one has none, and every skills/westack-* folder has an entry. Adding a sub-skill is an edit here plus the skill folder.",
+  "fields": {
+    "name": "the sub-skill's name without the westack- prefix",
+    "status": "built: the skill folder (or, for a folded or library entry, the thing it names) exists; planned: it does not",
+    "invocation": "model: the host may pick it; manual: disable-model-invocation is true; folded: a mode of the skill named in into, no folder; library: reference material at path, not routed, no folder",
+    "wave": "the wave that built it; for a planned skill the wave the README or a donor file names, else null",
+    "fallback": "the core reference the router uses when this sub-skill is not installed",
+    "outside_ceiling": "the most outside skills or commands (gstack, superpowers, pr-review-toolkit, coderabbit, /review, /code-review, /plan-*) the description may name; default 0",
+    "excludes": "sibling sub-skills whose requests this description must say it is not for"
+  },
+  "overlap": [
+    {
+      "members": ["verify", "debug", "review", "build", "tdd"],
+      "not_paired": [["review", "tdd"]],
+      "rule": "each pair of members that shares trigger words names the other in its description, in both directions; a not_paired pair does not overlap and needs no exclusion"
+    },
+    {
+      "members": ["plan", "build", "tdd", "review"],
+      "not_paired": [["review", "tdd"]],
+      "rule": "planning shares trigger words with building, test-first work and plan review; each pair names the other in both directions"
+    },
+    {
+      "members": ["ship", "verify", "build", "review"],
+      "rule": "delivery shares 'done', 'ready' and PR words with these three; each pair names the other in its description, in both directions"
+    }
+  ],
+  "skills": [
+    {"name": "eval", "status": "built", "invocation": "manual", "wave": 1, "outside_ceiling": 0},
+    {"name": "verify", "status": "built", "invocation": "model", "wave": 1, "fallback": "references/verify.md",
+     "outside_ceiling": 0, "excludes": ["debug", "review", "build", "tdd", "ship"]},
+    {"name": "debug", "status": "built", "invocation": "model", "wave": 1,
+     "outside_ceiling": 0, "excludes": ["verify", "review", "build", "tdd"]},
+    {"name": "review", "status": "built", "invocation": "model", "wave": 1,
+     "outside_ceiling": 2, "excludes": ["verify", "debug", "build", "plan", "ship"]},
+    {"name": "build", "status": "built", "invocation": "model", "wave": 1, "fallback": "references/build.md",
+     "outside_ceiling": 0, "excludes": ["tdd", "debug", "verify", "review", "plan", "ship"]},
+    {"name": "tdd", "status": "built", "invocation": "model", "wave": 1,
+     "outside_ceiling": 1, "excludes": ["build", "debug", "verify", "plan"]},
+    {"name": "plan-review", "status": "built", "invocation": "folded", "wave": 1, "into": "review"},
+    {"name": "lang", "status": "planned", "invocation": "library", "wave": null, "path": "references/lang/"},
+    {"name": "office-hours", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["plan", "review"]},
+    {"name": "spec", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "architecture", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "plan", "status": "built", "invocation": "model", "wave": 1,
+     "outside_ceiling": 0, "excludes": ["build", "tdd", "review"]},
+    {"name": "refactor", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "migrate", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "db", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "security", "status": "built", "invocation": "model", "wave": 3,
+     "outside_ceiling": 0, "excludes": ["review", "debug", "verify"]},
+    {"name": "qa", "status": "built", "invocation": "model", "wave": 2,
+     "outside_ceiling": 0, "excludes": ["design", "verify", "debug"]},
+    {"name": "a11y", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "design", "status": "built", "invocation": "model", "wave": 3,
+     "outside_ceiling": 0, "excludes": ["review", "build", "verify"]},
+    {"name": "perf", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["debug", "qa"]},
+    {"name": "ship", "status": "built", "invocation": "model", "wave": 2,
+     "outside_ceiling": 0, "excludes": ["verify", "build", "review"]},
+    {"name": "ci", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "deploy", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["ship", "verify"]},
+    {"name": "infra", "status": "planned", "invocation": "model", "wave": null},
+    {"name": "onboard", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["research", "debug", "docs"]},
+    {"name": "research", "status": "built", "invocation": "model", "wave": 3,
+     "outside_ceiling": 0, "excludes": ["plan", "debug", "eval"]},
+    {"name": "docs", "status": "built", "invocation": "model", "wave": 3,
+     "outside_ceiling": 0, "excludes": ["review", "ship", "research"]},
+    {"name": "retro", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["review", "perf"]},
+    {"name": "health", "status": "built", "invocation": "model", "wave": 4,
+     "outside_ceiling": 0, "excludes": ["review", "verify", "retro"]},
+    {"name": "skill", "status": "planned", "invocation": "manual", "wave": null},
+    {"name": "orchestrate", "status": "built", "invocation": "manual", "wave": 3,
+     "outside_ceiling": 0, "excludes": ["plan", "build", "review"]}
+  ]
+}

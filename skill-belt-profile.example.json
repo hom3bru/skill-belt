@@ -1,5 +1,6 @@
 {
   "user_name": "<user_name>",
+  "legacy_user_names": [],
   "user_handle": "<user_handle>",
   "research_root": "<research_root>",
   "palette_home": "<palette_home>",

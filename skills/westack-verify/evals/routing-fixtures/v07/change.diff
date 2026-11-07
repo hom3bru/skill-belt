@@ -1,0 +1,15 @@
+diff --git a/reports/views.py b/reports/views.py
+index 5c9e7a1..2d84f60 100644
+--- a/reports/views.py
++++ b/reports/views.py
+@@ -10,2 +10,10 @@ def show(report_id):
+     report = get_report(report_id)
+     return render("report.html", report=report)
++
++
++def download_csv(report_id):
++    report = get_report(report_id)
++    if not can_view(current_user(), report):
++        return abort(403)
++    log.info("csv download %s", report_id)
++    return Response(stream_csv(report), mimetype="text/csv")

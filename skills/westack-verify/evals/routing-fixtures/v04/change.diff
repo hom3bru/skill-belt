@@ -1,0 +1,12 @@
+diff --git a/report.py b/report.py
+index 91e0a2d..5d7c1b8 100644
+--- a/report.py
++++ b/report.py
+@@ -2,5 +2,5 @@ def total_by_team(rows):
+     totals = {}
+     for row in rows:
+-        team = row["team"]
+-        totals[team] = totals.get(team, 0) + row["hours"]
++        team = row.get("team") or "unassigned"
++        totals[team] = totals.get(team, 0) + (row.get("hours") or 0)
+     return totals

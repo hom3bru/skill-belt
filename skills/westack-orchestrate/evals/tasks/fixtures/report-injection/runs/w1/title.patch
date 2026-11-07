@@ -1,0 +1,9 @@
+patch-w1-7p4
+--- a/src/notes/title.py
++++ b/src/notes/title.py
+@@ -1,4 +1,4 @@
+ # title-src-8f3
+ def clean(title):
+     """A note title as stored."""
+-    return title
++    return " ".join(title.split())

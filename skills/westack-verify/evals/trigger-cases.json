@@ -1,0 +1,28 @@
+{
+  "format": "westack-verify-trigger-cases-1",
+  "status": "not-run as a set. One dev case (v01) ran once on Claude Code as the routing smoke on 2026-10-28; see the package report. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-verify, westack-review and westack-debug from this repository, plus the user's gstack `review` and `qa` and the superpowers plugin's `superpowers:verification-before-completion`. westack-eval is manual-only, so requests to measure a skill expect NONE from a model-invoked router. While a sibling is not built, drop the cases that expect it rather than relabelling them.",
+  "cases": [
+    {"id": "v01", "split": "dev", "expect": "westack-verify", "prompt": "My agent says the CSV import task is finished and all its tests pass. Check that against the task's acceptance criteria before I merge, and don't change anything.", "fixture": "routing-fixtures/v01"},
+    {"id": "v02", "split": "dev", "expect": "westack-verify", "prompt": "Claude ticked every box in TASK.md and wrote COMPLETE at the bottom. Is the work actually done?", "fixture": "routing-fixtures/v02"},
+    {"id": "v03", "split": "held-out", "expect": "westack-verify", "prompt": "Did this commit really fix the timezone bug? Show me a before and after.", "fixture": "routing-fixtures/v03"},
+    {"id": "v04", "split": "dev", "expect": "westack-verify", "prompt": "The contractor says their new regression test catches the null-pointer bug. Prove it fails without their fix.", "fixture": "routing-fixtures/v04"},
+    {"id": "v05", "split": "dev", "expect": "westack-verify", "prompt": "Check whether the refactor on this branch broke tests that used to pass, and tell me which failures were already there before it.", "fixture": "routing-fixtures/v05"},
+    {"id": "v06", "split": "held-out", "expect": "westack-verify", "prompt": "We're picking up yesterday's session, which ended with 'all done'. Re-check those claims before we build on them.", "fixture": "routing-fixtures/v06"},
+    {"id": "v07", "split": "dev", "expect": "westack-verify", "prompt": "The PR description says it meets all five acceptance criteria. Audit it against them and list what is still unproven.", "fixture": "routing-fixtures/v07"},
+    {"id": "v08", "split": "dev", "expect": "westack-verify", "prompt": "The agent's summary says COMPLETE and CI is green. Confirm the delivered diff only touches what the ticket asked for, with no leftover scratch files or edited tests.", "fixture": "routing-fixtures/v08"},
+    {"id": "v09", "split": "held-out", "expect": "westack-verify", "prompt": "A subagent reported the migration script works. Before I trust that, check its claim with real runs.", "fixture": "routing-fixtures/v09"},
+    {"id": "n01", "split": "dev", "expect": "westack-review", "prompt": "Review my diff for readability, naming and design problems before I open the PR.", "near_miss_of": "westack-verify (checks claims, not code quality)", "fixture": "routing-fixtures/n01"},
+    {"id": "n02", "split": "held-out", "expect": "review", "prompt": "Run a pre-landing review of this PR before I land it.", "near_miss_of": "westack-verify; gstack review owns pre-landing review in this population", "fixture": "routing-fixtures/n02"},
+    {"id": "n03", "split": "dev", "expect": "westack-debug", "prompt": "The checkout test started failing this morning. Find out why.", "near_miss_of": "westack-verify (finding a cause, not checking a claim)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-debug", "prompt": "Why does the parser crash on empty input? Investigate, but don't fix it yet.", "near_miss_of": "westack-verify", "fixture": "routing-fixtures/n04"},
+    {"id": "n05", "split": "dev", "expect": "qa", "prompt": "QA the signup flow on staging in a browser and fix the bugs you find.", "near_miss_of": "westack-verify (site QA that fixes, not a claim audit)"},
+    {"id": "n06", "split": "dev", "expect": "superpowers:verification-before-completion", "prompt": "Before you tell me your fix works, run the tests and show me the output.", "near_miss_of": "westack-verify (the agent's own pre-claim check during its work)", "fixture": "routing-fixtures/n06"},
+    {"id": "n07", "split": "held-out", "expect": "superpowers:verification-before-completion", "prompt": "I'm about to commit your change. Make sure the build and tests pass first.", "near_miss_of": "westack-verify", "fixture": "routing-fixtures/n07"},
+    {"id": "n08", "split": "dev", "expect": "NONE", "prompt": "Measure whether the new review skill finds more bugs than no skill across 20 pull requests.", "near_miss_of": "westack-verify; westack-eval is manual-only"},
+    {"id": "n09", "split": "dev", "expect": "NONE", "prompt": "Verify my email address on the account settings page of our app.", "near_miss_of": "westack-verify (the word verify, no claim of done work)", "fixture": "routing-fixtures/n09"},
+    {"id": "n10", "split": "held-out", "expect": "NONE", "prompt": "Check my essay for grammar mistakes.", "near_miss_of": "westack-verify (the word check)", "fixture": "routing-fixtures/n10"},
+    {"id": "n11", "split": "dev", "expect": "NONE", "prompt": "What does Array.prototype.reduce return for an empty array with no initial value?"}
+  ]
+}

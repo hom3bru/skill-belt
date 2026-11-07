@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion fixture: pulse card</title>
+<style>
+  :root { --bg: #f4f1ea; --card: #1f3a5f; --glow: #f2b134; --period: 2s; }
+  html, body { margin: 0; height: 100%; background: var(--bg); }
+  body { display: grid; place-items: center; font: 600 20px/1.3 system-ui, sans-serif; }
+  .card { width: 280px; padding: 32px; border-radius: 16px; background: var(--card); color: #fff;
+          box-shadow: 0 0 0 0 var(--glow); animation: pulse var(--period) ease-in-out infinite; }
+  .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--glow);
+         margin-right: 10px; animation: blink var(--period) linear infinite; }
+  /* The last keyframe equals the first, so cycle n ends exactly where cycle n+1 begins. */
+  @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--glow); }
+                     50% { transform: scale(1.06); box-shadow: 0 0 0 18px rgba(242, 177, 52, 0.25); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+  @media (prefers-reduced-motion: reduce) { .card, .dot { animation: none; } }
+</style>
+</head>
+<body>
+  <div class="card"><span class="dot"></span>Live: 3 orders waiting</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "format": "westack-qa-planted-1",
+  "about": "For a fix-loop run on a scratch copy of evals/fixtures/site with an edit grant for that copy: the dead Save button must end with a verified fix and be gone from the remaining issues, while the other planted defects stay reported (they were not in the chosen tier or the grant). `qacheck.py expect <report.json> <this file>` checks it.",
+  "fixed": [
+    {"id": "dead-button", "category": "functional", "page": "/index.html", "match": ["save"]}
+  ],
+  "defects": [
+    {"id": "console-error", "category": "console", "page": "/index.html", "match": ["undefinedHelper", "ReferenceError"]},
+    {"id": "broken-link", "category": "links", "page": "/index.html", "match": ["missing.html"]},
+    {"id": "missing-alt", "category": "accessibility", "page": "/about.html", "match": ["alt"]}
+  ]
+}

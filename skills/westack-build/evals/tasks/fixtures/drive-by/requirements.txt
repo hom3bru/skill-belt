@@ -1,0 +1,3 @@
+# requirements-pin-6c2
+# TODO: move to 2.x once the ledger export supports it
+ledger-client==1.4.2

@@ -1,0 +1,14 @@
+diff --git a/src/session.ts b/src/session.ts
+index 6c7d8e9..a0b1c2d 100644
+--- a/src/session.ts
++++ b/src/session.ts
+@@ -20,2 +20,9 @@ export function get(id: string): Session | undefined {
+   return session;
+ }
++
++export function touch(id: string, ttlMs: number): void {
++  const session = sessions.get(id);
++  if (session) {
++    session.expiresAt = Date.now() + ttlMs;
++  }
++}

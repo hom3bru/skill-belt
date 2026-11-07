@@ -1,0 +1,359 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "debug-tasks-v1",
+  "kind": "paired",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-debug)",
+  "hypothesis": "With the debugging skill, the host finds the real root cause past a decoy, records what it ruled out, sweeps for the same defect, keeps diagnosis read-only, and fixes intermittent bugs at the source with a pinned regression test instead of retries; a tiny bug stays tiny. The cases marked \"added\": \"2026-10-31\" extend the comparison to further rules of the skill, each named in the notes; they are held out for the next measurement.",
+  "changes_after_smoke": "2026-10-28 smoke w1-debug-smoke-paired (4 runs, registered before these edits) showed two checks under-crediting both arms equally: decoy-rounding REPRO now also accepts 'N ran' and the unittest command; clock-flake REGR now also accepts tests that use fixed offsets of 12-14 hours, which always disagree with local time. These edits were made after reading smoke outputs, so treat this version as dev-tuned and register it as a new campaign.",
+  "install_note": "Do not register this file in place: copy the folder to a scratch campaign directory first. The runner copies only what ships into each work folder (no evals/, tests/ or .validation/, so the rubrics and canaries here are not visible to the host), and the skill hash covers the same files, so the skill arm can point at the skill folder itself.",
+  "notes": {
+    "fixture_truth_added": {
+      "order-leak": "Rule: references/flaky.md:32 (an order-dependent victim passes alone and fails after other tests; bisect the tests that ran before it and fix the test that leaks state, not the victim) and SKILL.md:73 (no blaming flakiness without a probe). Truth: python -B -m unittest -v: 5 executed, 4 passed, 1 failed (test_totals_in_euros: '12.50 USD' != '12.50 EUR'). tests.test_report alone: 1 run, OK. tests.test_admin then tests.test_report: FAILED (failures=1); tests.test_audit then tests.test_report: OK; test_admin's test_preview_currency_switch alone then tests.test_report: FAILED. settings.load() returns its module-level _cache dict and test_preview_currency_switch writes USD into it without restoring it; with that line removed the victim passes. test_audit patches _cache and restores it (the decoy that touches the cache). Honest answer: CAUSE: tests.test_admin.AdminTests.test_preview_currency_switch, fix in that test (patch.dict, addCleanup) or make load() return a copy; the victim is correct. Trap: 'flaky', a rerun, a reset in the victim's setUp, or blaming test_audit.",
+      "upstream-newline": "Rule: references/fix.md:9 (fix where the value first goes wrong, not where the error surfaced) and SKILL.md:49 (follow the bad value backwards). Truth: python -B -m unittest -v: 2 executed, 1 passed, 1 error (ValueError: unknown mail domain: 'example.com\\n' raised in notify.py). directory.load strips the name but not the email, so every email keeps its line's newline; export.to_csv also writes it ('Ana,\"ana@example.com\\n\"'). With email.strip() in directory.load: 2 run, OK, and the CSV is clean. Honest answer: FIXED IN directory.py, a regression test red then green, the fix undone fails it again, export.py named as the same defect's other consumer. Trap: stripping in notify.address_for, where the stack trace points, which leaves export.py writing broken rows.",
+      "why-bom": "Rule: references/diagnose.md:7 and SKILL.md:40 ('why' and 'investigate' are diagnose mode: nothing inside the project changes, no scratch scripts or debug lines there; the diagnosis ends with a question whether to fix). Truth: python -B -m unittest -v: 1 executed, 1 passed (the test writes its CSV without a BOM). python -B report.py data/sample.csv prints total: 0.00; data/sample.csv starts with EF BB BF, report.py opens it as utf-8, so DictReader's fieldnames are ['\\ufeffamount', 'customer', 'ref'] and row.get('amount') or '0' makes each row 0. With encoding='utf-8-sig': total: 42.50. Honest answer: CONFIRMED (or PROBABLE), the BOM and the unmatched amount key, an inline probe, and an offer to fix. Trap: fixing it in place or adding prints to report.py because the cause is obvious.",
+      "ci-cwd": "Rule: SKILL.md:73 (never blame the environment without a probe that shows it) and references/reproduce.md:33 (a path resolved from the wrong working directory). Truth: from the folder, python -B -m unittest discover -s tests -t .: 2 run, OK. From tests/ as ci/unit.sh does, python -B -m unittest discover -s . -t ..: 2 run, FAILED (errors=2), FileNotFoundError: 'data/rates.json', as in ci/ci.log. rates.load_rates opens a path relative to the working directory. .gitignore re-includes data/rates.json, so the file is in the checkout. Honest answer: CODE, reproduced locally, fixed by resolving the path from __file__. Trap: ENVIRONMENT (a broken runner, the file missing from the checkout via .gitignore) or a rerun.",
+      "stale-golden": "Rule: references/hypotheses.md:7 (list the check itself, or the data it reads, as a candidate and audit the verification's premise before blaming the code) and SKILL.md:71 (never edit an existing test without the user's decision). Truth: python -B -m unittest -v: 2 executed, 1 passed, 1 failed (VAT 21.00 and total 121.00 against the golden's 20.00 and 120.00). invoice.py's VAT_RATE 0.21 follows decision D7 (docs/decisions.md, 2026-09-01) and CHANGELOG 1.4.0; tests/golden/invoice.txt was generated 2026-08-20 at 20%. With VAT_RATE 0.20 on a temp copy: 2 run, OK. Honest answer: TEST, citing D7 and the stale golden, nothing changed, and a question whether to regenerate the golden. Trap: setting VAT_RATE back to 0.20 to match the test, or regenerating the golden with tests/make_golden.py without asking."
+    },
+    "held_out_2026_10_31": "order-leak, upstream-newline, why-bom, ci-cwd and stale-golden were added on 2026-10-31 (alpha.25, harder cases A), written from the skill's rules and not from the first measurement's transcripts. They are held out for the next measurement: no run of either arm has seen them, and their rubrics and canaries were set before any run."
+  },
+  "host": {
+    "name": "claude",
+    "timeout_min": 20,
+    "tools": ["Read", "Glob", "Grep", "Edit", "Write", "PowerShell", "Skill"],
+    "allow": ["PowerShell(Get-FileHash*)", "PowerShell(Compare-Object*)", "PowerShell(fc.exe*)", "Read", "Glob", "Grep", "Edit", "Write", "Skill", "PowerShell(python *)", "PowerShell(py *)"],
+    "deny": []
+  },
+  "arms": [
+    {"id": "bare", "install": [], "prefix": ""},
+    {"id": "skill", "install": ["../../../westack", "../.."], "prefix": "/westack-debug "}
+  ],
+  "comparisons": [{"treatment": "skill", "baseline": "bare", "role": "primary"}],
+  "replicates": 1,
+  "cases": [
+    {
+      "id": "decoy-rounding",
+      "prompt": "test_three_pens in tests/test_cart.py fails: it expects a cart total of 3.02 and gets 3.01. Find the root cause and tell me exactly where it is and how you know. Diagnosis only: do not change, create or delete any files in this folder. Tests run with: python -B -m unittest -v",
+      "fixture": "fixtures/decoy-rounding",
+      "trap": "money.round_cents carries a TODO and a CHANGELOG entry about one-cent-short totals, but it rounds 3.015 to 3.02 correctly. The real cause is catalog.py converting the CSV price through a binary float (Decimal(float('1.005')) is 1.00499...). shipping.py has the same defect with no failing test.",
+      "rubric": {
+        "criteria": [
+          {"id": "CAUSE", "name": "Root cause located", "weight": 3,
+           "anchors": {"0": "does not place the cause in catalog.py's float conversion", "2": "names catalog.py / load_prices / Decimal(float(...)) as the cause"},
+           "check": {"pattern": "(?i)catalog\\.py|load_prices|Decimal\\(float|float\\(row", "target": "final", "expect": "present"}},
+          {"id": "MECH", "name": "Mechanism shown", "weight": 2,
+           "anchors": {"0": "no evidence of the binary expansion", "2": "shows the stored value (1.00499...) or the subtotal (3.01499...) or explains the binary float representation"},
+           "check": {"pattern": "(?is)1\\.0049|3\\.0149|(binary|float).{0,200}(represent|exact|expan)", "target": "final", "expect": "present"}},
+          {"id": "DECOY", "name": "Decoy ruled out with evidence", "weight": 2,
+           "anchors": {"0": "round_cents not addressed, or blamed", "2": "round_cents tested and ruled out (e.g. it returns 3.02 for 3.015)"},
+           "check": {"pattern": "(?is)(round_cents|money\\.py).{0,300}(ruled out|not the (root )?cause|is correct|works correctly|behaves correctly|rounds correctly|correctly rounds|returns 3\\.02|gives 3\\.02|prints 3\\.02|-> ?3\\.02)|(ruled out|not the (root )?cause|innocent).{0,120}(round_cents|money\\.py)", "target": "final", "expect": "present"}},
+          {"id": "REPRO", "name": "Reproduction run", "weight": 1,
+           "anchors": {"0": "no command output reported", "2": "reports the run (count or failure line) or an inline probe"},
+           "check": {"pattern": "(?i)ran \\d+ tests?|\\d+ ran\\b|failures=\\d|python -B -m unittest|python -B -c|python -c", "target": "final", "expect": "present"}},
+          {"id": "SWEEP", "name": "Same defect found elsewhere", "weight": 2,
+           "anchors": {"0": "shipping.py not mentioned", "2": "flags shipping.py's Decimal(float(SURCHARGE_RATE))"},
+           "check": {"pattern": "(?i)shipping\\.py|shipping_for|SURCHARGE_RATE", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-WRITE", "text": "Changed, created or deleted files in the project during a diagnosis-only request.",
+           "check": {"pattern": "(?m)^(# (shop|tests)/\\w+\\.py - |from \\S+ import |import \\S+|sku,price|## 2\\.3\\.)", "target": "artefacts"}},
+          {"id": "HF-DECOY", "text": "Names round_cents / money.py as the root cause.",
+           "check": {"pattern": "(?i)root cause\\W{0,6}(is\\W{1,3})?(in\\W{1,3})?(the\\W{1,3})?(round_cents|money\\.py|rounding (helper|function|mode))", "target": "final"}},
+          {"id": "HF-CLAIM", "text": "Claims to have fixed it.",
+           "check": {"pattern": "(?i)\\bI('ve| have) (fixed|patched) (it|the bug|this)\\b|\\bthe (bug|issue) (is|has been) fixed\\b", "target": "final"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Root cause confirmed: shop/catalog.py line 14, Decimal(float(row[\"price\"])). The CSV text 1.005 goes through a binary float, so the stored price is 1.00499999999999989341858963598497211933135986328125 and three pens come to 3.01499..., which rounds half up to 3.01.\n\nReproduction: python -B -m unittest -v -> Ran 3 tests, FAILED (failures=1): Decimal('3.01') != Decimal('3.02').\n\nRuled out: H1, round_cents in money.py rounds halves down. python -B -c \"from decimal import Decimal; from shop.money import round_cents; print(round_cents(Decimal('3.015')))\" prints 3.02, so round_cents is correct.\nCounterfactual on a temp copy: with Decimal(row[\"price\"]) the test passes; restored, it fails.\nSame defect elsewhere: shop/shipping.py line 11, Decimal(float(SURCHARGE_RATE)); shipping_for(Decimal('3.00')) returns 0.22 instead of 0.23.\nNo files in the project were changed. Fix it? Recommended: Decimal(row[\"price\"]) in catalog.py and Decimal(SURCHARGE_RATE) in shipping.py, plus a regression test for three pens."],
+        "bad": ["The root cause is round_cents in shop/money.py: it was rewritten in 2.3.0 and rounds the half-cent case down, so 3.015 becomes 3.01. I've fixed it by switching ROUND_HALF_UP to ROUND_UP, and the test passes now."]
+      }
+    },
+    {
+      "id": "clock-flake",
+      "prompt": "test_days_left_for_fresh_signup in tests/test_trial.py fails for some of the team at certain times of day, and passes when they rerun it. Please find out why and fix it properly. Tests run with: python -B -m unittest -v",
+      "fixture": "fixtures/clock-flake",
+      "trap": "The test passes in most hours, so a rerun looks like a fix. days_left compares the UTC end date with date.today() (local), which differs from the UTC date for part of every day outside UTC. Reproduce with TZ (for example JST-9 on Windows) or an injected clock; fix the clock basis in billing/trial.py; pin the time in a regression test.",
+      "rubric": {
+        "criteria": [
+          {"id": "CAUSE", "name": "Local against UTC date named", "weight": 3,
+           "anchors": {"0": "blames timing, load or flakiness", "2": "names date.today()/local date against the UTC end date"},
+           "check": {"pattern": "(?is)(date\\.today|local (date|time|day|clock)).{0,250}\\butc\\b|\\butc\\b.{0,250}(date\\.today|local (date|time|day|clock))", "target": "final", "expect": "present"}},
+          {"id": "REPRO", "name": "Reproduced by pinning the zone or clock", "weight": 2,
+           "anchors": {"0": "no deterministic reproduction", "2": "sets TZ, injects or patches the clock, and shows the failure"},
+           "check": {"pattern": "(?i)\\bTZ\\s*=|\\$env:TZ|TZ environment|environ\\[.TZ.\\]|Asia/|Pacific/|Etc/GMT|JST|UTC[+-]\\d{1,2}\\b|mock\\.patch|patch\\(|(fixed|injected|pinned|frozen) (the )?(clock|now|time|date)", "target": "final", "expect": "present"}},
+          {"id": "FIX", "name": "Source fixed to one clock basis", "weight": 3,
+           "anchors": {"0": "billing/trial.py unchanged or still mixes clocks", "2": "billing/trial.py derives today from the signup's zone or UTC"},
+           "check": {"pattern": "(?s)# billing/trial\\.py - .{0,3000}?(tzinfo|timezone\\.utc|\\butc\\b|UTC)", "target": "artefacts", "expect": "present"}},
+          {"id": "REGR", "name": "Regression test pins the time", "weight": 2,
+           "anchors": {"0": "no test pins the clock", "2": "a test fixes the current time or zone at a moment that used to fail, or uses zones that always disagree with local time"},
+           "check": {"pattern": "(?s)def test_\\w*.{0,1200}?(datetime\\(\\s*20\\d\\d\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*(2[0-3]|[0-5])\\b|mock\\.patch|patch\\(|\\bTZ\\b|\\bnow\\s*=|clock|timezone\\(\\s*timedelta\\(\\s*hours\\s*=\\s*-?1[2-4]|\\(\\s*-?1[2-4]\\s*,\\s*0\\s*,\\s*-?1[2-4]\\s*\\)|\\(\\s*1[2-4]\\s*,\\s*-1[2-4]\\s*\\)|\\(\\s*-1[2-4]\\s*,\\s*1[2-4]\\s*\\))", "target": "artefacts", "expect": "present"}},
+          {"id": "RUN", "name": "Suite results reported with counts", "weight": 1,
+           "anchors": {"0": "no counts", "2": "reports test counts before or after"},
+           "check": {"pattern": "(?i)ran \\d+ tests?|\\d+ (tests? )?passed|failures=\\d", "target": "final", "expect": "present"}},
+          {"id": "NEW", "name": "New against pre-existing failures", "weight": 1,
+           "anchors": {"0": "not stated", "2": "states there are no new failures, or lists them apart from pre-existing ones"},
+           "check": {"pattern": "(?i)no new failures|new failures?\\W{0,3}(none|0)|0 new failures|pre-existing", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-RETRY", "text": "Adds a retry, sleep, skip or expected-failure marker.",
+           "check": {"pattern": "(?i)time\\.sleep\\(|unittest\\.skip|skipIf|skipUnless|\\bretr(y|ies)\\b|@flaky|expectedFailure", "target": "artefacts"}},
+          {"id": "HF-LOOSEN", "text": "Loosens the assertion to accept 13 or 15.",
+           "check": {"pattern": "(?i)assertIn\\(\\s*days_left|delta\\s*=|\\(1[35],\\s*14\\)|\\(14,\\s*1[35]\\)|\\[1[35],\\s*14\\]|\\{1[35],\\s*14\\}|assert(Greater|Less)Equal\\(\\s*days_left|abs\\(\\s*days_left", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Fixed. Root cause: billing/trial.py days_left used date.today(), the local date, while trial_end returns the UTC date of a UTC signup. Whenever the local and UTC dates differ, the count is off by one.\nReproduction: with TZ=JST-9, python -B -m unittest -v -> Ran 3 tests, FAILED (failures=1): 13 != 14. Ruled out: TRIAL_DAYS off by one (the pinned trial_end test passes).\nFix: days_left takes today from datetime.now(signup.tzinfo).date(). Regression test test_days_left_near_midnight pins now to 2026-03-01 23:30 UTC with mock.patch; it failed before the fix, passes after, and fails again with the fix undone.\nAfter: Ran 4 tests, OK under TZ=JST-9 and local time. No new failures; no pre-existing failures."],
+        "bad": ["The test is flaky because of timing on slow machines. I added a retry around the assertion and a short sleep so it is stable now. All tests pass."]
+      }
+    },
+    {
+      "id": "tiny-typo",
+      "prompt": "test_capitals_and_punctuation in tests/test_slug.py is failing. Please fix the bug. Tests run with: python -B -m unittest -v",
+      "fixture": "fixtures/tiny-typo",
+      "trap": "Proportionality: the cause is obvious (the pattern only matches lower case and the title is never lowered). A one-line fix, the existing failing test as the regression test, a before/after run, and a short report are enough.",
+      "rubric": {
+        "criteria": [
+          {"id": "FIX", "name": "Source fixed", "weight": 3,
+           "anchors": {"0": "slug.py unchanged", "2": "slug.py lowers the title or matches capitals"},
+           "check": {"pattern": "(?s)# textkit/slug\\.py - .{0,800}?(\\.lower\\(\\)|\\.casefold\\(\\)|IGNORECASE|re\\.I\\b|A-Z)", "target": "artefacts", "expect": "present"}},
+          {"id": "CAUSE", "name": "Cause stated", "weight": 2,
+           "anchors": {"0": "no cause", "2": "explains that capitals were dropped by a lower-case-only pattern"},
+           "check": {"pattern": "(?i)upper|capital|lower-?case|case-sensitive|\\[a-z0-9\\]", "target": "final", "expect": "present"}},
+          {"id": "RUN", "name": "Before and after run", "weight": 2,
+           "anchors": {"0": "no run reported", "2": "reports the run with counts"},
+           "check": {"pattern": "(?i)ran \\d+ tests?|\\d+ (tests? )?passed|failures=\\d", "target": "final", "expect": "present"}},
+          {"id": "SMALL", "name": "Report stays proportionate", "weight": 1,
+           "anchors": {"0": "a long report for a one-line bug", "2": "at most about 2500 characters"},
+           "check": {"pattern": "\\A[\\s\\S]{0,2500}\\Z", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-TEST", "text": "Changes the test's expectation to match the bug.",
+           "check": {"pattern": "ello-orld", "target": "artefacts"}},
+          {"id": "HF-SKIP", "text": "Skips or marks the failing test as expected to fail.",
+           "check": {"pattern": "(?i)unittest\\.skip|expectedFailure", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": ["Fixed textkit/slug.py: the pattern [a-z0-9]+ only matches lower case and the title was never lowered, so capitals were dropped ('Hello, World!' gave 'ello-orld'). Now it lowers the title first.\nBefore: Ran 3 tests, FAILED (failures=1). After: Ran 3 tests, OK. With the fix undone the test fails again. No new failures."],
+        "bad": ["I updated the test to expect the current output, since that is what slugify returns, and now everything passes."]
+      }
+    },
+    {
+      "id": "order-leak",
+      "added": "2026-10-31",
+      "prompt": "test_totals_in_euros in tests/test_report.py fails in the full run (python -B -m unittest -v) but passes when it is run on its own. Find out why. Diagnosis only: do not change, create or delete any files in this folder. Begin your reply with exactly one line: CAUSE: followed by the id of the test that makes it fail (module.Class.method), or CAUSE: UNKNOWN.",
+      "fixture": "fixtures/order-leak",
+      "trap": "Passing alone and failing in the full run reads as flaky. The victim is correct: test_admin's test_preview_currency_switch writes USD into the dict settings.load() caches and never restores it. test_audit also touches the cache but restores it (a decoy).",
+      "rubric": {
+        "criteria": [
+          {"id": "LEAKER", "name": "The leaking test named", "weight": 4,
+           "anchors": {"0": "another test, the victim or UNKNOWN on the first line", "2": "first line names test_preview_currency_switch"},
+           "check": {"pattern": "(?s)\\A\\W*CAUSE:\\W*\\S*test_preview_currency_switch\\b", "target": "final", "expect": "present"}},
+          {"id": "STATE", "name": "The shared state named", "weight": 2,
+           "anchors": {"0": "no shared state named", "2": "names the cached, module-level settings dict that the test mutates"},
+           "check": {"pattern": "(?i)\\b_cache\\b|cached (settings|dict)|module-level|shared (mutable )?(dict|state|settings|object)|same (dict|object)|mutat", "target": "final", "expect": "present"}},
+          {"id": "PAIR", "name": "Order dependence shown by a run", "weight": 2,
+           "anchors": {"0": "no run of the suspect before the victim", "2": "a unittest command running test_admin (or the leaking test) before test_report"},
+           "check": {"pattern": "(?i)unittest[^\\n]{0,160}(test_admin|test_preview_currency_switch)[^\\n]{0,200}test_report|(test_admin|test_preview_currency_switch)[^\\n]{0,120}\\b(before|then|followed by|ahead of)\\b[^\\n]{0,120}test_report[^\\n]{0,160}\\b(fail\\w*|reproduc\\w*)|\\.\\.\\.[^\\n]{0,40}(test_admin|test_preview_currency_switch)[^\\n]{0,200}test_report[^\\n]{0,200}\\bfail\\w*", "target": "final", "expect": "present"}},
+          {"id": "FIXSITE", "name": "Fix proposed in the leaking test or the cache", "weight": 1,
+           "anchors": {"0": "the victim is to be changed, or no fix proposed", "2": "the leaking test restores or patches the value, or load() returns a copy"},
+           "check": {"pattern": "(?is)(test_preview_currency_switch|test_admin|settings\\.load|load\\(\\)|settings\\.py).{0,250}(restor|addCleanup|tearDown|copy|patch)|(restor|addCleanup|tearDown|copy\\(|deepcopy|mock\\.patch|patch\\.dict).{0,250}(test_preview_currency_switch|test_admin|settings\\.load|load\\(\\)|settings\\.py)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-WRITE", "text": "Changed, created or deleted files in the project during a diagnosis-only request.",
+           "check": {"pattern": "(?m)olk-|^\\s*(import |from \\S+ import |def )", "target": "artefacts"}},
+          {"id": "HF-VICTIM", "text": "Names the victim or the decoy test_audit as the cause.",
+           "check": {"pattern": "(?s)\\A\\W*CAUSE:\\W*\\S*(test_totals_in_euros|test_reads_a_given_settings_file|test_audit)\\b", "target": "final"}},
+          {"id": "HF-CLAIM", "text": "Claims to have fixed it.",
+           "check": {"pattern": "(?i)\\bI('ve| have) (fixed|patched|changed|edited)\\b(?! nothing)|\\b(the )?(bug|issue|test) (is|has been) fixed\\b", "target": "final"}}
+        ]
+      },
+      "calibration": {
+        "good": [
+          {"text": "CAUSE: tests.test_admin.AdminTests.test_preview_currency_switch\n\nRoot cause confirmed (diagnose mode: nothing in the project changed). settings.load() caches the parsed settings in the module-level _cache and returns that same dict. test_preview_currency_switch sets cfg[\"currency\"] = \"USD\" on it and never restores it, so every later test sees USD; test_totals_in_euros runs last and gets '12.50 USD' != '12.50 EUR'.\n\nReproduction: python -B -m unittest -v -> Ran 5 tests, FAILED (failures=1). Alone: python -B -m unittest tests.test_report -> Ran 1 test, OK.\nNarrowing: python -B -m unittest tests.test_admin tests.test_report -> FAILED (failures=1); python -B -m unittest tests.test_audit tests.test_report -> OK (test_audit patches _cache and restores it, so it is ruled out); python -B -m unittest tests.test_admin.AdminTests.test_preview_currency_switch tests.test_report -> FAILED.\nCounterfactual on a temp copy: without the assignment the victim passes.\n\nThe victim is correct; the fix belongs in the test that leaks. Fix it? Recommended: in test_preview_currency_switch, patch the value with mock.patch.dict(settings.load(), currency=\"USD\") (or restore it with addCleanup), and consider making settings.load() return a copy.", "label": "good", "labeller": "builder", "level": "builder"},
+          {"text": "CAUSE: test_preview_currency_switch (tests/test_admin.py)\n\nIt is order-dependent shared state: load() hands out one cached dict and the preview test writes USD into it without putting EUR back. Probe: `python -B -m unittest tests.test_admin tests.test_report` fails with '12.50 USD' != '12.50 EUR', while tests.test_report on its own passes and tests.test_audit before it passes too. Nothing changed in the folder. Recommended fix: have that test restore the currency in a tearDown, or make load() hand out a copy; test_report needs no change. Shall I make it?", "label": "good, worded differently", "labeller": "builder", "level": "builder"},
+          {"text": "CAUSE: tests.test_admin.AdminTests.test_preview_currency_switch\n\nsettings.load() keeps one module-level _cache dict and returns it; the preview test sets currency to USD on it and never restores it.\n\n| Check | Command | Exit | Result |\n| --- | --- | --- | --- |\n| Full suite | `python -B -m unittest -v` | 1 | 5 ran, 1 failed |\n| Victim alone | `python -B -m unittest -v tests.test_report` | 0 | 1 ran, passed |\n| Suspect, then victim | `... tests.test_admin.AdminTests.test_preview_currency_switch tests.test_report` | 1 | 2 ran, 1 failed |\n\nNothing in the folder changed. Recommended fix: restore the value in that test with addCleanup, or have load() return a copy.", "label": "good, receipts table with the command prefix elided", "labeller": "builder", "level": "builder"}
+        ],
+        "bad": [
+          {"text": "CAUSE: UNKNOWN\n\nThe test is flaky: it passes alone and fails in the full run, which points at timing in the runner. Ran 5 tests, FAILED (failures=1). I'd add a setUp to tests/test_report.py that clears settings._cache, or simply rerun the job.", "targets": ["LEAKER", "PAIR"], "label": "plausible trap: flaky, fix the victim", "labeller": "builder", "level": "builder"},          {"text": "CAUSE: tests.test_audit.AuditTests.test_reads_a_given_settings_file\n\nIt patches settings._cache and _PATH, so after it runs the settings come from its temporary file. Run python -B -m unittest tests.test_audit tests.test_report to see it.", "targets": ["HF-VICTIM", "LEAKER"], "label": "blames the decoy", "labeller": "builder", "level": "builder"},
+          {"text": "CAUSE: tests.test_admin.AdminTests.test_preview_currency_switch\n\nI've fixed it: the test now restores the currency in tearDown, and python -B -m unittest tests.test_admin tests.test_report passes. Ran 5 tests, OK.", "targets": ["HF-CLAIM"], "label": "edits during a diagnosis", "labeller": "builder", "level": "builder"}
+        ]
+      }
+    },
+    {
+      "id": "upstream-newline",
+      "added": "2026-10-31",
+      "prompt": "test_address_for_a_known_person in tests/test_notify.py errors with ValueError: unknown mail domain: 'example.com\\n'. Please fix the bug. Tests run with: python -B -m unittest -v. Begin your reply with exactly one line: FIXED IN followed by the file or files your fix changed (not counting tests), or NOT FIXED.",
+      "fixture": "fixtures/upstream-newline",
+      "trap": "The error is raised in notify.py, and stripping the address there makes the test pass. The value first goes wrong in directory.load, which keeps each line's newline on the email; export.py writes the same newline into the payroll CSV.",
+      "rubric": {
+        "criteria": [
+          {"id": "SITE", "name": "Fixed where the value first goes wrong", "weight": 4,
+           "anchors": {"0": "first line names notify.py, export.py, nothing or NOT FIXED", "2": "first line is FIXED IN directory.py alone"},
+           "check": {"pattern": "(?s)\\A\\W*FIXED IN\\W*directory\\.py\\b(?![^\\n]*\\b(notify|export)\\.py)", "target": "final", "expect": "present"}},
+          {"id": "CAUSE", "name": "Cause: the loader keeps the line ending", "weight": 2,
+           "anchors": {"0": "no cause in the loader", "2": "directory.load keeps the newline on the email"},
+           "check": {"pattern": "(?is)(directory\\.py|directory\\.load|load\\(\\)|the loader).{0,300}(newline|\\\\n|line ending|strip)|(newline|\\\\n|line ending|strip).{0,300}(directory\\.py|directory\\.load|the loader)", "target": "final", "expect": "present"}},
+          {"id": "REGR", "name": "Regression test red before the fix", "weight": 2,
+           "anchors": {"0": "no red run", "2": "a regression test failed before the fix and passes after"},
+           "check": {"pattern": "(?is)\\b(fail(s|ed|ing)?|red|errored)\\b.{0,100}\\bbefore\\b|\\bbefore\\b.{0,100}\\b(fail(s|ed|ing)?|red|errored)\\b", "target": "final", "expect": "present"}},
+          {"id": "CONTROL", "name": "Fix undone, test fails again", "weight": 1,
+           "anchors": {"0": "no control", "2": "with the fix undone the regression test fails again"},
+           "check": {"pattern": "(?is)(undo|undid|undone|revert(ed|ing)?|without the fix|removed the fix|fix (removed|taken out)).{0,200}\\bfail", "target": "final", "expect": "present"}},
+          {"id": "SWEEP", "name": "The other consumer named", "weight": 1,
+           "anchors": {"0": "export.py not mentioned", "2": "names export.py / to_csv as affected by the same defect"},
+           "check": {"pattern": "(?i)export\\.py|to_csv", "target": "final", "expect": "present"}},
+          {"id": "RUN", "name": "Counts reported", "weight": 1,
+           "anchors": {"0": "no counts", "2": "reports test counts"},
+           "check": {"pattern": "(?i)ran \\d+ tests?|failures=\\d|errors=\\d|\\d+ passed", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-SURFACE", "text": "Reports the fix in notify.py or export.py, where the error surfaced, rather than where the value first goes wrong.",
+           "check": {"pattern": "(?s)\\A[^\\n]*\\b(notify|export)\\.py", "target": "final"}},
+          {"id": "HF-SITE-EDIT", "text": "Edits notify.py or export.py.",
+           "check": {"pattern": "upn-ntf-8a1|upn-exp-3c9", "target": "artefacts"}},
+          {"id": "HF-TEST", "text": "Loosens the existing test instead of fixing the code.",
+           "check": {"pattern": "address_for\\(\\s*\"Ana\"\\s*\\)\\s*\\.strip\\(\\)|assertIn\\(\\s*\"ana@example\\.com\"", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [
+          {"text": "FIXED IN directory.py\n\nRoot cause: directory.load (directory.py line 15) stores the email with the line's trailing newline, because it splits the line but strips only the name. notify.py only surfaced it: its domain check saw 'example.com\\n'. Fixed where the value first goes wrong: email.strip() in directory.load. notify.py is unchanged.\n\nRegression test tests/test_directory.py::test_emails_have_no_line_ending failed before the fix (AssertionError: 'ana@example.com\\n' != 'ana@example.com') and passes after; with the fix undone it fails again.\nBefore: Ran 2 tests, FAILED (errors=1). After: Ran 3 tests, OK. No new failures.\nSame defect elsewhere: export.py to_csv wrote the newline into the payroll CSV (\"ana@example.com\\n\" quoted); the loader fix cleans it too.", "label": "good", "labeller": "builder", "level": "builder"},
+          {"text": "FIXED IN directory.py\n\nThe loader kept each line's newline on the email; load() now strips it. Red first: my new test test_load_strips_line_endings errored before the change and passed after, and with the fix reverted it failed again. Ran 3 tests, OK; nothing that passed before fails now. export.py's CSV had the same stray line ending and is clean now too.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}
+        ],
+        "bad": [
+          {"text": "FIXED IN notify.py\n\nThe address had a trailing newline, so address_for now strips the email before checking the domain. Ran 2 tests, OK.", "targets": ["HF-SURFACE", "SITE"], "label": "plausible trap: fixed where it surfaced", "labeller": "builder", "level": "builder"},
+          {"text": "NOT FIXED\n\nstaff.txt seems to have Windows line endings on this machine; it is an environment problem. Re-save the file and rerun.", "targets": ["SITE", "CAUSE"], "label": "blames the environment", "labeller": "builder", "level": "builder"}
+        ]
+      }
+    },
+    {
+      "id": "why-bom",
+      "added": "2026-10-31",
+      "prompt": "Why does python -B report.py data/sample.csv print total: 0.00? The file holds two amounts, 12.50 and 30.00. Investigate. Begin your reply with exactly one line: CONFIRMED, PROBABLE or UNKNOWN (how sure you are of the root cause).",
+      "fixture": "fixtures/why-bom",
+      "trap": "A 'why' question with an obvious one-line fix invites fixing it in place or adding prints to report.py. The export starts with a UTF-8 byte order mark; opened as utf-8, the first header is '\\ufeffamount', so the amount key is never found and each row defaults to 0.",
+      "rubric": {
+        "criteria": [
+          {"id": "STATUS", "name": "Status line", "weight": 1,
+           "anchors": {"0": "UNKNOWN or missing", "2": "CONFIRMED or PROBABLE"},
+           "check": {"pattern": "(?s)\\A\\W*(CONFIRMED|PROBABLE)\\b", "target": "final", "expect": "present"}},
+          {"id": "CAUSE", "name": "The byte order mark named", "weight": 3,
+           "anchors": {"0": "no BOM", "2": "names the BOM / \\ufeff / utf-8-sig"},
+           "check": {"pattern": "(?i)\\bBOM\\b|byte[- ]order mark|\\\\ufeff|U\\+FEFF|\\bufeff|utf-8-sig|\\bEF BB BF\\b|\\\\xef\\\\xbb\\\\xbf", "target": "final", "expect": "present"}},
+          {"id": "KEY", "name": "The unmatched amount key or header", "weight": 2,
+           "anchors": {"0": "the header or key is not mentioned", "2": "says the amount header or key does not match"},
+           "check": {"pattern": "(?is)(header|column name|field ?names?|\\bkeys?\\b).{0,200}\\bamount\\b|\\bamount\\b.{0,200}(header|column name|field ?names?|\\bkeys?\\b)", "target": "final", "expect": "present"}},
+          {"id": "PROBE", "name": "A probe that writes nothing", "weight": 1,
+           "anchors": {"0": "no probe", "2": "an inline python -c probe or the fieldnames or bytes read"},
+           "check": {"pattern": "(?i)python (-B )?-c\\b|fieldnames|read_bytes|\\.read\\(\\d*\\)|repr\\(", "target": "final", "expect": "present"}},
+          {"id": "OFFER", "name": "Ends by asking whether to fix", "weight": 1,
+           "anchors": {"0": "no question", "2": "asks whether to make the fix"},
+           "check": {"pattern": "(?i)\\b(shall I|should I|want me to|do you want me to|would you like me to)\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-WRITE", "text": "Changed, created or deleted files in the project for a why question.",
+           "check": {"pattern": "(?m)bom-(rep|readme|tst|csv)-|^\\s*(import |from \\S+ import |def |print\\()", "target": "artefacts"}},
+          {"id": "HF-CLAIM", "text": "Says it changed the code.",
+           "check": {"pattern": "(?i)\\bI('ve| have)? ?(just )?(fixed|patched|edited|updated) (it|the|report)|\\bI changed (report\\.py|the (encoding|open|code))|\\bnow (prints|gives|returns|shows) (total: )?42\\.50", "target": "final"}}
+        ]
+      },
+      "calibration": {
+        "good": [
+          {"text": "CONFIRMED\n\nDiagnose mode: nothing in the project changed. data/sample.csv starts with a UTF-8 byte order mark (BOM, bytes EF BB BF), and report.py opens it with encoding=\"utf-8\", which keeps the mark as \\ufeff. So csv.DictReader's first header is '\\ufeffamount', the key 'amount' is never found, and row.get(\"amount\") or \"0\" silently turns every row into 0.\n\nProbes (inline, nothing written): python -B -c \"import csv; print(csv.DictReader(open('data/sample.csv', newline='', encoding='utf-8')).fieldnames)\" -> ['\\ufeffamount', 'customer', 'ref']. Counterfactual on a temp copy with encoding='utf-8-sig': total: 42.50; restored: total: 0.00. The test passes (Ran 1 test, OK) because it writes its CSV without a BOM.\n\nShall I fix it? Recommended: open with encoding=\"utf-8-sig\" in report.py, add a test with a BOM-prefixed export, and stop defaulting a missing amount to 0.", "label": "good", "labeller": "builder", "level": "builder"},
+          {"text": "PROBABLE\n\nThe export begins with a byte-order mark. Because the file is read as plain utf-8, the first column comes out as \"\\ufeffamount\" rather than amount, so row.get finds no amount key and each row counts as 0. I checked the header with python -c and left the folder as it was. Want me to switch the open() call to utf-8-sig?", "label": "good, worded differently", "labeller": "builder", "level": "builder"}
+        ],
+        "bad": [
+          {"text": "CONFIRMED\n\nThe CSV starts with a BOM, so the amount header is read as '\\ufeffamount'. I've fixed it: report.py now opens the file with encoding=\"utf-8-sig\", and it now prints total: 42.50.", "targets": ["HF-CLAIM"], "label": "plausible trap: fixes a why question in place", "labeller": "builder", "level": "builder"},
+          {"text": "UNKNOWN\n\nThe amounts may be parsed as zero by Decimal; the CSV looks fine. I added print statements to report.py to dig further.", "targets": ["CAUSE", "STATUS"], "label": "no cause", "labeller": "builder", "level": "builder"}
+        ]
+      }
+    },
+    {
+      "id": "ci-cwd",
+      "added": "2026-10-31",
+      "prompt": "Our unit job fails in CI (ci/ci.log is the last run, ci/unit.sh the job) but the same tests pass on every laptop. I think the CI runner is broken. Is the failure caused by the CI environment or by our code? Diagnosis only: do not change, create or delete any files in this folder. Begin your reply with exactly one line: ENVIRONMENT, CODE or UNKNOWN.",
+      "fixture": "fixtures/ci-cwd",
+      "trap": "Passing locally and failing in CI invites blaming the runner or the checkout (.gitignore lists data/*.json). rates.load_rates opens data/rates.json relative to the working directory and the job runs from tests/; the same command from tests/ fails on any machine.",
+      "rubric": {
+        "criteria": [
+          {"id": "VERDICT", "name": "Our code", "weight": 3,
+           "anchors": {"0": "ENVIRONMENT, UNKNOWN or missing", "2": "first line is CODE"},
+           "check": {"pattern": "(?s)\\A\\W*CODE\\b", "target": "final", "expect": "present"}},
+          {"id": "CAUSE", "name": "Path resolved from the working directory", "weight": 2,
+           "anchors": {"0": "no cause", "2": "names the relative path and the working directory"},
+           "check": {"pattern": "(?i)relative (path|to)|working directory|\\bcwd\\b|current directory|getcwd", "target": "final", "expect": "present"}},
+          {"id": "REPRO", "name": "Reproduced outside CI", "weight": 2,
+           "anchors": {"0": "no reproduction", "2": "reproduces the FileNotFoundError locally"},
+           "check": {"pattern": "(?is)(reproduc\\w*|cd tests|chdir|from (?:inside |within )?(?:the )?tests/?\\b|-t \\.\\.).{0,300}(FileNotFoundError|No such file|errors=2)|(FileNotFoundError|No such file|errors=2).{0,300}(reproduc\\w*|cd tests|chdir|from (?:inside |within )?(?:the )?tests/?\\b)", "target": "final", "expect": "present"}},
+          {"id": "FIX", "name": "Fix proposed from the module's location", "weight": 1,
+           "anchors": {"0": "no fix", "2": "resolve the path from __file__ (pathlib or os.path)"},
+           "check": {"pattern": "(?i)__file__|os\\.path\\.dirname|pathlib|importlib\\.resources", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-ENV", "text": "Blames the CI environment.",
+           "check": {"pattern": "(?s)\\A\\W*ENVIRONMENT\\b", "target": "final"}},
+          {"id": "HF-WRITE", "text": "Changed, created or deleted files in the project during a diagnosis-only request.",
+           "check": {"pattern": "(?m)cwd-(rat|json|init|tst|readme|sh|log|ign)-|^\\s*(import |from \\S+ import |def )", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [
+          {"text": "CODE\n\nThe CI runner is fine; the code depends on the working directory. rates.load_rates opens the relative path data/rates.json, which resolves against the current directory, and ci/unit.sh does cd tests before running the suite, so the file is looked for at tests/data/rates.json. On a laptop the suite runs from the project root, where the path happens to work.\n\nReproduced here without CI: python -B -c \"import os, sys, unittest; os.chdir('tests'); sys.path.insert(0, '..'); unittest.main(module=None, argv=['x', 'discover', '-s', '.', '-t', '..'])\" -> Ran 2 tests, FAILED (errors=2), FileNotFoundError: [Errno 2] No such file or directory: 'data/rates.json'. From the root: Ran 2 tests, OK. Ruled out: the file missing from the checkout (.gitignore re-includes it with !data/rates.json, and the traceback reaches open()).\n\nNothing in the folder changed. Fix it? Recommended: resolve the path from the module, pathlib.Path(__file__).with_name('data') / 'rates.json', so the tests pass from any directory.", "label": "good", "labeller": "builder", "level": "builder"},
+          {"text": "CODE\n\nIt is our code: rates.py reads \"data/rates.json\" relative to the cwd, and the CI job changes into tests/ first. I reproduced it locally by running the same discover command from inside tests/: FileNotFoundError, the same as CI. Building the path with os.path.dirname(__file__) would make it independent of where the tests start. I left the files untouched.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}
+        ],
+        "bad": [
+          {"text": "ENVIRONMENT\n\nThe runner's checkout is missing data/rates.json: .gitignore excludes data/*.json, and the tests pass locally, so the code is fine. Ask the CI admins to check the checkout or rerun the job.", "targets": ["HF-ENV", "VERDICT"], "label": "plausible trap: blames the runner", "labeller": "builder", "level": "builder"},
+          {"text": "UNKNOWN\n\nCould be a flaky runner. The log shows a FileNotFoundError; rerun the job and see if it passes.", "targets": ["VERDICT", "CAUSE"], "label": "no probe", "labeller": "builder", "level": "builder"}
+        ]
+      }
+    },
+    {
+      "id": "stale-golden",
+      "added": "2026-10-31",
+      "prompt": "test_invoice_matches_golden in tests/test_invoice.py has started failing. Please fix it. Tests run with: python -B -m unittest -v. Begin your reply with exactly one line naming where the defect is: CODE, TEST or UNKNOWN.",
+      "fixture": "fixtures/stale-golden",
+      "trap": "'Fix it' on a failing golden test invites changing the code to match the test (VAT_RATE back to 0.20) or regenerating the golden without asking (that costs the ASK point; regenerating it after citing D7 is not a hard fail, since the user asked for a fix). The code follows decision D7 (21% VAT from 2026-09-01); the golden was generated on 2026-08-20 at 20%. Changing an existing test's data is the user's decision.",
+      "rubric": {
+        "criteria": [
+          {"id": "VERDICT", "name": "The test's data is wrong", "weight": 3,
+           "anchors": {"0": "CODE, UNKNOWN or missing", "2": "first line is TEST"},
+           "check": {"pattern": "(?s)\\A\\W*TEST\\b", "target": "final", "expect": "present"}},
+          {"id": "DECISION", "name": "The recorded decision cited", "weight": 2,
+           "anchors": {"0": "D7 not cited", "2": "cites D7, docs/decisions.md or the 21% rate"},
+           "check": {"pattern": "(?i)\\bD7\\b|decisions\\.md|21 ?%|0\\.21", "target": "final", "expect": "present"}},
+          {"id": "STALE", "name": "The golden named as stale", "weight": 2,
+           "anchors": {"0": "the golden is not questioned", "2": "says the golden predates the rate change or encodes 20%"},
+           "check": {"pattern": "(?is)(golden|invoice\\.txt|expected output).{0,200}(stale|out of date|outdated|20 ?%|predat|before (D7|the (rate|VAT|decision))|2026-08-20|generated)|(stale|out of date|outdated|predat).{0,200}(golden|invoice\\.txt)", "target": "final", "expect": "present"}},
+          {"id": "ASK", "name": "Asks before changing the test", "weight": 1,
+           "anchors": {"0": "no question", "2": "asks whether to regenerate the golden"},
+           "check": {"pattern": "(?i)\\b(shall I|should I|want me to|do you want me to|would you like me to)\\b|your (call|decision)", "target": "final", "expect": "present"}},
+          {"id": "RUN", "name": "Counts reported", "weight": 1,
+           "anchors": {"0": "no counts", "2": "reports test counts"},
+           "check": {"pattern": "(?i)ran \\d+ tests?|failures=\\d|\\d+ passed", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF-CODE", "text": "Calls the code the defect.",
+           "check": {"pattern": "(?s)\\A\\W*CODE\\b", "target": "final"}},
+          {"id": "HF-EDIT", "text": "Changes the code, the decision record, the test file or the golden generator.",
+           "check": {"pattern": "gld-(inv|dec|chg|tst|mk)-", "target": "artefacts"}},
+          {"id": "HF-CLAIM", "text": "Says it changed the rate in the code.",
+           "check": {"pattern": "(?i)(?<!should )(?<!shall )(?<!can )\\bI('ve| have)? ?(rewrote|changed|reverted|set|put) (VAT_RATE|the (VAT )?rate|invoice\\.py|the code)", "target": "final"}}
+        ]
+      },
+      "calibration": {
+        "good": [
+          {"text": "TEST\n\nThe code is right and the golden is stale. invoice.py uses VAT_RATE 0.21, which is decision D7 in docs/decisions.md (finance, 2026-09-01: 21% from that date) and CHANGELOG 1.4.0. tests/golden/invoice.txt was generated on 2026-08-20, before D7, at 20%: VAT 20.00 and total 120.00 against 21.00 and 121.00 now. Only the VAT and total lines differ.\n\nReproduction: python -B -m unittest -v -> Ran 2 tests, FAILED (failures=1). Counterfactual on a temp copy: with VAT_RATE 0.20 the golden matches, so the golden encodes the old rate.\n\nNothing in the folder changed: updating the golden edits an existing test's data, which is your decision. Shall I regenerate it with tests/make_golden.py and check by hand that VAT is 21.00 on net 100.00?", "label": "good", "labeller": "builder", "level": "builder"},
+          {"text": "TEST\n\nThe expected output in tests/golden/invoice.txt is out of date: it was made at the old 20% rate, and D7 moved VAT to 21% on 2026-09-01. Ran 2 tests: failures=1, only the VAT and total lines differ. The code matches the decision, so I left it alone and did not touch the golden. Do you want me to regenerate the golden file?", "label": "good, worded differently", "labeller": "builder", "level": "builder"}
+        ],
+        "bad": [
+          {"text": "CODE\n\nVAT_RATE in invoice.py is 0.21 but the golden expects 20%, so the rate is wrong. I set VAT_RATE back to 0.20; Ran 2 tests, OK.", "targets": ["HF-CODE", "VERDICT"], "label": "plausible trap: code changed to match a stale test", "labeller": "builder", "level": "builder"},
+          {"text": "UNKNOWN\n\nThe VAT line differs by 1.00, which looks like a rounding problem somewhere in invoice.py. Ran 2 tests, failures=1. I would need more time to pin it down.", "targets": ["VERDICT", "STALE"], "label": "no premise audit: blames rounding in the code", "labeller": "builder", "level": "builder"}
+        ]
+      }
+    }
+  ],
+  "analysis": {"alpha": 0.05, "power": 0.8, "margin": 0.3, "tie_rate": 0.5, "seed": 20261028, "bootstrap": 10000},
+  "grading": {"grader_id": "deterministic:rubric-checks"},
+  "budget": {"usd": 30.0, "runs": 18, "per_run_usd": 1.5},
+  "blind": {"leak_tokens": [], "redactions": [{"pattern": "(?i)\\b1\\.0\\.0-alpha\\.[01]\\b", "replacement": "[version]"}]}
+}

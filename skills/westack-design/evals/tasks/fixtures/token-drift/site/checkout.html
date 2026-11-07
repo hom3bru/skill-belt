@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- td-html-1c4 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="checkout.css">
+</head>
+<body>
+  <section class="summary">
+    <div class="line"><span>Trail tent</span><span>&euro;240.00</span></div>
+    <div class="line"><span>Shipping</span><span>&euro;6.00</span></div>
+    <div class="line"><strong>Total</strong><strong>&euro;246.00</strong></div>
+    <a class="link" href="/cart">Edit your cart</a>
+    <button class="pay-button" type="submit" form="pay">Pay &euro;246.00</button>
+  </section>
+  <form id="pay" action="/checkout/pay" method="post"></form>
+</body>
+</html>

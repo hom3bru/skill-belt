@@ -1,0 +1,3 @@
+# req-pin-3c1
+tidepool==1.4.2
+requests==2.32.3

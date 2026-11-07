@@ -1,0 +1,17 @@
+diff --git a/search/query.py b/search/query.py
+index 6a1b0c2..e48d731 100644
+--- a/search/query.py
++++ b/search/query.py
+@@ -4,4 +4,8 @@ def build(terms):
+-    q = ""
+-    for t in terms:
+-        q = q + t + " "
+-    return q
++    q = ""
++    for t in terms:
++        q = q + t.strip().lower() + " "
++    return q.strip()
++
++
++def tokens(text):
++    return [t for t in text.lower().split() if t]

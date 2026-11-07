@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "vocabulary": "the contract.json subset: type, required, enum, properties, items, minLength, pattern; unknown keys are rejected",
+  "root": {"$ref": "#/$defs/map"},
+  "$defs": {
+    "map": {
+      "type": "object",
+      "required": ["format", "stack", "updated", "never_defer", "consent", "entries"],
+      "properties": {
+        "format": {"type": "string", "enum": ["westack-defer-map-1"]},
+        "stack": {"type": "string", "enum": ["westack"]},
+        "updated": {"type": "string", "minLength": 1},
+        "note": {"type": "string", "minLength": 1},
+        "never_defer": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "consent": {"$ref": "#/$defs/consent"},
+        "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}}
+      }
+    },
+    "consent": {
+      "type": "object",
+      "required": ["scope", "persisted", "asked", "covers", "refused"],
+      "properties": {
+        "scope": {"type": "string", "enum": ["session"]},
+        "persisted": {"type": "boolean"},
+        "asked": {"type": "string", "minLength": 1},
+        "covers": {"type": "string", "minLength": 1},
+        "refused": {"type": "string", "minLength": 1}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "required": ["id", "capability", "candidate", "kind", "criterion", "detect", "side_effects",
+                   "consent_required", "fence", "post", "evidence", "source"],
+      "properties": {
+        "id": {"type": "string", "pattern": "[a-z0-9]+(-[a-z0-9]+)*"},
+        "capability": {"type": "string", "pattern": "westack-[a-z0-9]+(-[a-z0-9]+)*"},
+        "candidate": {"$ref": "#/$defs/candidate"},
+        "kind": {"type": "string", "enum": ["capability", "convention", "co-load", "quality"]},
+        "criterion": {"type": "string", "minLength": 1},
+        "quality_criterion": {"$ref": "#/$defs/quality"},
+        "detect": {"$ref": "#/$defs/detect"},
+        "side_effects": {"$ref": "#/$defs/side_effects"},
+        "consent_required": {"type": "boolean"},
+        "fence": {"type": "array", "items": {"type": "string",
+                  "enum": ["push", "merge", "deploy", "publish", "tracker-write", "message"]}},
+        "post": {"type": "string", "minLength": 1},
+        "evidence": {"$ref": "#/$defs/evidence"},
+        "source": {"type": "string", "minLength": 1}
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["name", "origin", "installed_version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "origin": {"type": "string", "minLength": 1},
+        "installed_version": {"type": ["string", "null"], "minLength": 1}
+      }
+    },
+    "detect": {
+      "type": "object",
+      "required": ["skill_names", "files", "repo_markers", "hosts"],
+      "properties": {
+        "skill_names": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "files": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "repo_markers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "hosts": {"type": "array", "items": {"type": "string", "enum": ["claude-code", "codex", "cursor"]}}
+      }
+    },
+    "side_effects": {
+      "type": "object",
+      "required": ["status", "effects"],
+      "properties": {
+        "status": {"type": "string", "enum": ["known", "unknown", "none"]},
+        "effects": {"type": "array", "items": {"$ref": "#/$defs/effect"}}
+      }
+    },
+    "effect": {
+      "type": "object",
+      "required": ["kind", "detail", "grade"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["writes", "update-check", "telemetry", "network", "external-service",
+                                             "process", "install"]},
+        "detail": {"type": "string", "minLength": 1},
+        "grade": {"type": "string", "enum": ["claimed", "present", "wired", "tested", "observed"]}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "required": ["suite", "pairs", "test", "margin_points"],
+      "properties": {
+        "suite": {"type": "string", "minLength": 1},
+        "pairs": {"type": "integer", "minimum": 1},
+        "test": {"type": "string", "enum": ["mcnemar", "paired-bootstrap"]},
+        "margin_points": {"type": "integer", "minimum": 1}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["status", "eval_run", "candidate_commit", "own_version", "measured_at", "expires_after_days"],
+      "properties": {
+        "status": {"type": "string", "enum": ["unmeasured", "measured", "stale"]},
+        "eval_run": {"type": ["string", "null"], "minLength": 1},
+        "candidate_commit": {"type": ["string", "null"], "minLength": 1},
+        "own_version": {"type": ["string", "null"], "minLength": 1},
+        "measured_at": {"type": ["string", "null"], "minLength": 1},
+        "expires_after_days": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

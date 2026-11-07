@@ -1,5 +1,6 @@
 """Refresh published-byte manifests after an intentional collection change."""
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -7,6 +8,9 @@ import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason", "deep-dive")
+STACK_SPEC = importlib.util.spec_from_file_location("manifest_westack_stack", ROOT / "scripts/westack_stack.py")
+westack_stack = importlib.util.module_from_spec(STACK_SPEC)
+STACK_SPEC.loader.exec_module(westack_stack)
 
 
 def files(root):
@@ -31,9 +35,9 @@ def skill_version(root):
     root = Path(root)
     text = (root / "SKILL.md").read_text(encoding="utf-8")
     front = re.match(r"---\r?\n(.*?)\r?\n---\r?\n", text, re.S)
-    found = re.search(r'^\s+version: "([^"]+)"', front.group(1), re.M) if front else None
+    found = re.search(r'^\s+version: (?:"([^"\r\n]+)"|([^\s#]+))[ \t]*(?:#.*)?$', front.group(1), re.M) if front else None
     if found:
-        return found.group(1)
+        return found.group(1) or found.group(2)
     readme = root / "README.md"
     title = readme.read_text(encoding="utf-8").splitlines()[0] if readme.is_file() else ""
     found = re.match(r"# \S+ (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)(?![\w.-])", title)
@@ -50,9 +54,16 @@ def skill_version(root):
 
 def main():
     skills = []
-    for name in NAMES:
+    for name in (*NAMES, *westack_stack.sibling_names(ROOT / "skills")):
         root = ROOT / "skills" / name
-        skills.append(dict(name=name, version=skill_version(root), path="skills/" + name, files=files(root)))
+        row = dict(name=name, version=skill_version(root), path="skills/" + name, files=files(root))
+        if name == "westack" and (root / "stack.json").is_file():
+            release = re.search(r'^## (\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)(?![\w.-])',
+                                (root / "CHANGELOG.md").read_text(encoding="utf-8"), re.M)
+            if not release:
+                raise ValueError("Missing westack stack release in CHANGELOG.md")
+            row["stack_release"] = release.group(1)
+        skills.append(row)
     (ROOT / "skills-manifest.json").write_text(json.dumps(dict(format="skill-belt-snapshots-1", skills=skills), indent=2) + "\n",
                                                encoding="utf-8", newline="\n")
     print("Published-byte manifests refreshed for " + str(len(skills)) + " skill snapshots.")

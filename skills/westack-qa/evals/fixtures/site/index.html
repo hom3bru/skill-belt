@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fixture shop</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 40rem; }
+    nav a { margin-right: 1rem; }
+    button { padding: .5rem 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="missing.html">Pricing</a>
+  </nav>
+  <h1>Fixture shop</h1>
+  <p>A small page for westack-qa's evals. It has planted defects; evals/fixtures/planted-defects.json lists them.</p>
+  <form onsubmit="return false">
+    <label for="note">Order note</label>
+    <input id="note" name="note" type="text">
+    <button type="button" id="save">Save</button>
+  </form>
+  <p id="status">Draft</p>
+  <script>
+    window.addEventListener("load", function () {
+      undefinedHelper();
+    });
+  </script>
+</body>
+</html>

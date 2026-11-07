@@ -1,0 +1,7 @@
+# pyproject-4a7
+[project]
+name = "ledger"
+version = "2.3.0"
+
+[project.scripts]
+ledger = "ledger.__main__:main"

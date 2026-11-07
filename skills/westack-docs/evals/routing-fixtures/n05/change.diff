@@ -1,0 +1,16 @@
+diff --git a/src/pagination.py b/src/pagination.py
+index 3f2a1c4..8b7d9e0 100644
+--- a/src/pagination.py
++++ b/src/pagination.py
+@@ -1,7 +1,11 @@
+ def page(items, number, size=20):
++    if number < 1 or size < 1:
++        raise ValueError("number and size must be at least 1")
+     start = (number - 1) * size
+     return items[start:start + size]
+
+
+ def page_count(total, size=20):
++    if size < 1:
++        raise ValueError("size must be at least 1")
+     return (total + size - 1) // size

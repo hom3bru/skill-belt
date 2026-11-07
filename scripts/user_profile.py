@@ -39,6 +39,9 @@ def _load_profile(path):
         for key in ("user_name", "user_handle") + PATH_KEYS:
             if key in profile and not isinstance(profile[key], str):
                 raise ValueError
+        aliases = profile.get("legacy_user_names", [])
+        if not isinstance(aliases, list) or any(not isinstance(alias, str) for alias in aliases):
+            raise ValueError
     except (ValueError, RecursionError):
         raise ValueError("Local publication profile is malformed") from None
     return profile
@@ -53,8 +56,10 @@ def _normalized(text):
 
 def _patterns(profile):
     patterns = []
-    for key in ("user_name", "user_handle"):
-        value = profile.get(key, "").strip()
+    identities = [profile.get("user_name", ""), profile.get("user_handle", "")]
+    identities.extend(profile.get("legacy_user_names", []))
+    for identity in identities:
+        value = identity.strip()
         if value:
             patterns.append(re.compile(r"(?<!\w)" + re.escape(value) + r"(?!\w)", re.I))
     paths = [profile.get(key, "").strip() for key in PATH_KEYS]

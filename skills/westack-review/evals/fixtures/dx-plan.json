@@ -1,0 +1,20 @@
+{
+  "format": "westack-dx-record-1",
+  "kind": "plan",
+  "product": "westack install CLI (tools/install.py), from its README section",
+  "persona": {"who": "a developer adding westack to one project", "goal": "use /westack in Claude Code today",
+              "environment": "Windows 11, Python 3.12, Claude Code", "knows": "git and Python; not westack's layout"},
+  "tthw": {"minutes": 4, "tier": "competitive", "evidence": "inferred",
+           "steps": ["clone the repository", "read the Install section", "dry run install.py", "re-run with --apply", "type /westack in a project"]},
+  "dimensions": [
+    {"id": "getting-started", "score": 6, "evidence": "inferred", "gap": "a 10 installs in one command; this needs a dry run then --apply"},
+    {"id": "api-cli", "score": 7, "evidence": "inferred", "gap": "a 10 guesses --host from the environment"},
+    {"id": "errors", "score": 7, "evidence": "inferred", "gap": "a 10 prints the exact next command on every refusal"},
+    {"id": "docs", "score": 6, "evidence": "inferred", "gap": "a 10 has a one-screen quick start before the details"},
+    {"id": "upgrade", "score": 4, "evidence": "inferred", "gap": "a 10 has an update mode; the README defers it"},
+    {"id": "environment", "score": 7, "evidence": "inferred", "gap": "a 10 is probed on every host it names; Codex is blocked, Cursor not-run"},
+    {"id": "community", "score": 2, "evidence": "inferred", "gap": "a 10 has an issue tracker and examples from others; none is named"},
+    {"id": "measurement", "score": 3, "evidence": "inferred", "gap": "a 10 knows where installs fail; nothing records it"}
+  ],
+  "overall": 5.2
+}

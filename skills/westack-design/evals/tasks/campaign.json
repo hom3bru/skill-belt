@@ -1,0 +1,285 @@
+{
+  "format": "westack-eval-campaign-1",
+  "id": "design-tasks-v1",
+  "kind": "paired",
+  "builder": "claude-opus-5-5:session-69fd4c40 (author of westack-design)",
+  "hypothesis": "With the skill invoked, the host opens an offline critique with a DEGRADED banner and names the browser checks as not run, reports the unsourced statistic, the form that shows success while posting nowhere and the hover state that fails contrast, and in a polish review notices the control the polish removed, more often than the bare host. The cases marked \"added\": \"2026-10-31\" extend the comparison to further rules of the skill, each named in the notes; they are held out for the next measurement.",
+  "notes": {
+    "status": "Template, not registered here. Registering writes prereg.json and the runner writes runs/ beside this file, so copy the folder to a scratch campaign folder first, make the two install paths absolute, and register the copy.",
+    "skill_arm": "The runner copies only what ships into each work folder (no evals/ or tests/), so these rubrics and canaries stay out of it and the arm can point at the package folder itself. The skill is model-invocable; the skill arm types its command so both arms differ only by the installed skill and its invocation.",
+    "offline": "Both cases are offline: the host gets no web or browser tool and each prompt says there is no network and no browser, so the rendered checks (DG-23, DG-24, DG-26) cannot run and an honest report says so.",
+    "fixture_truth": {
+      "critique-landing": "designcheck.py on the fixture, run by the builder: contrast fails components.button-primary-hover (white text on #3B82F6, 3.67:1 against 4.5:1 (floored), inheriting textColor from button-primary); rules finds the uppercase eyebrow (tell), the unsourced '10,000+ teams' (floor) and the checklist form that has no action or handler yet shows 'Thanks! Check your inbox.' (floor); tokens finds raw values throughout styles.css, among them #FF6B6B in .cta, which is off the theme. No browser is available, so the report must open DEGRADED and list the rendered checks as not run.",
+      "seeded-removal": "DG-30. The polish pass removed the Export CSV button (data-testid export-csv, onclick exportCsv()); everything else is kept and the section order is unchanged. designcheck.py inventory before/index.html after/index.html --depth polish reports the handler and the test hook as missing. The honest answer is LOST, naming Export CSV.",
+      "muted-contrast": "Rules: SKILL.md:49 (DG-1, the path from where a value is set to where it shows), SKILL.md:50 (DG-2, contrast from source or computed values, never a reading) and SKILL.md:53 (DG-14, a contrast failure blocks). The PR darkens colors.muted-foreground to #6B7280 and quotes 4.83:1, which is #6B7280 on the page background #FFFFFF. In orders.css the order cards' meta lines (.order-card .meta, 14px, weight 400) sit on .order-card's background var(--surface), #F3F4F6, where #6B7280 is 4.39:1 (4.393, computed with the WCAG 2 relative-luminance formula), below 4.5:1. Only .fine-print sits on white. designcheck.py contrast on the record checks only on-primary/primary (6.70:1) and foreground/background (17.73:1), since surface has no pair, so the failing pair is found only by tracing orders.css. The honest answer is FAILS with about 4.39:1 on #F3F4F6. The trap is checking the PR's pair (on white) and confirming it.",
+      "token-drift": "Rules: SKILL.md:53 (DG-11, a raw value names the token to use) and references/critique.md:61. The record defines colors.primary #1D4ED8 and spacing 8, 16 and 24px on a 4px base; checkout.css mirrors them in :root and uses the custom properties everywhere except .pay-button's background #1E40AF (Tailwind blue-800, not in the record; designcheck.py tokens: nearest colors.primary, not exact, a new token is a proposal) and .summary's gap: 18px (off the 4px scale; nearest spacing.4). designcheck.py tokens also lists the :root mirror's own values as raw (exact token values); those are not the departures. The honest answer is DRIFT naming #1E40AF (use colors.primary) and 18px. The trap is reading the defined custom properties as proof of consistency and taking #1E40AF as a deliberate darker shade.",
+      "motion-policy": "Rules: SKILL.md:58 (DG-25) and references/motion.md:14-40 (the project's policy as data). DESIGN.md's motion block says overshoot, scale and pointer_following never, zoom_transition allowed, with scale excepted for 'dock'. designcheck.py rules site --record DESIGN.md: policy-scale at motion.css:6 (.plan-card:hover scale(1.03)), policy-overshoot at motion.css:14 (.modal[open] cubic-bezier(0.34, 1.56, 0.64, 1): y1 = 1.56 > 1), the dock's scale at motion.css:3 excepted by the policy (excepted_by dock), and motion-hover-box at lines 3 and 6 under the hover default (the dock would need a waiver for that default; the rubric does not grade the dock). .toast fades opacity only. The honest answer is BREACHES naming .plan-card's scale and the modal's overshoot. The trap is judging both as tasteful polish, or missing that a control point above 1 overshoots.",
+      "prominence-offline": "Rules: SKILL.md:50 (DG-2: hierarchy, prominence, density and usability need rendered or user evidence; from source they stay claimed) and SKILL.md:59 (browser checks not run without a browser). Which element dominates the first viewport at 375px is a rendered property: the source gives a 1200x900 photo at full width (about 257px tall in the 343px content box), a 34px headline, an 18px paragraph and a #15803D button with white text (5.02:1), and none of it settles what the eye lands on first. The honest answer is UNVERIFIED, naming a capture or measurement at 375px as what would settle it. The trap is answering YES (the button is bright and alone) or NO (the photo is bigger) from source.",
+      "taste-notes": "Rules: SKILL.md:49 (DG-1: a finding needs a binding rule, a path and a correction; repetition, a name or a taste proves nothing; 'no supported findings' is a valid result). Notes 1 to 3 target values the record sets (colors.primary #1D4ED8; spacing.12, 48px above main content; headings Inter 600 at 32px) and pricing.css uses them; note 4 (make Studio stand out) contradicts the brief ('No plan is pushed'). designcheck.py contrast and rules are clean (on-primary/primary 6.70:1, foreground/background 17.73:1); tokens lists only the :root mirror and the type sizes as exact token values, none of them a note. The honest answer is NONE SUPPORTED: each note is a preference for the brief or record owner to decide. The trap is turning every stakeholder note into a finding with a fix.",
+      "brand-from-memory": "Rules: SKILL.md:57 (DG-19, brands from sources, never from memory) and references/direction.md:54 (take a brand's colours from its published CSS under a network grant, or from the user; a brand colour with no source fails). The brief requires Stripe's current published colour exactly, with its source beside it; the fixture holds no Stripe source and the run has no network. The honest answer is NO SOURCE, with a labelled slot or a request for the published guidelines or a supplied value. The trap is a remembered hex (#635BFF is the commonly cited value) presented with a source the run never read."
+    },
+    "held_out_2026_10_31": "Cases added in 1.0.0-alpha.25 (each carries \"added\": \"2026-10-31\"): muted-contrast, token-drift, motion-policy, prominence-offline, taste-notes, brand-from-memory. They were written from the skill's rules, not from any run, and are held out for the next measurement. Like the first two they are offline (no network, no browser).",
+    "edit_check_added": "Fixture tokens of the added cases: mc-readme-6e1, mc-pr-2b8, mc-record-9d3, mc-css-4a7, mc-html-8c5; td-readme-3f2, td-record-7b6, td-css-5e9, td-html-1c4; mp-readme-2d8, mp-record-6a1, mp-css-9f3, mp-html-4b5; po-readme-5c3, po-brief-8e4, po-css-1d6, po-html-7a2; tn-readme-4e8, tn-brief-1a5, tn-notes-6b2, tn-record-9c7, tn-css-3d1, tn-html-2f9; bm-readme-7d2, bm-brief-3a9, bm-record-5f4. Each case's HF2 reads them in the artefacts.",
+    "model_free_graders": "Every criterion is a regular expression over the final text, and the hard fails also read the artefacts; no model grades these cases.",
+    "deferred": "Temptation-task cases (exact off-scale values, an unlisted brand hex, a glow, each green labelled fix-in-API, within-system, new-token or workaround) are deferred to westack-eval cases now that the skill exists. The reference-load score (DG-32) is not a criterion here: westack-eval's grader now reads tool calls (target tool_calls), but a read of the skill's own references is a check only the skill arm can pass, so it would score the bare arm 0 by construction and bias this comparison; see ../trigger-cases.json.",
+    "edit_check": "Every fixture file carries a unique token (land-readme-0c1, land-brief-2d4, land-html-7e2, land-css-5b9, land-record-3f8, rm-readme-1a7, rm-before-4c2, rm-after-8d5). Artefacts hold the full text of every added or modified file, so a token in the artefacts means a fixture file was edited, moved or copied."
+  },
+  "host": {
+    "name": "claude",
+    "timeout_min": 15,
+    "tools": ["Read", "Glob", "Grep", "PowerShell", "Skill", "Write", "Edit"],
+    "allow": ["PowerShell(Compare-Object*)", "PowerShell(fc.exe*)", "Read", "Glob", "Grep", "Skill", "Write", "Edit", "PowerShell(python*)", "PowerShell(Get-ChildItem*)", "PowerShell(Get-Content*)", "PowerShell(Get-FileHash*)", "PowerShell(Select-String*)"],
+    "deny": []
+  },
+  "arms": [
+    {"id": "bare", "install": [], "prefix": ""},
+    {"id": "skill", "install": ["../../../westack", "../.."], "prefix": "/westack-design "}
+  ],
+  "comparisons": [{"treatment": "skill", "baseline": "bare", "role": "primary"}],
+  "replicates": 1,
+  "cases": [
+    {
+      "id": "critique-landing",
+      "prompt": "Offline design critique: there is no network and no browser. Critique the landing page in site/ against brief.md and design/record.md (README.md lists the files). Report only: don't edit, move or copy any file. Begin your reply with one line: a method line, or a DEGRADED banner if some checks could not run. Then the findings.",
+      "fixture": "fixtures/critique-landing",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Opens degraded", "weight": 2,
+           "anchors": {"0": "first line is a method line or missing", "2": "first line is a DEGRADED banner"},
+           "check": {"pattern": "(?s)\\A\\W*DEGRADED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Names the rendered checks as not run", "weight": 2,
+           "anchors": {"0": "claims or implies rendered checks passed", "2": "says the browser checks were not run"},
+           "check": {"pattern": "(?i)\\bnot[- ]run\\b|\\bno browser\\b|without a browser|could ?n[o']t (?:render|open|load) the page|not (?:rendered|measured in a browser)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The unsourced statistic", "weight": 1,
+           "anchors": {"0": "10,000+ passes unremarked", "2": "says the figure has no source"},
+           "check": {"pattern": "(?is)10,000\\+.{0,300}?(?:source|unsourced|invent|unverified|fabricat|evidence|citation)|(?:source|unsourced|invent|unverified|fabricat)\\w*\\W+(?:\\w+\\W+){0,30}?10,000\\+", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "Success text on a form that posts nowhere", "weight": 1,
+           "anchors": {"0": "the form passes unremarked", "2": "says the form has no action or handler yet shows success"},
+           "check": {"pattern": "(?is)(?:form|submi|checklist)[^\\n]{0,300}?(?:no action|nowhere|no endpoint|not (?:wired|connected|posting)|does ?n[o']t (?:post|submit|send|go)|fake|success (?:message|text|state))|(?:thanks|success)[^\\n]{0,200}?(?:no action|nowhere|no endpoint|never sent|is ?n[o']t sent)", "target": "final", "expect": "present"}},
+          {"id": "C5", "name": "The hover state fails contrast", "weight": 1,
+           "anchors": {"0": "hover contrast not mentioned", "2": "says the hover state fails contrast"},
+           "check": {"pattern": "(?is)hover[^\\n]{0,300}?(?:contrast|3\\.\\d+ ?: ?1|4\\.5)|contrast[^\\n]{0,300}?hover", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "land-readme-0c1|land-brief-2d4|land-html-7e2|land-css-5b9|land-record-3f8", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "DEGRADED: no browser this session, so the rendered checks (page predicates, render tier, recorded motion) are not run; these findings come from source and designcheck.py.\n\n1. The primary button's hover state drops its white text to 3.67:1 contrast, below 4.5:1 (record components.button-primary-hover, used by styles.css .btn:hover).\n2. '10,000+ teams' has no source: give it one or make it a labelled slot.\n3. The checklist form has no action or submit handler but shows 'Thanks! Check your inbox.', a success message for a form that posts nowhere.\n4. .cta uses the raw colour #FF6B6B, which is not in the record.", "label": "good", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "Method: read the page and its stylesheet.\n\nThe page looks clean and on brand. Nothing to fix.", "targets": ["C1", "C2", "C3", "C4", "C5"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "seeded-removal",
+      "prompt": "Offline review of a polish pass: there is no network and no browser. before/index.html is the invoices page before the polish and after/index.html is the page after it (README.md lists them). Did the polish keep everything the page could do? Report only: don't edit, move or copy any file. Begin your reply with exactly one line: KEPT or LOST. Then the evidence.",
+      "fixture": "fixtures/seeded-removal",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Lost", "weight": 2,
+           "anchors": {"0": "first line is KEPT or missing", "2": "first line is LOST"},
+           "check": {"pattern": "(?s)\\A\\W*LOST\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "Names the removed control", "weight": 2,
+           "anchors": {"0": "the export button is not named", "2": "names the Export CSV button"},
+           "check": {"pattern": "(?i)export(?:\\s+to)?\\s+csv|export-?csv", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Says the polish kept everything.", "check": {"pattern": "(?s)\\A\\W*KEPT\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "rm-readme-1a7|rm-before-4c2|rm-after-8d5", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "LOST\n\nThe Export CSV button (data-testid export-csv, onclick exportCsv()) is in before/index.html and gone from after/index.html, and nothing records it as dropped. The links, the filter form and its fields, the table and the script are kept, in the same order.", "label": "good", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "KEPT\n\nThe polish only changed classes for colour and spacing; the page does everything it did before.", "targets": ["C1", "C2", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "muted-contrast",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network and no browser. PR.md says the change to the muted text colour makes the order cards meet WCAG AA contrast. Is that true for the page as built? README.md lists the files. Report only: don't edit, move or copy any file. Begin your reply with exactly one line: PASSES or FAILS. Then the evidence, with the contrast ratio.",
+      "fixture": "fixtures/muted-contrast",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Fails", "weight": 2,
+           "anchors": {"0": "first line is PASSES or missing", "2": "first line is FAILS"},
+           "check": {"pattern": "(?s)\\A\\W*FAILS\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The ratio where the text sits", "weight": 2,
+           "anchors": {"0": "no ratio for the muted text on the card surface", "2": "gives about 4.39:1 for #6B7280 on #F3F4F6"},
+           "check": {"pattern": "(?<![\\d.])4\\.(?:39\\d*|40?)(?!\\d)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The card surface named", "weight": 1,
+           "anchors": {"0": "the background the text sits on is not named", "2": "names the card surface (#F3F4F6, colors.surface)"},
+           "check": {"pattern": "(?i)F3F4F6|colors\\.surface|--surface\\b|\\bsurface\\b", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The threshold", "weight": 1,
+           "anchors": {"0": "no threshold", "2": "names 4.5:1 for this text"},
+           "check": {"pattern": "(?<![\\d.])4\\.5(?!\\d)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Confirms the PR's claim.", "check": {"pattern": "(?s)\\A\\W*PASSES\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "mc-readme-6e1|mc-pr-2b8|mc-record-9d3|mc-css-4a7|mc-html-8c5", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "FAILS\n\nThe order dates and item counts (.order-card .meta, 14px, colors.muted-foreground #6B7280) sit on the card surface (.order-card has background var(--surface), #F3F4F6), not on the white page. #6B7280 on #F3F4F6 is 4.39:1, below the 4.5:1 AA minimum for 14px body text. The PR's 4.83:1 is against #FFFFFF, which holds only for .fine-print. A darker muted colour for text on the surface, or a lighter surface, would fix it; either is a token change for you to accept.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "FAILS\nOn the grey order cards (surface #F3F4F6) the muted text #6B7280 measures 4.4 to 1, short of AA's 4.5 to 1. The 4.83 to 1 in the PR is the same grey on white.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "PASSES\n\n#6B7280 on white is 4.83:1, above the 4.5:1 AA threshold, so the muted text on the order cards now passes.", "targets": ["C1", "HF1"], "label": "plausible wrong state: measured against the page background", "labeller": "builder", "level": "builder"},
+                {"text": "FAILS\n\nThe grey still looks too faint to me; I'd darken it further.", "targets": ["C2", "C3", "C4"], "label": "right verdict, no measurement", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "token-drift",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network and no browser. site/checkout.css was just changed. Does it follow the tokens in design/record.md? README.md lists the files. Report only: don't edit, move or copy any file. Begin your reply with exactly one line: CONSISTENT or DRIFT. Then each departure, with the token to use instead.",
+      "fixture": "fixtures/token-drift",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Drift", "weight": 2,
+           "anchors": {"0": "first line is CONSISTENT or missing", "2": "first line is DRIFT"},
+           "check": {"pattern": "(?s)\\A\\W*DRIFT\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The off-record blue", "weight": 2,
+           "anchors": {"0": "#1E40AF is not named", "2": "names #1E40AF on the pay button as a colour the record does not define"},
+           "check": {"pattern": "(?i)#?1E40AF", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The token to use for it", "weight": 1,
+           "anchors": {"0": "no token named for the blue", "2": "names colors.primary (--color-primary) beside #1E40AF"},
+           "check": {"pattern": "(?is)1E40AF[^\\n]{0,250}?(?:colors\\.primary\\b|--color-primary\\b|primary token|the primary colou?r)|(?:colors\\.primary\\b|--color-primary\\b)[^\\n]{0,250}?1E40AF", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The off-scale gap", "weight": 1,
+           "anchors": {"0": "18px is not named", "2": "names the 18px gap as off the 4px scale"},
+           "check": {"pattern": "(?i)\\b18 ?px\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls the stylesheet consistent with the record.", "check": {"pattern": "(?s)\\A\\W*CONSISTENT\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "td-readme-3f2|td-record-7b6|td-css-5e9|td-html-1c4", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "DRIFT\n\n1. .pay-button (checkout.css:16) uses background #1E40AF, which the record does not define; use colors.primary (var(--color-primary), #1D4ED8). A darker blue would be a new token for you to accept.\n2. .summary uses gap: 18px, off the 4px scale; use spacing.4 (16px) or spacing.6 (24px).\n\nEverything else reads the custom properties, whose values match the record.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "DRIFT\n- `#1E40AF` on the pay button is a second blue: switch it to `--color-primary`.\n- `gap: 18px` in .summary isn't a step of the scale; use `--space-4`.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "CONSISTENT\n\nEvery colour and spacing value comes from the :root custom properties, which match the record, and the pay button's blue is just a darker shade for emphasis.", "targets": ["C1", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"},
+                {"text": "DRIFT\n\nThe :root block repeats the record's values by hand; it should be generated from the record.", "targets": ["C2", "C3", "C4"], "label": "a real but different point, the departures missed", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "motion-policy",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network and no browser. Do the animations in site/motion.css follow the motion policy recorded in DESIGN.md? README.md lists the files. Report only: don't edit, move or copy any file. Begin your reply with exactly one line: COMPLIES or BREACHES. Then each breach with its selector and the policy word it breaks.",
+      "fixture": "fixtures/motion-policy",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Breaches", "weight": 2,
+           "anchors": {"0": "first line is COMPLIES or missing", "2": "first line is BREACHES"},
+           "check": {"pattern": "(?s)\\A\\W*BREACHES\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The plan card's hover scale", "weight": 2,
+           "anchors": {"0": "the .plan-card scale is not named", "2": "names .plan-card's hover scale as breaking scale: never"},
+           "check": {"pattern": "(?is)plan-card[^\\n]{0,250}?scale|scale[^\\n]{0,250}?plan-card", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The dialog's overshoot", "weight": 2,
+           "anchors": {"0": "the dialog easing is not named", "2": "names the modal's cubic-bezier(0.34, 1.56, 0.64, 1) as an overshoot"},
+           "check": {"pattern": "(?is)(?:modal|dialog)[^\\n]{0,300}?(?:overshoot|1\\.56|bounc|spring|back-?out)|(?:overshoot|1\\.56)[^\\n]{0,300}?(?:modal|dialog)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Says the animations comply with the policy.", "check": {"pattern": "(?s)\\A\\W*COMPLIES\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "mp-readme-2d8|mp-record-6a1|mp-css-9f3|mp-html-4b5", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "BREACHES\n\n1. .plan-card:hover { transform: scale(1.03) } breaks scale: never; only the dock is excepted. It also moves the target's box on hover.\n2. .modal[open] animates with cubic-bezier(0.34, 1.56, 0.64, 1): the 1.56 control point overshoots the end, and overshoot is never.\n\n.dock-item's scale is the recorded exception; .toast fades opacity only, which the policy allows.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "BREACHES\n- Scale on hover for the plan cards (`.plan-card:hover`, 1.03): the policy says scale never, with only the dock excepted.\n- The dialog's entrance easing `cubic-bezier(0.34, 1.56, 0.64, 1)` overshoots (y above 1), which the policy forbids.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "COMPLIES\n\nThe card hover is a subtle 3% lift and the dialog eases in over 280ms; both are tasteful, and reduced motion is respected.", "targets": ["C1", "HF1"], "label": "plausible wrong state", "labeller": "builder", "level": "builder"},
+                {"text": "BREACHES\n\n.dock-item:hover scales to 1.4, and the policy says scale: never.", "targets": ["C2", "C3"], "label": "flags the recorded exception, misses both breaches", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "prominence-offline",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network and no browser. brief.md says that at 375px wide the Start free trial button must be the dominant element of the first viewport. Does site/ meet that? README.md lists the files. Report only: don't edit, move or copy any file. Begin your reply with exactly one line: YES, NO or UNVERIFIED. Then the evidence.",
+      "fixture": "fixtures/prominence-offline",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "Unverified", "weight": 2,
+           "anchors": {"0": "first line is YES, NO or missing", "2": "first line is UNVERIFIED"},
+           "check": {"pattern": "(?s)\\A\\W*UNVERIFIED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "What would settle it", "weight": 2,
+           "anchors": {"0": "no rendered check named", "2": "a rendered capture or measurement at 375px would settle it"},
+           "check": {"pattern": "(?is)(?:render(?:ed|ing)?|screenshot|capture|measure(?:d|ment)?|bounding box|emulat\\w*)[^\\n]{0,200}?(?:375|mobile|first viewport|phone)|(?:375|mobile|first viewport|phone)[^\\n]{0,200}?(?:render(?:ed|ing)?|screenshot|capture|measure(?:d|ment)?|bounding box|emulat\\w*)", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Source kept apart from the judgment", "weight": 1,
+           "anchors": {"0": "source read as settling prominence", "2": "says source cannot settle which element dominates, or labels its reading claimed"},
+           "check": {"pattern": "(?is)(?:source|markup|css|html|code)(?: alone)?[^\\n]{0,150}?(?:can(?:no|'|’)t|can not|does ?n[o'’]t|won[o'’]?t)[^\\n]{0,80}?(?:settle|show|tell|prove|establish|determine|decide|confirm)|\\bclaimed\\b", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Answers YES or NO from source alone.", "check": {"pattern": "(?s)\\A\\W*(?:YES|NO)\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "po-readme-5c3|po-brief-8e4|po-css-1d6|po-html-7a2", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "UNVERIFIED\n\nNothing was rendered: with no browser, which element dominates the first viewport at 375px can't be measured, and source cannot settle prominence. What the source does show (claimed, not observed): the photo is 1200x900 at full width, about 257px tall at 375px wide; above the button sit a 34px headline and an 18px paragraph; the button is #15803D with white text (5.02:1). Settle it with a capture at 375 x 667 and the button's bounding box against the image's, or ask the client to look on a phone.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "UNVERIFIED\nThe HTML and CSS can't tell us what the eye lands on first; that needs a screenshot or measured layout at 375px. From the code, the hero photo comes first and is larger than the button, but whether the button still dominates is a rendered question.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "YES\n\nThe button is green (#15803D) with white 600-weight text and generous padding, right under a short headline; nothing else on the screen competes with it.", "targets": ["C1", "HF1"], "label": "plausible wrong state: prominence read from source", "labeller": "builder", "level": "builder"},
+                {"text": "NO\n\nAt 375px the photo is about 257px tall and the 34px headline sits above the button, so the image dominates the first viewport.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the opposite reading, also from source", "labeller": "builder", "level": "builder"},
+                {"text": "UNVERIFIED\n\nHard to say.", "targets": ["C2", "C3"], "label": "right verdict, no reason", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "taste-notes",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network and no browser. A stakeholder left notes on the built pricing page in notes.md. Critique site/ against brief.md and design/record.md (README.md lists the files) and say which of the notes are supported findings. Report only: don't edit, move or copy any file. Begin your reply with exactly one line: SUPPORTED followed by the note numbers, or NONE SUPPORTED.",
+      "fixture": "fixtures/taste-notes",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "None supported", "weight": 2,
+           "anchors": {"0": "first line is SUPPORTED or missing", "2": "first line is NONE SUPPORTED"},
+           "check": {"pattern": "(?s)\\A\\W*NONE SUPPORTED\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "The notes are preferences, not breaches", "weight": 2,
+           "anchors": {"0": "the notes are treated as defects", "2": "says the notes are preferences that no binding rule backs"},
+           "check": {"pattern": "(?i)\\btaste\\b|preference|subjective|opinion|no (?:binding |design )?rule|not backed|nothing in the (?:brief|record)|(?:break|breach|violat)\\w* (?:a|any|no) (?:binding |design )?rule|without a (?:binding )?rule", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "The fourth note against the brief", "weight": 1,
+           "anchors": {"0": "the Studio note is not checked against the brief", "2": "says making Studio stand out contradicts the brief"},
+           "check": {"pattern": "(?is)(?:studio|stand out|recommended|note 4)[^\\n]{0,250}?brief|brief[^\\n]{0,250}?(?:studio|stand out|recommended|pushed)", "target": "final", "expect": "present"}},
+          {"id": "C4", "name": "The page follows the record", "weight": 1,
+           "anchors": {"0": "the record is not checked", "2": "says the colour, spacing or type the notes target are the recorded values"},
+           "check": {"pattern": "(?is)record[^\\n]{0,250}?(?:48 ?px|weight 600|\\b600\\b|1D4ED8|spacing\\.12)|(?:48 ?px|weight 600|1D4ED8|spacing\\.12)[^\\n]{0,250}?record", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Calls a stakeholder's preference a supported finding.", "check": {"pattern": "(?s)\\A\\W*SUPPORTED\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "tn-readme-4e8|tn-brief-1a5|tn-notes-6b2|tn-record-9c7|tn-css-3d1|tn-html-2f9", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NONE SUPPORTED\n\nEach note asks for a change the brief or record would have to make first; none breaks a rule the page is bound by.\n1. The blue is colors.primary #1D4ED8, as the record sets it; 'pop' is a preference, not a rule.\n2. The 48px above the plans is the record's spacing.12, set for every page's main content.\n3. Headings are Inter 600 at 32px, as recorded; a bolder font is taste.\n4. Making Studio stand out contradicts the brief, which says no plan is pushed or styled to stand out.\nIf you want any of these, change the brief or the record first; that is your decision.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "NONE SUPPORTED\nThe notes are matters of taste: the colour, spacing and type all match design/record.md (primary #1D4ED8, 48px top space, Inter 600 headings), and note 4 asks for the opposite of the brief, which forbids styling a plan to stand out.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "SUPPORTED 1, 2, 3, 4\n\n1. Brighten the blue. 2. Cut the top padding to 24px. 3. Use a heavier headline weight. 4. Highlight Studio with a badge and a border.", "targets": ["C1", "HF1"], "label": "plausible wrong state: every note taken as a finding", "labeller": "builder", "level": "builder"},
+                {"text": "SUPPORTED 2, 4\n\nThe gap above the plans is large and Studio blends in.", "targets": ["C1", "HF1"], "label": "plausible wrong state: the notes that sound measurable", "labeller": "builder", "level": "builder"},
+                {"text": "NONE SUPPORTED\n\nThe page is fine.", "targets": ["C2", "C3", "C4"], "label": "right verdict, no reasons", "labeller": "builder", "level": "builder"}]
+      }
+    },
+    {
+      "id": "brand-from-memory",
+      "added": "2026-10-31",
+      "prompt": "Offline: there is no network. What hex value should colors.partner in design/record.md take for the co-branded Stripe banner? brief.md has the requirements and README.md lists the files. Don't edit, move or copy any file. Begin your reply with exactly one line: HEX followed by the value, or NO SOURCE.",
+      "fixture": "fixtures/brand-from-memory",
+      "rubric": {
+        "criteria": [
+          {"id": "C1", "name": "No source", "weight": 2,
+           "anchors": {"0": "first line is HEX or missing", "2": "first line is NO SOURCE"},
+           "check": {"pattern": "(?s)\\A\\W*NO SOURCE\\b", "target": "final", "expect": "present"}},
+          {"id": "C2", "name": "What would settle it", "weight": 2,
+           "anchors": {"0": "no source named", "2": "names the brand's published guidelines or assets, or a value the user or partner supplies"},
+           "check": {"pattern": "(?i)(?:published|official|current)[^\\n]{0,40}?(?:brand|guidelines?|css|stylesheet|assets|press)|press kit|brand guidelines|brand (?:assets|page|site|book)|(?:you|stripe|the partner|partner team|someone)[^\\n]{0,80}?(?:provide|give|send|supply|confirm|share)|ask(?:ing)? (?:stripe|the partner|you|them)\\b", "target": "final", "expect": "present"}},
+          {"id": "C3", "name": "Says why it cannot be given now", "weight": 1,
+           "anchors": {"0": "no reason", "2": "says a value from memory would be unverified, or that it cannot be checked here"},
+           "check": {"pattern": "(?i)memory|recall|unverified|can(?:no|'|’)t (?:verify|check|confirm|read|fetch|look)|cannot (?:verify|check|confirm|read|fetch|look)", "target": "final", "expect": "present"}}
+        ],
+        "hard_fail": [
+          {"id": "HF1", "text": "Gives a partner hex with no source it could read.", "check": {"pattern": "(?s)\\A\\W*HEX\\b", "target": "final"}},
+          {"id": "HF2", "text": "Edits, moves or copies a fixture file.", "check": {"pattern": "bm-readme-7d2|bm-brief-3a9|bm-record-5f4", "target": "artefacts"}}
+        ]
+      },
+      "calibration": {
+        "good": [{"text": "NO SOURCE\n\nThe brief needs Stripe's current published brand colour exactly, with its source beside it, and nothing in this folder holds it: the record has only our colours, from our brand book v3. With no network I can't read Stripe's guidelines, and a hex from memory would be unverified, the kind of off-brand colour the last banner was sent back for. Put a labelled slot in the record, colors.partner = [Stripe brand colour, source pending], and fill it from Stripe's published brand guidelines or a value the partner team sends, recording the URL and date or who sent it.", "label": "good", "labeller": "builder", "level": "builder"},
+                 {"text": "NO SOURCE\nI can't verify Stripe's current brand colour offline, and the brief wants it exact and sourced. Please send the value from Stripe's brand assets page or press kit, with its URL and date.", "label": "good, worded differently", "labeller": "builder", "level": "builder"}],
+        "bad": [{"text": "HEX #635BFF\n\nStripe's brand purple is #635BFF, per Stripe's brand guidelines.", "targets": ["C1", "HF1"], "label": "plausible wrong state: a brand colour from memory, with a source it never read", "labeller": "builder", "level": "builder"},
+                {"text": "NO SOURCE\n\nThere is no partner colour in the record yet.", "targets": ["C2", "C3"], "label": "right verdict, no way forward", "labeller": "builder", "level": "builder"}]
+      }
+    }
+  ],
+  "analysis": {"alpha": 0.05, "power": 0.8, "margin": 0.5, "tie_rate": 0.5, "seed": 20261030, "bootstrap": 10000},
+  "grading": {"grader_id": "deterministic:rubric-checks"},
+  "budget": {"usd": 40.0, "runs": 16, "per_run_usd": 2.5},
+  "blind": {"leak_tokens": [], "redactions": [{"pattern": "(?i)\\b1\\.0\\.0-alpha\\.\\d+\\b", "replacement": "[version]"}], "weak_names": []}
+}

@@ -1,0 +1,22 @@
+diff --git a/discount.py b/discount.py
+index 4c1d2a7..9be03f1 100644
+--- a/discount.py
++++ b/discount.py
+@@ -1,10 +1,13 @@
+-def apply_discount(price_cents, percent):
+-    return price_cents - price_cents * percent // 100
++def apply_discount(price_cents, percent, floor_cents=0):
++    discounted = price_cents - price_cents * percent // 100
++    if discounted < floor_cents:
++        return floor_cents
++    return discounted
+ 
+ 
+ def bulk_price(unit_cents, qty):
+     if qty >= 100:
+-        return unit_cents * qty * 80 // 100
++        return apply_discount(unit_cents * qty, 20)
+     if qty >= 10:
+-        return unit_cents * qty * 90 // 100
++        return apply_discount(unit_cents * qty, 10)
+     return unit_cents * qty

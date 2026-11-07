@@ -3,37 +3,54 @@
   "events": [
     {
       "date": "2026-10-28",
-      "change": "renamed estack 0.3.0 (unreleased) to westack 0.3.1; no behaviour change",
-      "decided_by": "user (owner): \"careful to change all 'estack's to 'westack's\"",
-      "repository": "westack (renamed from estack with history kept)",
+      "change": "renamed estack 0.3.0 (unreleased) to westack 1.0.0-alpha.0 (wave 0)",
+      "decided_by": "the user (owner): the stack is named westack; router `westack`, sub-skills `westack-<name>`, metadata.stack: westack",
+      "repository": "<projects_root>\\westack (renamed from estack with history kept)",
       "from": {
         "path": "skills/estack",
-        "commit": "6000e1b",
-        "version": "0.3.0 (unreleased)"
+        "commit": "8e35821"
       },
       "to": {
         "path": "skills/westack",
-        "version": "0.3.1"
+        "version": "1.0.0-alpha.0"
       },
-      "why": "a separate public project, singularityhacker/Estack, owns the estack and estack-* names",
+      "why": "estack- and fatstack- are already used as skill prefixes by published packs (capability map section 12)",
       "kept_unchanged": {
         "decisions.json": "the twenty source-graded donor decisions keep their original wording, which says estack",
-        "records": "ARTIFACT_REVIEW.md, build-inputs.json, continuation.md, source-qualification.json, tests/results, tests/acceptance-results.json and the changelog entries before 0.3.1 record what ran or shipped under the old name",
         "wire_identifiers": [
           "estack-fingerprint-v1 (patch fingerprint header)",
           "estack-manifest-v1",
           "estack-shape-v1 (contract vocabulary label)",
-          "estack-bounded-source-qualification-1 (source-qualification record format)"
+          "estack-upstreams-report-1, estack-upstreams-state-1 and the estack-upstreams user agent (tools/upstreams.py)"
         ],
-        "wire_identifier_reason": "changing them would change every recorded patch_id and stored manifest, so records written by estack would read as stale"
+        "wire_identifier_reason": "changing them would change every recorded patch_id and stored manifest, so schema-1 records written by estack would read as stale",
+        "evidence_vocabulary": "references/evidence-vocabulary.md stays byte-identical to the skill-belt master (v2), which names estack; a rename there is a shared-vocabulary change",
+        "historical_results": "tests/results, tests/acceptance-*.json and tests/fixtures are records of earlier runs and stay as written"
       },
       "moved": {
         "package-manifest.json": "provenance/estack-0.2.0-package-manifest.json (it describes the 0.2.0 release, not this package)"
+      }
+    },
+    {
+      "date": "2026-10-29",
+      "change": "renamed the old-name uses that wave 0 left in live files, and added a guard against their return",
+      "decided_by": "the user (owner): change every old name to westack except records, pinned inputs, wire identifiers and the other project (rename spec, 2026-10-28)",
+      "renamed": {
+        "evidence_vocabulary": "references/evidence-vocabulary.md is byte-identical to skill-belt shared/evidence-vocabulary.md v3 (sha256 bde4fc984f4455223956fd9f32f29f61a986ebc9213f5b800a20bf5583debbd2, 4064 bytes, LF), which says westack",
+        "user_agent": "tools/upstreams.py now identifies itself as westack-upstreams/1.0; it is sent to remote servers and written to no report or state file, so keeping it was not needed for old records to read",
+        "tests": "the fixtures' environment variables and test-only credential are WESTACK_*; tests that stand for some other stack use a neutral name; the upstreams tests use westack as their skill folder, so their expected orders follow the sorted folder names",
+        "prose": "statements about versions that shipped under the old name say 'westack (then called estack)' once per file; the westack-review donors file calls the old coverage and donor-source reviews the westack ones"
       },
-      "replaced": {
-        "references/evidence-vocabulary.md": "v2 replaced byte for byte by the skill-belt master, v3 (sha256 bde4fc984f4455223956fd9f32f29f61a986ebc9213f5b800a20bf5583debbd2)"
+      "kept_unchanged": {
+        "wire_identifiers": [
+          "estack-fingerprint-v1, estack-manifest-v1, estack-shape-v1",
+          "estack-upstreams-report-1, estack-upstreams-state-1",
+          "estack-bounded-source-qualification-1"
+        ],
+        "records": "test results, acceptance results, the provenance records, the changelog entries before the rename and the 0.2.0 package manifest with its inputs",
+        "other_project": "singularityhacker/Estack and its skills, in the donor records about them, and the research documents that keep their old file names"
       },
-      "guard": "tests/test_rename_guard.py"
+      "guard": "tools/tests/test_rename_guard.py fails on any other occurrence of the old name in a live file and on the doubled prefix; each kept file, line pattern or identifier in its allowlist cites the keep rule of the rename spec"
     }
   ]
 }

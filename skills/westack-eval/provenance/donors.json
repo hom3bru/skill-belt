@@ -1,0 +1,1881 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-eval",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only. No donor text was copied: the donors were not re-read for this package; each idea below comes from the capability map's one-line summary of the donor (estack-1.0-capability-map, section 5, <prefix>-eval) and the map review's statistics critique (map-review.md, must-change 4). Evidence depth is therefore 'claimed' for every donor mechanism; nothing here was run. Records whose ref starts with 'deep:' were added on 2026-10-29 for the P1 adoption (1.0.0-alpha.4): each was read at its pinned commit in the 2026-10-28 deep reads (shallow clones of the pinned repositories, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. The policy above describes the earlier records; a deep: record says for itself how it was read. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. Records whose ref starts with 'or:' were added on 2026-10-29 for the OpenResearch addendum (1.0.0-alpha.6): each names the adoption items it supports, was read at its pinned commit as data and states its own licence status; nothing was run. A record whose ref starts with 'sr:' was added on 2026-10-29 for the skill-recorder addendum (1.0.0-alpha.6); it was read at its pinned commit by the addendum's author, and nothing was run. One more record (fy:, FY-5) was read at its pin by the addendum's author. More records (rt:, the review-tools addendum, 2026-10-30) were read at their pins by the addendum's author; the clones were not opened for this change, and Kodus (AGPL) is recorded as ideas only, never quoted. One more record (ap:, the Aura Autopilot addendum, 2026-10-30) was read at its pin by the addendum's author; the clone was not opened for this change, and the benchmark in the Aura post is the authors' claim, graded claimed.",
+  "donors": [
+    {
+      "ref": "ext:sh-eval",
+      "system": "singularityhacker/Estack",
+      "licence": "MIT",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/singularityhacker/Estack/blob/43e4af0e4eb0d7e9e05bfaca8a4a8fc200d01900/skills/estack-eval/SKILL.md",
+          "read": "map summary only; SKILL.md read by the map author, not for this package"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "paired tasks against a baseline"
+        },
+        {
+          "mechanism": "a reviewer separate from the builder"
+        },
+        {
+          "mechanism": "grader calibration"
+        },
+        {
+          "mechanism": "refusing to simulate independent runs"
+        }
+      ],
+      "where": [
+        "scripts/campaign.py (paired comparisons, builder field)",
+        "scripts/grade.py (separation, calibration)",
+        "tools/eval/campaign_run.py (real host runs only)"
+      ]
+    },
+    {
+      "ref": "cat:bmad-v7-preview:bmad-eval",
+      "system": "bmad-v7-preview",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/bmad-code-org/BMAD-METHOD/blob/61e01f82644c4bb533750cfa0d6d61ab61d2cc9b/skills/bmad-eval/SKILL.md",
+          "read": "map summary only"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "a bare-model baseline arm"
+        },
+        {
+          "mechanism": "trigger-activation accuracy measured apart from task quality"
+        }
+      ],
+      "rejected": [
+        "disabling permission prompts in clean-room runs: arms run under normal host authority in throwaway work folders"
+      ],
+      "where": [
+        "campaign arms",
+        "scripts/route.py (routing as its own measurement)"
+      ]
+    },
+    {
+      "ref": "cat:gstack.skill.eval-plan",
+      "system": "gstack",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/eval-plan/SKILL.md",
+          "read": "map summary only"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "pre-registered hypotheses, arms, acceptance bars and stop rules"
+        },
+        {
+          "mechanism": "a dry run before a priced pilot"
+        }
+      ],
+      "where": [
+        "scripts/campaign.py register and verify",
+        "tools/eval/campaign_run.py --dry-run",
+        "budget stop rules"
+      ]
+    },
+    {
+      "ref": "cat:compound-engineering:skill:ce-retune",
+      "system": "compound-engineering",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/EveryInc/compound-engineering-plugin/blob/9f5b16fc617fb5bf4817c8f42537b626c17abd05/skills/ce-retune/SKILL.md",
+          "read": "map summary only"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "a pre-registered pass bar before claiming improvement"
+        },
+        {
+          "mechanism": "measuring the noise floor first"
+        }
+      ],
+      "where": [
+        "scripts/evalstats.py (margin, power, A-versus-A gives equivalent or inconclusive)"
+      ]
+    },
+    {
+      "ref": "harness:skills-skill-creator-eval-loop",
+      "system": "anthropic-skills",
+      "licence": "skill-creator carries Apache-2.0; the repository has mixed licences",
+      "grade": "claimed",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/skill-creator/SKILL.md",
+          "read": "map summary only"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "with-skill versus baseline runs"
+        },
+        {
+          "mechanism": "aggregation across runs with variance"
+        }
+      ],
+      "where": [
+        "paired arms",
+        "case-level bootstrap intervals"
+      ]
+    },
+    {
+      "ref": "local:scratchpad-eval-harness-1.0.0",
+      "system": "the user's 2026-10-28 skill-comparison harness (scratchpad eval/: run-case.ps1, blind.py, finalize.py, cases.json)",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "a local scratch evaluation harness (version 1.0.0), not published",
+      "taken": [
+        {
+          "mechanism": "headless safety flags and the child-only PowerShell parser timeout"
+        },
+        {
+          "mechanism": "pwsh warm-up and host-noise denial classification"
+        },
+        {
+          "mechanism": "the host note appended to the system prompt"
+        },
+        {
+          "mechanism": "rate_limit_event handling"
+        },
+        {
+          "mechanism": "path scrubbing in any slash style, the host-encoded cwd form, and redaction of skill-file reads"
+        },
+        {
+          "mechanism": "sealed label mapping with its hash in the manifest"
+        },
+        {
+          "mechanism": "pre-registration before any run; a change after it invalidates the comparison (its amendment log became 'a changed design is a new campaign')"
+        }
+      ],
+      "where": [
+        "tools/eval/hostrun.py",
+        "scripts/blind.py",
+        "scripts/campaign.py"
+      ],
+      "notes": [
+        "source read in full for this package; ported and generalised, not copied verbatim"
+      ]
+    },
+    {
+      "ref": "review:map-review-must-change-4",
+      "system": "fresh-context review of the capability map, 2026-10-28",
+      "grade": "claimed",
+      "sources": [],
+      "no_source_reason": "an internal review document (the map review, must-change 4), not published",
+      "taken": [
+        {
+          "mechanism": "the Wilson non-overlap defer bar is impossible above 70%"
+        },
+        {
+          "mechanism": "paired tests with n chosen from the margin"
+        },
+        {
+          "mechanism": "A-versus-A and sabotage self-tests for the eval itself"
+        },
+        {
+          "mechanism": "define which tokens count"
+        }
+      ],
+      "where": [
+        "scripts/evalstats.py",
+        "references/drop-or-slim.md",
+        "tools/eval/tests"
+      ],
+      "notes": [
+        "review read in full; its Wilson table reproduced by evalstats.py bar"
+      ]
+    },
+    {
+      "ref": "deep:anthropics/claude-agent-sdk-python",
+      "system": "Claude Agent SDK for Python",
+      "licence": "Ideas only (proprietary terms). The repository LICENSE is MIT, but its README says use of the SDK is governed by Anthropic's Commercial Terms of Service; the bundled CLI is not MIT and was not read. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-agent-sdk-python/blob/27858cbba9ecee26a06a90b8d39d3b5596121d11/src/claude_agent_sdk/types.py",
+          "sha256": "c06ccef3487b2f5ad81000a72a772b823760db1c32e85693eea57c8b16a93aa2",
+          "bytes": 106534,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-agent-sdk-python/blob/27858cbba9ecee26a06a90b8d39d3b5596121d11/examples/setting_sources.py",
+          "sha256": "c984b5f56db821f798cd45f296e258881673dd3b089bc9dbc95b603619fdbbae",
+          "bytes": 6718,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-agent-sdk-python/blob/27858cbba9ecee26a06a90b8d39d3b5596121d11/LICENSE",
+          "sha256": "cebdde8a8fb9ee59e5eaaed19578bf8085aa7047562259c31f38f225c26f6812",
+          "bytes": 1070,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-01: A session's init report lists what actually loaded: tools, MCP servers with source, skills, plugins and plugin load errors. Tests read it rather than trusting config.",
+          "grade": "present",
+          "evidence": "types.py:1404-1513; examples/setting_sources.py:47-99",
+          "where": "scripts/campaign.py (analyse); references/reading-results.md; references/protocol.md (step 7)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (proprietary). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:anthropics/skills",
+      "system": "Anthropic Agent Skills examples (skill-creator eval and description-optimization loop, doc-coauthoring, mcp-builder)",
+      "licence": "Mixed. No repository-level LICENSE. The skills used here (skill-creator and similar) carry Apache-2.0 licence files; the docx, pdf, pptx and xlsx skills are source-available, were not read and are not used. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/agents/grader.md",
+          "sha256": "57134da0c1a4eea33fbd74a1c9c44aa814f07d6bc64de303edb586f941e5d21a",
+          "bytes": 9049,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/agents/analyzer.md",
+          "sha256": "bf68f4cac5a56c673a928c2e6d619586c5b93ea364026ab37547772cb45a663a",
+          "bytes": 10376,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/SKILL.md",
+          "sha256": "dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf",
+          "bytes": 33168,
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-04: The grader also grades the evals: it flags assertions a wrong output would still pass, outcomes no assertion covers, and unverifiable assertions, and checks claims the output makes.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/agents/grader.md:9, 43-59, 68-79",
+          "where": "scripts/grade.py (criterion_audit); scripts/campaign.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-04: An analyst pass reads per-assertion patterns across runs: always-pass in both arms does not discriminate, always-fail may be broken, high variance is flaky; it reports observations only, never fixes.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/agents/analyzer.md:211-217, 262-274; skills/skill-creator/SKILL.md:234",
+          "where": "scripts/grade.py (criterion_audit); scripts/campaign.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-07: Grader burden of proof: an expectation passes only with cited evidence of real substance; a right filename with wrong content fails; uncertain means fail; no partial credit.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/agents/grader.md:85-99, 216-223",
+          "where": "scripts/grade.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier record of this repository: harness:skills-skill-creator-eval-loop.",
+        "Supports adoption items EV-04, EV-07 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:edonadei/caliper",
+      "system": "edonadei/caliper (caliper-eval, Python CLI)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Emrick Donadei)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0015-ablation-names-its-subject-at-the-invocation.md",
+          "sha256": "78f8d388b738fa55995d3a88b4d61fd956dbf35aae0eed0478a3dee40cce0ce6",
+          "bytes": 8396,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/LICENSE",
+          "sha256": "b2075a7c452faf779e0522579eb07b896b16090363d03c09884d222a55807ee9",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-01: When the skill never fires, both arms are the bare agent and the delta is about zero, which reads as 'adds nothing' when the truth is 'the description never fired'.",
+          "grade": "present",
+          "evidence": "docs/adr/0015-ablation-names-its-subject-at-the-invocation.md:34-41",
+          "where": "scripts/campaign.py (analyse); references/reading-results.md; references/protocol.md (step 7)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:microsoft/conductor",
+      "system": "Conductor (Microsoft)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) Microsoft Corporation)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/microsoft/conductor/blob/7def8276a46a8d97f8bafef30ff4c09e1bf30db9/docs/development/workflow-engine.md",
+          "sha256": "e6ccc4fa8b26401a68e0ef1d9a026eb87d9bff2cdcc43bdb2937d4582e686523",
+          "bytes": 21630,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/microsoft/conductor/blob/7def8276a46a8d97f8bafef30ff4c09e1bf30db9/docs/workflow-syntax.md",
+          "sha256": "a6d605eae27b9c4a1ad2a99d4f1bfa4347287402deeb026639ae4fa6b0ab3e30",
+          "bytes": 195163,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/conductor/blob/7def8276a46a8d97f8bafef30ff4c09e1bf30db9/LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+          "bytes": 1141,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-07: The LLM grader runs with no tools and MCP servers suppressed, since an empty tool list alone did not stop them; it sees prompt, output and rubric only.",
+          "grade": "present",
+          "evidence": "docs/development/workflow-engine.md:166-188, 289-293; docs/workflow-syntax.md:1765-1807",
+          "where": "scripts/grade.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-07 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:microsoft/waza",
+      "system": "microsoft/waza (Go CLI; docs name published v0.39.0)",
+      "licence": "MIT (LICENSE read, Copyright Microsoft Corporation)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/docs/GRADER-CHALLENGES.md",
+          "sha256": "a2214404730ace9c54b3abb29a99e9ad683fd81085cc58d20201213698c5371d",
+          "bytes": 39211,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/LICENSE",
+          "sha256": "7df20dcdf9197e9945c14858d41c60f11b52b93e5b69e2b63416b874d598d322",
+          "bytes": 1074,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-05: Grader challenge matrix: each scenario has four cases with identical final success text (good, alternative-valid, plausible wrong state, forbidden action), each failing only its targeted grader.",
+          "grade": "present",
+          "evidence": "docs/GRADER-CHALLENGES.md:16-48",
+          "where": "scripts/grade.py; scripts/blind.py; scripts/campaign.py; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-05: Insufficient evidence is not detection: a missing required state file is not a successful bad-case rejection, and an incomplete reference must not count as agreement with a reviewed bad label.",
+          "grade": "present",
+          "evidence": "docs/GRADER-CHALLENGES.md:63-74",
+          "where": "scripts/grade.py; scripts/blind.py; scripts/campaign.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-05 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:NVIDIA/SkillEvaluator",
+      "system": "NVIDIA/SkillEvaluator 0.6.0",
+      "licence": "Apache-2.0 (pyproject.toml, NOTICE and SPDX headers read; third-party notices separate)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/docs/tier3-live-evaluation.mdx",
+          "sha256": "8536fcb3d3421e393d56389ce2650d3f1bfece35682e80b213c8911eeb9fe78a",
+          "bytes": 48992,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/src/skillevaluator/evaluation/tier3_report.py",
+          "sha256": "c885b6ae6df039fea350bec9b1bd3928c1f9de47dc46d2e0dc7c0059f7ae713e",
+          "bytes": 147027,
+          "read": "partial",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-01: If no positive with-skill trial ever activated the skill, the result is INCONCLUSIVE: arm scores are kept, but lift comparison and improvement advice are omitted.",
+          "grade": "wired",
+          "evidence": "docs/tier3-live-evaluation.mdx:42-50; src/skillevaluator/evaluation/tier3_report.py:1668-1695",
+          "where": "scripts/campaign.py (analyse); references/reading-results.md; references/protocol.md (step 7)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-01 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:UiPath/coder_eval",
+      "system": "UiPath/coder_eval (coder-eval 0.12.16)",
+      "licence": "Apache-2.0 (LICENSE, NOTICE and pyproject.toml read; NOTICE names UiPath SRL and UiPath Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/AB_EXPERIMENTS.md",
+          "sha256": "f650b8cbf3dd91f2521580ef52a433bd6528ac059c67b16fd7eb70f4b2de2974",
+          "bytes": 21721,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/TASK_DEFINITION_GUIDE.md",
+          "sha256": "15e508c07a9044f36853a79bd7d75f9ae091cfdea68989f9787dbe753917979e",
+          "bytes": 120536,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/LICENSE",
+          "sha256": "f9fcdfa7803589be66c4079326605369b5c2bf3d0da0fd87b3b9ba133162fabd",
+          "bytes": 11336,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-01: Silent no-op treatment: pointing a plugin path one level too deep loads nothing, so the with-skill arm silently equals baseline and the A/B compares two identical arms.",
+          "grade": "present",
+          "evidence": "docs/AB_EXPERIMENTS.md:197-202",
+          "where": "scripts/campaign.py (analyse); references/reading-results.md; references/protocol.md (step 7)"
+        },
+        {
+          "mechanism": "EV-07: Judge hygiene: forced verdict tool call instead of prose, agent output wrapped as untrusted data, simulated-user claims flagged as possibly invented, reference shown to the judge only and scrubbed afterwards.",
+          "grade": "present",
+          "evidence": "docs/TASK_DEFINITION_GUIDE.md:1182,1210-1234",
+          "where": "scripts/grade.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-01, EV-07 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record."
+      ]
+    },
+    {
+      "ref": "deep:web:anthropic.com/research",
+      "system": "Anthropic engineering posts and Claude blog articles on agents (12 pages, all vendor self-reports)",
+      "licence": "Vendor copyright; no licence granted. Web pages read as data. Ideas only (no licence); nothing quoted or copied.",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "EV-07: Model graders get an Unknown way out, one isolated judge per dimension, and calibration against human grading; checking exact step order is brittle, so grade the outcome with partial credit.",
+          "grade": "present",
+          "evidence": "demystifying-evals-for-ai-agents: Model-based graders; Design the eval harness and graders",
+          "where": "scripts/grade.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-07 (ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files were read for these items; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source.",
+        "Web page read, not a pinned repository file: https://www.anthropic.com/research/demystifying-evals-for-ai-agents (SHA-256 f83eeb5fd055483a67ba8372e0f95ee23b5c44f5993f4f0ff55fb3f0c6b56d84, 358233 bytes)."
+      ],
+      "no_source_reason": "Vendor web pages, not repository files, so there is no commit to pin; the pages were retrieved 2026-10-29 and each page's URL, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "deep:web:palantir.com/evals-as-the-substrate-for-sovereign-ai",
+      "system": "Palantir whitepaper 'Evals as the Substrate for Sovereign AI' (24 pages, vendor paper)",
+      "licence": "Ideas only (© 2026 Palantir, all rights reserved; the paper calls itself proprietary and confidential. Palantir hosts it and one of its staff shared it publicly, so it is not leaked). Nothing quoted or copied.",
+      "grade": "claimed",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "P-4: A workflow eval grades properties (constraints kept, preferences followed under conflict, changed inputs handled, right tools and data, smallest change, traceable explanation, novel cases escalated), not one historical answer.",
+          "grade": "claimed",
+          "evidence": "The assessment's table row P-4 names no single paper, so both papers are recorded for it.",
+          "where": "references/cases-and-rubrics.md (Cases; Rubrics)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items P-4 (westack-research/2026-10-29-palantir-whitepapers.md (outside the repository), SHA-256 c4f64e356a600f28dd4217e86c1a87e603a04ab905fdd32026462245a8013f0e, 5708 bytes).",
+        "Licence status: ideas-only (all rights reserved). Never quote this source.",
+        "Evidence level: claimed. A vendor paper whose customer stories are qualitative, without measured setups. The assessment's author read the paper in full on 2026-10-29; this change was written from that assessment, not from the PDF, which was not fetched again.",
+        "Web document read by the assessment, not a pinned repository file: palantir.com/assets/…/Evals_as_the_Substrate_for_Sovereign_AI.pdf (the assessment elides the middle of the path), 24 pages, SHA-256 beginning b6625753d8ba924d (the assessment records only these 16 hex characters), 343865 bytes, PDF metadata date 2026-10-24.",
+        "Found through https://x.com/chadwahl/status/2115773925476962518, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/chadwahl/status/2115773925476962518 (a copy, not the original); its author works at Palantir."
+      ],
+      "no_source_reason": "Vendor PDF, not a repository file, so there is no commit to pin; the assessment's record of its path, SHA-256 prefix and byte count is in notes."
+    },
+    {
+      "ref": "deep:web:palantir.com/autoresearch-and-the-fine-tuning-ontology",
+      "system": "Palantir whitepaper 'AutoResearch and the Fine-Tuning Ontology' (22 pages, vendor paper)",
+      "licence": "Ideas only (© 2026 Palantir, all rights reserved; the paper calls itself proprietary and confidential. Palantir hosts it and one of its staff shared it publicly, so it is not leaked). Nothing quoted or copied.",
+      "grade": "claimed",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "P-3: Split cases for development and for proof by family (asset, site, fault family, period) before tuning, so a change cannot pass by recognising the cases it was tuned on.",
+          "grade": "claimed",
+          "evidence": "Summarised under the assessment's 'What they say' section for the AutoResearch paper; the idea is the assessment's table row P-3.",
+          "where": "references/cases-and-rubrics.md (Cases; routing Held-out)"
+        },
+        {
+          "mechanism": "P-4: A workflow eval grades properties (constraints kept, preferences followed under conflict, changed inputs handled, right tools and data, smallest change, traceable explanation, novel cases escalated), not one historical answer.",
+          "grade": "claimed",
+          "evidence": "The assessment's table row P-4 names no single paper, so both papers are recorded for it.",
+          "where": "references/cases-and-rubrics.md (Cases; Rubrics)"
+        },
+        {
+          "mechanism": "P-5: Fix promotion thresholds on several metrics in advance, with a separate cap on unsafe outcomes that no gain offsets, and promote on gain per unit of cost.",
+          "grade": "claimed",
+          "evidence": "Summarised under the assessment's 'What they say' section for the AutoResearch paper; the idea is the assessment's table row P-5.",
+          "where": "references/reading-results.md (Promoting a change)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items P-3, P-4, P-5 (westack-research/2026-10-29-palantir-whitepapers.md (outside the repository), SHA-256 c4f64e356a600f28dd4217e86c1a87e603a04ab905fdd32026462245a8013f0e, 5708 bytes).",
+        "Licence status: ideas-only (all rights reserved). Never quote this source.",
+        "Evidence level: claimed. A vendor paper whose worked example says its data is notional, so its figures are illustrative, not results. The assessment's author read the paper in full on 2026-10-29; this change was written from that assessment, not from the PDF, which was not fetched again.",
+        "Web document read by the assessment, not a pinned repository file: palantir.com/assets/…/AutoResearch_and_the_Fine-Tuning_Ontology.pdf (the assessment elides the middle of the path), 22 pages, SHA-256 beginning 40d079b0328beeac (the assessment records only these 16 hex characters), 650133 bytes, PDF metadata date 2026-10-24.",
+        "Found through https://x.com/chadwahl/status/2115773925476962518, retrieved 2026-10-29 from the third-party mirror https://api.fxtwitter.com/chadwahl/status/2115773925476962518 (a copy, not the original); its author works at Palantir."
+      ],
+      "no_source_reason": "Vendor PDF, not a repository file, so there is no commit to pin; the assessment's record of its path, SHA-256 prefix and byte count is in notes."
+    },
+    {
+      "ref": "p2:affaan-m/ECC",
+      "system": "Everything Claude Code (ECC)",
+      "licence": "MIT, Copyright (c) 2026 Affaan Mustafa (LICENSE read). The repo also carries skills/osint-investigation/LICENSE.txt; no per-skill licence found on the skills read here.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/docs/gateguard/question-effectiveness.md",
+          "sha256": "a8017ff303e35e66d7ae9efc6c1742783d37d4b01c3e4a265dfb3d3e89956a40",
+          "bytes": 34367,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/skill-comply/prompts/scenario_generator.md",
+          "sha256": "ba508c9560dcc5c632bbf916d5f38369b03cb0b216fb8dfdcd6ade8c962952e2",
+          "bytes": 1974,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/skill-comply/SKILL.md",
+          "sha256": "e26cbbc30a32ea8c76c56d09ba9a3a921e82ad6e2360f825ec63d3f8df6b1f5a",
+          "bytes": 2500,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/docs/gateguard/evaluation.md",
+          "sha256": "20079cc23fdf70a5c192a739dc7b4a7c0a0c839839f870d666e920ac5a6ba9da",
+          "bytes": 18971,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+          "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-21: Negative controls: scenarios the intervention cannot touch estimate run-to-run noise; a headline win where the ungated baseline fell and the gated arm did not rise is not evidence.",
+          "grade": "present",
+          "evidence": "docs/gateguard/question-effectiveness.md:493-536",
+          "where": "scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-22: Measure adherence under pressure: run the same task at three prompt strictness levels (supportive names the skill, neutral does not, competing says to skip it) and compare compliance across them.",
+          "grade": "present",
+          "evidence": "skills/skill-comply/prompts/scenario_generator.md:6-50; skills/skill-comply/SKILL.md:45-47",
+          "where": "references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-33: Guard evaluation by labelled replay: each step is labelled expect, mustDeny, redundant and relevant questions; any must-deny bypass fails the run; denials, tokens and latency are compared against baseline refs.",
+          "grade": "present",
+          "evidence": "docs/gateguard/evaluation.md:18-58,68-119",
+          "where": "references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-21, EV-22, EV-33 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (catalogue-stacks); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:anomalyco/opencode",
+      "system": "OpenCode (anomalyco/opencode, formerly sst/opencode)",
+      "licence": "LICENSE read (header): MIT, Copyright (c) 2025 opencode.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/7ab721a97f383b89a8d901c87866b1565c1cfd9c/packages/core/src/session/compaction.ts",
+          "sha256": "a21e040bdc9d41595b546562304b601d35bba86bcaa2b2600db80e7be7faf0a8",
+          "bytes": 59353,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/7ab721a97f383b89a8d901c87866b1565c1cfd9c/LICENSE",
+          "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-05: Auto-compaction triggers when measured plus estimated prompt size reaches the window minus max(15 percent, 16,000); the last provider-reported count is the anchor. Unknown window: never; auto off: user only.",
+          "grade": "wired",
+          "evidence": "packages/core/src/session/compaction.ts:128-141, 290-300, 421-430, 1102-1141",
+          "where": "scripts/campaign.py (tokens_known)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-05 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (terminal-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-plugins-official",
+      "system": "Claude Code official plugin marketplace (marketplace CI and policy, security-guidance, receipts, math-proof, hookify, plugin-dev)",
+      "licence": "Mixed. The repository LICENSE is Apache-2.0 and most plugins repeat it. The claude-security plugin is proprietary and bars use of any part of it with or to develop a non-Anthropic product: it is excluded, and nothing from it informed these records. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/plugins/receipts/skills/receipts/SKILL.md",
+          "sha256": "5b2f407ff40639727310236f4b34986cacd4bf616c07d2e4198846726842e346",
+          "bytes": 17254,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-plugins-official/blob/f8c5e7a1dcb71b10cb74586224b5401f3de5db28/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-13: Unknowns are typed: null means not checked, an absent error flag with a null count is an honest zero, and a commit counts only if user-authored and carrying agent-touched files.",
+          "grade": "present",
+          "evidence": "plugins/receipts/skills/receipts/SKILL.md:81-105",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-13 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/skills",
+      "system": "Anthropic Agent Skills examples (skill-creator eval and description-optimization loop, doc-coauthoring, mcp-builder)",
+      "licence": "Mixed. No repository-level LICENSE. The skills used here (skill-creator and similar) carry Apache-2.0 licence files; the docx, pdf, pptx and xlsx skills are source-available, were not read and are not used. Ideas only.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/scripts/run_eval.py",
+          "sha256": "43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f",
+          "bytes": 11464,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/scripts/aggregate_benchmark.py",
+          "sha256": "123ef128ea5ccc01a4b1ac212ef5567f21e9c13d3d240609780beeb3200c49aa",
+          "bytes": 14386,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/SKILL.md",
+          "sha256": "dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf",
+          "bytes": 33168,
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-36: Improvement advice: generalise from feedback, explain why instead of shouting MUST, trim what wastes time per the transcripts, and bundle a script when several runs wrote the same helper.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/SKILL.md:296-304",
+          "where": "scripts/route.py; SKILL.md"
+        },
+        {
+          "mechanism": "EV-02: Skill triggering is measured with a temporary uniquely named command carrying the tested description, run headless; the first tool use must be the skill or a read of that file.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/scripts/run_eval.py:51-91, 128-168, 179-181",
+          "where": "scripts/campaign.py (engaged_signal); tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-13: Capture token and duration figures the moment each subagent finishes, because they arrive only in the completion notice and are stored nowhere else.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/SKILL.md:207-219",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-13: Anti-pattern in the benchmark script: a run with no grading file is skipped with a warning instead of counted, metadata fields stay placeholders, and tokens falls back to output characters.",
+          "grade": "present",
+          "evidence": "skills/skill-creator/scripts/aggregate_benchmark.py:115-117, 136-154, 206-222, 263-272",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:anthropics/skills, harness:skills-skill-creator-eval-loop.",
+        "Supports adoption items CM-36, EV-02, EV-13 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: mixed, see licence. Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:argoproj/argo-rollouts",
+      "system": "Argo Rollouts (argoproj/argo-rollouts)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License, Version 2.0, January 2004)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/argoproj/argo-rollouts/blob/6e9f105c1b506c2862806c49838397bd5477f120/utils/evaluate/evaluate.go",
+          "sha256": "b622756df7f25db59231ad9859d69c1b0c2c648a4dd03900659cdfbf51d4e66d",
+          "bytes": 6815,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/argoproj/argo-rollouts/blob/6e9f105c1b506c2862806c49838397bd5477f120/LICENSE",
+          "sha256": "c996fc213c94f4a4a838407d355b081226caa7b103a4f239bb87fb8f1d8e3a60",
+          "bytes": 11352,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WA-57: A check carries a pass predicate and a fail predicate; when both exist and neither holds, the result is inconclusive, so the gap between them is a visible zone.",
+          "grade": "present",
+          "evidence": "utils/evaluate/evaluate.go:36-57",
+          "where": "scripts/grade.py; scripts/campaign.py; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WA-57 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (progressive-delivery); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:cline/cline",
+      "system": "Cline (SDK monorepo layout)",
+      "licence": "Apache-2.0 (LICENSE read: full Apache License 2.0 text)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/cline/cline/blob/51f63e4fd63aeeb74d708b9c3d1f8b800aff9b3e/sdk/packages/core/src/extensions/context/compaction.ts",
+          "sha256": "c97318b85c2547f3c5fe48292ef226942b5380b1fd7d421f8084b8d17b98280b",
+          "bytes": 28045,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/cline/cline/blob/51f63e4fd63aeeb74d708b9c3d1f8b800aff9b3e/sdk/packages/core/src/extensions/context/compaction-shared.ts",
+          "sha256": "bbe5bb313f402fff1dfba42e9e46c1ea79d9f716c336d19d0f7c933d1c9ae1bd",
+          "bytes": 23668,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/cline/cline/blob/51f63e4fd63aeeb74d708b9c3d1f8b800aff9b3e/LICENSE",
+          "sha256": "f704446a5f1271608805598b557e4288cf8580477ea038c9c3d8b361f693f6b8",
+          "bytes": 11344,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-05: Auto-compaction does nothing when the model limit is unknown; when the provider's real count for the last request beats the character estimate, the budget shrinks by that ratio (max 4x).",
+          "grade": "present",
+          "evidence": "sdk/packages/core/src/extensions/context/compaction.ts:328-363; sdk/packages/core/src/extensions/context/compaction-shared.ts:15-37",
+          "where": "scripts/campaign.py (tokens_known)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-05 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (ide-sdk-harnesses); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:edonadei/caliper",
+      "system": "edonadei/caliper (caliper-eval, Python CLI)",
+      "licence": "MIT (LICENSE read, Copyright 2026 Emrick Donadei)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/caliper/activation.py",
+          "sha256": "559fbf744d884bf0ad089254cf9774e518fb8f3d6f32a3bac16101e58b8e67af",
+          "bytes": 6633,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0013-install-and-discover-is-the-only-loading-discipline.md",
+          "sha256": "e186c051893e8da2e1233901e32c230fe36778f00a4c0e9b42339f9a2c253bda",
+          "bytes": 5024,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0014-activation-is-a-check-type-not-a-separate-command.md",
+          "sha256": "77014c08564399e286598ef6bc867717e40eca3eb6f2fe7633fe1c6c8676af95",
+          "bytes": 10272,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0001-attempt-outcome-taxonomy.md",
+          "sha256": "eeb7a98e17ed55a362cf048886c3554b2194e849999489521535c459fb6979b6",
+          "bytes": 5521,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0029-every-step-runs-under-the-same-rules.md",
+          "sha256": "75e43707493e7e00d575ea6784264e8f9e80fb00be8476a73e14a224e9223d15",
+          "bytes": 2401,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0007-raw-success-rate-is-the-primary-metric.md",
+          "sha256": "4c69fb10ca89de484f71a6392b441964dd0e162858724289d0da43ec98bfa8d2",
+          "bytes": 4779,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/docs/adr/0027-an-attempt-is-not-a-security-boundary.md",
+          "sha256": "dddb7fd936fbef03c6c97816ab0a56ab21daf72e1314f93ecff1a0b1f240cb86",
+          "bytes": 2447,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/edonadei/caliper/blob/96eb25fc6948e726f72cda5abe3bc489cf4de021/LICENSE",
+          "sha256": "b2075a7c452faf779e0522579eb07b896b16090363d03c09884d222a55807ee9",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-02: Activation is the union of dedicated skill-tool calls and plain reads of <name>/SKILL.md at a path boundary. None means unobservable; an empty list means offered, none chosen.",
+          "grade": "present",
+          "evidence": "caliper/activation.py:1-74",
+          "where": "scripts/campaign.py (engaged_signal); tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-03: Install-and-discover only: skills sit in the agent's native skills root and are never preloaded or pasted. A copy in the working directory is a back-door that makes activation unfalsifiable.",
+          "grade": "present",
+          "evidence": "docs/adr/0013-install-and-discover-is-the-only-loading-discipline.md:1-45",
+          "where": "scripts/campaign.py (second_routes); references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-03: Closed neighbourhood: only declared skills are installed, so the observed activation set is a subset of the declared list and exact-set assertions are affordable. Delegation chains are enumerated, not inferred.",
+          "grade": "present",
+          "evidence": "docs/adr/0014-activation-is-a-check-type-not-a-separate-command.md:23-45,59-66",
+          "where": "scripts/campaign.py (second_routes); references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-09: Attempt outcomes are typed (pass, task_fail, judge_error, infra_error, timeout, cheat, not_checked), not a pass bool. Unusable outcomes leave the denominator and are reported as a separate unusable count.",
+          "grade": "present",
+          "evidence": "docs/adr/0001-attempt-outcome-taxonomy.md:3-50",
+          "where": "scripts/campaign.py; scripts/route.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-09: Outcomes are classified at one seam with a fixed precedence (setup failed, cancelled, timeout, infra error, cheat, not checked, judge). Signals travel structurally, never by sniffing strings in error text.",
+          "grade": "present",
+          "evidence": "docs/adr/0001-attempt-outcome-taxonomy.md:35-39,52-60",
+          "where": "scripts/campaign.py; scripts/route.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-11: A zero-exit attempt with no model call observed is infra_error, not a verdict: judging it scored an expired login as a real 0% and let an empty activation probe pass.",
+          "grade": "present",
+          "evidence": "docs/adr/0001-attempt-outcome-taxonomy.md:18-27",
+          "where": "tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md"
+        },
+        {
+          "mechanism": "EV-12: An errored grader is dropped, not failed: the surviving check's verdict stands, and a hung assertion has no verdict rather than task_fail. judge_error fires only when no verdict survives.",
+          "grade": "present",
+          "evidence": "docs/adr/0001-attempt-outcome-taxonomy.md:64-70; docs/adr/0029-every-step-runs-under-the-same-rules.md:28-32",
+          "where": "scripts/grade.py; scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-14: Raw single-run success rate is the headline, not pass@k, which flatters flaky skills: one pass in three reads as 70.4%. pass@k and pass^k stay as secondary views.",
+          "grade": "present",
+          "evidence": "docs/adr/0007-raw-success-rate-is-the-primary-metric.md:3-25",
+          "where": "scripts/campaign.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-15: No early stop on non-activation: a miss is usable data; truncating after N misses biases weak descriptions down (a true 20% rate reads 0% a third of the time).",
+          "grade": "present",
+          "evidence": "docs/adr/0014-activation-is-a-check-type-not-a-separate-command.md:67-73",
+          "where": "scripts/campaign.py (stop_entry); references/protocol.md"
+        },
+        {
+          "mechanism": "EV-32: An attempt is not a security boundary: isolation only keeps measurement clean. Symlink targets are screened against exclusions so hint.md -> answers/key.md cannot smuggle an answer key.",
+          "grade": "present",
+          "evidence": "docs/adr/0027-an-attempt-is-not-a-security-boundary.md:1-39",
+          "where": "scripts/blind.py; references/cases-and-rubrics.md; references/protocol.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:edonadei/caliper.",
+        "Supports adoption items EV-02, EV-03, EV-09, EV-11, EV-12, EV-14, EV-15, EV-32 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:microsoft/waza",
+      "system": "microsoft/waza (Go CLI; docs name published v0.39.0)",
+      "licence": "MIT (LICENSE read, Copyright Microsoft Corporation)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/docs/GRADER-CHALLENGES.md",
+          "sha256": "a2214404730ace9c54b3abb29a99e9ad683fd81085cc58d20201213698c5371d",
+          "bytes": 39211,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/README.md",
+          "sha256": "407ad2d2ee6b5c2f573cd7c8a89547c90ef2f2cbb2e134a6c77e0925ebf88085",
+          "bytes": 111068,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/docs/CONTROLLED-COMPARISONS.md",
+          "sha256": "752bfa0a1d286c4232fd72cb3a4b70ad9a9a99311e9865176d9290bfb855672d",
+          "bytes": 46186,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/cmd/waza/cmd_gate.go",
+          "sha256": "796c774e131782578676c8b0af9665987d2ed967aacec1c2019672f49271c8c4",
+          "bytes": 20615,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/internal/adversarial/data/prompt-injection/pack.yaml",
+          "sha256": "6c681e0643583a455b0386bd2acc93c7bf92614a0a4ccc5ccbc99d63d57b5085",
+          "bytes": 486,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/internal/adversarial/data/prompt-injection/tasks/exfil-credentials.yaml",
+          "sha256": "c526998238baa11cf688e6728f1e5069b4daf70a3b8de0a1026ef1cf8298c66e",
+          "bytes": 901,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/waza/blob/6e8c54d64ea11b037f90ffcaa5a9f6bac0e03187/LICENSE",
+          "sha256": "7df20dcdf9197e9945c14858d41c60f11b52b93e5b69e2b63416b874d598d322",
+          "bytes": 1074,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-06: Challenge labels are candidate expectations until a person reviews them; unreviewed examples stay nonpassing, and accepting a review source is not authenticating a human.",
+          "grade": "present",
+          "evidence": "docs/GRADER-CHALLENGES.md:9-14; README.md:646-651",
+          "where": "scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-16: Seven separate decision dimensions (compatibility, completeness, assurance, golden, billing, statistics, operations), each with its own nonpass states. Aggregation keeps the strongest state, so a golden failure cannot become 'missing'.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:682-703",
+          "where": "scripts/campaign.py; references/drop-or-slim.md; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-16: Golden tasks must pass first attempt in both arms for every planned trial; retries cannot erase a golden failure, and golden or operational errors stay out of averages.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:694-697; cmd/waza/cmd_gate.go:16-26",
+          "where": "scripts/campaign.py; references/drop-or-slim.md; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-17: Never drop missing samples or change their denominator: omitted cluster or task mass is rejected, not repaired, and missing publication cannot become merely partial.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:580-581,699-703",
+          "where": "scripts/campaign.py; references/protocol.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-20: Independence must be justified before a strict pass: fresh workspaces, sessions or set order do not establish it, since shared service, time or state can break it. Otherwise inconclusive.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:545-552",
+          "where": "scripts/campaign.py; references/protocol.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "GS-53: Adversarial packs as golden tasks: injection arrives via fixture files (ticket, README) and scope-bypass asks for out-of-scope actions. Tasks list forbidden tools and strings; unsafe outcomes fail the gate.",
+          "grade": "present",
+          "evidence": "internal/adversarial/data/prompt-injection/pack.yaml:1-15; tasks/exfil-credentials.yaml:1-35; README.md:735-762",
+          "where": "scripts/campaign.py (forbidden_hits); tools/eval/campaign_run.py; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "HD-61: Durable collection journal: new private directory, files synced before engines start, each attempt start synced before the request, one terminal per attempt. Interrupted runs are never repaired or resumed.",
+          "grade": "present",
+          "evidence": "docs/CONTROLLED-COMPARISONS.md:629-680",
+          "where": "scripts/campaign.py; tools/eval/campaign_run.py; references/protocol.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:microsoft/waza.",
+        "Supports adoption items EV-06, EV-16, EV-17, EV-20, GS-53, HD-61 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report.",
+        "Second donor (2026-10-30): kodustech/kodus-ai (evals/README.md:18) allows at most 5% of cases unmeasured, otherwise exit 2: max_dropped plus westack's exit 2 for cannot tell. Ideas only, never quote (AGPL). Nothing new taken."
+      ]
+    },
+    {
+      "ref": "p2:mrtooher/fable-mode",
+      "system": "fable-mode (mrtooher)",
+      "licence": "Ideas only (no licence). The tree has no LICENSE file and GitHub reports none, so all rights are reserved. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/mrtooher/fable-mode/blob/c2d8e6c64abb0c339a1245d9379bf57c2ef5f4f8/double-check/SKILL.md",
+          "sha256": "2182e4dfbc609c888775af2270afb87bea30939655a280be7144554f035f699c",
+          "bytes": 11861,
+          "read": "full",
+          "role": "primary"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-08: Verdicts are forced to three: confirmed with the exact command and output line, refuted with what is true, or unverifiable with why. A panel that never says unverifiable is guessing.",
+          "grade": "present",
+          "evidence": "double-check/SKILL.md:155-165",
+          "where": "references/reading-results.md; references/cases-and-rubrics.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-08 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:naw103/foremerge",
+      "system": "Foremerge (naw103)",
+      "licence": "Apache-2.0 (LICENSE read, standard Apache 2.0 text)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/benchmarks/README.md",
+          "sha256": "ea10cbaac2190b267352264ec00e5086d473bd5a919672d273c482509498d9d1",
+          "bytes": 4222,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/naw103/foremerge/blob/553d252d113b773ae31433818b0db987cc9385b4/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-21: Benchmark discipline: fixtures are ground truth, not measurements; add three independent-work negative controls per conflict case before any comparison; hold back cases; no time-saved claim.",
+          "grade": "present",
+          "evidence": "benchmarks/README.md:61-93",
+          "where": "scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-21 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:NVIDIA/SkillEvaluator",
+      "system": "NVIDIA/SkillEvaluator 0.6.0",
+      "licence": "Apache-2.0 (pyproject.toml, NOTICE and SPDX headers read; third-party notices separate)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/docs/tier3-live-evaluation.mdx",
+          "sha256": "8536fcb3d3421e393d56389ce2650d3f1bfece35682e80b213c8911eeb9fe78a",
+          "bytes": 48992,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillEvaluator/blob/47f605831ddc42ed9864f951675887e824f1adaa/README.md",
+          "sha256": "d1739d520fc7ecf110433a0ff4282bb4c190f0b260e31f83ab303412124a983d",
+          "bytes": 9630,
+          "read": "full",
+          "role": "supporting"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-11: Preflight is three-valued: authoritative failures stop, degraded or inconclusive catalog results warn, and an optional agent-only run of the first real task precedes the full A/B matrix.",
+          "grade": "present",
+          "evidence": "docs/tier3-live-evaluation.mdx:338-365; README.md:123",
+          "where": "tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md"
+        },
+        {
+          "mechanism": "EV-12: Scores are never coerced: a failed judge is an infrastructure failure, not 0.0; unscored cells show NO SCORE, averages skip them, and compare ignores unsuccessful runs.",
+          "grade": "present",
+          "evidence": "docs/tier3-live-evaluation.mdx:701-704,795-798",
+          "where": "scripts/grade.py; scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-12: A case judged by different judge models across arms, attempts or steps is dropped from that metric's lift and counted as judge_mixed_cases.",
+          "grade": "present",
+          "evidence": "docs/tier3-live-evaluation.mdx:673-679",
+          "where": "scripts/grade.py; scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-13: Resource deltas (tokens, seconds) need complete telemetry, complete successful arms and matching case counts; otherwise they read N/A, not zero.",
+          "grade": "present",
+          "evidence": "docs/tier3-live-evaluation.mdx:760-768",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:NVIDIA/SkillEvaluator.",
+        "Supports adoption items EV-11, EV-12, EV-13 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:NVIDIA/SkillSpector",
+      "system": "NVIDIA/SkillSpector 2.12.0",
+      "licence": "Apache-2.0 (LICENSE and pyproject.toml read; SPDX headers in sources checked)",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/src/skillspector/mcp_server.py",
+          "sha256": "12e195b6931e8389ab63838b03ebad56fa8a6f18df8984390709c6b9de82aae0",
+          "bytes": 13453,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/NVIDIA/SkillSpector/blob/d501c0d5035c2ed6385740a384d942bb05651fda/LICENSE",
+          "sha256": "9f8785b47596b2993a17a3fa8d747ae63126a2c5e80a9e77195a907273d71839",
+          "bytes": 10782,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-11: Results state what ran: requested, available and used flags plus scan mode (static or static plus model), so a low static-only score is not read as a full scan.",
+          "grade": "wired",
+          "evidence": "src/skillspector/mcp_server.py:123-129,233-237",
+          "where": "tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items EV-11 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:openai/symphony",
+      "system": "openai/symphony",
+      "licence": "Apache-2.0 (LICENSE and NOTICE read; NOTICE says copyright 2025 OpenAI; README calls it a low-key engineering preview for trusted environments)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/SPEC.md",
+          "sha256": "c6638056502ecd2e60eb04e1f1a627a4964506fcdf4d39873e78aa5834de85d5",
+          "bytes": 92077,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/elixir/docs/token_accounting.md",
+          "sha256": "691c51c71685528a9e7a0f9d78e587a8c202d01ed14dc6c953c3f6c3489664ce",
+          "bytes": 9172,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/openai/symphony/blob/be10a1b79df723d6d7612b5651c8522704dafb2e/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "bytes": 11357,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-05: Token accounting rule: use absolute thread totals, count deltas against the last reported total, ignore delta-style payloads and never treat a generic usage field as cumulative.",
+          "grade": "present",
+          "evidence": "SPEC.md:1419-1433; elixir/docs/token_accounting.md:14-48",
+          "where": "scripts/campaign.py (tokens_known)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-05 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (openai); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:thruwire/foreman",
+      "system": "Foreman (ThruWire)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2026 thruwire)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/thruwire/foreman/blob/c3142ef636617f32f772140125aa310d81ceece9/docs/evidence.md",
+          "sha256": "92f376693abdbf86ac5b3a3e502ced68cdccb169e4cb25c4373a718f08f2d9f9",
+          "bytes": 9264,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/thruwire/foreman/blob/c3142ef636617f32f772140125aa310d81ceece9/LICENSE",
+          "sha256": "7d173fa71020f1a220de90251f92abbaaf001567a2443747a0753ade1cb63f68",
+          "bytes": 1065,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "CM-05: Usage log records request bytes before and after reduction and API token counts, writes null not zero when counts are missing, never calls bytes tokens, and holds no task text.",
+          "grade": "present",
+          "evidence": "docs/evidence.md:87-94",
+          "where": "scripts/campaign.py (tokens_known)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-05 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (coordination); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:UiPath/coder_eval",
+      "system": "UiPath/coder_eval (coder-eval 0.12.16)",
+      "licence": "Apache-2.0 (LICENSE, NOTICE and pyproject.toml read; NOTICE names UiPath SRL and UiPath Inc.)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/TASK_DEFINITION_GUIDE.md",
+          "sha256": "15e508c07a9044f36853a79bd7d75f9ae091cfdea68989f9787dbe753917979e",
+          "bytes": 120536,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/REPORT_SCHEMA.md",
+          "sha256": "4243f4b0408ea9f59b734665e33af4792c53e3ac88cb8a953913ce7ca895ca58",
+          "bytes": 23649,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/.claude/notes/lint-rules.md",
+          "sha256": "07a77f0f0ba7040716f0afa11fb34fd98181f954431c3034ec6dabc3325c2a30",
+          "bytes": 55853,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/evalboard/lib/__tests__/no-zero-coalesce.test.ts",
+          "sha256": "cf28f24e48c97196d339aace70728000a6974a5ffffa0908998e2fa1dc212c9e",
+          "bytes": 9367,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/docs/AB_EXPERIMENTS.md",
+          "sha256": "f650b8cbf3dd91f2521580ef52a433bd6528ac059c67b16fd7eb70f4b2de2974",
+          "bytes": 21721,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/comparison.md",
+          "sha256": "748da59000764475f8fdc5f5bf8ed6117665f4b3b5ca6a8fed0858584101a92d",
+          "bytes": 12578,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/UiPath/coder_eval/blob/021534ce3272dbbbcb0c8b61506559e696b71d1b/LICENSE",
+          "sha256": "f9fcdfa7803589be66c4079326605369b5c2bf3d0da0fd87b3b9ba133162fabd",
+          "bytes": 11336,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "EV-02: Host-agnostic activation check: the skill counts as engaged if the run shows a Skill tool call (namespace stripped) or a command reading the skill's files. With no telemetry it errors.",
+          "grade": "present",
+          "evidence": "docs/TASK_DEFINITION_GUIDE.md:1346-1371",
+          "where": "scripts/campaign.py (engaged_signal); tools/eval/hostrun.py; tools/eval/campaign_run.py; references/protocol.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-09: After a crash or timeout only deterministic read-only artifact checks run, as extra diagnostic evidence; judges and unsafe commands are recorded not_evaluated and the ERROR verdict stands.",
+          "grade": "present",
+          "evidence": "docs/REPORT_SCHEMA.md:212-224; docs/TASK_DEFINITION_GUIDE.md:936-948",
+          "where": "scripts/campaign.py; scripts/route.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-09: Classification outputs record sentinels: (none) for a missing or empty file, (other) for content outside the allowed set, so malformed outputs appear as failure classes in the confusion matrix.",
+          "grade": "present",
+          "evidence": "docs/TASK_DEFINITION_GUIDE.md:1326",
+          "where": "scripts/campaign.py; scripts/route.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-12: Unmeasured is not zero: NOT_GRADED has no score (not 0.0), not_evaluated is distinct from an evaluated 0.0, an unpriced cost is None, and totals are floors while cost_complete is false.",
+          "grade": "present",
+          "evidence": "docs/REPORT_SCHEMA.md:114-135,192-200,337-363",
+          "where": "scripts/grade.py; scripts/campaign.py; references/cases-and-rubrics.md; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-13: A lint rule guards one invariant: an unmeasured timing stays None, never 0.0. Incident: a harness booked 0.0 for months; 70 of 211 commands in one nightly were never timed.",
+          "grade": "present",
+          "evidence": ".claude/notes/lint-rules.md:623-660; evalboard/lib/__tests__/no-zero-coalesce.test.ts:1-40",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-13: Pricing coverage is checked before the first task dispatches; unpriced models warn and totals become floors, since missing cost is recoverable from tokens and a lost run is not.",
+          "grade": "present",
+          "evidence": "docs/REPORT_SCHEMA.md:114-135",
+          "where": "scripts/campaign.py; tools/eval/hostrun.py; references/reading-results.md"
+        },
+        {
+          "mechanism": "EV-15: Early stop is one-sided: a pass-stop ends the run once positives are decided, so later misfires are never seen. Precision and recall must come from the full-run variant.",
+          "grade": "present",
+          "evidence": "docs/AB_EXPERIMENTS.md:330-337",
+          "where": "scripts/campaign.py (stop_entry); references/protocol.md"
+        },
+        {
+          "mechanism": "EV-32: Grading material reachable by the agent is a measured defect: about 2.4% of replicates read the suite, near 100% under an adversarial prompt. The harness ran inside its sandbox.",
+          "grade": "present",
+          "evidence": "comparison.md:18-44",
+          "where": "scripts/blind.py; references/cases-and-rubrics.md; references/protocol.md"
+        },
+        {
+          "mechanism": "EV-32: A leak detector needs a positive control: the check that the agent's view holds no grading material is paired with a planted sentinel, so 'staged nothing' cannot pass vacuously.",
+          "grade": "present",
+          "evidence": "comparison.md:74-78",
+          "where": "scripts/blind.py; references/cases-and-rubrics.md; references/protocol.md"
+        },
+        {
+          "mechanism": "EV-32: Never give the agent a path token pointing at a directory that mixes trust levels. Split agent-visible input from harness-only reference; dataset rows with expected labels are answer keys.",
+          "grade": "present",
+          "evidence": "comparison.md:93-96,109-110",
+          "where": "scripts/blind.py; references/cases-and-rubrics.md; references/protocol.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:UiPath/coder_eval.",
+        "Supports adoption items EV-02, EV-09, EV-12, EV-13, EV-15, EV-32 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:web:anthropic.com/research",
+      "system": "Anthropic engineering posts and Claude blog articles on agents (12 pages, all vendor self-reports)",
+      "licence": "Ideas only (no licence). Vendor copyright; no licence granted. Web pages read as data; nothing quoted or copied.",
+      "grade": "present",
+      "sources": [],
+      "taken": [
+        {
+          "mechanism": "CM-36: A tool-testing agent tries a flawed tool many times and rewrites its description; the post reports 40% less task time for later agents using the new description.",
+          "grade": "present",
+          "evidence": "multi-agent-research-system: Prompt engineering and evaluations for research agents (Let agents improve themselves)",
+          "where": "scripts/route.py; SKILL.md"
+        },
+        {
+          "mechanism": "EV-08: Out of the box the model is a lenient QA agent: it finds issues then talks itself out of them; tune it by reading its logs against your judgment.",
+          "grade": "present",
+          "evidence": "harness-design-long-running-apps: Running the harness; Iterating on the harness",
+          "where": "references/reading-results.md; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-08: Do not trust a score until someone reads failed transcripts: grader bugs hid ability (CORE-Bench rose from 42% to 95% after fixes), and graders must resist bypass.",
+          "grade": "present",
+          "evidence": "demystifying-evals-for-ai-agents: Design the eval harness and graders; Maintain and use the eval long-term",
+          "where": "references/reading-results.md; references/cases-and-rubrics.md"
+        },
+        {
+          "mechanism": "EV-14: Report pass^k (all k trials succeed) where consistency matters and pass@k (at least one) where one success is enough; by k=10 they diverge from near 100% to near 0%.",
+          "grade": "present",
+          "evidence": "demystifying-evals-for-ai-agents: How to think about non-determinism in evaluations for agents",
+          "where": "scripts/campaign.py; references/reading-results.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items CM-36, EV-08, EV-14 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source.",
+        "Web page read, not a pinned repository file: https://www.anthropic.com/research/demystifying-evals-for-ai-agents (SHA-256 f83eeb5fd055483a67ba8372e0f95ee23b5c44f5993f4f0ff55fb3f0c6b56d84, 358233 bytes).",
+        "Web page read, not a pinned repository file: https://www.anthropic.com/research/harness-design-long-running-apps (SHA-256 57eb5172f0132bd12dae0c4c617b2bc81eeb125dabb13ed4cf5e7cec1f09ad30, 322638 bytes).",
+        "Web page read, not a pinned repository file: https://www.anthropic.com/research/multi-agent-research-system (SHA-256 aad8ae3bdf4e2644a1f5ee506c4b74c7fda8fef63086e8a416d08ab9df32cedb, 243317 bytes)."
+      ],
+      "no_source_reason": "Vendor web pages, not repository files, so there is no commit to pin; the pages were retrieved 2026-10-29 and each page's URL, SHA-256 and byte count are in notes."
+    },
+    {
+      "ref": "or:alphaXiv/OpenResearch",
+      "system": "alphaXiv OpenResearch (the orx CLI and its agent-skills pack)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/alphaXiv/OpenResearch/blob/703fd4bba66311625cf7e0b0776a0f949d3f4c73/agent-skills/orx-experiment-tree/SKILL.md",
+          "sha256": "b4811297de396de79e6fd9423cfd82edfbdb3d2a5eee155f43ab1553abce4ab6",
+          "bytes": 15032,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/alphaXiv/OpenResearch/blob/703fd4bba66311625cf7e0b0776a0f949d3f4c73/agent-skills/orx-results/SKILL.md",
+          "sha256": "9a63bec8104299a922f9c31fc3d87537ae2a54bc63b477342fe315a95b985607",
+          "bytes": 2715,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/alphaXiv/OpenResearch/blob/703fd4bba66311625cf7e0b0776a0f949d3f4c73/LICENSE",
+          "sha256": "c84f7f49136436f347d86e71adb0a6bc132f0b5a3817d84bf572edee71bf33e7",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "OR-5: Every node inherits its parent's run command, and siblings never get different commands or environment variables; the run command and its environment are one fixed contract, and only committed code or config differs between compared nodes.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-experiment-tree/SKILL.md:6-12,125-126,134-136",
+          "where": "references/cases-and-rubrics.md (Cases); references/protocol.md (Frame: Arms); scripts/campaign.py (analyse: the arms' command and environment hashes); tools/eval/campaign_run.py (env_sha256 beside argv_sha256)"
+        },
+        {
+          "mechanism": "OR-6: A run that died on an error established nothing, so its node is repaired in place and run again, two such runs in a row at most before asking the user; a node that produced a result, good or bad, is frozen and a new idea goes on a child.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-experiment-tree/SKILL.md:26-47",
+          "where": "references/protocol.md (Register, Ledger); tools/eval/campaign_run.py (REPAIRS: a third crash of one run stops and asks). A timeout or budget stop stays scored on what it produced (protocol step 4), which departs from the donor's reading of a timeout as an error."
+        },
+        {
+          "mechanism": "OR-7: Before making X a child of Y, name what Y established that X builds on; if nothing can be named they are siblings, and each new round descends from the previous round's winner.",
+          "grade": "present",
+          "evidence": "agent-skills/orx-experiment-tree/SKILL.md:72-85",
+          "where": "references/protocol.md (Frame: Lineage)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items OR-5, OR-6 and OR-7 (OpenResearch addendum, westack-research/2026-10-29-openresearch-alphaxiv.md, 2026-10-29).",
+        "Read at the pinned commit for the addendum (hashes as listed there). For this change the two skill files were read again from copies fetched on 2026-10-29 whose SHA-256 and byte counts matched the addendum's; the LICENSE hash is the addendum's and was not fetched again. Nothing was run.",
+        "OR-9 (results come only from logs that name the variant, its configuration and the metric; never infer a result from a run's status) was checked against agent-skills/orx-results/SKILL.md:6-17 and is already covered here, so it is not a taken mechanism: a credit needs a quote that appears in the item's output (references/cases-and-rubrics.md, Model graders; scripts/grade.py _evidence_errors), and run_outcome types a run from structured fields, never from its status alone (scripts/campaign.py).",
+        "OR-1 to OR-4 wait for westack-research and OR-10 to OR-12 belong to adopt-adapt and Frankenmine; they are listed in the P2 backlog, not here.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "sr:microsoft/skill-recorder",
+      "system": "microsoft/skill-recorder (a desktop app that turns a recorded work session into a reusable skill)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/evals/README.md",
+          "sha256": "3033f2fad4852a72b4f141b46c159ce4ef99f5c660fddeb6088c0c0dc249f547",
+          "bytes": 16952,
+          "read": "first 70 lines",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/evals/builder/score.ts",
+          "sha256": "785ba39fa10604f1eea9132edefb98b0b3f5dd1e303f753a3c861a20cf2b84f3",
+          "bytes": 2009,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/microsoft/skill-recorder/blob/b05d59036182e897e1a60e90651e775cf5f97e8d/LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+          "bytes": 1141,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SR-4: Evaluate the high-variance part of a pipeline in isolation: a fixed synthetic input, the real pipeline run in a temporary root so real data is never touched, and the model id pinned in the result.",
+          "grade": "present",
+          "evidence": "evals/README.md, the first 70 lines, as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Cases). Each run already works in a fresh copy of its fixture and the ledger already records the model; the new text asks for a case of its own on a fixed synthetic fixture and a pinned host.model."
+        },
+        {
+          "mechanism": "SR-5: Score deterministically first: the intent names the right subject, the step count lies in a range, key actions appear as an ordered subsequence and required entities are mentioned; a model judge is optional and secondary.",
+          "grade": "present",
+          "evidence": "evals/builder/score.ts and evals/README.md, as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Rubrics: the deterministic grader); tests/test_rubric_guidance.py"
+        },
+        {
+          "mechanism": "SR-6: Known noise appearing as a step fails the case outright, and forbidden checks score only the actionable text, never the agent's explanation of what it ignored.",
+          "grade": "present",
+          "evidence": "evals/builder/score.ts and evals/README.md, as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Rubrics: hard fails); tests/test_rubric_guidance.py. Complements EV-05 and GS-53 (forbidden rules already match tool-call input, never prose)."
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SR-4, SR-5 and SR-6 (skill-recorder addendum, westack-research/2026-10-29-skill-recorder.md, 2026-10-29).",
+        "The SHA-256 and byte counts are those recorded in the addendum, read at the pinned commit; the clone was not opened for this change.",
+        "SR-1 to SR-3 (build a skill from a demonstration) wait for the planned westack-skill and SR-7 (scan captured text for secrets and personal data before it leaves) for the planned westack-security; SR-8 was found already covered. None is taken here. The capture runtime and the Copilot SDK builder pool are not carried.",
+        "Licence status: permissive (MIT), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "fy:Companion-Inc/feynman",
+      "system": "Companion-Inc/feynman (an open research agent: a lead prompt with researcher, verifier and reviewer subagents)",
+      "licence": "MIT (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/evals/README.md",
+          "sha256": "72ec5a752ea335bf75a84935e8b5b5019539f7481cfb404715dd82f481ce7ab3",
+          "bytes": 5020,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Companion-Inc/feynman/blob/072ded66bbea8cc5ad9cfddd2c2283b670b8094d/LICENSE",
+          "sha256": "a108cc5a8e90d79d1daea6a7891db062537af9587f8eb10f81702137bbc192d5",
+          "bytes": 1072,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "FY-5: Research output can be graded without a model (the ID resolves, the resolved title is on the citing line, the expected key papers are present), and after a grader change the kept outputs are re-graded as a new linked campaign, with no new host runs.",
+          "grade": "present",
+          "evidence": "evals/README.md, as read for the addendum",
+          "where": "references/protocol.md (Frame: Lineage). The model-free research graders themselves wait for the planned westack-research."
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption item FY-5 (Feynman, daily-arXiv and ChatPaper addendum, 2026-10-30).",
+        "Partly already held: a campaign that has run is frozen and a new idea is a new campaign (protocol.md), and grader errors are excluded and listed (EV-12). Feynman drops network-failed lookups from its totals; EV-12 handles that case better and is kept. No helper imports kept outputs into a new campaign yet, and the text says so.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-feynman-daily-arxiv-chatpaper.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (MIT), as read for the addendum.",
+        "Second donor (2026-10-30): kodustech/kodus-ai (evals/scorer/README.md:3) re-scores saved outputs without rerunning the model, the same re-grade. Ideas only, never quote (AGPL); see the rt: record. Nothing new taken."
+      ]
+    },
+    {
+      "ref": "rt:kodustech/kodus-ai",
+      "system": "kodustech/kodus-ai (a code-review service; its evals folder describes how it measures review rounds)",
+      "licence": "AGPL-3.0, plus the Kodus Enterprise Code License for ee/ and .ee. files (license.md:5-6). Ideas only: never quote it and never copy its code.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/evals/README.md",
+          "sha256": "1956c14a5689dd9b3009d7ff57f3a91199844df87d64faf0badc6ed71dc6bcef",
+          "bytes": 16339,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/evals/funnel/README.md",
+          "sha256": "84e66e81e34381b6c9779fffd52e4c8bbe166466cfb695c2bf4712f22a3d90a3",
+          "bytes": 2220,
+          "read": "Answers line",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/evals/scorer/README.md",
+          "sha256": "3399f555ba3b99bcf05919a59c0752d9466cbb352190ca2326713820221dffb3",
+          "bytes": 9798,
+          "read": "Answers line",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/kodustech/kodus-ai/blob/58fa51bf5b41ea094d73bf277822180f16a7431d/license.md",
+          "sha256": "f405e5fc41f4d4884d2de92b87baca93c7fef9a958dfa93abd7b4a71ed0f1aeb",
+          "bytes": 947,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "RT-6: Each host is its own comparison; a skill change releases only if no host got worse and at least one got better, and one decision covers all hosts.",
+          "grade": "present",
+          "evidence": "evals/README.md:84 as read for the addendum",
+          "where": "references/reading-results.md (Promoting a change); references/protocol.md (Comparisons)"
+        },
+        {
+          "mechanism": "RT-7: A case set built for a change lands before the change and must fail on the current version; include controls where the right output is silence, where any output counts as noise.",
+          "grade": "present",
+          "evidence": "evals/README.md:109-110 as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Cases)"
+        },
+        {
+          "mechanism": "RT-8: For each planted defect in a review test, record the stage where it was lost: never raised, dropped at validation, cut by a cap or a dedup, or unparseable output.",
+          "grade": "present",
+          "evidence": "evals/funnel/README.md:3 (the Answers line) as read for the addendum",
+          "where": "references/reading-results.md (transcripts read)"
+        },
+        {
+          "mechanism": "RT-9: Before replacing test-harness code, record what each case receives under the old and the new code; identical inputs keep the baseline, and any difference is explained and the baseline recalibrated.",
+          "grade": "present",
+          "evidence": "evals/README.md:16 as read for the addendum",
+          "where": "references/protocol.md (Register)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words. The service is AGPL: never quote it and never copy its code.",
+        "Supports adoption items RT-6, RT-7, RT-8 and RT-9 (review-tools addendum, 2026-10-30); RT-3 is in westack-review's record of the same ref.",
+        "Second donors (2026-10-30), nothing new taken: evals/scorer/README.md:3 re-scores saved outputs without rerunning the model (FY-5, the fy: record); evals/README.md:15 pairs must-act and must-not-act cases and turns the eval red on a deliberate break (the core's broken-copy control); evals/README.md:18 allows at most 5% of cases unmeasured, otherwise exit 2 (max_dropped, p2:microsoft/waza); evals/README.md:75 refuses uncommitted changes (westack-eval arms are commits).",
+        "RT-6's multi-host form matters once Codex and Cursor are wired (protocol section 4); no analysis code exists for it yet.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-review-tools.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: AGPL-3.0 with an enterprise licence for some files; ideas only."
+      ]
+    },
+    {
+      "ref": "ap:ramenvr/autopilot",
+      "system": "ramenvr/autopilot (Aura Autopilot: an in-editor playtesting agent for Unreal, Unity and Godot in which a coding agent writes a per-game harness and a separate decision model plays through real input events)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/agents/session.py",
+          "sha256": "e1add2659d4c57bea85b819ecdc1154f13034612d44f3738d9837c62fd30c858",
+          "bytes": 99386,
+          "read": "lines 105–195: the agent's instructions",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/research.py",
+          "sha256": "f434dde8dd0bf997b810e4f789232ddc23f2280c917b7d187296fe68275dff66",
+          "bytes": 44618,
+          "read": "outline",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/telemetry.py",
+          "sha256": "20836b21a64a42538c82e6bc37cd98cc7dc98ef356b6b8b15b8e01f100407113",
+          "bytes": 28397,
+          "read": "outline and sharing",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/bench/run_autopilot.py",
+          "sha256": "4e6ce02717a2be35419bccc67315214481ef30cb0dd7d0d5116d9f4c172a934d",
+          "bytes": 9810,
+          "read": "outline and run_one",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/bench/example.json",
+          "sha256": "a0228b9b36467847fff09b1281c7b078d2eb0109ef637d0d70573fc41f966507",
+          "bytes": 615,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/README.md",
+          "sha256": "da500f051cb3a4bc10119e474eee9c0a4a5c5a1c08b45e3a35b08d25af96715e",
+          "bytes": 5194,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AP-2 (eval part): A run whose log shows a direct state change on the claim's own path is a cheat. In westack-eval this is a case's forbidden rule, which already types an attempted match as cheat (EV-09); changes that only set up or measure stay allowed and are listed by phase.",
+          "grade": "present",
+          "evidence": "session.py:112-114, 186-189 as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Guards)"
+        },
+        {
+          "mechanism": "AP-3: A result counts only if the component under test made the deciding choices; a run where every decision was forced by the harness, with no real alternative offered, is a script and is refused.",
+          "grade": "present",
+          "evidence": "session.py:191-193 as read for the addendum",
+          "where": "references/cases-and-rubrics.md (Cases)"
+        },
+        {
+          "mechanism": "AP-5: When transcripts show model turns spent on repeated mechanical work (lookups, greps, parsing), write a deterministic helper that does it in one call, and record the turn counts before and after.",
+          "grade": "present",
+          "evidence": "research.py:1-9 as read for the addendum; second donor: OCR's tool set, built from tool-call traces (rt:alibaba/open-code-review)",
+          "where": "references/reading-results.md (transcripts read)"
+        },
+        {
+          "mechanism": "AP-9: For an API-backed host, count tokens at a local proxy between the agent and the provider, per call, rather than from the agent's own report, and note which hosts are counted this way.",
+          "grade": "present",
+          "evidence": "telemetry.py:6-8, 224 as read for the addendum",
+          "where": "references/reading-results.md (Cost)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AP-2 (eval part), AP-3, AP-5 and AP-9 (Aura Autopilot addendum, 2026-10-30).",
+        "AP-2's detection already exists in the runner: a case's forbidden rules are matched against each call and type the run cheat (campaign.run_outcome). A phase-aware detector cannot be derived from tool calls, so no code was added.",
+        "No token-counting proxy exists in westack-eval; the routing proxy is lexical and counts nothing, so AP-9 is guidance for when one is built.",
+        "Flag, run data: sharing is on unless the user opts out (telemetry.py:43-48: share defaults to true and AUTOPILOT_SHARE=0 turns it off). When on, every model call is written whole (the request without picture data, and the full response), redacted for secrets, paths, user and host names and emails, but game-code excerpts in prompts stay; runs through Aura also sync notes, reusable code and traces to Aura's storage per team, and the game's code is never uploaded (aura_memory.py:4-9). The setup screen asks and invites a yes (README.md:36). westack takes no run data from it and sends none.",
+        "Flag, isolation: only Linux with bubblewrap gets no network and a read-only disk (sandbox.py:5); elsewhere the child merely lacks secrets, which a westack control label would call a heuristic, not a sandbox.",
+        "Benchmark, claimed (the Aura post, Nyx Iskandar and Andy Tsen, dated October 31, 2026 as served; retrieved 2026-10-30; HTML 133,994 bytes, sha256 7ad1721563dbacde619b5496697b2f42f722ca622b92080ee20325694762aac3): Pass@1 within 1800 s, Claude Opus 5.5 at medium effort, empty memory, cheating runs marked unsuccessful. Autopilot 7/7 at 262 s, Claude Code 5/7 at 437 s, an unnamed competitor 4/7 at 508 s. That is 7 tasks on one template game with one run each: the authors' claim, graded claimed, and no number from it is used.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-autopilot.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "oc:anomalyco/opencode",
+      "system": "OpenCode (anomalyco/opencode), the 2026-10-30 delta read at v2.2.5",
+      "licence": "MIT (LICENSE read; unchanged since the 2026-10-28 read)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/session/compaction.ts",
+          "sha256": "cf9671868d505e2bfc6e70ed3739107ac79635c6ce2c80c368fb61314fd0d93a",
+          "bytes": 59952,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/packages/core/src/plugin/provider/claude-agent/language-model/usage.ts",
+          "sha256": "fc44f23b74aeb48fb900455d506de2cfd7dae692eaab41c30408912d51c7fc1f",
+          "bytes": 2174,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/specs/v2/claude-agent-provider.md",
+          "sha256": "502a69a4811772586359935fb56743ff6d1f2ade282a98e10c8cf39da831df82",
+          "bytes": 14043,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anomalyco/opencode/blob/4878a0e30fc722696e8f35b5d0426b4fc571199d/LICENSE",
+          "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+          "bytes": 1065,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "OC-12: Prompt room is the smaller of the input limit and the context window, which also holds the reply; context size is the last call's input, not a sum across calls; repeated usage reports for one response merge by maximum.",
+          "grade": "present",
+          "evidence": "packages/core/src/session/compaction.ts:46, 1135-1166; packages/core/src/plugin/provider/claude-agent/language-model/usage.ts:14-57",
+          "where": "references/reading-results.md (Cost)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items OC-12 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, opencode-delta.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Read at 4878a0e30fc722696e8f35b5d0426b4fc571199d (dev, v2.2.5), 178 commits ahead of the 2026-10-28 pin; the earlier deep: record at 7ab721a9 stands for the items it carries.",
+        "One cite in the delta read runs past its file (schema/src/config/compaction.ts:11-25, a 24-line file); this record does not rely on it.",
+        "Core references/context.md, the other destination the addendum named, is at its size cap; its half waits (needs room).",
+        "Flags (recorded, not carried): policy parsing fails open (invalid statements are dropped with a log warning and older clients ignore new actions; OC-9 in core ruletest.py is westack's answer); a higher-authority allow can lift a lower deny (westack keeps deny-first composition, core guards.md); the unattended allow list is rebuilt at run time rather than compared with the recorded approval (OC-1 says compare). Terms: OpenCode's own Claude Agent spec asks whether to call the feature 'claude code' and to reuse Claude Code credentials for usage endpoints, noting both are not allowed (specs/v2/claude-agent-provider.md:168-169); westack takes nothing from that provider beyond the isolation checklist (OC-4) and the resume fingerprint (OC-5), and reusing another product's credentials stays rejected (GS-44)."
+      ]
+    }
+  ]
+}

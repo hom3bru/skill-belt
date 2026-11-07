@@ -1,0 +1,9 @@
+{
+  "_note": "mcp-config-3b4",
+  "mcpServers": {
+    "files": {"command": "npx", "args": ["-y", "@acme/mcp-files", "/home/dev"]},
+    "notes": {"command": "uvx", "args": ["acme-notes-mcp"]},
+    "browser": {"command": "docker", "args": ["run", "-i", "--rm", "acme/browser-mcp:latest"]},
+    "vendor": {"command": "/opt/acme/bin/acme-mcp", "args": ["--stdio"]}
+  }
+}

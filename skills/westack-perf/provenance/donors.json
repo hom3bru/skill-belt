@@ -1,0 +1,47 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-perf",
+  "reviewed": "2026-11-04",
+  "policy": "Donor files were read at their pinned commit in the local mirror (tools/mirrors.py), as data; nothing was run. Ideas only, in westack's own words; no donor text is copied (skills/westack/provenance/RIGHTS.md). The component classification is skills/westack/provenance/absorption.json (gstack.benchmark.browser-perf).",
+  "usefulness_legend": {"strong": "shaped the skill's structure or its numbers", "useful": "added a rule or a check", "minor": "a detail"},
+  "donors": [
+    {
+      "ref": "gstack.benchmark",
+      "system": "gstack benchmark",
+      "grade": "present",
+      "licence": "MIT (LICENSE sha256 e56fbb5b3d95756f3fa1cfefa24732ec79f18ece1ad08a4e79e00df57e8b198c at the pin)",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/benchmark/SKILL.md.tmpl", "sha256": "6cbd006df46d39df6966933988cd418b5a5fa43017c964b0e10637f1f7a415fd", "bytes": 13322, "read": "searched, then lines 80-254 (collection, baseline, comparison thresholds, budgets, trend, report)", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "Page metrics read from the browser's own performance entries: navigation timing, paint entries, a buffered largest-contentful-paint observer, and a resource inventory with the slowest resources, scripts and stylesheets.", "where": "references/page.md"},
+        {"mechanism": "Repeated runs per page summarized as median and range; a comparison verdict needs runs on both sides and a named limiter, else inconclusive.", "where": "references/measure.md; scripts/perfcheck.py summarize, compare"},
+        {"mechanism": "Thresholds by unit: timing over 50% or over 500 ms a regression and over 20% a warning; size over 25% and over 10%; request count over 30% a warning; a delta inside either side's spread is no measurable difference.", "where": "references/thresholds.json; scripts/perfcheck.py compare"},
+        {"mechanism": "Budgets (FCP, LCP, JavaScript, CSS, transfer, requests) with fail at the budget, a warning from 90%, and a grade by the share below budget.", "where": "references/page.md; scripts/perfcheck.py budget"},
+        {"mechanism": "Saved runs kept for a trend view.", "where": "scripts/perfcheck.py history"}
+      ],
+      "rejected": [
+        "The browser daemon and its scripting dialect: westack drives the host's own browser tools (core browser.md).",
+        "Writing reports under .gstack/ in the repository: run files go in the evidence folder.",
+        "Relying on the gh CLI to find the base branch for page discovery: the user names the pages or the change."
+      ],
+      "notes": ["westack adds CLS (a layout-shift observer) and a CLS budget of 0.1, which the donor does not collect, and request and command targets beside pages."]
+    },
+    {
+      "ref": "gstack.benchmark.vet-the-number",
+      "system": "gstack benchmark's 'Vet the number' section, itself derived from pstack's benchmark-checklist (Lauren Tan, MIT, per its header and gstack NOTICE.md)",
+      "grade": "present",
+      "licence": "MIT (gstack); the section names pstack (MIT) as its idea source",
+      "usefulness": "strong",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/benchmark/sections/vet-the-number.md.tmpl", "sha256": "e2abde312c47ba7de50ffc213a9f2eeb6bca9beee84a818c715380e16e04aa50", "bytes": 3625, "read": "full", "role": "primary"},
+        {"url": "https://github.com/garrytan/gstack/blob/c1ace7483b6e43135e840984b6bc37117d203653/NOTICE.md", "read": "lines 128-150 (the pstack entries)", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "Seven questions that test a performance number before anyone acts on it: the limiter, tuning, physical limits, errors, reproduction with alternating runs, whether it matters end to end, and whether the work happened inside the timed region.", "where": "references/measure.md"},
+        {"mechanism": "Write the claim to ship before measuring; inconclusive when a difference is claimed without a limiter, a side ran untuned, or the error and did-it-happen questions went unanswered.", "where": "SKILL.md steps 1-5 and rule 2; scripts/perfcheck.py compare and validate"}
+      ]
+    }
+  ]
+}

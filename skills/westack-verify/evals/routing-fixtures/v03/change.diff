@@ -1,0 +1,14 @@
+diff --git a/tz.py b/tz.py
+index 2f8a6c3..b71d0e4 100644
+--- a/tz.py
++++ b/tz.py
+@@ -1,5 +1,7 @@
+-from datetime import datetime
++from datetime import datetime, timezone
++from zoneinfo import ZoneInfo
+ 
+ 
+ def to_local(ts, tz_name):
+-    return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
++    moment = datetime.fromtimestamp(ts, tz=timezone.utc)
++    return moment.astimezone(ZoneInfo(tz_name)).strftime("%Y-%m-%d %H:%M")

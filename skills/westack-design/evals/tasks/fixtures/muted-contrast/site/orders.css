@@ -1,0 +1,16 @@
+/* mc-css-4a7 */
+:root {
+  --background: #FFFFFF;
+  --foreground: #111827;
+  --surface: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --radius-md: 6px;
+}
+body { font-family: Inter, sans-serif; font-size: 16px; color: var(--foreground); background: var(--background); }
+.order-card { background: var(--surface); border-radius: var(--radius-md); padding: var(--space-4); margin-bottom: var(--space-3); }
+.order-card .title { font-weight: 600; }
+.order-card .meta { font-size: 14px; color: var(--muted-foreground); }
+.fine-print { font-size: 14px; color: var(--muted-foreground); margin-top: var(--space-4); }

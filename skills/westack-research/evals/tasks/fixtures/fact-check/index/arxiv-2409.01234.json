@@ -1,0 +1,8 @@
+{
+  "_token": "idx-arxiv-7c4",
+  "index": "arXiv",
+  "query": "2409.01234",
+  "results": [
+    {"id": "2409.01234v1", "title": "Caching Tool Calls for Agents", "year": 2024, "authors": ["Ana Rivera", "Bo Chen"]}
+  ]
+}

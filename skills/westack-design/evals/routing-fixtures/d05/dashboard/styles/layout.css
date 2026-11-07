@@ -1,0 +1,5 @@
+.shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar { background: #111827; color: #e5e7eb; padding: 16px; }
+.sidebar a { display: block; padding: 8px 12px; color: #9ca3af; }
+.sidebar a.active { color: #fff; background: #1f2937; border-radius: 6px; }
+.main { padding: 24px 32px; color: var(--color-text); }

@@ -1,0 +1,8 @@
+{
+  "_token": "idx-oa-d4d",
+  "index": "OpenAlex",
+  "query": "doi:10.5555/dbconf.2023.118",
+  "results": [
+    {"id": "W4385551180", "title": "Adaptive compaction for log-structured stores", "year": 2023, "first_author": "Ibarra, Lucia", "doi": "10.5555/dbconf.2023.118"}
+  ]
+}

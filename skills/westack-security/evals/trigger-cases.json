@@ -1,0 +1,29 @@
+{
+  "format": "westack-security-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate; the build session runs routing after the merge.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-security, westack-review, westack-debug and westack-verify from this repository. The user's real population also holds gstack's /cso, the host's /security-review command and installed review plugins, the likeliest competitors for security requests; keep them in. A request that names /security-review or /cso expects NONE from a model-invoked router: the named command runs.",
+  "pending_note": "westack-ci is planned, not built: n07 carries pending_until_built, so leave it out of a campaign until that skill exists (its expectation stays; never relabel it), then delete the marker.",
+  "cases": [
+    {"id": "s01", "split": "dev", "expect": "westack-security", "prompt": "Audit this repo for security issues.", "fixture": "routing-fixtures/s01"},
+    {"id": "s02", "split": "dev", "expect": "westack-security", "prompt": "Is this MCP server safe to add? Config: {\"command\": \"npx\", \"args\": [\"-y\", \"@acme/mcp-files\", \"~/\"]}", "fixture": "routing-fixtures/s02"},
+    {"id": "s03", "split": "held-out", "expect": "westack-security", "prompt": "Before I install this skill pack from GitHub, vet it for anything sketchy: hooks, telemetry, what it sends where."},
+    {"id": "s04", "split": "dev", "expect": "westack-security", "prompt": "What can my coding agent actually touch on this machine? Go through my settings, hooks and allow rules."},
+    {"id": "s05", "split": "held-out", "expect": "westack-security", "prompt": "Here's the Semgrep and Trivy output from last night. Which of these are real, and which can we close?", "fixture": "routing-fixtures/s05"},
+    {"id": "s06", "split": "dev", "expect": "westack-security", "prompt": "We patched the SSRF in the webhook sender. Try to get around the patch and tell me if the hole is really closed.", "fixture": "routing-fixtures/s06"},
+    {"id": "s07", "split": "held-out", "expect": "westack-security", "prompt": "Look through the payments service for vulnerabilities: authorization, injection, leaked secrets.", "fixture": "routing-fixtures/s07"},
+    {"id": "s08", "split": "dev", "expect": "westack-security", "prompt": "Our local agent server listens on 127.0.0.1:4000. Could a malicious web page I visit make it do things?"},
+    {"id": "s09", "split": "held-out", "expect": "westack-security", "prompt": "Is my Claude Code setup safe? I have bypass mode on in one project and a bunch of plugins."},
+    {"id": "s10", "split": "dev", "expect": "westack-security", "prompt": "Check whether any credentials are committed anywhere in this repository, tests included.", "fixture": "routing-fixtures/s10"},
+    {"id": "n01", "split": "dev", "expect": "westack-review", "prompt": "Review my PR.", "near_miss_of": "westack-security (a PR's own defects are review's)"},
+    {"id": "n02", "split": "dev", "expect": "westack-debug", "prompt": "Why does login 500?", "near_miss_of": "westack-security (a failure to explain, not an audit)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-review", "prompt": "Review this diff for security problems before I merge it.", "near_miss_of": "westack-security (the defects a diff introduces)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-verify", "prompt": "The auth ticket says it's done. Confirm it meets the acceptance criteria and the test suite passes.", "near_miss_of": "westack-security (a done-claim, not an attack on the fix)"},
+    {"id": "n05", "split": "held-out", "expect": "westack-debug", "prompt": "Admins started getting 403 on the settings page after yesterday's deploy. Find out why.", "near_miss_of": "westack-security (an authorization word, but a failure to explain)"},
+    {"id": "n06", "split": "dev", "expect": "NONE", "prompt": "Run /security-review on this branch.", "near_miss_of": "westack-security (an explicitly named outside command wins)"},
+    {"id": "n07", "split": "held-out", "expect": "westack-ci", "pending_until_built": "westack-ci", "prompt": "Add a CodeQL workflow and make fork PRs that skip the scan show as not scanned.", "near_miss_of": "westack-security (CI scanning belongs to the planned westack-ci)"},
+    {"id": "n08", "split": "dev", "expect": "NONE", "prompt": "Explain how OAuth PKCE works.", "near_miss_of": "westack-security (a security topic, no system to audit)"},
+    {"id": "n09", "split": "held-out", "expect": "westack-review", "prompt": "Critique this design doc for the new session service before we build it.", "near_miss_of": "westack-security (a document review)", "fixture": "routing-fixtures/n09"},
+    {"id": "n10", "split": "dev", "expect": "NONE", "prompt": "Run /cso on this repo.", "near_miss_of": "westack-security (gstack's named command wins; the core defer map covers it)"}
+  ]
+}

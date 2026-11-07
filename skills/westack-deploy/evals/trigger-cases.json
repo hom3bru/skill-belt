@@ -1,0 +1,14 @@
+{
+  "format": "westack-deploy-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-deploy, westack-ship, westack-verify and westack-qa from this repository. The user's real population also holds gstack's land-and-deploy and setup-deploy while they are installed, and the engineering plugin's deploy-checklist; keep them in.",
+  "cases": [
+    {"id": "e01", "split": "dev", "expect": "westack-deploy", "prompt": "Deploy main to staging on Fly and make sure it's actually serving the new build."},
+    {"id": "e02", "split": "dev", "expect": "westack-deploy", "prompt": "How does this project get deployed? Set it up so we can deploy from here."},
+    {"id": "e03", "split": "held-out", "expect": "westack-deploy", "prompt": "Production looks broken after the last deploy. Roll it back to the previous release."},
+    {"id": "n01", "split": "dev", "expect": "westack-ship", "prompt": "Tag v2.3.0 and publish the release notes.", "near_miss_of": "westack-deploy (releasing, not deploying)"},
+    {"id": "n02", "split": "dev", "expect": "westack-verify", "prompt": "The agent says the deploy fix is done. Check the change against the ticket.", "near_miss_of": "westack-deploy (a done claim, no deploy)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-qa", "prompt": "Watch the site for ten minutes after the deploy and tell me if anything breaks.", "near_miss_of": "westack-deploy (monitoring after a deploy is westack-qa's monitor mode)"}
+  ]
+}

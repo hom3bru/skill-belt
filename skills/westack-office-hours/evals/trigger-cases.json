@@ -1,0 +1,16 @@
+{
+  "format": "westack-office-hours-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-office-hours, westack-plan, westack-review and westack-research from this repository. The user's real population also holds brainstorming and product skills from installed plugins (superpowers brainstorming, product-management brainstorm and write-spec); keep them in.",
+  "cases": [
+    {"id": "o01", "split": "dev", "expect": "westack-office-hours", "prompt": "I have an idea for a tool that ranks our flaky tests. Is it worth building?"},
+    {"id": "o02", "split": "dev", "expect": "westack-office-hours", "prompt": "Grill me on this startup idea before I quit my job: AI bookkeeping for plumbers."},
+    {"id": "o03", "split": "held-out", "expect": "westack-office-hours", "prompt": "I want to build something fun with my old Raspberry Pi this weekend. Help me figure out what."},
+    {"id": "o04", "split": "dev", "expect": "westack-office-hours", "prompt": "Our VP wants an internal dashboard for deploy health. Should we, and what's the smallest version?"},
+    {"id": "n01", "split": "dev", "expect": "westack-plan", "prompt": "We decided to add SSO. Break it into slices we can ship one at a time.", "near_miss_of": "westack-office-hours (decided, needs a plan)"},
+    {"id": "n02", "split": "dev", "expect": "westack-review", "prompt": "Review this product spec for gaps before we build it.", "near_miss_of": "westack-office-hours (a written spec to critique)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-research", "prompt": "What do existing open-source tools do for flaky-test detection? Primary sources please.", "near_miss_of": "westack-office-hours (outside evidence only)"},
+    {"id": "n04", "split": "dev", "expect": "NONE", "prompt": "Write me a poem about startups.", "near_miss_of": "westack-office-hours (no idea to test)"}
+  ]
+}

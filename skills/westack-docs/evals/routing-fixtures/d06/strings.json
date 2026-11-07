@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "upload_failed": "Something went wrong.",
+    "file_too_large": "Error: 413",
+    "unsupported_type": "Invalid file.",
+    "network": "Request failed. Please try again later or contact support if the problem persists.",
+    "session_expired": "Unauthorized"
+  }
+}

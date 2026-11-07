@@ -1,0 +1,31 @@
+{
+  "format": "westack-research-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. The split is fixed here: score the held-out cases once per description version; scoring them against a changed description turns them into dev cases.",
+  "population_needed": "Names in `expect` must be in the campaign's population: westack-research, westack-debug and westack-plan from this repository, plus the user's own adopt-adapt skill. The user's real population also holds deep-research and search-provider research skills from installed plugins, the likeliest competitors for research requests; keep them in. westack-eval is manual-only, so a request to measure a skill expects NONE from a model-invoked router.",
+  "fallback_until_installed": {"adopt-adapt": "NONE"},
+  "defer_note": "Evaluating outside work for adoption into the user's project belongs to the core defer map's research-adopt-adapt entry, not to westack-research: with adopt-adapt in the population those cases expect it; without it, replace it with the fallback above before registering, and say so in the result.",
+  "pending_note": "westack-onboard was built at alpha.55 and n01's pending_until_built marker is gone; add westack-onboard to the campaign's population.",
+  "cases": [
+    {"id": "r01", "split": "dev", "expect": "westack-research", "prompt": "Compare Litestream and LiteFS for replicating our SQLite database. We run in one region; which fits, and why? Primary docs please.", "fixture": "routing-fixtures/r01"},
+    {"id": "r02", "split": "dev", "expect": "westack-research", "prompt": "Does Python 3.12's sqlite3 module have the autocommit attribute, and since which version? Cite the docs."},
+    {"id": "r03", "split": "held-out", "expect": "westack-research", "prompt": "What does RFC 9110 actually say about retrying a request that isn't idempotent?"},
+    {"id": "r04", "split": "dev", "expect": "westack-research", "prompt": "Is it true that Postgres 16 made VACUUM unnecessary for append-only tables? A teammate says so and wants to drop our autovacuum tuning.", "fixture": "routing-fixtures/r04"},
+    {"id": "r05", "split": "dev", "expect": "westack-research", "prompt": "Find prior art for caching LLM tool-call results by content hash before we build our own."},
+    {"id": "r06", "split": "held-out", "expect": "westack-research", "prompt": "Which managed Postgres providers support database branching, and what do they charge for it? Dated sources only."},
+    {"id": "r07", "split": "dev", "expect": "westack-research", "prompt": "Does Node 22's built-in fetch honour the HTTP_PROXY environment variable? I need the version and the doc page before we change our proxy setup.", "fixture": "routing-fixtures/r07"},
+    {"id": "r08", "split": "dev", "expect": "westack-research", "prompt": "A blog post says SQLite's WAL mode is unsafe on network filesystems. Check that against the SQLite documentation before we move the database to NFS.", "fixture": "routing-fixtures/r08"},
+    {"id": "r09", "split": "held-out", "expect": "westack-research", "prompt": "Before we choose a queue: what delivery guarantees does BullMQ document for its current major version?"},
+    {"id": "r10", "split": "dev", "expect": "westack-research", "prompt": "A paper is being quoted as showing that caching tool calls cuts agent cost by 60%. Is that what it actually found?"},
+    {"id": "n01", "split": "dev", "expect": "westack-onboard", "prompt": "Explain how the retry decorator in utils/retry.py works and where we use it.", "near_miss_of": "westack-research (this repository's code, not outside sources)"},
+    {"id": "n02", "split": "dev", "expect": "westack-debug", "prompt": "test_fetch_proxy started failing after we upgraded to Node 22. Find out why.", "near_miss_of": "westack-research (a local failure of unknown cause, though the cause may be documented behaviour)", "fixture": "routing-fixtures/n02"},
+    {"id": "n03", "split": "held-out", "expect": "westack-debug", "prompt": "Why does our import job hit 'database is locked' from sqlite3 under load?", "near_miss_of": "westack-research (why something fails here)", "fixture": "routing-fixtures/n03"},
+    {"id": "n04", "split": "dev", "expect": "westack-plan", "prompt": "Plan the move from BullMQ to our own queue as slices we can ship one at a time.", "near_miss_of": "westack-research (planning, not evidence)", "fixture": "routing-fixtures/n04"},
+    {"id": "n05", "split": "dev", "expect": "adopt-adapt", "prompt": "Here are three GitHub repositories for agent memory. Should our project adopt or adapt anything from them?", "near_miss_of": "westack-research (evaluating outside work for adoption into the user's project: the defer entry research-adopt-adapt)"},
+    {"id": "n06", "split": "held-out", "expect": "adopt-adapt", "prompt": "Mine this paper for mechanisms our build pipeline should take: https://arxiv.org/abs/2409.01234", "near_miss_of": "westack-research (adoption, not a factual question)"},
+    {"id": "n07", "split": "dev", "expect": "NONE", "prompt": "Measure whether the new research skill description routes better than the old one across twenty prompts.", "near_miss_of": "westack-research; westack-eval is manual-only"},
+    {"id": "n08", "split": "dev", "expect": "NONE", "prompt": "What does Python's functools.lru_cache do?", "near_miss_of": "westack-research (a general question with no decision and no sources asked for)"},
+    {"id": "n09", "split": "held-out", "expect": "NONE", "prompt": "Research the history of the Roman aqueducts for my daughter's school project.", "near_miss_of": "westack-research (the word research, no engineering decision)"},
+    {"id": "n10", "split": "dev", "expect": "NONE", "prompt": "Summarise this meeting transcript into action items.", "near_miss_of": "westack-research (summarising, but not an engineering source)", "fixture": "routing-fixtures/n10"}
+  ]
+}

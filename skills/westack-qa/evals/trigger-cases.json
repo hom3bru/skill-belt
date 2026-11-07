@@ -1,0 +1,22 @@
+{
+  "format": "westack-qa-trigger-cases-1",
+  "status": "not-run as a set. Nothing here is a measured misroute rate.",
+  "use": "Copy `cases` into a westack-eval routing campaign (kind routing) and register it before any description is tuned. Score the held-out cases once per description version.",
+  "population_needed": "westack-qa, westack-design, westack-verify, westack-debug, westack-tdd and westack-review from this repository. The user's real population also holds browser and site-audit skills from installed plugins (chrome-devtools-mcp, website-design, searchfit-seo); keep them in.",
+  "pending_note": "westack-a11y is planned, not built: n05 carries pending_until_built. westack-perf was built at alpha.46 and n04's marker is gone.",
+  "cases": [
+    {"id": "q01", "split": "dev", "expect": "westack-qa", "prompt": "QA the staging site at https://staging.example.test and tell me what's broken."},
+    {"id": "q02", "split": "dev", "expect": "westack-qa", "prompt": "Click through the app running on localhost:3000 and check every page loads without console errors."},
+    {"id": "q03", "split": "held-out", "expect": "westack-qa", "prompt": "Smoke-test my branch's changes in the browser before I open the PR."},
+    {"id": "q04", "split": "dev", "expect": "westack-qa", "prompt": "Run a regression QA pass against last week's report and tell me what's new."},
+    {"id": "q05", "split": "held-out", "expect": "westack-qa", "prompt": "Find broken links and dead buttons on our marketing site."},
+    {"id": "n01", "split": "dev", "expect": "westack-design", "prompt": "Critique the visual hierarchy and spacing of our pricing page.", "near_miss_of": "westack-qa (design quality, not breakage)"},
+    {"id": "n02", "split": "dev", "expect": "westack-verify", "prompt": "The agent says the signup fix is done. Check that claim against the ticket.", "near_miss_of": "westack-qa (checking a done claim)"},
+    {"id": "n03", "split": "held-out", "expect": "westack-debug", "prompt": "The checkout page throws 'Cannot read properties of undefined' on submit. Why?", "near_miss_of": "westack-qa (a known failure whose cause is wanted)"},
+    {"id": "n04", "split": "dev", "expect": "westack-perf", "prompt": "Our landing page feels slow. Measure LCP and CLS against last release.", "near_miss_of": "westack-qa (speed, not breakage)"},
+    {"id": "n05", "split": "dev", "expect": "westack-a11y", "pending_until_built": "westack-a11y", "prompt": "Audit the app against WCAG 2.2 AA.", "near_miss_of": "westack-qa (a standards audit, not accessibility leads)"},
+    {"id": "n06", "split": "dev", "expect": "NONE", "prompt": "What's the difference between end-to-end tests and smoke tests?", "near_miss_of": "westack-qa (a question, no app to test)"},
+    {"id": "q06", "split": "dev", "expect": "westack-qa", "prompt": "Try our CLI's getting-started guide as a brand-new developer and tell me how long hello world really takes."},
+    {"id": "n07", "split": "held-out", "expect": "westack-review", "prompt": "Before we build it, critique the developer experience in this SDK design doc.", "near_miss_of": "westack-qa (a plan to critique, nothing built to try)"}
+  ]
+}

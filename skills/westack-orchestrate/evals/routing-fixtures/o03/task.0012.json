@@ -1,0 +1,11 @@
+{
+  "id": "0012",
+  "goal": "Format cleanups in three modules",
+  "status": "running",
+  "delegates": [
+    {"id": "w1", "parent": "0012", "status": "done", "outcome": "landed", "ref": "runs/w1/money.patch"},
+    {"id": "w2", "parent": "0012", "status": "running", "continuable": false},
+    {"id": "w3", "parent": "0012", "status": "running", "continuable": false}
+  ],
+  "waiting_on": null
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<!-- mp-html-4b5 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plans</title>
+  <link rel="stylesheet" href="motion.css">
+</head>
+<body>
+  <nav class="dock">
+    <a class="dock-item" href="/calendar">Calendar</a>
+    <a class="dock-item" href="/people">People</a>
+  </nav>
+  <main>
+    <h1>Plans</h1>
+    <section class="plan-card"><h2>Team</h2><p>Up to 10 people.</p><button type="button" onclick="openDialog('team')">Choose Team</button></section>
+    <section class="plan-card"><h2>Company</h2><p>Up to 200 people.</p><button type="button" onclick="openDialog('company')">Choose Company</button></section>
+  </main>
+  <dialog class="modal" id="confirm"><p>Switch plan?</p><button type="button" onclick="this.closest('dialog').close()">Close</button></dialog>
+  <div class="toast" role="status"></div>
+  <script>
+    function openDialog(plan) { document.getElementById('confirm').showModal(); }
+  </script>
+</body>
+</html>

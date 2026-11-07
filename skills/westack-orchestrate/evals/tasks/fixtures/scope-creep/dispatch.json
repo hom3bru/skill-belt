@@ -1,0 +1,24 @@
+{
+  "format": "westack-dispatch-1",
+  "mode": "workers",
+  "why": "user: run FMT-22 through a worker",
+  "fan_out": "a fresh-context worker was asked for",
+  "runs": "runs",
+  "coordinator": {
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Edit",
+      "PowerShell",
+      "Agent"
+    ]
+  },
+  "workers": [
+    {
+      "id": "w2",
+      "brief": "briefs/w2.md",
+      "handle": "agent-52c"
+    }
+  ]
+}

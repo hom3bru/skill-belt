@@ -1,0 +1,841 @@
+{
+  "format": "westack-donors-1",
+  "skill": "westack-tdd",
+  "reviewed": "2026-10-29",
+  "policy": "Ideas only, in our own words. Each donor file was fetched from raw.githubusercontent.com at the exact commit below on 2026-10-28 (no Firecrawl) and read as data; fetched text gave no instructions. Evidence depth for every donor mechanism is 'present' (read at a pinned revision and path); none was run. Trail of Bits is CC-BY-SA-4.0, so only its ideas are used and no text. An n-gram overlap check of this package against every fetched file is recorded under overlap_check. Records whose ref starts with 'p2:' were added on 2026-10-29 for the P2 adoption (1.0.0-alpha.5): each was read at its pinned commit in the 2026-10-28 deep reads or the 2026-10-29 adjacent deep reads (shallow clones or fetched files, read as data, nothing run), names the adoption items it supports, states its own licence status and grades each mechanism present or wired. A restricted source is marked never to quote, and an X post is recorded from a third-party text copy with its original address. The policy above describes the earlier records; a p2: record says for itself how it was read. One more record (ap:, the Aura Autopilot addendum, 2026-10-30) was read at its pin by the addendum's author; the clone was not opened for this change, and the benchmark in the Aura post is the authors' claim, graded claimed.",
+  "usefulness_legend": {
+    "A": "several mechanisms taken; shaped the skill's structure",
+    "B": "one or two mechanisms taken, or one that defines a rule",
+    "C": "read; one narrow idea taken, or mostly rejected"
+  },
+  "retrieval": {
+    "method": "Invoke-WebRequest of raw.githubusercontent.com/<repo>/<commit>/<path>; folder listings from api.github.com contents at the same commit",
+    "date": "2026-10-28",
+    "firecrawl": "not used"
+  },
+  "donors": [
+    {
+      "ref": "cat:superpowers:skill:test-driven-development",
+      "system": "obra/superpowers (test-driven-development plus writing-good-tests.md)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/test-driven-development/SKILL.md", "sha256": "64b03fce4aee5a97a93160cea8111f3ba13a17b7c001db4bd5836d67fd10705d", "bytes": 9578, "read": "full", "role": "primary"},
+        {"url": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/test-driven-development/writing-good-tests.md", "sha256": "51471c853306ff92ca8bb41dcaea05f31c0e46b03651f8f3c99754b7172f4ae1", "bytes": 8268, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "watch the new test fail, and for the predicted reason rather than an error, before writing the code", "where": "SKILL.md (Red rule); references/cycle.md (Red)"},
+        {"mechanism": "name the production change that should make a test fail before writing its body; a test with no nameable break has no job", "where": "references/loop.md step 1; references/test-quality.md"},
+        {"mechanism": "derive expected values without the code under test or its helpers", "where": "references/test-quality.md"},
+        {"mechanism": "a test that only intentional decisions can fail is a change detector; test the behaviour that depends on the decision", "where": "references/test-quality.md; references/non-code.md"},
+        {"mechanism": "test the project's contract at its boundary, not the framework's own mechanics", "where": "references/test-quality.md"},
+        {"mechanism": "before replacing a dependency, learn its side effects and keep the ones the test relies on real; doubles mirror the full real structure", "where": "references/mocking.md"},
+        {"mechanism": "test-only cleanup lives in test utilities, not on production classes", "where": "references/test-quality.md"},
+        {"mechanism": "the realistic mutation kinds (wrong constant or argument, wrong branch, missing side effect, empty or default return, missing validation), turned here from a mental check into executed broken copies", "where": "references/controls.md (kinds table)"}
+      ],
+      "rejected": [
+        "deleting code written before its test: it conflicts with proportionality and the user's ownership of their code; westack keeps the code, proves the test with controls and labels the order test-after",
+        "the all-capitals iron law, rationalisation tables and red-flag lists: the westack rules carry the constraint with receipts instead of rhetoric",
+        "configuration as an exception to ask about: westack gives config a fitting check (check-only mode) instead",
+        "'every new function has a test' as a completion checkbox: a checkbox is a claim; coverage is not protection"
+      ],
+      "notes": [
+        "D04 in the core's decisions.json records that executed broken-copy controls are a westack addition; the donor's sibling has only a mental mutation check. Both files were re-read at the pin for this skill."
+      ]
+    },
+    {
+      "ref": "cat:mattpocock-skills.skill.tdd",
+      "system": "mattpocock/skills (engineering/tdd with tests.md and mocking.md)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "A",
+      "sources": [
+        {"url": "https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/tdd/SKILL.md", "sha256": "5505d25bbaa8fc14a79e4d20163936958992a2995b7f1dd1d6197edc9ed722e0", "bytes": 3629, "read": "full", "role": "primary"},
+        {"url": "https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/tdd/tests.md", "sha256": "859f9e592c188fda4fc7277dd180e4ce9c7a2e13f6efe1f6f29eccc9d28c106a", "bytes": 2214, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/tdd/mocking.md", "sha256": "3ceb807fdf4a47d6a93d4d9a891e5ba6d362a6247bd08adc451feebfc17361ef", "bytes": 1481, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "vertical slices: one test, one minimal implementation, repeat, each a tracer bullet; writing all tests first is the anti-pattern", "where": "SKILL.md proportionality; references/cycle.md (Slices)"},
+        {"mechanism": "tests live at public seams; a test that breaks on a behaviour-preserving refactor is implementation-coupled, including checks through a back door", "where": "references/test-quality.md; references/cycle.md (Seam)"},
+        {"mechanism": "the tautological test: the expected value recomputed the way the code computes it passes by construction", "where": "references/test-quality.md; references/loop.md (test quality)"},
+        {"mechanism": "doubles only at system boundaries; pass dependencies in; one function per external operation so each fake returns one shape", "where": "references/mocking.md"}
+      ],
+      "rejected": [
+        "confirming every seam with the user before any test: kept only for bounded or cross-cutting work, with a recommended seam; a small slice just names its seam",
+        "refactoring outside the loop (left to review): the user's cycle keeps refactor-on-green inside each slice, under its own rerun",
+        "calling a separate codebase-design skill for vocabulary: the core's craft reference carries deep modules and seams"
+      ],
+      "where": ["SKILL.md", "references/cycle.md", "references/test-quality.md", "references/mocking.md"]
+    },
+    {
+      "ref": "r2:N08",
+      "system": "nizos/tdd-guard (validation rules, test counter, enforcement and validation-model docs)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/nizos/tdd-guard/blob/54be0ac5a4f39f61a99a9f9fb1864a9bb07f8f5b/src/validation/prompts/rules.ts", "sha256": "8bab13f8d28f97f9ce98a350418cee58cf008c6bb41fcc8e027aa284bc6fa49b", "bytes": 3859, "read": "full", "role": "primary"},
+        {"url": "https://github.com/nizos/tdd-guard/blob/54be0ac5a4f39f61a99a9f9fb1864a9bb07f8f5b/src/hooks/testCounter.ts", "sha256": "e101b0f7ed4c8c139d91f5daf87511223d6d5b99d105844ecc41257b31ed5182", "bytes": 3934, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/nizos/tdd-guard/blob/54be0ac5a4f39f61a99a9f9fb1864a9bb07f8f5b/docs/validation-model.md", "sha256": "d498213653f2953f981d0699af7db36975463be5f6603a66db9a0e0e29317a3f", "bytes": 2298, "read": "full", "role": "also-read"},
+        {"url": "https://github.com/nizos/tdd-guard/blob/54be0ac5a4f39f61a99a9f9fb1864a9bb07f8f5b/docs/enforcement.md", "sha256": "dc3238932d7a7924ea43aacde418d4495e29ab0d8909776141323cd804fc7ae3", "bytes": 1268, "read": "full", "role": "also-read"}
+      ],
+      "taken": [
+        {"mechanism": "a clean red: no tests ran, or an error before the assertion, is not red yet", "where": "SKILL.md (Red rule); references/cycle.md (Red table); scripts/controls.py judge --assertion-only"},
+        {"mechanism": "reaching red may add a stub or adjust a signature, never logic; an unresolved name, a call mismatch and an assertion failure each get a different minimal step", "where": "references/cycle.md (Red table)"},
+        {"mechanism": "one new test per cycle; restructuring existing tests is not adding behaviour", "where": "references/cycle.md (Slices)"},
+        {"mechanism": "refactor only on a green that was run; extracting helpers whose behaviour is already covered is refactoring, a function with new behaviour needs its own failing test", "where": "references/cycle.md (Refactor)"},
+        {"mechanism": "a test-count ratchet, carried as 'the collected count never drops without a stated reason', counted from receipts rather than parsed source", "where": "references/loop.md step 4; references/cycle.md (Refactor)"}
+      ],
+      "rejected": [
+        "the LLM verdict that allows or blocks each edit (N19): a model's opinion is not a receipt; westack judges saved runner output instead",
+        "AST test-definition counting per language and the hook that enforces it: runtime-only machinery; westack counts collected tests from receipts",
+        "the settings deny-lists that stop an agent bypassing the hook: persistent host configuration, outside a skill's authority"
+      ]
+    },
+    {
+      "ref": "r2:N12",
+      "system": "trailofbits/skills (mutation-testing skill, equivalent-mutants reference, analyzing-results workflow)",
+      "licence": "CC-BY-SA-4.0 (ideas only; no text)",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/trailofbits/skills/blob/bf23bfb21f10a2a4b0406086d690dc8cb1b3ccf3/plugins/mutation-testing/skills/mutation-testing/SKILL.md", "sha256": "20e6ee2b6cec91bad7572dea966b5fce1e50f9ef8d4bf2e4ba69ac9b679792ff", "bytes": 6225, "read": "full", "role": "primary"},
+        {"url": "https://github.com/trailofbits/skills/blob/bf23bfb21f10a2a4b0406086d690dc8cb1b3ccf3/plugins/mutation-testing/skills/mutation-testing/references/equivalent-mutants.md", "sha256": "ff4e959ec429133b61010892b213c2fd2a2a2b1b4e7d5424e52fc51f909c3e26", "bytes": 7165, "read": "full", "role": "supporting"},
+        {"url": "https://github.com/trailofbits/skills/blob/bf23bfb21f10a2a4b0406086d690dc8cb1b3ccf3/plugins/mutation-testing/skills/mutation-testing/workflows/analyzing-results.md", "sha256": "e3e17d2e66cf0dbaa359c051a00540dcdca86a4c5a18147b8268aed03fccd3f7", "bytes": 6843, "read": "full", "role": "supporting"}
+      ],
+      "taken": [
+        {"mechanism": "a surviving mutant is a test gap unless equivalence is argued from the code (reachability, whether the value is used, the input domain, a distinguishing input attempted), never assumed from passing tests", "where": "references/controls.md (section 6); scripts/controls.py judge (survived means gap)"},
+        {"mechanism": "a timed-out mutant run is inconclusive, never coverage", "where": "references/controls.md (outcomes); SKILL.md never list"},
+        {"mechanism": "a boundary mutant is a real gap unless the boundary value is unreachable", "where": "references/controls.md (section 6)"},
+        {"mechanism": "no aggregate kill rate stands in for adequacy; each survivor is reported, and 'no test reaches this code' is the stronger finding", "where": "references/controls.md"},
+        {"mechanism": "two or more distinct broken copies per claim rather than one (N12 adaptation)", "where": "SKILL.md (Controls rule); scripts/controls.py plan --min-variants"}
+      ],
+      "rejected": [
+        "the mewt/muton tool workflows, configuration and severity tiers: tool-specific; westack's helper writes a few chosen copies and needs no mutation engine",
+        "writing a formal report file into the working directory: westack reports receipts inline or in the core task record"
+      ],
+      "notes": [
+        "The licence is copyleft, so the skill carries no sentence, table or list from these files; the overlap check below covers them."
+      ]
+    },
+    {
+      "ref": "cat:addy-agent-skills.skill.test-driven-development",
+      "system": "addyosmani/agent-skills (test-driven-development)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "B",
+      "sources": [
+        {"url": "https://github.com/addyosmani/agent-skills/blob/aeac41d4d005999432bb7312f7ff06383a91d59d/skills/test-driven-development/SKILL.md", "sha256": "a3aa6ba95638497025577469eda10ed17918698209615aeafbc26f131bf2469d", "bytes": 16676, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "discover the repository's own focused and full test commands (wrappers, configuration, CI) before the first red; never assume a default runner", "where": "references/loop.md step 0; references/cycle.md (Commands)"},
+        {"mechanism": "pure configuration, documentation and static content changes are outside the test-first loop", "where": "references/non-code.md"},
+        {"mechanism": "the preference order of test doubles: real, fake, stub, then interaction mock", "where": "references/mocking.md"},
+        {"mechanism": "assert state and outcomes rather than call sequences; one behaviour per test; readable repetition over shared helpers in tests", "where": "references/test-quality.md"}
+      ],
+      "rejected": [
+        "a subagent that writes the reproduction test without seeing the fix: an optional independence measure; westack's evidence that a test can fail comes from controls, not from who wrote it",
+        "the test pyramid percentages and test-size table: proportions are project choices, not evidence",
+        "browser testing through DevTools: belongs to westack-qa"
+      ]
+    },
+    {
+      "ref": "cat:gstack.skill.test-audit",
+      "system": "garrytan/gstack (test-audit template)",
+      "licence": "MIT",
+      "grade": "present",
+      "usefulness": "C",
+      "sources": [
+        {"url": "https://github.com/garrytan/gstack/blob/fa9d4b637cb3bfbb52e0e9f1945c4e529fa575cd/test-audit/SKILL.md.tmpl", "sha256": "c2571ce79bb689b0eae34d7446755324d67536b082fe4c5301d8d30860ec2f25", "bytes": 7670, "read": "full", "role": "primary"}
+      ],
+      "taken": [
+        {"mechanism": "when auditing existing tests, flag assertion-free tests, tests that only read source text and near-duplicates as candidates with evidence, and change or remove tests only in batches the user approves", "where": "references/test-quality.md (Auditing); references/characterise.md (Judging existing tests)"}
+      ],
+      "rejected": [
+        "the whole-repository pruning sweep with retirement cards, LOC deltas and a discovery time budget: a different job from test-first work; westack-tdd judges tests with controls instead",
+        "gstack state paths, telemetry and the hand-off to its ship skill"
+      ]
+    },
+    {
+      "ref": "deep:mitsuhiko/insta",
+      "system": "insta (Rust snapshot testing) plus cargo-insta review tool",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0). Docs come from the separate repo mitsuhiko/insta-website, which has no LICENSE file at its pin: treated as all rights reserved, ideas only.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/insta/src/runtime.rs",
+          "sha256": "bb559195c0de7cc8ab5abbfa85fff7589998ff7d6d2641bb7d13d3f2ba53fce1",
+          "bytes": 36375,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/cargo-insta/src/cli.rs",
+          "sha256": "9f3f4ee68246e2b626499a7bc760f1c1b1114a5807c5e72ea349d094bdfbec04",
+          "bytes": 65858,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/LICENSE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+          "bytes": 10847,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-01: a changed or missing golden never overwrites the approved file: the run writes a candidate beside it and fails.",
+          "grade": "wired",
+          "evidence": "insta/src/runtime.rs:936-963",
+          "where": "references/characterise.md (Golden files)"
+        },
+        {
+          "mechanism": "WB-01: after the run, leftover candidate files are counted and any left fails the run, whatever the exit code.",
+          "grade": "wired",
+          "evidence": "cargo-insta/src/cli.rs:1376-1381",
+          "where": "references/characterise.md (Golden files)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-01 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas only (see licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "deep:biomejs/gritql",
+      "system": "GritQL",
+      "licence": "LICENSE read (head): MIT, 'Copyright (c) 2024-2025 Iuvo AI, Inc.' and 'Copyright (c) 2025-present Biome Developers and Contributors'. Tree-sitter grammar submodules and vendor/ submodules are listed in .gitmodules but are not checked out in the shallow clone, so their licences were not read.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/crates/gritmodule/src/testing.rs",
+          "sha256": "b90f89338d17e75b27af52ce7f3bf260e88bdb7887a9a8777e2b3819925d69b0",
+          "bytes": 13248,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/crates/cli_bin/fixtures/patterns_test/.grit/patterns/no_eq_null.md",
+          "sha256": "9461114730c4ca49875c36a6ad1008b88740acbc44743cb9862e98d4da675018",
+          "bytes": 1266,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/biomejs/gritql/blob/257e516f5c68cc31e1035d3d5cd679819b02a7fe/LICENSE",
+          "sha256": "dbc450002a5c7de645e7f35baeffcc1b13f4eced2fd5669d72615303f0ea5825",
+          "bytes": 1137,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-52: input-only samples assert that a transform leaves lookalikes unchanged; a transform with only positive fixtures is unproven.",
+          "grade": "wired",
+          "evidence": "crates/gritmodule/src/testing.rs:252-260; crates/gritmodule/src/testing.rs:265-294; crates/cli_bin/fixtures/patterns_test/.grit/patterns/no_eq_null.md:1-58",
+          "where": "references/test-quality.md (Transforms)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-52 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:codemod/codemod",
+      "system": "Codemod (codemod/codemod)",
+      "licence": "LICENSE read (head): Apache License 2.0 (11.5 KB). The repository also carries CONTRIBUTOR_LICENSE_AGREEMENT.md (not read). Docs under docs/ are in the same repository and were treated as Apache-2.0 text; no separate docs licence file was found. Vendored crates and the tree-sitter and LLRT dependencies keep their own licences (not inspected).",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/codemod/codemod/blob/e08cd9c66d9211157c2a191d43b1faee68c7e1ee/crates/mcp/src/handlers/package_validation.rs",
+          "sha256": "7f82019edc7a16823922fc952cab764c6889eed3393199a5fe10533532902ffa",
+          "bytes": 62493,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/codemod/codemod/blob/e08cd9c66d9211157c2a191d43b1faee68c7e1ee/skills/codemod/SKILL.md",
+          "sha256": "863c2cea2ef01a16cb12d4e062da9f255aa65bab51864e9fad6302c3c525e17f",
+          "bytes": 10257,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/codemod/codemod/blob/e08cd9c66d9211157c2a191d43b1faee68c7e1ee/LICENSE",
+          "sha256": "f33845007ddae95d696c96fcd8d7afee030724f3d2c24ee054fc3d2a5a16e11b",
+          "bytes": 11343,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-52: fixtures are counted by class (positive, edge, no-op, negative lookalike) and fixture quality gates a release.",
+          "grade": "wired",
+          "evidence": "crates/mcp/src/handlers/package_validation.rs:653-668; skills/codemod/SKILL.md:61; skills/codemod/SKILL.md:68-69",
+          "where": "references/test-quality.md (Transforms)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-52 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "deep:rectorphp/rector",
+      "system": "Rector",
+      "licence": "LICENSE read (head): 'The MIT License', Copyright (c) 2017-present Tomas Votruba. composer.json declares MIT. The checkout is the scoped release build (namespaces prefixed RectorPrefix202610) and commits a vendor/ folder of bundled dependencies whose licences were not inspected.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/rectorphp/rector/blob/92eff33cc90ed469f7f49388dd983a541c5aa6ca/rules/DeadCode/Rector/Assign/RemoveDoubleAssignRector.php",
+          "sha256": "b2cbfeab1a3106f233bd30bdaf9a2afc33eea1d242008e0921dea719bb0710ee",
+          "bytes": 4570,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/rectorphp/rector/blob/92eff33cc90ed469f7f49388dd983a541c5aa6ca/LICENSE",
+          "sha256": "4f805f60664c8af826e5f7d04ed0e4a9a5a0565df5808cd665b4a26958d05670",
+          "bytes": 1126,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-52: each bail-out guard gets its own negative fixture, and doubt means leaving the code alone.",
+          "grade": "present",
+          "evidence": "rules/DeadCode/Rector/Assign/RemoveDoubleAssignRector.php:37-44; rules/DeadCode/Rector/Assign/RemoveDoubleAssignRector.php:55-106",
+          "where": "references/test-quality.md (Transforms)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-52 (ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-agent-sdk-python",
+      "system": "Claude Agent SDK for Python",
+      "licence": "Ideas only (proprietary terms). The repository LICENSE is MIT, but its README says use of the SDK is governed by Anthropic's Commercial Terms of Service; the bundled CLI is not MIT and was not read. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-agent-sdk-python/blob/27858cbba9ecee26a06a90b8d39d3b5596121d11/.claude/skills/verify/SKILL.md",
+          "sha256": "f499a4e88c29144d6faf08eda62ff46035f99a8d29766ee504c0a6e1fe1edf09",
+          "bytes": 3690,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-agent-sdk-python/blob/27858cbba9ecee26a06a90b8d39d3b5596121d11/LICENSE",
+          "sha256": "cebdde8a8fb9ee59e5eaaed19578bf8085aa7047562259c31f38f225c26f6812",
+          "bytes": 1070,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-43: Verify release scripts with stubbed externals on a temp PATH and isolated HOME, never the real installer; assert bad input fails before any subprocess starts.",
+          "grade": "present",
+          "evidence": ".claude/skills/verify/SKILL.md:12-72",
+          "where": "references/mocking.md (Scripts and CLIs)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-43 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (proprietary). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:anthropics/claude-code",
+      "system": "Claude Code public repository (issue tooling, CI hardening, devcontainer, settings examples, published built-in mods)",
+      "licence": "Ideas only (proprietary). The LICENSE is a copyright notice with all rights reserved and use subject to Anthropic's Commercial Terms of Service; it grants no copy, modify or redistribute licence. Only the public repository was read, not the closed CLI. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/mods/README.md",
+          "sha256": "50a62fcd275c4f5f1a813f0bb437d8486c537136c276575935c91aa7291c7306",
+          "bytes": 6553,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/.github/workflows/mod-tests.yml",
+          "sha256": "58175578a788d9fdbe9aee0f77c2db22f296200d53c46bf765da275f557741cd",
+          "bytes": 1090,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/anthropics/claude-code/blob/58d6da1e34d6cd1c6379dcbf568bd66f5f9b6102/LICENSE.md",
+          "sha256": "728158fd1037143fad6907e8fa34804177e598b7326519503fe83cafdef849e6",
+          "bytes": 150,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-42: Closed-world plugin tests: effects below the unit are mocked, and any unmocked call throws naming its event, so a test cannot pass through an unnoticed side effect.",
+          "grade": "present",
+          "evidence": "mods/README.md:22-32, 71-77; .github/workflows/mod-tests.yml:21-40",
+          "where": "references/mocking.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-42 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (anthropic); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (proprietary). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:approvals/ApprovalTests.Python",
+      "system": "ApprovalTests.Python (approval testing, received versus approved files)",
+      "licence": "Apache-2.0 (LICENSE read: Apache License 2.0). Its docs folder sits in the same repo and falls under that licence.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/inline/inline_options.py",
+          "sha256": "e469ebabf41bc4a6414291c6f306badc78e54e1ac5838800f1bafc85942c2311",
+          "bytes": 3522,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/reporters/reporter_that_creates_an_approval_script.py",
+          "sha256": "26b21c4e6776382da26a313cf31b5af874ceb99a2428b0e88c3d894eac1875fb",
+          "bytes": 1636,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/internals/logs/approved_file_log.py",
+          "sha256": "875e8fec0a9735c22ff6b58a20bff98346c98d4d67af40d65713f9c14d3df76b",
+          "bytes": 1000,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/scrubbers/date_scrubber.py",
+          "sha256": "e0fff880e5766fb3261c63d8c6c454886aabddd7cd04676bb4d0e4deefe8efe8",
+          "bytes": 5170,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/approvaltests/scrubbers/scrubbers.py",
+          "sha256": "518c964ae90aa455dca14822bef2daaf82a2b2c19b24c7e8bb1ff9b7fcd248d4",
+          "bytes": 2674,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/approvals/ApprovalTests.Python/blob/4cc8fd3b8de0ce4b072ef7f862b54746e38194b1/LICENSE",
+          "sha256": "73ba74dfaa520b49a401b5d21459a8523a146f3b7518a833eea5efa85130bf68",
+          "bytes": 10273,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-05: Human gate written into the artifact: inline semi-automatic mode rewrites the approved text with a 'delete me to approve' marker, so the check fails until a person removes it.",
+          "grade": "wired",
+          "evidence": "approvaltests/inline/inline_options.py:36-75",
+          "where": "references/characterise.md (Golden files)"
+        },
+        {
+          "mechanism": "WB-05: Deferred approval as a script: the reporter writes the move commands for every mismatch into a script instead of moving anything, so a person reviews the exact file list first.",
+          "grade": "present",
+          "evidence": "approvaltests/reporters/reporter_that_creates_an_approval_script.py:11-41",
+          "where": "references/characterise.md (Golden files)"
+        },
+        {
+          "mechanism": "WB-06: Each run logs every approved file it compared and every received-to-approved pair that differed, so a later step can find abandoned goldens or act on exactly the failed set.",
+          "grade": "wired",
+          "evidence": "approvaltests/internals/logs/approved_file_log.py:28-30",
+          "where": "references/test-quality.md"
+        },
+        {
+          "mechanism": "WB-07: A scrubber must prove it fires: a custom date format is rejected unless its regex matches its own example, and lookup fails unless the example scrubs to the first token.",
+          "grade": "wired",
+          "evidence": "approvaltests/scrubbers/date_scrubber.py:12-20",
+          "where": "references/controls.md"
+        },
+        {
+          "mechanism": "WB-07: Line-removal scrubber defect, found by reading: it deletes from the list it is looping over, so adjacent matching lines can survive. Scrubbers need cases with adjacent and repeated matches.",
+          "grade": "present",
+          "evidence": "approvaltests/scrubbers/scrubbers.py:76-81",
+          "where": "references/controls.md"
+        },
+        {
+          "mechanism": "WB-08: Identity-preserving scrubbing: each distinct matched value gets a token numbered by first appearance (date0, date1), so equal values stay equal and different values stay different after scrubbing.",
+          "grade": "wired",
+          "evidence": "approvaltests/scrubbers/scrubbers.py:25-40",
+          "where": "references/test-quality.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-05, WB-06, WB-07, WB-08 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "p2:Instagram/LibCST",
+      "system": "LibCST",
+      "licence": "Ideas only. Contributions are MIT with named exceptions (files derived from the Python standard library are dual MIT and PSF, one is Apache-2.0); GitHub reports no single licence, so the deep read graded it ideas-only. None of the exception files was read. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/docs/source/motivation.rst",
+          "sha256": "0d3d078ed381474a658c69b78330d4061693b10b38b2ad13137f862b076a4a4b",
+          "bytes": 3979,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/libcst/codemod/commands/noop.py",
+          "sha256": "67d70b387d7e36af6f989db68ef5b5d9ea002ed2dffcebff27bb2db8c3487380",
+          "bytes": 483,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/Instagram/LibCST/blob/d9a255843b5cdbecc6834684d233bce1f2987f9d/LICENSE",
+          "sha256": "e09b2c94517c6a191153fe0407c0a546c4d24a7295ae3bb26d59b544c74162dc",
+          "bytes": 4700,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-56: Identity control: a shipped no-op codemod returns the tree untouched, and parse-then-print is designed to reproduce input byte for byte, with edits confined to changed nodes.",
+          "grade": "present",
+          "evidence": "docs/source/motivation.rst:10-12; docs/source/motivation.rst:29-30; libcst/codemod/commands/noop.py:10-15",
+          "where": "references/controls.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-56 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (codemods); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (no licence). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:mitsuhiko/insta",
+      "system": "insta (Rust snapshot testing) plus cargo-insta review tool",
+      "licence": "Ideas only. The code repository is Apache-2.0, but the documentation repository some ideas came from has no licence file (all rights reserved). Nothing quoted or copied.",
+      "grade": "wired",
+      "sources": [
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/cargo-insta/src/cli.rs",
+          "sha256": "9f3f4ee68246e2b626499a7bc760f1c1b1114a5807c5e72ea349d094bdfbec04",
+          "bytes": 65858,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/insta/src/redaction.rs",
+          "sha256": "080b596d46c42f67f430319818e67a86e89c54d70ca5eebec5b8114dc0bf330b",
+          "bytes": 21678,
+          "read": "partial",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/mitsuhiko/insta/blob/0e17c7a6ed65b73def1101813987a053269ef4a5/LICENSE",
+          "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+          "bytes": 10847,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-04: If other tests failed, the review step is refused, so candidate goldens are not judged from an already failing run. The accept path lacks this guard.",
+          "grade": "wired",
+          "evidence": "cargo-insta/src/cli.rs:1079-1085",
+          "where": "references/characterise.md (Golden files)"
+        },
+        {
+          "mechanism": "WB-05: Agent-safe review: list pending items as JSON with old and new content, accept or reject one by key, warn when a key matches nothing, refuse interactive review without a terminal.",
+          "grade": "wired",
+          "evidence": "cargo-insta/src/cli.rs:324-334",
+          "where": "references/characterise.md (Golden files)"
+        },
+        {
+          "mechanism": "WB-06: Orphan detection: tests log every golden they read; after a successful full run, goldens not in that list are unreferenced, rejected in CI and deleted locally.",
+          "grade": "wired",
+          "evidence": "cargo-insta/src/cli.rs:1165-1286",
+          "where": "references/test-quality.md"
+        },
+        {
+          "mechanism": "WB-08: Structure-aware redaction: replace volatile fields by path selector before serialising. A dynamic form asserts the value's shape first; sorted and rounded forms normalise instead of erasing.",
+          "grade": "wired",
+          "evidence": "insta/src/redaction.rs:98-188",
+          "where": "references/test-quality.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Extends the earlier records of this repository: deep:mitsuhiko/insta.",
+        "Supports adoption items WB-04, WB-05, WB-06, WB-08 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (proprietary). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:rainlanguage/adversarial-mutation-test",
+      "system": "rainlanguage/adversarial-mutation-test (skill 0.34.0 and a Rust mutation-probe)",
+      "licence": "Ideas only (restrictive). DecentraLicense 1.0, a custom strong-copyleft licence; GitHub reports NOASSERTION. Nothing quoted or copied.",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/skills/adversarial-mutation-test/SKILL.md",
+          "sha256": "a919036621109fec26fe2bdfcfefb4b45ce23f51e7be857b4acda7f0a0c828bf",
+          "bytes": 15050,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/README.md",
+          "sha256": "4ab080b82c1670dfa97d8d7fc3efc7078cc7b7728fc72b12f398236e0bad084b",
+          "bytes": 7507,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/rainlanguage/adversarial-mutation-test/blob/7f734eb1cce0ce4d2d65c905fc65e589088b356c/LICENSE",
+          "sha256": "e945453aac226261fc2cd0351cf9ac817343a52a8ff0b731e22765a62196b9f7",
+          "bytes": 17901,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "SS-36: Regeneration belongs inside the probe's suite command: tests that execute a stale built or generated artifact test nothing, and that is the commonest way a mutation matrix lies.",
+          "grade": "present",
+          "evidence": "SKILL.md:57-59,216-217; README.md:63-66",
+          "where": "references/controls.md"
+        },
+        {
+          "mechanism": "SS-37: Probe the untouched suite before writing any test, so each kill credits a named existing test. Writing first forfeits attribution; recovering it costs a second clone and pass.",
+          "grade": "present",
+          "evidence": "skills/adversarial-mutation-test/SKILL.md:70-80",
+          "where": "references/characterise.md"
+        },
+        {
+          "mechanism": "SS-37: One coverage-ledger row per behaviour (the mutation plus the test that killed it). Existing tests earn credit only by killing a mutant, exposing covered lines whose mutants survive.",
+          "grade": "present",
+          "evidence": "SKILL.md:34-39",
+          "where": "references/characterise.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items SS-36, SS-37 (P2 adoption, ADOPTION-LIST.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-28 deep read (evidence-eval-security); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: ideas-only (restrictive). Never quote this source."
+      ]
+    },
+    {
+      "ref": "p2:syrupy-project/syrupy",
+      "system": "syrupy (pytest snapshot plugin)",
+      "licence": "MIT (LICENSE read: MIT License, Copyright (c) 2025 Syrupy Project)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/syrupy-project/syrupy/blob/0a5cfce8b5d670f425cb7ff7217ae9711428b570/src/syrupy/report.py",
+          "sha256": "2ae237f107594120c9dbc4b024d391b766cb4bf87bbe399b4775ea22e8d0e265",
+          "bytes": 26444,
+          "read": "partial",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/syrupy-project/syrupy/blob/0a5cfce8b5d670f425cb7ff7217ae9711428b570/src/syrupy/matchers.py",
+          "sha256": "a08ce294d5dc2f6f65ed4348490e194a2a66c088c13c26efdf3f525c036cfe51",
+          "bytes": 4285,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/syrupy-project/syrupy/blob/0a5cfce8b5d670f425cb7ff7217ae9711428b570/LICENSE",
+          "sha256": "4f9b3b33397d667e4b6aa94539aca612d3036086d21e0a6208e14518d91909ee",
+          "bytes": 1071,
+          "read": "partial",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "WB-06: Unused-golden detection is selection-aware: an entry is unused only if its owning test was selected and ran, so -k, node ids, --lf and skips never make other goldens look orphaned.",
+          "grade": "wired",
+          "evidence": "src/syrupy/report.py:254-324",
+          "where": "references/test-quality.md"
+        },
+        {
+          "mechanism": "WB-07: A scrubber that silently replaced nothing was a real defect: a path with a regex-special character never matched, so the volatile value stayed in the golden.",
+          "grade": "present",
+          "evidence": "src/syrupy/matchers.py:93-100",
+          "where": "references/controls.md"
+        },
+        {
+          "mechanism": "WB-08: Typed matchers: a path-keyed replacement rule raises when the value at that path is not an expected type, so a scrubber cannot quietly swallow a wrong-shaped value.",
+          "grade": "present",
+          "evidence": "src/syrupy/matchers.py:56-79",
+          "where": "references/test-quality.md"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items WB-06, WB-07, WB-08 (P2 adoption, ADJACENT-ADOPTION-NOTES.md, 2026-10-29).",
+        "Read at the pinned commit in the 2026-10-29 adjacent deep read (behaviour-preservation); the SHA-256 and byte counts are those of the files at the pin as recorded there. Only the cited files and the licence file are listed; unread areas and risk flags are in that record.",
+        "Licence status: permissive, as read in the family report."
+      ]
+    },
+    {
+      "ref": "ap:ramenvr/autopilot",
+      "system": "ramenvr/autopilot (Aura Autopilot: an in-editor playtesting agent for Unreal, Unity and Godot in which a coding agent writes a per-game harness and a separate decision model plays through real input events)",
+      "licence": "Apache-2.0 (LICENSE read for the addendum)",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/agents/session.py",
+          "sha256": "e1add2659d4c57bea85b819ecdc1154f13034612d44f3738d9837c62fd30c858",
+          "bytes": 99386,
+          "read": "lines 105–195: the agent's instructions",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/autopilot/KIT.md",
+          "sha256": "33369e355e911ef04a7b28b3812c6d2d4d5fff0639def36b5793c722306e14ac",
+          "bytes": 20738,
+          "read": "searched",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/ramenvr/autopilot/blob/1818cc337b20762cd50102bc774a8e45eb7c4dc7/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "bytes": 11358,
+          "read": "as read for the addendum (the cited lines are what the record relies on)",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "AP-2: Direct state changes may set up or measure a check, never achieve what the claim is about. Adapted for tests: a test whose act step writes the state its assertion then reads has a direct state change on the claim's own path and survives every mutation of the mechanism.",
+          "grade": "present",
+          "evidence": "session.py:112-114, 186-189; KIT.md:46 as read for the addendum",
+          "where": "references/controls.md (What the controls also catch)"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items AP-2 (Aura Autopilot addendum, 2026-10-30).",
+        "The verify and eval parts of AP-2 are in those skills' records.",
+        "Flag, run data: sharing is on unless the user opts out (telemetry.py:43-48: share defaults to true and AUTOPILOT_SHARE=0 turns it off). When on, every model call is written whole (the request without picture data, and the full response), redacted for secrets, paths, user and host names and emails, but game-code excerpts in prompts stay; runs through Aura also sync notes, reusable code and traces to Aura's storage per team, and the game's code is never uploaded (aura_memory.py:4-9). The setup screen asks and invites a yes (README.md:36). westack takes no run data from it and sends none.",
+        "Flag, isolation: only Linux with bubblewrap gets no network and a read-only disk (sandbox.py:5); elsewhere the child merely lacks secrets, which a westack control label would call a heuristic, not a sandbox.",
+        "Benchmark, claimed (the Aura post, Nyx Iskandar and Andy Tsen, dated October 31, 2026 as served; retrieved 2026-10-30; HTML 133,994 bytes, sha256 7ad1721563dbacde619b5496697b2f42f722ca622b92080ee20325694762aac3): Pass@1 within 1800 s, Claude Opus 5.5 at medium effort, empty memory, cheating runs marked unsuccessful. Autopilot 7/7 at 262 s, Claude Code 5/7 at 437 s, an unnamed competitor 4/7 at 508 s. That is 7 tasks on one template game with one run each: the authors' claim, graded claimed, and no number from it is used.",
+        "The SHA-256 and byte counts are those recorded in the addendum (westack-research/2026-10-30-autopilot.md), read at the pinned commit; the clone was not opened for this change.",
+        "Licence status: permissive (Apache-2.0), as read for the addendum."
+      ]
+    },
+    {
+      "ref": "nr:multica-ai/andrej-karpathy-skills",
+      "system": "multica-ai/andrej-karpathy-skills (one coding-guidelines skill; also reachable as forrestchang/andrej-karpathy-skills)",
+      "licence": "Ideas only: no licence file; MIT is declared only in metadata (README.md:169-171, .claude-plugin/plugin.json:8, skills/karpathy-guidelines/SKILL.md:4), which grants nothing",
+      "grade": "present",
+      "sources": [
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/EXAMPLES.md",
+          "sha256": "9bc0ba934077a0514bab0fc7a4ffad37ecd40bfddf57f29d0b8cef5e5b3d1f28",
+          "bytes": 14838,
+          "read": "full",
+          "role": "primary"
+        },
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/CLAUDE.md",
+          "sha256": "694a2d721e41c385f3db492838c23299826df5ba9809e3b0721aac70021e196a",
+          "bytes": 2357,
+          "read": "full",
+          "role": "supporting"
+        },
+        {
+          "url": "https://github.com/multica-ai/andrej-karpathy-skills/blob/2c606141936f1eeef17fa3043a72095b4765b9c2/.claude-plugin/plugin.json",
+          "sha256": "52919436493fc5403e3022c45dff0d6a82f0047c02b17797e2bad14b3ec22ce9",
+          "bytes": 390,
+          "read": "full",
+          "role": "also-read"
+        }
+      ],
+      "taken": [
+        {
+          "mechanism": "NR-26: A ready broken fixture: a 'fix' whose diff is empty, beside a reproduction that passes before the fix; the red-test claim's expected verdict is failed or inconclusive.",
+          "grade": "present",
+          "evidence": "EXAMPLES.md:454-496 (the donor's own example breaking its own rule)",
+          "where": "evals/tasks/campaign.json (case empty-fix); evals/tasks/fixtures/empty-fix"
+        }
+      ],
+      "notes": [
+        "Ideas only: nothing was quoted, copied or run, and the rules in westack are in its own words.",
+        "Supports adoption items NR-26 (seven-repos and OpenCode addendum, westack-research/2026-10-30-seven-repos-and-opencode.md, 2026-10-30).",
+        "The SHA-256 and byte counts are those of the bytes GitHub serves at the pin, as recorded by the 2026-10-30 reads (2026-10-30-sub-skill-reads, new-b.json) and re-hashed by the addendum's author; the clones were not opened for this change.",
+        "Never quote this source: it has no licence file, so its declared MIT grants nothing; the rules here are westack's own words and the fixtures are westack's own.",
+        "The fixture is westack's own code: a sorted() with a total key, so the claimed flake cannot occur; nothing from the donor's example is copied.",
+        "Flags (recorded, not carried): there is no licence file; its install appends a mutable remote file into CLAUDE.md."
+      ]
+    }
+  ],
+  "considered_not_taken": [
+    {"ref": "ext:fatstack-tdd", "system": "Coblong/fatstack-skills (fatstack-tdd with tests.md and mocking.md)", "url": "https://github.com/Coblong/fatstack-skills/blob/4d6cd61f8e9113f36858298f8025b5bc916c9b27/skills/fatstack-tdd/SKILL.md", "sha256": "555bd39986b9ba2cd0e1af8d48be896e4e4425459765e023b0c99b92a7bb9b86", "bytes": 4096, "why": "Read in full with its tests.md and mocking.md (MIT). It follows the Pocock skill's structure closely; its additions (prefer the highest seam, run the full suite and linters at the end, report unrelated failures rather than fix them) are already in the Pocock donor or the westack core."},
+    {"ref": "harness:agentless-reproduction-tests", "system": "OpenAutoCoder/Agentless (generate_reproduction_tests.py)", "url": "https://github.com/OpenAutoCoder/Agentless/blob/5ce5888b9f149beaace393957a55ea8ee46c9f71/agentless/test/generate_reproduction_tests.py", "sha256": "5ad389114967432d0b6c4baf533733b0e3b928e2bc2fe97d96b82ad926bd5c9d", "bytes": 17104, "why": "Read in full (MIT). Its reproduction tests separate 'reproduced' from 'other issues' and only verified tests are kept, but the verification itself lives in another file not read here; the red-run table from TDD Guard already separates a clean red from a wrong-reason failure, and sampling with majority voting is a harness feature, not a skill rule."}
+  ],
+  "inherited_from_core": [
+    "the Minimum Core block (authority, evidence, baseline, broken-copy control, honest results, report)",
+    "baseline and after-run compared by test name with checks.py diff",
+    "the broken-copy receipt rules and the disposable worktree recipe in verify.md, including expected values derived independently and the paired legitimate run",
+    "the evidence vocabulary's results and claim strengths"
+  ],
+  "own_additions": [
+    "executed broken-copy controls for every test claim, at least two distinct realistic copies, with the failing outputs kept (the D04 donor had only a mental mutation check)",
+    "scripts/controls.py: plan writes broken copies outside the work from a spec and refuses missing, ambiguous, no-op or duplicate edits; judge classifies saved red and control runs as killed, killed-by-error, survived or blocked against a green reference",
+    "four modes with an honest order label: slice (test-first), regression (the pre-fix red counts as one control, plus one more), characterise (test-after, controls in place of red) and check-only (prose and config get a fitting check, never a fabricated red test)",
+    "a test that only checks a mock was called, or computes its own expected value, is caught by controls because it survives every copy",
+    "suspicious current behaviour found while characterising is reported to the user rather than pinned silently"
+  ],
+  "helper_decision": {
+    "built": true,
+    "script": "scripts/controls.py",
+    "reason": "Two steps that agents get wrong by hand and that a script can check without trusting the agent: making broken copies (edited in the working tree and forgotten, a find text that silently did not apply so the 'control' equals the original, two 'distinct' copies that are the same, no hashes to show the copy differs) and judging control runs (a crash, an import error, zero tests or a different selection counted as a kill). The capability map had judged a helper unnecessary; the brief asked for a planner if justified, and these failure modes justify it. It runs nothing and calls no network; judge reuses the core's checks.py parser.",
+    "tests": "tests/test_controls.py, 24 tests, written first: the red run against an interface-only stub failed 23 on assertions (the fixture self-check passed); then green 24 of 24.",
+    "controls": "Four broken copies of controls.py made with its own plan command (branch, validation, boundary, constant). Three were killed on assertions with the same 24-test selection; one survivor (the zero-test guard) was argued equivalent because the core parser marks an empty parse incomplete and the selection check also blocks it, with three distinguishing inputs tried. An earlier round showed one copy killed only by a crash; the tests were strengthened to require a JSON refusal, after which it failed on an assertion."
+  },
+  "overlap_check": {
+    "method": "lower-cased word 12-grams of every text file in this package (SKILL.md, references, scripts, tests, provenance, evals) against every fetched donor file; any shared 12-gram is a flag",
+    "script": "scratch westack-w1-tdd/scripts/ngram_overlap.py (not shipped)",
+    "result": "clean on 2026-10-28: no shared run of 12 or more words across 30 package files and 23 donor files (licence files included). The first pass flagged one 13-word run in references/cycle.md against fatstack-tdd (considered, not taken) and showed four runs of 8 to 10 words against fatstack-tdd and superpowers; all five were reworded. The longest shared run is now 8 words: the mutation-kind list in this file ('side effect, empty or default return, missing validation'), category names the core's verify.md also uses."
+  }
+}

@@ -1,0 +1,20 @@
+# workflow-auto-pr-4d2
+# Every pushed branch gets a pull request, merged automatically once the required checks pass.
+name: auto-pr
+on:
+  push:
+    branches-ignore: [main]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  open-and-arm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: gh pr create --fill --base main --head "$GITHUB_REF_NAME" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: gh pr merge "$GITHUB_REF_NAME" --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
