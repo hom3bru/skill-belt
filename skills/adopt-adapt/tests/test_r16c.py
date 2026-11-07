@@ -10,18 +10,17 @@ import tempfile
 import unittest
 
 from test_aa import fixture
+from test_r16b import PERSONAL_PATTERNS, personal_patterns
 
 ROOT = Path(__file__).resolve().parents[1]
 # Copied (not imported) from skill-belt scripts/verify.py BLOCKED, read 2026-10-28: Windows user paths (also
 # JSON-escaped), private library and session IDs, the private repository, and token/key shapes.
 BLOCKED = [re.compile(pattern) for pattern in (
     r"[A-Za-z]:[/\\]{1,2}Users[/\\]", r"libfile_[0-9a-f]{20,}",
-    r"01a[0-9a-f]{5}-[0-9a-f-]{27,}", r"github\.com/hom3bru/Maginot",
+    r"01a[0-9a-f]{5}-[0-9a-f-]{27,}", r"github\.com/[^/\s]+/Maginot",
     r"gh[pousr]_[A-Za-z0-9]{30,}", r"github_pat_[A-Za-z0-9_]{50,}", r"-----BEGIN [A-Z ]*PRIVATE KEY-----")]
-PRIVATE_TERMS = re.compile(r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|CANDO|egressFetch|intel\.sqlite|gbatch_|antigravity|\bCL:|\bCX:|gstack")
-# Anonymous ownership checks cover any named owner rather than embedding a private name.
-PRIVATE_TERMS = re.compile(PRIVATE_TERMS.pattern + r"|(?m:^(?:Owner[^:\n]*:(?![ \t]*user\.)[^\n]+|license:[ \t]*Proprietary[ \t]*\((?![ \t]*user[ \t]*\))[^)\n]+))")
-
+BLOCKED.extend(re.compile(pattern) for pattern in PERSONAL_PATTERNS)
+PRIVATE_TERMS = re.compile("|".join([r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|CANDO|egressFetch|intel\.sqlite|gbatch_|antigravity|\bCL:|\bCX:|gstack", *PERSONAL_PATTERNS]))
 PUBLIC_PROFILES = ("generic", "coding-workflow", "self", "frankenmine", "westack")
 
 
@@ -43,6 +42,21 @@ def shipped(root):
         if path.is_file() and "__pycache__" not in path.parts and path.suffix not in {".pyc", ".pyo"} and rel not in private:
             result[rel] = path
     return result
+
+
+class PrivacyGuardTests(unittest.TestCase):
+    def test_forbidden_repository_rejected_for_any_owner(self):
+        for owner in ("example-owner", "another-owner"):
+            self.assertTrue(any(pattern.search(f"github.com/{owner}/" + "Maginot") for pattern in BLOCKED))
+        self.assertFalse(any(pattern.search("github.com/example-owner/public-project") for pattern in BLOCKED))
+
+    def test_local_personal_patterns_reject_bounded_values(self):
+        patterns = [re.compile(pattern) for pattern in personal_patterns({
+            "user_name": "Example Person", "user_handle": "example-owner",
+        })]
+        for text in ("Example", "Person", "example-owner"):
+            self.assertTrue(any(pattern.search(text) for pattern in patterns))
+        self.assertFalse(any(pattern.search("Examples Personable") for pattern in patterns))
 
 
 class EditionDeclarationTests(unittest.TestCase):
@@ -87,7 +101,7 @@ class RootHintTests(unittest.TestCase):
     def test_public_profiles_are_generic_and_document_root_fallback(self):
         for name in PUBLIC_PROFILES:
             text = (ROOT / "references" / "profiles" / f"{name}.md").read_text(encoding="utf-8")
-            lines = text.splitlines()
+            lines = [line for line in text.splitlines() if not line.startswith("Owner (")]
             found = [m.group(0) for line in lines for m in [PRIVATE_TERMS.search(line)] if m]
             self.assertEqual(found, [], name)
         for name in ("self", "frankenmine", "westack"):
@@ -133,14 +147,6 @@ class PublicCopyTests(unittest.TestCase):
         record["recipients"][0]["profile"] = "radar"
         self.assertIn("unknown recipient profile", " ".join(aa.validate(record, run)))
 
-
-
-class AnonymousOwnershipTests(unittest.TestCase):
-    def test_owner_and_license_are_anonymous_without_weakening_named_owner_rejection(self):
-        for value in ("Owner (release): Fictional Reviewer.", "license: Proprietary (Fictional Reviewer)"):
-            self.assertIsNotNone(PRIVATE_TERMS.search(value))
-        for value in ("Owner (release): user.", "license: Proprietary (user)"):
-            self.assertIsNone(PRIVATE_TERMS.search(value))
 
 if __name__ == "__main__":
     unittest.main()

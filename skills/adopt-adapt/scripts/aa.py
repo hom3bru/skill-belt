@@ -6,6 +6,7 @@ Python 3.10+, standard library only.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import html
 import importlib.util
@@ -13,6 +14,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -274,14 +276,18 @@ def load(path):
 
 def save(path, value):
     """Atomic local write; never follow an existing output symlink."""
+    _save_bytes(path, (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+
+
+def _save_bytes(path, data):
+    """Owned atomic replacement, also used to restore exact prior receipt bytes."""
     path = Path(path)
     require(not path.is_symlink(), f"output is a symlink: {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix=".aa-", dir=path.parent)
     try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:
-            json.dump(value, stream, ensure_ascii=False, indent=2)
-            stream.write("\n")
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
         os.replace(tmp, path)
     finally:
         if os.path.exists(tmp):
@@ -299,6 +305,45 @@ def contained(root, relative):
         require(not current.is_symlink() and not (hasattr(current, "is_junction") and current.is_junction()), "linked artifact paths are not allowed")
     require(current.resolve().is_relative_to(root), "artifact escapes root")
     return current
+
+
+class _ReadSet:
+    """One operation's byte-checked reads; never survives a public operation.
+
+    A bounded byte cache avoids rereading captures for each claim/link. Overflow
+    falls back to rereading and checking the original hash, not rejecting input.
+    """
+    CACHE_BYTES = 64 * 1024 * 1024
+
+    def __init__(self, root):
+        self.root = Path(root).resolve()
+        self.hashes = {}
+        self.cache = {}
+        self.cached_bytes = 0
+
+    def read(self, relative):
+        path = contained(self.root, relative)
+        key = path.relative_to(self.root).as_posix()
+        if key in self.cache:
+            return self.cache[key]
+        data = path.read_bytes()
+        identity = (len(data), digest(data))
+        require(key not in self.hashes or self.hashes[key] == identity,
+                f"checked file changed during operation: {key}")
+        self.hashes[key] = identity
+        if self.cached_bytes + len(data) <= self.CACHE_BYTES:
+            self.cache[key] = data
+            self.cached_bytes += len(data)
+        return data
+
+    def unchanged(self, overrides=None):
+        overrides = overrides or {}
+        for name, expected in self.hashes.items():
+            if name in overrides:
+                expected = (len(overrides[name]), digest(overrides[name]))
+            data = contained(self.root, name).read_bytes()
+            require((len(data), digest(data)) == expected,
+                    f"checked file changed during operation: {name}")
 
 
 def identifiers(items, label):
@@ -553,7 +598,7 @@ def check_caps(decision, decisive, mechanism_value, source_id):
         require(any(c["level"] in RUN_LEVELS for c in decisive), "mechanism_value 3 needs a decisive claim at TESTED or OBSERVED, with its run recorded in this work")
 
 
-def check_review(review, root, required, reason):
+def check_review(review, root, required, reason, read_bytes=None):
     """SKILL.md §7: an independent review is required only for ADOPT, governed/frozen/perimeter seams, consequential
     decisions or high confidence; its level comes from the shared vocabulary and self never satisfies it."""
     if review is None:
@@ -562,7 +607,8 @@ def check_review(review, root, required, reason):
     strings(review, ("level", "artifact", "sha256", "disconfirming"), "review")
     require(review["level"] in REVIEW_LEVELS, "review level must be self, fresh-context-same-model, different-model or human")
     require(type(review.get("checked")) is bool, "review.checked must be boolean (was the strongest disconfirming observation checked?)")
-    require(SHA256.fullmatch(review["sha256"]) is not None and digest(contained(root, review["artifact"]).read_bytes()) == review["sha256"],
+    require(SHA256.fullmatch(review["sha256"]) is not None
+            and digest(read_bytes(review["artifact"]) if read_bytes else contained(root, review["artifact"]).read_bytes()) == review["sha256"],
             "review artifact bytes do not match review.sha256")
     if required:
         require(review["level"] != "self", f"independent review required ({reason}): level self cannot satisfy it")
@@ -640,34 +686,81 @@ def parse_recipient(spec):
     return ident, profile
 
 
-def init_run(root, sources, recipients):
+def init_run(root, sources, recipients, *, schema_version=3):
     root = Path(root)
-    require(not (root / "run.json").exists(), "run already exists")
+    require(type(schema_version) is int and schema_version in {2, 3}, "unsupported new record schema")
+    require(not any((root / name).exists() for name in ("run.json", "inputs.json", "intake.json")), "run already exists")
     source_rows = [{"id": f"s{i+1}", "locator": url, "revision": "unresolved", "kind": "unresolved"} for i, url in enumerate(sources)]
     recipient_rows = [{"id": rid, "profile": profile, "revision": "unresolved", "snapshot": None} for rid, profile in map(parse_recipient, recipients)]
     identifiers(recipient_rows, "recipients")
     require(not ({s["id"] for s in source_rows} & {r["id"] for r in recipient_rows}), "need distinct source and recipient IDs (source IDs are s1, s2, ...)")
     pairs = [{"id": f"q{i+1}", "source": s["id"], "recipient": r["id"], "state": "QUEUED", "transitions": ["QUEUED"], "reason": "Not yet researched"} for i, (s, r) in enumerate((s, r) for s in source_rows for r in recipient_rows)]
-    record = {"schema_version": 1, "request": "Record the user's requested outcome", "host": {"name": "unknown", "renderer_rejects_incomplete_record": True, "host_prevents_freeform_final": "unavailable", "host_detects_violation": "exported-report-only"}, "sources": source_rows, "recipients": recipient_rows, "evidence": [], "claims": [], "items": pairs}
+    record = {
+        "schema_version": schema_version, "report_format": "decision-frontier-v1",
+        "request": "Record the user's requested outcome",
+        "host": {"name": "unknown", "renderer_rejects_incomplete_record": True,
+                 "host_prevents_freeform_final": "unavailable", "host_detects_violation": "exported-report-only"},
+        "sources": source_rows, "recipients": recipient_rows, "evidence": [], "claims": [], "items": pairs,
+    }
+    inputs = {"sources": source_rows, "pairs": [{k: x[k] for k in ("id", "source", "recipient")} for x in pairs]}
+    if schema_version == 3:
+        inputs["schema_version"] = 3
     save(root / "run.json", record)
-    save(root / "inputs.json", {"sources": source_rows, "pairs": [{k: x[k] for k in ("id", "source", "recipient")} for x in pairs]})
+    save(root / "inputs.json", inputs)
+    save(root / "intake.json", gates_module().seed(inputs, digest, canonical))
     return record
 
 
-def validate(record, root, live=True):
+_GATES = None
+
+
+def gates_module():
+    global _GATES
+    if _GATES is None:
+        spec = importlib.util.spec_from_file_location("adopt_adapt_gates", Path(__file__).with_name("gates.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _GATES = module
+    return _GATES
+
+
+def contract_status(record, root, live=True, complete=False):
+    """Read-only checked contract status; incomplete research is valid, never silently rejected."""
+    return _checked_contract(record, root, live, complete)[0]
+
+
+def _checked_contract(record, root, live=True, complete=False):
+    """Internal result and its operation-local read set, never a public bypass token."""
+    try:
+        context = _validate(record, Path(root), live)
+        check_multi_recipient(record)
+        contract = gates_module().check(record, Path(root), context, contained, complete=complete)
+        return contract, context
+    except (Invalid, KeyError, TypeError, ValueError, OSError, subprocess.SubprocessError) as error:
+        raise Invalid(str(error) or type(error).__name__) from error
+
+
+def measurement_statement(row):
+    return gates_module().measurement_statement(row)
+
+
+def validate(record, root, live=True, complete=False):
     """Fail with actionable error, including on malformed producer input."""
     try:
-        _validate(record, Path(root), live)
-        check_multi_recipient(record)
+        contract_status(record, root, live, complete)
         return []
     except (Invalid, KeyError, TypeError, ValueError, OSError, subprocess.SubprocessError) as error:
         return [str(error) or type(error).__name__]
 
 
 def _validate(record, root, live):
+    reads = _ReadSet(root)
     require(isinstance(record, dict), "record must be an object")
-    require(set(record) - {"routing"} == {"schema_version", "request", "host", "sources", "recipients", "evidence", "claims", "items"}, "unexpected or missing record fields")
-    require(type(record["schema_version"]) is int and record["schema_version"] == 1, "unsupported schema_version")
+    require(set(record) - {"routing", "report_format"} == {"schema_version", "request", "host", "sources", "recipients", "evidence", "claims", "items"}, "unexpected or missing record fields")
+    require(type(record["schema_version"]) is int and record["schema_version"] in {1, 2, 3}, "unsupported schema_version")
+    if "report_format" in record or record["schema_version"] == 3:
+        require(record["schema_version"] >= 2 and record.get("report_format") == "decision-frontier-v1",
+                "unsupported report format")
     strings(record, ("request",), "record")
     host = record["host"]
     strings(host, ("name", "host_prevents_freeform_final", "host_detects_violation"), "host")
@@ -692,7 +785,7 @@ def _validate(record, root, live):
     for e in ev.values():
         strings(e, ("subject", "revision", "path", "sha256", "origin", "captured_at", "read_scope", "limitations"), "evidence")
         require(e["subject"] in subjects and e["revision"] == subjects[e["subject"]]["revision"], "evidence subject/revision mismatch")
-        data = contained(root, e["path"]).read_bytes()
+        data = reads.read(e["path"])
         require(type(e.get("bytes")) is int and e["bytes"] == len(data) and e["sha256"] == digest(data), "evidence byte/hash mismatch")
         require(e.get("artifact_kind", "source") in {"source", "execution"}, "unknown evidence artifact_kind")
         if e.get("artifact_kind") == "execution":
@@ -731,7 +824,10 @@ def _validate(record, root, live):
     expected = {(s, r) for s in sources for r in recipients}
     pairs = [(x.get("source"), x.get("recipient")) for x in items.values()]
     require(len(pairs) == len(set(pairs)) and set(pairs) == expected, "queue lost/duplicated a source-recipient pair")
-    manifest = load(contained(root, "inputs.json"))
+    manifest = json.loads(reads.read("inputs.json").decode("utf-8-sig"))
+    expected_schema = {"schema_version": 3} if record["schema_version"] == 3 else {}
+    require({key: value for key, value in manifest.items() if key not in {"sources", "pairs"}} == expected_schema,
+            "input manifest schema does not match the record")
     require([(x["id"], x["locator"]) for x in manifest["sources"]] == [(x["id"], x["locator"]) for x in sources.values()], "source manifest changed")
     require(manifest["pairs"] == [{k: x[k] for k in ("id", "source", "recipient")} for x in items.values()], "queue manifest changed")
     for item in items.values():
@@ -911,7 +1007,10 @@ def _validate(record, root, live):
                                            ("consequential decision", doubt["consequential"]),
                                            ("high confidence", decision["confidence_level"] == "high"),
                                            ("governed, frozen or perimeter seam", bool(transfer) and transfer.get("seam_status") in REVIEWED_SEAMS)) if hit]
-        check_review(ledger.get("review"), root, bool(triggers), ", ".join(triggers))
+        check_review(ledger.get("review"), root, bool(triggers), ", ".join(triggers), reads.read)
+    return {"sources": sources, "recipients": recipients, "evidence": ev, "executions": executions,
+            "claims": claims, "items": items, "digest": digest, "canonical": canonical,
+            "read_bytes": reads.read, "_reads": reads}
 
 
 def text(value):
@@ -920,8 +1019,11 @@ def text(value):
 
 
 def record_status(record, root, live=True):
-    errors = validate(record, root, live)
-    require(not errors, "; ".join(errors))
+    contract = contract_status(record, root, live)
+    return _record_status(record, contract)
+
+
+def _record_status(record, contract):
     ready = sum(item["state"] == "READY" for item in record["items"])
     if ready == len(record["items"]):
         scope = "ready-records"
@@ -929,7 +1031,7 @@ def record_status(record, root, live=True):
         scope = "mixed-records"
     else:
         scope = "inputs-only" if all(item["state"] == "QUEUED" for item in record["items"]) else "incomplete-records"
-    return {"scope": scope, "ready_pairs": ready, "total_pairs": len(record["items"]), "pairs": [{k: item[k] for k in ("id", "source", "recipient", "state")} for item in record["items"]], "semantic_truth_certified": False, "narrative_outside_record_checked": False}
+    return {"scope": scope, "ready_pairs": ready, "total_pairs": len(record["items"]), "pairs": [{k: item[k] for k in ("id", "source", "recipient", "state")} for item in record["items"]], "semantic_truth_certified": False, "narrative_outside_record_checked": False, "contract": contract}
 
 
 def handoff(record, root, live=True, record_name="run.json"):
@@ -1110,10 +1212,88 @@ def render_shared_donor(source, items, identity, common):
     return lines
 
 
-def render(record, root, live=True):
-    errors = validate(record, root, live)
-    require(not errors, "; ".join(errors))
+def render(record, root, live=True, complete=False):
+    contract = contract_status(record, root, live, complete)
+    return _render_checked(record, contract)
+
+
+def _frontier_lines(record):
+    """Project the next pending checks from validated decisions."""
+    groups = {}
+    for item in record["items"]:
+        if item["state"] != "READY" or not gates_module().retained_lead(item["decision"]):
+            continue
+        experiment = item["decision"]["experiment"]
+        shared = experiment.get("shared_prerequisite")
+        check = shared if shared is not None else experiment
+        condition = check.get("condition") if shared is not None or experiment["state"] == "blocked" else None
+        if shared is not None:
+            key = (item["recipient"], "shared", shared["id"])
+        else:
+            # Preserve case and interior whitespace, which can change a command or fixture.
+            key = (item["recipient"], "experiment", condition,
+                   *(experiment[field].strip() for field in ("baseline", "test", "criterion", "reopen")))
+        if record["schema_version"] == 3 and shared is None:
+            key += (experiment["cluster"], experiment["flips_to"])
+        if key not in groups:
+            groups[key] = {"recipient": item["recipient"], "check": check, "condition": condition,
+                           "shared": shared is not None, "pairs": [], "source_ids": [], "seam_evidence": set()}
+        row = groups[key]
+        row["pairs"].append(item["id"])
+        row["source_ids"].append(item["source"])
+        if record["schema_version"] == 3 and shared is None:
+            row["seam_evidence"].update(experiment["seam_evidence"])
+
+    lines = ["## Decision frontier", "",
+             "Proposed checks that could change a retained lead. Each pair's full evidence and experiment follow.", ""]
+    if not groups:
+        return lines + ["No retained lead checks.", ""]
+    # Stable ties follow the input queue. Runnable shared prerequisites precede downstream checks.
+    ranked = sorted(groups.values(), key=lambda row: (row["condition"] is not None, not row["shared"], -len(row["pairs"])))
+    for row in ranked:
+        check = row["check"]
+        label = "Shared prerequisite" if row["shared"] else "Proposed experiment"
+        lines.append(f"- **{label}** for {text(row['recipient'])} ({text(', '.join(row['pairs']))})")
+        if row["condition"] is not None:
+            lines.append(f"  - Blocked until {text(row['condition'])}")
+        if not row["shared"]:
+            lines.append(f"  - Baseline: {text(check['baseline'])}")
+        lines.extend([f"  - {text(check['test'])}", f"  - Success condition: {text(check['criterion'])}",
+                      f"  - Reopen when: {text(check['reopen'])}"])
+        if row["shared"]:
+            lines.append(f"  - Recipient evidence: {text(', '.join(check['evidence']))}")
+        if record["schema_version"] == 3:
+            lines.append(f"  - Sources: {text(', '.join(row['source_ids']))}")
+            if row["shared"]:
+                lines.append("  - Passing this prerequisite opens the pair-specific experiments below.")
+            else:
+                lines.append(f"  - Recipient seam evidence: {text(', '.join(sorted(row['seam_evidence'])))}")
+                lines.append(f"  - Possible result after review: {text(check['flips_to'])}")
+    return lines + [""]
+
+
+def _result_label(decision, frontier):
+    if frontier and gates_module().retained_lead(decision):
+        return "Retained research lead"
+    return decision["result"]
+
+
+def _render_checked(record, contract):
+    """Internal projection; every public entry point obtains its own checked status."""
     lines = ["# Adopt / adapt", "", f"Request: {text(record['request'])}", "", "Record checks establish bytes and structure; semantic review remains necessary.", "Host free-form output prevention: unavailable.", ""]
+    lines.extend([f"Coverage contract: {contract['contract']}; complete: {str(contract['complete']).lower()}; recording: {contract['recording']}.",
+                  f"Retained research leads: {contract['retained_leads']} (not counted as demonstrated rejection).", ""])
+    frontier = record.get("report_format") == "decision-frontier-v1"
+    if frontier:
+        lines.extend(_frontier_lines(record))
+    if contract["outstanding"]:
+        lines.extend(["## Outstanding coverage", "", *[f"- {text(value)}" for value in contract["outstanding"]], ""])
+    if contract["coverage"]:
+        lines.extend(["## Source / recipient coverage", "", "| Source | Recipient | State | Unresolved coverage |", "| --- | --- | --- | --- |"])
+        lines.extend(f"| {text(row['source'])} | {text(row['recipient'])} | {text(row['state'])} | {text(', '.join(row['unresolved_roles']) or 'none')} |" for row in contract["coverage"])
+        lines.extend(["", "Associated artifacts:"])
+        lines.extend(f"- {text(row['parent'])} → {text(row['source'] or 'not queued')}: {text(row['url'])} ({text(row['classification'])})" for row in contract["links"])
+        lines.append("")
     if record.get("routing"):
         lines.extend(["## Routing", ""])
         for row in record["routing"]:
@@ -1140,6 +1320,8 @@ def render(record, root, live=True):
         ident = item["id"]
         if item["state"] != "READY":
             lines.extend(["", f"## {ident}: {item['state']} — no verdict", "", text(item["reason"])])
+            for measurement in contract["measurements"].get(ident, []):
+                lines.append(f"- Measurement ({text(measurement['status'])}): {text(json.dumps(measurement, ensure_ascii=False))}")
             continue
         ledger, decision = item["ledger"], item["decision"]
         if item["source"] not in emitted_sources:
@@ -1157,7 +1339,9 @@ def render(record, root, live=True):
         if common:
             lines.append(f"- Common review basis: {', '.join(common)} in shared donor evidence {item['source']} above applies to this pair.")
         lines.extend(render_review_fields(ledger, [field for field in REVIEW_FIELDS if field not in common]))
-        heading = decision["result"] + (f" (promising: {decision['promising_check']})" if decision.get("promising_check") else "")
+        heading = _result_label(decision, frontier)
+        if not frontier and decision.get("promising_check"):
+            heading += f" (promising: {decision['promising_check']})"
         lines.extend(["", f"<!-- aa:verdict:{ident} -->", f"### {text(heading)}", "", text(decision["summary"]), "", f"Whole tool: {text(decision['whole_tool'])}. Mechanism value: {text(decision['mechanism_value'])}/3.", f"Evidence confidence: {text(decision['confidence_level'])} — {text(decision['confidence'])}."])
         flag, part, _ = legal_basis(ledger["legal"], decision)
         if part is not None:
@@ -1174,13 +1358,18 @@ def render(record, root, live=True):
             lines.extend(["", "Transfer contract:"])
             for key, value in decision["transfer"].items():
                 lines.append(f"- {text(key)}: {text(json.dumps(value, ensure_ascii=False) if isinstance(value, dict) else value)}")
+        if record["schema_version"] >= 2:
+            lines.extend(["", "Decision and experiment basis:", f"- Basis: {text(json.dumps(decision['basis'], ensure_ascii=False))}",
+                          f"- Experiment (not executed): {text(json.dumps(decision['experiment'], ensure_ascii=False))}"])
+            for measurement in contract["measurements"].get(ident, []):
+                lines.append(f"- Measurement ({text(measurement['status'])}): {text(json.dumps(measurement, ensure_ascii=False))}")
     multi = {k: v for k, v in groups.items() if len(v) > 1}
     if multi:
         lines.extend(["", "## Cross-recipient summary", ""])
         for source, items in multi.items():
-            results = {x["decision"]["result"] for x in items}
-            tag = "CONFLICT" if len(results) > 1 else "agree"
-            lines.append(f"- {source} ({tag}): " + "; ".join(f"{x['recipient']} → {text(x['decision']['result'])}" for x in items))
+            results = [(x["recipient"], _result_label(x["decision"], frontier)) for x in items]
+            tag = "CONFLICT" if len({result for _, result in results}) > 1 else "agree"
+            lines.append(f"- {source} ({tag}): " + "; ".join(f"{recipient} → {text(result)}" for recipient, result in results))
     lines.extend(["", "## Evidence index", ""])
     for e in record["evidence"]:
         lines.append(f"- {e['id']}: {text(e['subject'])}@{text(e['revision'])}; {e['bytes']} bytes; SHA-256 {e['sha256']}; `{text(e['path'])}`; read: {text(e['read_scope'])}; limits: {text(e['limitations'])}")
@@ -1190,10 +1379,223 @@ def render(record, root, live=True):
     return "\n".join(lines) + "\n"
 
 
-def check_output(record, root, output, live=True):
-    expected = render(record, root, live)
+def check_output(record, root, output, live=True, complete=False):
+    expected = render(record, root, live, complete)
+    return _check_rendering(output, expected)
+
+
+def _check_rendering(output, expected):
     require(output.replace("\r\n", "\n") == expected, "output differs from checked rendering (order, content or completeness)")
     return True
+
+
+def record_readback(record_path, index=None):
+    """Explicitly attest actual saved bytes. Validation itself remains read-only."""
+    record, context, intake, contract, before, target = _prepare_recording(record_path, index)
+    root = target.parent
+    expected = (json.dumps(intake, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    _guard_checked(record, root, context)
+    try:
+        save(contained(root, "intake.json"), intake)
+        require(contained(root, "intake.json").read_bytes() == expected, "recording readback write differs")
+        _guard_checked(record, root, context, {"intake.json": expected})
+    except Exception:
+        _restore_owned_receipt(root, expected, before)
+        raise
+    return intake["recording"]
+
+
+def _prepare_recording(record_path, index=None, complete=False):
+    """Validate once against saved bytes, preparing but never writing a receipt."""
+    record_path = Path(record_path).absolute()
+    root = record_path.parent
+    raw = contained(root, record_path.name).read_bytes()
+    record = json.loads(raw.decode("utf-8-sig"))
+    require(record.get("schema_version") in {2, 3}, "legacy records need reassessment before recording certification")
+    context = _validate(record, root, True)
+    check_multi_recipient(record)
+    require(context["read_bytes"](record_path.name) == raw, "record changed during readback; preserving concurrent work")
+    before = context["read_bytes"]("intake.json")
+    intake = json.loads(before.decode("utf-8-sig"))
+    receipt = {"state": "recorded", "path": record_path.name, "sha256": digest(raw), "index": None}
+    if index is not None:
+        path = Path(index)
+        if path.is_absolute():
+            require(path.resolve().is_relative_to(root.resolve()), "index receipt must stay inside the run")
+            path = path.resolve().relative_to(root.resolve())
+        data = context["read_bytes"](path.as_posix())
+        receipt.update(state="indexed", index={"path": path.as_posix(), "sha256": digest(data)})
+    intake["recording"] = receipt
+    contract = gates_module().check(record, root, context, contained, intake=intake, complete=complete)
+    return record, context, intake, contract, before, record_path
+
+
+def _guard_checked(record, root, context, overrides=None, live=True):
+    """Recheck bytes and live dependencies at publication, without reparsing ledgers."""
+    context["_reads"].unchanged(overrides)
+    for recipient in record["recipients"]:
+        if live and recipient.get("snapshot") is not None:
+            check_snapshot(recipient["snapshot"], True)
+    # Receipt/log, executable, harness and input identities are all live guards.
+    # This is verification only; the execution verifier never reruns a command.
+    for evidence in context["evidence"].values():
+        if evidence.get("artifact_kind") == "execution":
+            execution_verifier()(evidence, root, live=live)
+
+
+def _restore_owned_receipt(root, expected, before):
+    path = contained(root, "intake.json")
+    if path.is_file() and path.read_bytes() == expected:
+        _save_bytes(path, before)
+
+
+def _unlinked_output(path):
+    path = Path(path).absolute()
+    for component in (path, *path.parents):
+        require(not component.is_symlink() and not (hasattr(component, "is_junction") and component.is_junction()),
+                "linked report output paths are not allowed")
+    return path
+
+
+def _write_checked_report(record, root, context, report, output, live=True):
+    """Publish only an unchanged checked snapshot, without repeating ledger parsing."""
+    output = _unlinked_output(output)
+    require(not output.exists(), "report output exists; use a new filename")
+    data = report.encode("utf-8")
+    _guard_checked(record, root, context, live=live)
+    created = False
+    try:
+        with output.open("xb") as stream:
+            created = True
+            stream.write(data)
+        require(_unlinked_output(output).read_bytes() == data, "report bytes changed during rendering")
+        _guard_checked(record, root, context, live=live)
+    except Exception:
+        if created and _unlinked_output(output).is_file() and output.read_bytes() == data:
+            output.unlink()
+        raise
+    return output
+
+
+def finalize(record_path, output, complete=False, index=None):
+    """Read back, render and check one saved snapshot; never publish externally.
+
+    Caches stay inside this operation. Live byte guards bracket the writes, so
+    cached parsing cannot certify changed inputs, captures or recipient state.
+    """
+    output = _unlinked_output(output)
+    require(not output.exists(), "report output exists; use a new filename")
+    record, context, intake, contract, before, target = _prepare_recording(record_path, index, complete)
+    root = target.parent
+    report = _render_checked(record, contract)
+    report_bytes = report.encode("utf-8")
+    receipt_bytes = (json.dumps(intake, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    _guard_checked(record, root, context)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    _unlinked_output(output)
+    created = False
+    receipt_written = False
+    try:
+        # Exclusive creation also refuses a destination appearing after preparation.
+        with output.open("xb") as stream:
+            created = True
+            stream.write(report_bytes)
+        _check_rendering(output.read_text(encoding="utf-8"), report)
+        _guard_checked(record, root, context)
+        receipt_written = True
+        save(contained(root, "intake.json"), intake)
+        require(contained(root, "intake.json").read_bytes() == receipt_bytes, "recording readback write differs")
+        _guard_checked(record, root, context, {"intake.json": receipt_bytes})
+        require(_unlinked_output(output).read_bytes() == report_bytes, "report bytes changed during finalization")
+    except Exception:
+        # Remove/restore only exact bytes this invocation wrote. Preserve concurrent edits.
+        if receipt_written:
+            _restore_owned_receipt(root, receipt_bytes, before)
+        if created and _unlinked_output(output).is_file() and output.read_bytes() == report_bytes:
+            output.unlink()
+        raise
+    return {"recording": intake["recording"], "report": str(output), "report_sha256": digest(report_bytes),
+            "contract": contract, "semantic_truth_certified": False, "external_publication": False}
+
+
+def extend_run(record_path, destination, sources, reason):
+    """Create a fresh, exclusive queue revision; never edit the previous run."""
+    record_path = Path(record_path).absolute()
+    root = record_path.parent
+    destination = Path(destination).absolute()
+    require(nonempty(reason) and isinstance(sources, list) and sources and all(nonempty(s) for s in sources), "queue extension needs sources and a reason")
+    for path in (root, destination, *root.parents, *destination.parents):
+        require(not path.is_symlink() and not (hasattr(path, "is_junction") and path.is_junction()), "queue revision paths must not be linked")
+    require(not root.resolve().is_relative_to(destination.resolve()) and not destination.resolve().is_relative_to(root.resolve()), "queue revision roots must not overlap")
+    require(not destination.exists(), "queue revision destination already exists; refusing overwrite")
+    record = load(record_path)
+    require(record.get("schema_version") in {2, 3}, "extend a structured run; legacy records require explicit reassessment")
+    errors = validate(record, root)
+    require(not errors, "; ".join(errors))
+    inputs = load(contained(root, "inputs.json"))
+    intake = load(contained(root, "intake.json"))
+    require(len(sources) == len(set(sources)) and not set(sources) & {s["locator"] for s in record["sources"]}, "source already queued; retain aliases rather than duplicate identities")
+    baseline = {}
+    for path in sorted(root.rglob("*")):
+        require(not path.is_symlink() and not (hasattr(path, "is_junction") and path.is_junction()), "linked run artifact cannot be copied")
+        if path.is_file():
+            baseline[path.relative_to(root).as_posix()] = digest(path.read_bytes())
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=".aa-revision-", dir=destination.parent)).resolve()
+    try:
+        for name, sha in baseline.items():
+            source_path, target = contained(root, name), stage / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source_path, target)
+            require(digest(target.read_bytes()) == sha, "source changed while copying queue revision")
+        used = {r["id"] for r in record["recipients"]} | {s["id"] for s in record["sources"]}
+        source_number = max([int(s["id"][1:]) for s in record["sources"] if re.fullmatch(r"s\d+", s["id"])] or [0])
+        pair_number = max([int(i["id"][1:]) for i in record["items"] if re.fullmatch(r"q\d+", i["id"])] or [0])
+        added_sources, added_items = [], []
+        for locator in sources:
+            source_number += 1
+            while f"s{source_number}" in used:
+                source_number += 1
+            sid = f"s{source_number}"
+            used.add(sid)
+            row = {"id": sid, "locator": locator, "revision": "unresolved", "kind": "unresolved"}
+            record["sources"].append(row)
+            inputs["sources"].append(copy.deepcopy(row))
+            added_sources.append(sid)
+            for recipient in record["recipients"]:
+                pair_number += 1
+                item = {"id": f"q{pair_number}", "source": sid, "recipient": recipient["id"], "state": "QUEUED", "transitions": ["QUEUED"], "reason": "Newly discovered source; not yet researched"}
+                record["items"].append(item)
+                inputs["pairs"].append({k: item[k] for k in ("id", "source", "recipient")})
+                added_items.append(item["id"])
+            intake["artifacts"].extend(gates_module().seed({"sources": [row]}, digest, canonical)["artifacts"])
+        generation = f"lineage/g{len(intake['lineage']) + 1}"
+        prior = {}
+        for name in (record_path.name, "inputs.json", "intake.json"):
+            value = contained(root, name).read_bytes()
+            target = stage / generation / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(value)
+            prior[name] = {"path": f"{generation}/{name}", "sha256": digest(value)}
+        intake["lineage"].append({"parent_record": prior[record_path.name], "parent_inputs": prior["inputs.json"],
+                                  "parent_intake": prior["intake.json"], "added_sources": added_sources, "added_items": added_items,
+                                  "reason": reason, "created_at": now()})
+        intake["inputs_sha256"] = digest(canonical(inputs))
+        intake["recording"] = {"state": "pending", "path": "run.json", "sha256": None, "index": None}
+        save(stage / "run.json", record)
+        save(stage / "inputs.json", inputs)
+        save(stage / "intake.json", intake)
+        errors = validate(record, stage)
+        require(not errors, "; ".join(errors))
+        require(all(contained(root, name).is_file() and digest(contained(root, name).read_bytes()) == sha for name, sha in baseline.items()), "previous run changed during extension; preserving it")
+        require(not destination.exists(), "queue revision destination appeared during staging")
+        stage.rename(destination)
+        return str(destination / "run.json")
+    finally:
+        if stage.exists():
+            require(stage.parent == destination.parent.resolve() and stage.name.startswith(".aa-revision-") and not stage.is_symlink()
+                    and not (hasattr(stage, "is_junction") and stage.is_junction()), "unsafe queue staging cleanup")
+            shutil.rmtree(stage)
 
 
 def invalidate_lessons(data, ident):
@@ -1366,6 +1768,13 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="command", required=True)
     p = sub.add_parser("init"); p.add_argument("directory"); p.add_argument("--source", action="append", required=True)
     p.add_argument("--recipient", action="append", required=True, help="id=profile; a bare id is `unspecified` and gets no verdict until a routing row records its profile")
+    p = sub.add_parser("queue-extend", help="create an exclusive fresh run revision preserving all previous IDs, states and captures")
+    p.add_argument("record"); p.add_argument("destination"); p.add_argument("--source", action="append", required=True); p.add_argument("--reason", required=True)
+    p = sub.add_parser("record-readback", help="record actual saved JSON/index bytes; does not fetch, execute or index externally")
+    p.add_argument("record"); p.add_argument("--index")
+    p = sub.add_parser("finalize", help="check saved bytes, record readback and exclusively create/check a report in one operation")
+    p.add_argument("record"); p.add_argument("--output", required=True); p.add_argument("--index")
+    p.add_argument("--complete", action="store_true", help="require closed coverage and every recipient pair before writing")
     sub.add_parser("routing-index", help="print every installed profile's routing signals (read this, then only the chosen profiles)")
     p = sub.add_parser("outcome", help="append an implemented plan's acceptance-test result next to its verdict; writes only")
     p.add_argument("record"); p.add_argument("--item", required=True); p.add_argument("--result", choices=OUTCOME_RESULTS, required=True)
@@ -1381,6 +1790,7 @@ def main(argv=None):
         if name == "handoff": p.add_argument("--output", help="New JSON filename inside the run directory; default stdout")
         if name == "check-output": p.add_argument("output")
         if name == "history": p.add_argument("--ledger", required=True); p.add_argument("--published-report", required=True)
+        if name in {"validate", "render", "check-output"}: p.add_argument("--complete", action="store_true", help="require v2 intake closure, all recipient pairs and checked durable recording")
     p = sub.add_parser("classify-path"); p.add_argument("path", nargs="+")
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument("--rules", help="caller-owned path-rules JSON")
@@ -1396,6 +1806,12 @@ def main(argv=None):
             sys.stdout.flush()
             sys.stdout.buffer.write(routing_index().encode("utf-8"))
             sys.stdout.buffer.flush()
+        elif args.command == "queue-extend":
+            print(extend_run(args.record, args.destination, args.source, args.reason))
+        elif args.command == "record-readback":
+            print(json.dumps(record_readback(args.record, args.index), indent=2))
+        elif args.command == "finalize":
+            print(json.dumps(finalize(args.record, args.output, args.complete, args.index), indent=2))
         elif args.command == "outcome":
             append_outcome(args.record, args.item, args.result, args.ledger, args.receipt, args.reason)
             print("Appended outcome next to the original verdict; it is calibration data, never an input to a fresh judgment.")
@@ -1432,33 +1848,40 @@ def main(argv=None):
                 else:
                     print(output, end="")
                 return 0
-            errors = validate(record, root, not args.historical)
-            require(not errors, "; ".join(errors))
+            live = not args.historical
+            contract, context = _checked_contract(record, root, live, getattr(args, "complete", False))
+            saved = context["read_bytes"](Path(args.record).resolve().name)
+            require(json.loads(saved.decode("utf-8-sig")) == record, "saved record changed during operation")
             if args.command == "validate":
                 checked = [] if args.historical else [r["id"] for r in record["recipients"] if r.get("snapshot") is not None]
                 unchecked = [r["id"] for r in record["recipients"] if r["id"] not in checked]
                 # R3 fix: v2 reported live_recipient_checked=true even when no snapshot existed.
-                print(json.dumps({"valid_structure_and_bytes": True, "semantic_truth_certified": False, "live_recipient_checked": bool(checked) and not unchecked, "recipients_live_checked": checked, "recipients_not_checked": unchecked, "host_interception": False}))
+                _guard_checked(record, root, context, live=live)
+                print(json.dumps({"valid_structure_and_bytes": True, "semantic_truth_certified": False, "live_recipient_checked": bool(checked) and not unchecked, "recipients_live_checked": checked, "recipients_not_checked": unchecked, "host_interception": False, "contract": contract}))
             elif args.command == "status":
-                print(json.dumps(record_status(record, root, not args.historical), indent=2))
+                status = _record_status(record, contract)
+                _guard_checked(record, root, context, live=live)
+                print(json.dumps(status, indent=2))
             elif args.command == "render":
-                output = Path(args.output)
-                require(not output.exists(), "report output exists; use a new filename")
-                output.write_text(render(record, root, not args.historical), encoding="utf-8", newline="\n")
-                print(f"Rendered {output}. Emit its ledger before each result in the chat.")
+                output = _write_checked_report(record, root, context, _render_checked(record, contract), args.output, live)
+                print(f"Rendered {Path(args.output)}. Emit its ledger before each result in the chat.")
             elif args.command == "check-output":
-                check_output(record, root, Path(args.output).read_text(encoding="utf-8"), not args.historical); print("Exported report matches checked rendering; unseen chat not checked.")
+                _check_rendering(Path(args.output).read_text(encoding="utf-8"), _render_checked(record, contract))
+                _guard_checked(record, root, context, live=live)
+                print("Exported report matches checked rendering; unseen chat not checked.")
             elif args.command == "history":
                 require(not args.historical, "historical replay cannot create a new live verdict event")
-                check_output(record, root, Path(args.published_report).read_text(encoding="utf-8"))
+                _check_rendering(Path(args.published_report).read_text(encoding="utf-8"), _render_checked(record, contract))
                 path = Path(args.ledger)
                 require(not path.is_symlink(), "history destination is a link")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 # Carries value and confidence so a later acceptance-test outcome can sit next to them (SKILL.md §8 outcome log).
                 event = {"ts": now(), "record_sha256": digest(canonical(record)), "decisions": [{"item": x["id"], "source": x["source"], "recipient": x["recipient"], "result": x["decision"]["result"], "mechanism_value": x["decision"]["mechanism_value"], "confidence_level": x["decision"]["confidence_level"]} for x in record["items"] if x["state"] == "READY"]}
                 # Deliberately append only: do not read earlier decisions into the process.
+                _guard_checked(record, root, context)
                 with path.open("a", encoding="utf-8") as stream:
                     stream.write(json.dumps(event, ensure_ascii=False) + "\n")
+                _guard_checked(record, root, context)
                 print("Appended audit event; command assumes the named report was actually published.")
         return 0
     except (Invalid, ValueError, KeyError, TypeError, OSError, subprocess.SubprocessError) as error:

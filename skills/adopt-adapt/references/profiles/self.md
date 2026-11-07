@@ -18,7 +18,7 @@ The user explicitly asks to review or improve adopt-adapt itself, or names a pat
 | Show a checker can fail before trusting its pass | SKILL.md §6 |
 
 ## 2. Current package identity
-Owner (architectural sign-off for §0, release approval): user. Legal overlay for SELF: injection, undisclosed persistence or an unclear skill licence raises the flag.
+Owner (architectural sign-off for §0, release approval): the user. Legal overlay for SELF: injection, undisclosed persistence or an unclear skill licence raises the flag.
 Resolve the live version from SKILL.md, release.json and the claimed host. Canonical source, in order: the `self.canonical_source` entry in `local-roots.json` beside this profile, when that private file is installed; otherwise a tracked root the user supplies; otherwise ask. A sibling skill-belt checkout's `skills/adopt-adapt` is a published edition, never the canonical source. Package `skills/adopt-adapt`; installed directories are mirrors. Bind exact bytes and inspect local changes before publication. A tracked source does not complete formal behavioral/host qualification. Historical lineage and corrected defects remain in [CHANGES](../../CHANGES.md) and the canonical research archive.
 
 ## 3. Rubric for a META-PROPOSAL (uncalibrated)

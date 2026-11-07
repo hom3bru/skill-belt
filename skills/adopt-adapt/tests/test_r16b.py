@@ -14,11 +14,21 @@ from test_aa import aa, fixture, SCRIPT
 
 ROOT = Path(__file__).resolve().parents[1]
 VOCABULARY_SHA256 = "bde4fc984f4455223956fd9f32f29f61a986ebc9213f5b800a20bf5583debbd2"  # skill-belt shared/evidence-vocabulary.md v3 (v2 was b905e2c3...; v3 only renames the recipient skill to westack)
-PRIVATE_TERMS = re.compile(r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|CANDO|egressFetch|intel\.sqlite"
-                           r"|isPathAuthoritativeGoverned|gbatch_|LAPTOP-|Users[/\\][^/\\\s]+|antigravity|Astra")
-# Anonymous ownership checks cover any named owner rather than embedding a private name.
-PRIVATE_TERMS = re.compile(PRIVATE_TERMS.pattern + r"|(?m:^(?:Owner[^:\n]*:(?![ \t]*user\.)[^\n]+|license:[ \t]*Proprietary[ \t]*\((?![ \t]*user[ \t]*\))[^)\n]+))")
 
+def personal_patterns(profile):
+    """Keep personal values local while checking each bounded name and handle."""
+    values = profile.get("user_name", "").split() + [profile.get("user_handle", "")]
+    return [r"(?i:\b" + re.escape(value) + r"\b)" for value in values if value]
+
+
+PROFILE_PATH = Path.home() / ".claude/skill-belt-profile.json"
+LOCAL_PROFILE = json.loads(PROFILE_PATH.read_text(encoding="utf-8")) if PROFILE_PATH.is_file() else {}
+PERSONAL_PATTERNS = personal_patterns(LOCAL_PROFILE)
+PRIVATE_TERMS = re.compile("|".join([
+    r"(?i:\b(?:rss-radar|radar|eddie|maginot)\b)|CANDO|egressFetch|intel\.sqlite",
+    r"isPathAuthoritativeGoverned|gbatch_|LAPTOP-|antigravity|Astra",
+    *PERSONAL_PATTERNS,
+]))
 
 
 def read(relative):
@@ -211,7 +221,6 @@ class HelperTests(Case):
         self.assertEqual((decision["mechanism_value"], decision["confidence_level"], decision["item"]), (2, "medium", "q1"))
 
     # test_classify_path_by_profile_fails_closed_without_root moved to test_private_profiles.py.
-
 
 
 if __name__ == "__main__":

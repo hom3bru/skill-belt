@@ -67,3 +67,5 @@ edit or authorization to submit. Keep missing and ambiguous identities pending.
 For status audits, deadline countdowns, retirement, reposts, Stretch-list routing
 and morning job changes, read [application tracking](../application-tracking/SKILL.md).
 It supplements this intake workflow and does not grant tracker or outreach authority.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

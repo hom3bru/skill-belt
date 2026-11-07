@@ -103,3 +103,5 @@ lowest defensible band or rating supported by the evidence. Never default to the
 top level. Ask when dates, scope or the rating definitions do not settle it;
 leave the field unresolved rather than rounding up or inventing proficiency.
 Keep the working and unresolved questions out of employer-facing answers.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

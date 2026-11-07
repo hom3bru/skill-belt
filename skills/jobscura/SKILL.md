@@ -61,3 +61,5 @@ the outcome.
 Use the host's real search, document, browser and automation tools. Jobscura has no background
 scheduler, server or database. Describing a workflow never establishes that a save, a reminder or a
 submission exists.
+
+Resolve shared local paths through the [user profile](references/user-profile.md). Private application context still requires explicit selection.

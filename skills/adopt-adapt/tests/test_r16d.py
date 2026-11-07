@@ -468,7 +468,7 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("DISCARD (promising: <check to run>)", read("SKILL.md"))
         self.assertIn("DISCARD (promising: <check to run>)", read("references/output-template.md"))
 
-    def test_map_prefers_sources_the_donor_cannot_steer(self):
+    def test_map_scope_is_not_steered_by_the_donor(self):
         acquire = section(read("SKILL.md"), "## 2.", "## 3.")
         self.assertNotIn("CodeWiki → DeepWiki → self-built", acquire)
         self.assertIn("donor can't steer", acquire)

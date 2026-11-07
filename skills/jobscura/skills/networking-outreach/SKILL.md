@@ -36,3 +36,5 @@ permissions decide whether anything is sent.
 Never message on the user's behalf in real time, impersonate the user in a live conversation, or
 send bulk messages. A drafted message is not a sent message, and a reply the user hoped for is not
 a commitment from the employer.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

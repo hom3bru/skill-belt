@@ -10,7 +10,7 @@ import sys
 import tempfile
 
 NAME = "adopt-adapt"  # R3: was adopt-adapt-v2
-VERSION = "3.0.0-grok-draft.r18"
+VERSION = "3.0.0-grok-draft.r24.2"
 REQUIRED = {"references/re-methods.md", "references/re-source-review-2026-10-10.md", "tests/test_re_methods.py", "SKILL.md", "agents/openai.yaml", "scripts/aa.py", "scripts/package.py", "references/routing.md", "references/profiles/coding-workflow.md", "references/profiles/self.md", "references/profiles/generic.md", "references/due-diligence.md", "references/transfer.md", "references/python-to-typescript.md", "references/records.md", "references/evaluation.md", "references/evolution.md", "references/lessons.md", "references/output-template.md", "references/legal.md", "references/closed-source.md", "references/web-forensics.md", "references/re-verification.md", "references/hook-intake.md", "references/checker-honesty.md", "references/legal-research.md", "CHANGES.md", "evals/trigger-evals.json", "tests/test_aa.py", "tests/test_package.py", "tests/calibration-cases.json"}
 REQUIRED |= {"scripts/execution.py", "scripts/research.py", "references/execution.md", "tests/test_execution.py", "tests/test_research.py", "tests/test_evidence_workflow.py"}
 REQUIRED |= {"references/narrative-review.md", "tests/test_narrative_scope.py"}
@@ -21,8 +21,17 @@ REQUIRED |= {"references/bounded-ledger-template.md", "tests/test_r16d.py"}  # f
 REQUIRED |= {"tests/test_westack_rename.py"}  # rename guard: no retired name, no doubled prefix
 REQUIRED |= {"tests/test_r16e.py"}  # fix round after the 2026-10-28 blind comparison: proportion by default
 REQUIRED |= {"tests/test_r16f.py"}  # round 3: checks inline, claims of work bound to tool calls, complete salvage
+REQUIRED |= {"tests/test_r16g.py", "tests/test_r16h.py"}  # artifact identities and GitHub visibility ambiguity
 REQUIRED |= {"tests/test_open_mechanisms.py"}  # additional discovery areas retain evidence and reporting controls
 REQUIRED |= {"tests/test_local_legal_sources.py"}  # captured local citations keep provenance and legal gates
+REQUIRED |= {"references/trees-and-forest.md"}  # default repository navigation suite
+REQUIRED |= {"references/source-intake.md"}  # social expansion and persistent retrieval
+REQUIRED |= {"references/review-record.md"}  # every evaluation has an accurate durable record
+REQUIRED |= {"scripts/gates.py", "references/gates.md", "tests/gate_fixtures.py", "tests/test_gates.py"}  # schema-2 coverage/measurement gates
+REQUIRED |= {"scripts/acquisition.py", "references/efficient-runs.md", "tests/test_acquisition.py", "tests/test_efficiency.py"}  # shared acquisition and operation-local checks
+REQUIRED |= {"references/palette.md", "references/user-profile.md"}
+REQUIRED.add("tests/test_frontier.py")
+REQUIRED.add("evals/approved-word-ceilings.json")
 # Private files, by rule rather than by name: every profile file except the public profiles (project profiles,
 # their rules files, aliases and local-roots.json), plus the historical archive. They are never required; the
 # manifest hashes whatever is present, so a built edition regenerates release.json after excluding them.

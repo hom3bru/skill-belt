@@ -228,6 +228,8 @@ def main():
     rename_guard_tests(test, scratch)
     from v0_2_fix_round_tests import run_tests as fix_round_tests
     fix_round_tests(test, scratch)
+    from speed_round_tests import run_tests as speed_round_tests
+    speed_round_tests(test, scratch)
 
     # Capture an honest worked output with executed slice/controls, self-review still blocked.
     worked = copy.deepcopy(authored)
@@ -274,7 +276,7 @@ def main():
             PACKAGE/"schemas/run-1.0.schema.json", PACKAGE/"tests/v0_2_tests.py",
             PACKAGE/"tests/v0_2_round2_tests.py", PACKAGE/"scripts/authoring.py", PACKAGE/"scripts/lite_check.py",
             PACKAGE/"tests/v0_2_lite_tests.py", PACKAGE/"tests/westack_rename_tests.py",
-            PACKAGE/"tests/v0_2_fix_round_tests.py"]
+            PACKAGE/"tests/v0_2_fix_round_tests.py", PACKAGE/"tests/speed_round_tests.py"]
             if p.is_file()},
         tests=records, cli_commands=commands)
     fm.write_new(out / "results.json", fm.encode(result))

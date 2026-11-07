@@ -2,7 +2,7 @@
   "format": "skill-belt-public-build-1",
   "skills": {
     "adopt-adapt": {
-      "notes": "r18 release, including r17 open mechanism discovery and captured local legal citations. Excludes derive exactly from scripts/package.py private_files() on the committed release tree; release.json is regenerated from public bytes. The canonical description is recipient-neutral and unchanged. Existing license and frozen routing overlay remain unchanged. The public source is an isolated r18 archive copy with the current base anonymization retained in SKILL.md, the SELF profile and two ownership-privacy tests. The proprietary terms are unchanged; only the owner label is user. Raw canonical source is not modified.",
+      "notes": "r24.2 scoped draft from canonical 7769cdc. Includes r24.1 identity/visibility salvage, Palette logging and a local-profile pointer within unchanged word ceilings. Private files match scripts/package.py, release.json is generated from edition bytes, and the public changelog and trigger cases remain explicit reviewed overlays. Formal behavior and multi-host qualification remain incomplete.",
       "exclude": [
         "references/historical-findings.md",
         "references/profiles/aliases.json",
@@ -15,8 +15,8 @@
       ],
       "overlays": {
         "CHANGES.md": {
-          "base_sha256": "1025c869c31e700e9846d4a503ca3e0d00580614505daa0aa66eb86f58a27fa5",
-          "reason": "The canonical changelog contains private project names, machine paths and internal review notes. Re-derived public r18 changelog retains release changes, the open-mechanism thesis, measurement limits and the historical phrases pinned by tests; private local receipts remain omitted."
+          "base_sha256": "e0e1ad3df06d316156f57409ed01e97c295464dcfdf9dd07b5bbd565471bd190",
+          "reason": "Public r24.2 release notes retain the new r19-r24.2 mechanisms and historical public r18/r16 notes while omitting private project history and receipts."
         },
         "evals/trigger-evals.json": {
           "base_sha256": "752d857dbd0e19235a3e2135b271071f77b21b7eba2a9ebab35708fc2051cfa6",
@@ -25,7 +25,7 @@
       }
     },
     "frankenmine": {
-      "notes": "Version 0.2.0 ships as released; the build applies no portfolio suffix. evidence/ is omitted except evidence/synthetic-run/, which tests/v0_2_tests.py loads and which is clean: the other receipts and logs (results.json, CONTINUATION_STARTER.json, development-trial/) carry machine paths and private project names, so they are excluded rather than rewritten, as are the review records beside them. Everything else is byte-identical to the release commit apart from the overlays.",
+      "notes": "Frankenmine 0.2.1 with Palette logging and shared local profile. Historical evidence omitted under the existing exclusions. Hash-pinned public adaptations preserve source provenance and package checks.",
       "exclude": [
         "evidence/**",
         "!evidence/synthetic-run/**"
@@ -36,7 +36,7 @@
           "reason": "Points the omitted evidence/ receipts and the private install-sync instruction at a public-edition note. Keeps the four old-name release-note mentions its rename guard counts."
         },
         "README.md": {
-          "base_sha256": "51cc7102abe174eef732807f5549f1a9fdecf120cd2becda9257e2eef0284185",
+          "base_sha256": "fb21c8a8a159d64a567d2295e669963f0fcda6155fb4cabf5170f7fcbf77297e",
           "reason": "Replaces links to the omitted evidence/ reviews with a statement that they are omitted, and notes that the design specification is a redacted public copy."
         },
         "evals/LIVE_AGENT_PROTOCOL.md": {
@@ -48,19 +48,19 @@
           "reason": "Eval 4 names private projects and one project's extraction rule; the same routing case is kept with a generic recipient."
         },
         "references/research.md": {
-          "base_sha256": "10b32d0d681a9bc9eb58f3674dbb19ab0bfbb16d187034fa22bfabb39513c666",
+          "base_sha256": "0d37f9e9e9354ce4640b3c9b6cebebcfddaee4c94803dccd8171e17e37de79c9",
           "reason": "The canonical text says research/ is byte-for-byte; the public design specification is redacted."
         },
         "research/FRANKENMINE_DESIGN_SPEC.md": {
-          "base_sha256": "0937d1f08e1709bab864e4f4fb59d93de68a22060d061ff9c54992239b6abbbe",
+          "base_sha256": "52f2d747e389750a4324c186226a272ff4fc9d262afd7e86266a7547a10d7e22",
           "reason": "Hash-pinned research note: citations to a private repository replaced with links to this collection, plus a distribution note. The four old-name mentions its rename guard counts are untouched. Published sha256 is pinned in the scripts/package.py overlay."
         },
         "research/SOURCE_PROVENANCE.json": {
-          "base_sha256": "bad3e595b8c4b38b0b54ce0955f48993477f9e8f82e0e87eb60d6a643b37777a",
+          "base_sha256": "9b3f62bab6551b0095995eea7390e75ead5e67071508c5537c9064a424a1b156",
           "reason": "Drops a private Library file ID and records the redacted specification's published bytes next to the supplied hash. Base is the CRLF bytes of the release commit; the overlay keeps CRLF."
         },
         "scripts/package.py": {
-          "base_sha256": "219a79217c14c9634250ff90b6dc6cf433c39f2d73ed120e5fcd44a9b8e2ce4c",
+          "base_sha256": "35aca896ec347b197a648ead42ee557047eda1a890ce1b2ad867b1b64c6622b3",
           "reason": "Explicit expected-hash change for the redacted FRANKENMINE_DESIGN_SPEC.md; no other line changes."
         },
         "tests/westack_rename_tests.py": {
@@ -89,25 +89,85 @@
       }
     },
     "jobscura": {
-      "notes": "Jobscura 0.5.0 edited in-repository on the 0.4.1 sanitized canonical edition (sync any private canonical source before rebuilding). 0.4.1 derived from application-assistant-workflows 0.3.0. Private author email, owner settings and binary workbook omitted; six skill identifiers and package identity retained. Private context never forms part of the source edition.",
+      "notes": "Jobscura 0.5.0 with nine focused workflows, hash-pinned identity-neutral links and shared local-profile pointers. Canonical source is the sanitized 0.5.0 edition at 45a7b9c. Private context selection and application permissions remain explicit.",
       "exclude": [],
-      "overlays": {}
+      "overlays": {
+        "README.md": {
+          "base_sha256": "854237920c9539c3003bad3895ef5d3866c2bc1b55def96ae2cffc56e57044e0",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "NOTICE.md": {
+          "base_sha256": "32aae1cfac40a422fa9702d4289271337688308dd17f023105949ebc52e3c416",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "context/user-context.schema.json": {
+          "base_sha256": "24b9801a8855adccb500199e089616b28e52490037c286a3258836c0247e1faf",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "SKILL.md": {
+          "base_sha256": "5978818720d1841a09287fd4a15421b57083c7308dbc7d398732eccbeb8da77e",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/application-history/SKILL.md": {
+          "base_sha256": "d28398eb1ef864cf438b5497276f9e9666027c5b30985f6fb893a2b7617af339",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/application-intake/SKILL.md": {
+          "base_sha256": "55d61fc2e2d29fc366e0056c21bbf72de252480897737547cd77cb7287c8f110",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/application-packet/SKILL.md": {
+          "base_sha256": "dfe228fdeb50ab2fa6cdfd2932109aee1845a7722fad66c76f94df6fa9013dc2",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/application-tracking/SKILL.md": {
+          "base_sha256": "6a67e7196d4b5d4e962db3a7f9c92e3a3ccbdce9f9de3897a770a4fa489c48f3",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/application-writing/SKILL.md": {
+          "base_sha256": "4bccc2d3fb517cdb4dbba512dbf1123b74cebc31e7dae458d2971e58552fe02d",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/interview-preparation/SKILL.md": {
+          "base_sha256": "8cac5f001b8a566f3f3e89f3f99a2ba2d073d0431e4d3c4460124292d327016c",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/networking-outreach/SKILL.md": {
+          "base_sha256": "fc5d1c93a24fa56cc7cdaf53fe558722569fc858eff0a8fa6e952f9e61d5668c",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/offer-negotiation/SKILL.md": {
+          "base_sha256": "431c788e24fa320e63218f924708cae1843bf516f6c2bb88d64084924305b8a3",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/opportunity-discovery/SKILL.md": {
+          "base_sha256": "db93f082d0ee4e7e50d7510297dd30fa112d202886bf996f868ae63f2301885d",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        }
+      }
     },
     "rule-or-reason": {
-      "notes": "Original Rule Or Reason 0.1.1, frozen local canonical snapshot. Public edition omits the private project profile and overlays its spec/provenance to remove private project navigation and machine paths. Helper/tests are unchanged; no released source commit or comparative agent qualification is claimed.",
+      "notes": "Original Rule Or Reason 0.1.1, local canonical non-Git snapshot. Canonical identity and host paths are anonymised. Public edition still excludes the private project profile and overlays private project navigation and local provenance details. Helper/tests are unchanged; no released source commit or comparative agent qualification is claimed.",
       "exclude": [
         "references/radar-maginot.md"
       ],
       "overlays": {
         "references/design-spec.md": {
-          "base_sha256": "1d8ac55be1dc8f6121a6627d14d9e30fc9c404849677c8f1d2f9fe801942ef7d",
+          "base_sha256": "7454646c576bf2e6e5144d5e9fe0669e4aae9c4df5a004daecf068b9e73d17eb",
           "reason": "Generalize private project/lab navigation and omit its private profile from the package tree; keep the full generic design and qualification limits."
         },
         "references/skill-usage.md": {
-          "base_sha256": "86d3c4e616559389675a0af1af138e17754be797f2e405d2615cb8ad6e48c189",
+          "base_sha256": "49bcbe660d97cf41da334758bc5d58ec1b6aa4003431d480684304611144ecb8",
           "reason": "Retain guidance roles and gaps while omitting creation-host paths, private profiles and raw local session records."
         }
       }
+    },
+    "deep-dive": {
+      "notes": "Source-derived deep-dive with deeper-dive and check-work. Private development changelog excluded. Tests explicitly use the retained collection Carrier Pigeon validator.",
+      "exclude": [
+        "CHANGELOG.md"
+      ],
+      "overlays": {}
     }
   }
 }

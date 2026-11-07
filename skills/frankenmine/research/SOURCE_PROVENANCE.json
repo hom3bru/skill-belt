@@ -18,12 +18,9 @@
   "verified_sources": [
     {
       "name": "FRANKENMINE_DESIGN_SPEC.md",
-      "bytes": 18738,
-      "sha256": "3670e37cc1b764d9cd47dcde13140a573e8168bd20bea642eebdfa4fc18f31a3",
-      "matches": false,
-      "supplied_bytes": 18534,
-      "supplied_sha256": "0937d1f08e1709bab864e4f4fb59d93de68a22060d061ff9c54992239b6abbbe",
-      "note": "Public edition: private source citations are replaced with public links, so the published bytes differ from the supplied text, which matched its hash when received."
+      "bytes": 18534,
+      "sha256": "0937d1f08e1709bab864e4f4fb59d93de68a22060d061ff9c54992239b6abbbe",
+      "matches": true
     },
     {
       "name": "prior_art.json",
@@ -43,5 +40,22 @@
       "sha256": "b91ec0810c20ed3dd4f1f494d71d50f6f398e48e03f8bd7b4c13d292c40ccc23",
       "matches": true
     }
-  ]
+  ],
+  "publication_anonymisation": {
+    "date": "2026-11-06",
+    "original_source_commit": "1b2db1c40d0e7c91a3d492ce33e951731ecd1e7d",
+    "scope": "verified_sources records the original received bytes and historical verification. The published design spec substitutes <user_handle> in two own-source URL locators and appends an explanatory note. Other received inputs retain their original bytes.",
+    "published_sources": [
+      {
+        "name": "FRANKENMINE_DESIGN_SPEC.md",
+        "bytes": 19014,
+        "sha256": "52f2d747e389750a4324c186226a272ff4fc9d262afd7e86266a7547a10d7e22"
+      }
+    ]
+  },
+  "public_edition": {
+    "note": "Public design spec is an anonymised edition. verified_sources describes original received bytes.",
+    "name": "FRANKENMINE_DESIGN_SPEC.md",
+    "sha256": "2362e2747a64af7c8004365bed8940d43da17bb5da740ba6f058baa487c5537e"
+  }
 }

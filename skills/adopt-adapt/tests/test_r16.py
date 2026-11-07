@@ -16,7 +16,7 @@ from unittest import mock
 from test_aa import aa, fixture, SCRIPT
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "3.0.0-grok-draft.r18"
+VERSION = "3.0.0-grok-draft.r24.2"
 
 # What a run actually loads (fourth pass): SKILL.md, routing.md and the generated routing index
 # (`aa.py routing-index`), then only the chosen profile, the shared vocabulary that §0.7 makes normative and the
@@ -24,11 +24,17 @@ VERSION = "3.0.0-grok-draft.r18"
 BOUNDED_PROFILE = "references/profiles/radar.md" if (ROOT / "references/profiles/radar.md").is_file() else "references/profiles/generic.md"
 BOUNDED_SET = ("SKILL.md", "references/routing.md", BOUNDED_PROFILE, "references/legal.md",
                "references/narrative-review.md", "references/output-template.md", "references/evidence-vocabulary.md",
-               "references/bounded-ledger-template.md")
+               "references/bounded-ledger-template.md", "references/trees-and-forest.md", "references/review-record.md", "references/efficient-runs.md")
 SKILL_DONOR_SET = ("SKILL.md", "references/routing.md", "references/profiles/coding-workflow.md", "references/legal.md",
                    "references/due-diligence.md", "references/checker-honesty.md", "references/hook-intake.md",
                    "references/transfer.md", "references/narrative-review.md", "references/output-template.md",
-                   "references/records.md", "references/evidence-vocabulary.md")
+                   "references/records.md", "references/evidence-vocabulary.md", "references/trees-and-forest.md", "references/review-record.md", "references/efficient-runs.md")
+INTAKE_BOUNDED_SET = (*BOUNDED_SET, "references/source-intake.md")
+INTAKE_SKILL_DONOR_SET = (*SKILL_DONOR_SET, "references/source-intake.md")
+GATED_BOUNDED_SET = (*BOUNDED_SET, "references/records.md", "references/gates.md")
+GATED_SKILL_DONOR_SET = (*SKILL_DONOR_SET, "references/gates.md")
+GATED_INTAKE_BOUNDED_SET = (*GATED_BOUNDED_SET, "references/source-intake.md")
+GATED_INTAKE_SKILL_DONOR_SET = (*GATED_SKILL_DONOR_SET, "references/source-intake.md")
 # Budgets equal the measured loaded sets in the full (private) edition; a public edition loads less. Before the
 # routing index, routing.md told a run to read every installed profile: 11,902 words bounded and 17,696 for a
 # skill donor (third pass, private edition), against the 7,333 / 12,553 the old test counted. Any growth must be a
@@ -38,9 +44,26 @@ SKILL_DONOR_SET = ("SKILL.md", "references/routing.md", "references/profiles/cod
 # Round 3 after the 2026-10-29 blind comparison: three rules with no deletion to pay for them (checks inline and
 # no writes outside the named folder, claims of work bound to their tool calls, complete DISCARD salvage) add 103
 # measured words to SKILL.md, so each budget rose by exactly 103 (was 3,088 / 9,192 / 14,706).
-BUDGET_SKILL = 3191
-BUDGET_BOUNDED = 9295
-BUDGET_SKILL_DONOR = 14809
+# r19: user-requested default source suite adds its repository-only reference to both loaded sets.
+# Measured before/after loads and scoped forward-check evidence are retained in canonical
+# research/2026-11-02/trees-and-forest-defaults. The main entrypoint budget stays fixed;
+# repository-route ceilings grow only by their measured new required instructions, retaining prior headroom.
+# r20: mandatory social expansion, alternative retrieval and explicit selection rules add measured
+# instructions. Intake applies to social inputs, useful background research or failed retrieval, counted separately.
+# Measurements and bounded forward-check receipts: research/2026-11-02/social-intake-and-selection.
+# r21: measured deltas preserve previous headroom; structured schema-2 runs additionally
+# load records/gates, explicitly counted below. Receipts: coverage-measurement-gates/word-loads.json.
+# r22: multi-artifact/recipient ceilings include efficient-runs; single-pair routes may load less.
+# The entrypoint is unchanged in word count; route deltas preserve headroom (run-efficiency/word-loads.json).
+BUDGET_SKILL = 3325
+BUDGET_BOUNDED = 10991
+BUDGET_SKILL_DONOR = 16855
+BUDGET_INTAKE_BOUNDED = 11966
+BUDGET_INTAKE_SKILL_DONOR = 17830
+BUDGET_GATED_BOUNDED = 14925
+BUDGET_GATED_SKILL_DONOR = 18040
+BUDGET_GATED_INTAKE_BOUNDED = 15900
+BUDGET_GATED_INTAKE_SKILL_DONOR = 19015
 
 
 def loaded(files):
@@ -368,7 +391,8 @@ class CommandDocsTests(unittest.TestCase):
 
     def test_every_documented_aa_command_parses_without_dispatch(self):
         commands = documented_commands()
-        self.assertTrue({"validate", "render", "check-output"} <= {shlex.split(c)[3] for _, c in commands if "SKILL.md" == _})
+        self.assertIn("finalize", {shlex.split(c)[3] for doc, c in commands if doc == "SKILL.md"})
+        self.assertTrue({"validate", "render", "check-output"} <= {shlex.split(c)[3] for _, c in commands})
         original = aa.argparse.ArgumentParser.parse_args
 
         def intercept(parser, *args, **kwargs):
@@ -389,6 +413,25 @@ class RoutingDescriptionTests(unittest.TestCase):
 
 
 class ContextDietTests(unittest.TestCase):
+    def test_declared_word_budgets_respect_the_release_ratchet(self):
+        approved = json.loads(read("evals/approved-word-ceilings.json"))
+        requested = {key: value for key, value in globals().items() if key.startswith("BUDGET_")}
+        self.assertEqual(set(requested), set(approved["ceilings"]))
+        for key, ceiling in approved["ceilings"].items():
+            with self.subTest(route=key):
+                self.assertIs(type(ceiling), int)
+                self.assertGreater(ceiling, 0)
+                self.assertLessEqual(requested[key], ceiling,
+                                     "a higher ceiling needs a preregistered blind paired evaluation and release approval")
+
+    def test_release_ratchet_rejects_a_planted_ceiling_increase(self):
+        ceiling = json.loads(read("evals/approved-word-ceilings.json"))["ceilings"]["BUDGET_SKILL"]
+        with mock.patch.dict(globals(), BUDGET_SKILL=ceiling + 1):
+            result = unittest.TestResult()
+            ContextDietTests("test_declared_word_budgets_respect_the_release_ratchet").run(result)
+        self.assertEqual(len(result.failures), 1)
+        self.assertIn("preregistered blind paired evaluation", result.failures[0][1])
+
     def test_agent_facing_docs_have_no_internal_note_ids(self):
         offenders = [f"{doc.relative_to(ROOT)}: {m.group(0)}" for doc in agent_docs()
                      for m in NOTE_ID.finditer(doc.read_text(encoding="utf-8"))]
@@ -402,6 +445,12 @@ class ContextDietTests(unittest.TestCase):
         self.assertLessEqual(words("SKILL.md"), BUDGET_SKILL)
         self.assertLessEqual(loaded(BOUNDED_SET), BUDGET_BOUNDED)
         self.assertLessEqual(loaded(SKILL_DONOR_SET), BUDGET_SKILL_DONOR)
+        self.assertLessEqual(loaded(INTAKE_BOUNDED_SET), BUDGET_INTAKE_BOUNDED)
+        self.assertLessEqual(loaded(INTAKE_SKILL_DONOR_SET), BUDGET_INTAKE_SKILL_DONOR)
+        self.assertLessEqual(loaded(GATED_BOUNDED_SET), BUDGET_GATED_BOUNDED)
+        self.assertLessEqual(loaded(GATED_SKILL_DONOR_SET), BUDGET_GATED_SKILL_DONOR)
+        self.assertLessEqual(loaded(GATED_INTAKE_BOUNDED_SET), BUDGET_GATED_INTAKE_BOUNDED)
+        self.assertLessEqual(loaded(GATED_INTAKE_SKILL_DONOR_SET), BUDGET_GATED_INTAKE_SKILL_DONOR)
 
     def test_no_unpinned_install_instruction(self):
         offenders = [f"{doc.name}: {line}" for doc in agent_docs() for line in doc.read_text(encoding="utf-8").splitlines()

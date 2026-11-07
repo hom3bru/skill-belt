@@ -43,3 +43,5 @@ line and say that the calculator did not run.
 The user decides whether to accept, decline or counter. Draft only. Signing, accepting, declining
 or sending a counter-offer needs the user's explicit current instruction and a real tool, and you
 report the receipt. A verbal "yes" from a recruiter is not a written offer.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

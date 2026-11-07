@@ -48,3 +48,5 @@ Saved searches and alerts need the user's permission and a real host automation 
 Never claim an alert exists until a tool has confirmed it. Respect site terms. Do not scrape behind
 logins, bypass CAPTCHAs or rate limits, or bulk-apply. A target list and searches are preparation,
 not applications.
+
+Resolve shared local paths through the [user profile](../../references/user-profile.md). Private application context still requires explicit selection.

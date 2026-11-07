@@ -29,8 +29,10 @@ BEFORE_READ_WORDS = 3140    # SKILL.md + lite template + evidence vocabulary at 
 BEFORE_TEMPLATE_WORDS = 726
 # Ratchet: growth needs a reason in the CHANGELOG. Round 3 raised both counts by the measured 53 words
 # (write rule +9, snippet rule +44) for the snippet clarification; SKILL.md was 1617 and the set 3059 at 65546d6.
-SKILL_WORDS = 1670
-READ_WORDS = 3112           # ratchet for the same three files
+# The Palette log (2026-11-05) raised both by the measured 25 words (write-rule exception +8, step 6 line +17);
+# SKILL.md was 1670 and the set 3112 at 4a4ecad.
+SKILL_WORDS = 1695
+READ_WORDS = 3137           # ratchet for the same three files
 READ_SET = ("SKILL.md", "examples/lite-dossier.md", "references/evidence-vocabulary.md")
 HELPERS = ("frankenmine.py", "scaffold", "stamp", "check-lite", "init ", "report ", "review-packet")
 

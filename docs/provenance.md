@@ -3,7 +3,7 @@
 Skill Belt publishes author-owned public editions from canonical sources through `scripts/build_public.py`; generated files under `skills/` are not edited by hand. Existing released editions use source commits. The new Rule Or Reason edition uses the frozen 0.1.1 local canonical snapshot and does not claim a released source commit. Installed skills are not edited as canonical sources.
 
 ```sh
-python -B scripts/build_public.py [--adopt-adapt DIR] [--frankenmine DIR] [--westack DIR] [--carrier-pigeon DIR] [--jobscura DIR] [--rule-or-reason DIR] [--check]
+python -B scripts/build_public.py [--adopt-adapt DIR] [--frankenmine DIR] [--westack DIR] [--carrier-pigeon DIR] [--jobscura DIR] [--rule-or-reason DIR] [--deep-dive DIR] [--check]
 python -B scripts/generate_manifest.py
 python -B scripts/verify.py
 ```
@@ -22,6 +22,8 @@ Only when every named skill passes is `skills/<name>` replaced. `--check` stages
 
 Policy: omit private build and session identifiers, machine-specific transcripts and local audit logs; keep contracts, runnable tests, source URLs and inspection limits.
 
+The following table records the preceding editions. The current local release is recorded below.
+
 | Skill | Edition | Omitted | Changed or overlaid |
 | --- | --- | --- | --- |
 | westack | 0.3.1, generated | `tests/results/` receipts except `usage-trials.json` and `tests-final.json` (29 files) | `provenance/RIGHTS.md`, because this collection also publishes adopt-adapt. Except for the anonymous owner attribution in provenance/lineage.json, every other published file is byte-identical to the 0.3.1 source commit (37feb98), and nothing is generated. Two records ship, `provenance/ARTIFACT_REVIEW.md` and `tests/results/tests-final.json`: both are clean on the leak patterns, and the skill's own rename guard lists both, so an edition without them would fail that guard. |
@@ -39,7 +41,7 @@ The helpers and synthetic fixtures were independently authored. Source reference
 
 Full agent effectiveness, repeated comparative model trials, native host behavior and hostile-filesystem security remain outside the scope of a passing collection check.
 
-## Jobscura
+## Historical Jobscura edition
 
 Jobscura 0.5.0 was edited directly in this repository on top of the published
 0.4.1 snapshot (see its CHANGELOG). If a private canonical source is kept, bring
@@ -73,3 +75,17 @@ signature/approval handling. Public examples use anonymous identities. Existing
 mailbox data and Windows Hello keys are not migrated or modified automatically.
 The earlier 0.15.0 live-qualification records remain historical evidence; the
 0.15.1 identity work is checked through isolated regression fixtures.
+
+## Current local release preparation
+
+The release branch retains westack and Carrier Pigeon byte-for-byte from the default-branch base. Their canonical trees are outside this update. Jobscura retains 0.4.1 from commit `3a5fae8`, with hash-pinned overlays removing own-account URLs and linking the shared local profile. Its schema annotation uses a neutral URN. Schema fields, loader behavior and plugin identity remain unchanged. The build adds the shared profile reference and regenerates `package-files.json` from the reviewed edition bytes. No personal application context or unreleased 0.6 workflow is imported.
+
+Rule Or Reason remains version 0.1.1 from a local non-Git canonical snapshot. Its canonical owner wording and local paths are neutralised, while the two existing public overlays continue to omit private project navigation and host-history details. No canonical commit is claimed.
+
+Deep-dive 0.1.0 is built from canonical commit `afd76b6`, including deeper-dive and check-work. The private development changelog is excluded. Source provenance outside the skill directory is outside the build input. The retained test suite explicitly uses the collection's existing Carrier Pigeon validator. The collection ownership notice continues to govern distribution.
+
+Frankenmine 0.2.1 is built from canonical commit `6c971f7`, retaining its speed-round fixes, Palette logging and shared-profile pointer. Existing evidence exclusions and hash-pinned edition adaptations remain. The edition design-spec and package-pin changes are explicit, with original received-source hashes retained separately from the public-edition digest.
+
+Profile deny-list values stay in the local profile outside Git. Only an example with placeholders ships. The identity compatibility proposal is [recorded separately](carrier-pigeon-identity-proposal.md).
+
+Adopt-adapt r24.2 derives from canonical `7769cdc`, following the six-file r24.1 salvage commit `c39f21d` and Palette branch `584fc22`. Its approved word ceilings are unchanged. The Palette entrypoint pointer moves to the review record to make room for the profile reference. The eight private resources remain excluded, trigger evals keep their neutral overlay and release.json is regenerated after staging. Canonical gates collected 503 tests with 502 passed and the documented Windows symlink skip. These package and helper checks leave formal behavioral and multi-host qualification incomplete.

@@ -28,3 +28,5 @@ REA contributes evidence-oriented investigation and adopt-adapt contributes mech
 The design specification's release gates are kept distinct: this package is a tested prototype, not the general or cross-language release.
 
 The source design's westack (then called estack) case has since become a worked example. The 0.1.2 continuation registered westack's actual twenty-decision manifest. westack 0.2.0 was then built through a Frankenmine continuation run; see BUILD_REPORT.md, which notes that two authored developer tasks there are not a controlled effectiveness test. The helper itself never reads, rebuilds or activates a westack prototype.
+
+Canonical 0.2.1 anonymises its own-source account locators. This public edition additionally omits private evidence and identifies its reviewed design-spec bytes in SOURCE_PROVENANCE.json.

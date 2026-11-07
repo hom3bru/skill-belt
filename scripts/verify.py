@@ -2,6 +2,7 @@
 import argparse
 import fnmatch
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -14,9 +15,13 @@ import time
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason")
+PROFILE_SPEC = importlib.util.spec_from_file_location("belt_user_profile", ROOT / "scripts/user_profile.py")
+user_profile = importlib.util.module_from_spec(PROFILE_SPEC)
+PROFILE_SPEC.loader.exec_module(user_profile)
+SKILLS = ("adopt-adapt", "frankenmine", "westack", "carrier-pigeon", "jobscura", "rule-or-reason", "deep-dive")
 # Sub-skills ship inside their parent's snapshot (skills/<parent>/skills/<name>/SKILL.md), with the parent's version and manifest row.
-SUB_SKILLS = {"carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research"),
+SUB_SKILLS = {"deep-dive": ("deeper-dive", "check-work"),
+              "carrier-pigeon": ("co-audit", "co-build", "co-design", "co-research"),
               "jobscura": ("opportunity-discovery", "application-intake", "application-tracking", "application-history",
                            "application-writing", "application-packet", "networking-outreach", "interview-preparation",
                            "offer-negotiation")}
@@ -78,7 +83,7 @@ def source_files(root):
 # the private repository, and token/key shapes.
 BLOCKED = [re.compile(pattern) for pattern in (
     r"[A-Za-z]:[/\\]{1,2}Users[/\\]", r"libfile_[0-9a-f]{20,}",
-    r"01a[0-9a-f]{5}-[0-9a-f-]{27,}", r"github\.com/hom3bru/Maginot",
+    r"01a[0-9a-f]{5}-[0-9a-f-]{27,}", r"github\.com/[^/\s]+/Maginot",
     r"gh[pousr]_[A-Za-z0-9]{30,}", r"github_pat_[A-Za-z0-9_]{50,}", r"-----BEGIN [A-Z ]*PRIVATE KEY-----")]
 VOCABULARY = "references/evidence-vocabulary.md"
 
@@ -222,6 +227,7 @@ def check_stale_names(files, allowed=None, skip=()):
 def check_publication(files, root, links=True):
     """Leak-pattern scan and local-link check; every local link must resolve inside root."""
     root = Path(root).resolve()
+    user_profile.check_files(files)
     for relative, path in files.items():
         text = path.read_text(encoding="utf-8")
         for pattern in BLOCKED:
@@ -266,7 +272,7 @@ def structure():
     all_files = source_files(ROOT)
     expected = {"skills/" + name + "/SKILL.md" for name in SKILLS}
     expected |= {"skills/" + parent + "/skills/" + sub + "/SKILL.md" for parent, subs in SUB_SKILLS.items() for sub in subs}
-    actual = {name for name in all_files if name.endswith("/SKILL.md")}
+    actual = {name for name in all_files if name.endswith("/SKILL.md") and not name.startswith("public-overlays/")}
     if actual != expected:
         raise ValueError("Expected exactly the declared collection entrypoints and their declared sub-skills; unexpected: "
                          + ", ".join(sorted(actual - expected)) + "; missing: " + ", ".join(sorted(expected - actual)))
@@ -300,9 +306,10 @@ def main():
     if args.output:
         output.mkdir(parents=True, exist_ok=False)
     records = []
-    def run(label, command, cwd=ROOT):
+    def run(label, command, cwd=ROOT, extra_env=None):
         print(label, flush=True)
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+        env.update(extra_env or {})
         started = time.monotonic()
         try:
             result = subprocess.run(command, cwd=cwd, capture_output=True, text=True, timeout=args.timeout, env=env)
@@ -327,6 +334,12 @@ def main():
             raise ValueError(label + " failed; inspect " + str(output))
         if label in {"adopt-adapt-tests", "collection-tests", "jobscura-context-package-tests", "jobscura-packet-tests", "rule-or-reason-tests"}:
             entry.update(unittest_counts(result.stderr, windows=label == "adopt-adapt-tests" and os.name == "nt"))
+        elif label == "deep-dive-tests":
+            counts = json.loads(result.stdout.strip().splitlines()[-1])
+            total = counts["total"]
+            if total <= 0 or counts["failed"] or counts["skipped"] or counts["passed"] != total:
+                raise ValueError(label + " has empty, failing, skipped or inconsistent counts")
+            entry.update(collected=total, passed=counts["passed"], skipped=0)
         elif label in {"frankenmine-tests", "westack-tests", "carrier-pigeon-tests"}:
             counts = json.loads(result.stdout)
             total = counts.get("total", counts.get("collected", 0))
@@ -351,9 +364,12 @@ def main():
         jobscura = ROOT / "skills/jobscura"
         run("jobscura-context-package-tests", [python, "-B", "-m", "unittest", "discover", "-s", "tests", "-v"], jobscura)
         run("jobscura-packet-tests", [python, "-B", "-m", "unittest", "discover", "-s", "skills/application-packet/tests", "-v"], jobscura)
+        run("deep-dive-tests", ["node", "tests/check_draft.mjs"], ROOT / "skills/deep-dive",
+            extra_env={"DEEP_DIVE_CP_VALIDATOR": str(ROOT / "skills/carrier-pigeon/bin/cp-tasks.mjs")})
         structure()  # Tests must not mutate the published snapshots.
         status = "passed-with-platform-limitation" if any(row.get("skipped", 0) for row in records) else "passed"
         summary = dict(status=status, publication_files=count, checks=records,
+                       user_profile=user_profile.check_files(source_files(ROOT)),
                        scope="snapshot, link, publication-pattern and authored helper/fixture checks; no agent/host qualification")
         (output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(dict(status=status, checks=len(records), results=str(output)), indent=2))

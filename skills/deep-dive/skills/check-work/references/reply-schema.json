@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "description": "Field caps keep a fully filled result under Carrier Pigeon's 16 KB result limit. Long quotes go in the reply body; full URLs go in the reply's evidence strings.",
+  "properties": {
+    "verdict": { "type": "string", "enum": ["holds", "fix-first", "rethink"] },
+    "restatement": { "type": "string", "minLength": 1, "maxLength": 400, "description": "What the report claims, for which decision, as of when" },
+    "own_answer": { "type": "string", "minLength": 1, "maxLength": 600, "description": "Blind answer written from the report's stated question only (the Scope section in a deep-dive report)" },
+    "assumptions": {
+      "type": "array", "maxItems": 5,
+      "items": {
+        "type": "object",
+        "properties": {
+          "assumption": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "section": { "type": "string", "maxLength": 40 },
+          "status": { "type": "string", "enum": ["evidence-backed", "plausible", "unsupported"] }
+        },
+        "required": ["assumption", "section", "status"],
+        "additionalProperties": false
+      }
+    },
+    "findings": {
+      "type": "array", "maxItems": 10,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 8 },
+          "severity": { "type": "string", "enum": ["blocker", "major", "minor"] },
+          "lens": { "type": "string", "enum": ["evidence", "recency", "coverage", "independence", "fit", "alternative", "skeptic", "logic"] },
+          "section": { "type": "string", "maxLength": 40 },
+          "quote": { "type": "string", "minLength": 1, "maxLength": 140 },
+          "problem": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "evidence": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "checked_myself": { "type": "boolean" },
+          "smallest_fix": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "changes_decision": { "type": "boolean" }
+        },
+        "required": ["id", "severity", "lens", "section", "quote", "problem", "evidence", "checked_myself", "smallest_fix", "changes_decision"],
+        "additionalProperties": false
+      }
+    },
+    "counter_recommendations": {
+      "type": "array", "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 8 },
+          "recommendation": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "why": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "evidence": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "beats_report_when": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "cost": { "type": "string", "minLength": 1, "maxLength": 120 }
+        },
+        "required": ["id", "recommendation", "why", "evidence", "beats_report_when", "cost"],
+        "additionalProperties": false
+      }
+    },
+    "questions": { "type": "array", "maxItems": 3, "items": { "type": "string", "minLength": 1, "maxLength": 150 } },
+    "held_up": { "type": "array", "maxItems": 4, "items": { "type": "string", "minLength": 1, "maxLength": 150 } },
+    "not_checked": { "type": "array", "maxItems": 4, "items": { "type": "string", "minLength": 1, "maxLength": 150 } }
+  },
+  "required": ["verdict", "restatement", "own_answer", "assumptions", "findings", "counter_recommendations", "questions", "held_up", "not_checked"],
+  "additionalProperties": false
+}

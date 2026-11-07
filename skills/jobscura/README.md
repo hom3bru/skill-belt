@@ -1,6 +1,6 @@
 # Jobscura 0.5.0
 
-Jobscura is a job-search toolkit in [Skill Belt](https://github.com/hom3bru/skill-belt). It covers
+Jobscura is a job-search toolkit in Skill Belt. It covers
 the whole cycle: finding roles, fit assessment, one canonical tracker with deadline countdowns,
 application history, evidence-checked writing, reviewed upload packets, networking drafts,
 interview practice, and offer comparison and negotiation. Wherever the work is mechanical,

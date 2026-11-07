@@ -1,6 +1,6 @@
 # Skill Belt
 
-[![Verify skills](https://github.com/hom3bru/skill-belt/actions/workflows/verify.yml/badge.svg?branch=codex%2Fskill-belt)](https://github.com/hom3bru/skill-belt/actions/workflows/verify.yml)
+Local release verification is described in [the verification guide](docs/verification.md).
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#verification)
 [![Node.js 24](https://img.shields.io/badge/Node.js-24-5FA04E?logo=nodedotjs&logoColor=white)](#verification)
 
@@ -39,6 +39,7 @@ separate secret storage. Jobscura does not install a background scheduler.
 | [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
 | [Jobscura](skills/jobscura/SKILL.md) | A full-cycle, source-grounded job-search toolkit with [loadable private user context](skills/jobscura/context/README.md) and deterministic offline helpers. | [Discovery](skills/jobscura/skills/opportunity-discovery/SKILL.md), [intake](skills/jobscura/skills/application-intake/SKILL.md), [tracking](skills/jobscura/skills/application-tracking/SKILL.md), [history](skills/jobscura/skills/application-history/SKILL.md), [writing](skills/jobscura/skills/application-writing/SKILL.md), [reviewed packets](skills/jobscura/skills/application-packet/SKILL.md), [outreach](skills/jobscura/skills/networking-outreach/SKILL.md), [interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md), and [offers](skills/jobscura/skills/offer-negotiation/SKILL.md). |
 | [Rule Or Reason](skills/rule-or-reason/SKILL.md) | Identify opportunities to replace LLM workflow decisions with explicit algorithms, then construct and evaluate authorized candidates. | A scoped conversion decision, applicability boundary, counterexamples and evaluation evidence; partial conversion and retained reasoning are valid outcomes. |
+| [deep-dive](skills/deep-dive/SKILL.md) | Survey tools, papers and prior art with coverage and recency checks. | A source-grounded report, [deeper follow-up](skills/deep-dive/skills/deeper-dive/SKILL.md) and [adversarial review](skills/deep-dive/skills/check-work/SKILL.md). |
 
 Carrier Pigeon uses a configurable generic `user` identity. Read its
 [compatibility guide](skills/carrier-pigeon/references/identity.md) before selecting
@@ -52,7 +53,7 @@ Each skill works independently. Loading a skill does not install a daemon, grant
 ## Quick start
 
 ```sh
-git clone https://github.com/hom3bru/skill-belt.git
+git clone <repository-url>
 cd skill-belt
 ```
 
@@ -63,6 +64,14 @@ Read skills/adopt-adapt/SKILL.md and use it to assess this repository
 for my existing project. Identify transferable mechanisms and recommend
 what to adopt, adapt, or discard.
 ```
+
+## Local user profile
+
+Create `~/.claude/skill-belt-profile.json` outside repositories using the keys in
+[the example](skill-belt-profile.example.json). Skills resolve personal paths
+through their profile reference. See the [shared profile guide](shared/user-profile.md).
+The collection checks configured name, handle and path values during builds and verification.
+Without a local profile, CI retains generic privacy checks and reports the profile scan as unconfigured.
 
 ## Installation
 

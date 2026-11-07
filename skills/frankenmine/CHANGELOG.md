@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.2.1 — 2026-11-06
+
+Local Skill Belt release incorporating the speed round, review-packet fix and Palette log. The release follows 0.2.0 through 330fc35, 4a4ecad and 1b2db1c, preserving their requested changes.
+
+Published instructions now link to `references/user-profile.md` for local personal values and portable path placeholders. Live instructions contain no personal name or personal absolute path. Historical receipts retain their original bytes. The published design spec substitutes `<user_handle>` in two own-source locators and explains the change. Original verification metadata remains in SOURCE_PROVENANCE.json alongside the new published digest, and package.py pins the inspected published bytes. The profile link and two wording reductions keep the existing reading-budget gate intact. Live-agent qualification remains not-run for these changes.
+
+### Palette log (2026-11-05)
+
+The owner asked that Frankenmine leave a note in Palette, the owner's cross-project research library, for each source it mines. Palette's uses table already serves as that per-project record, so nothing new is stored.
+
+- **Step 6** gains one line: if the `palette` CLI is installed, log each reviewed donor; otherwise say "Palette absent: not logged" and deliver as usual. The new `references/palette.md` gives the `palette log-use … --purpose donor` command, the `frankenmine:<run.json>#<donor id>` pointer, and when to save an unsaved donor first. Deferred, blocked and unprocessed donors get no row.
+- **Write rule.** "If none is named, write nothing" now names the Palette log as the only exception. Writes go through the CLI only; library files are never edited.
+- **Size.** SKILL.md went from 1,670 to 1,695 words (write-rule exception +8, step 6 line +17), and the default reading set from 3,112 to 3,137. The ratchet in `tests/v0_2_fix_round_tests.py` rose by exactly that, and both counts stay below e8d5718's 1,698 and 3,140. The reference file is read only when a run logs.
+- **Checked by hand, against a throwaway Palette library.** The documented `log-use` command recorded a donor use. `palette pointers check --strict` resolved the pointer, and a wrong donor ID was reported missing with exit 1. `palette export frankenmine-decisions` returned the donor ID, and `init --decisions` registered it in a new run. No package test covers this wording.
+- **Not verified.** Whether agents log donors, or say Palette is absent, is a live-agent question. The original branch deferred its version bump until merge; this release supplies it.
+
+### Speed round (2026-11-03)
+
+A real full-tier run (Palette, 2026-11-03: 49 donors, 20 selected parts) spent much of its record on fields the helper could work out or that described no real boundary. Its author wrote an 85 KB generator to produce them. This round removes that transcription and keeps every check. Each change was written as a failing test first (`tests/speed_round_tests.py`, 14 cases: 6 red against cae8888, 7 guards, 1 test-after edge case). Nine broken copies, made outside the working tree, each fail it on an assertion.
+
+- **Derived independent pairs.** `check` treats a selected pair whose declared, non-empty touches share no key (after key normalisation) as independent without an interaction record. This is the same rule an explicit `independent` record already had to meet. A pair that shares a key, or whose touches are missing or empty, still needs a record, and a key touched by three or more parts still needs a group record. `report` lists each derived pair. On the Palette record, 169 of its 194 interaction records become derivable; it stays design-ready with the remaining 25.
+- **Short seam for pattern-only parts.** A pattern-only part may record only `seam.evidence` and the new `seam.adaptation`: the assumptions the pattern relied on in the donor, and why they hold in the product. This is what `references/seams-and-bridges.md` already listed for that route. The full eleven-dimension seam stays valid, so existing records still pass. Every other route still needs every dimension, selected or not; `check` now enforces that where the 1.1 schema used to. `scaffold --route pattern-only` writes the short stub. On the Palette record, its 19 pattern-only parts drop from 209 seam fields to 19; with those, it stays design-ready.
+- **Review-packet completeness.** The packet now exposes every selected part's seam field and evidence ids as author claims, including short-seam adaptation, and lists every derived independent pair once after the explicit interactions. Decision rationale stays withheld. Regression tests cover both seam shapes, inert rendering, derived pairs and the explicit-record guard.
+- **Contract.** Schema 1.1 adds the optional `seam.adaptation` and moves the seam-dimension requirement from the schema into `check`, where it depends on the route. Schema 1.0 is unchanged and still requires every dimension.
+- **Not changed.** The lite tier still asks for a row per pair; SKILL.md, examples, fixtures and installed copies are unchanged.
+- **Not verified.** The package tests show the rules and the helper. Whether agents now finish large runs faster is a live-agent question for a fresh comparison.
+
 ## 0.2.0 — 2026-10-29
 
 Released after the round-3 pre-registered blind before/after comparison on Claude Code (2026-10-29): not worse than the installed 0.1.4 at n=8 pairs (3 wins, 2 losses, 3 ties; no new hard fail; sign-test p=1.0, so no superiority is claimed). Codex not run.
