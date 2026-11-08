@@ -1,12 +1,12 @@
 # Rule Or Reason — comprehensive design specification
 
-Version: 0.1.1 design and skill; initial package 0.1.0
+Version: 0.2.0 design and skill; initial package 0.1.0
 
-Date: November 2, 2026 (America/Los_Angeles)
+Date: November 7, 2026 (America/Los_Angeles); initial design November 2
 
 Product owner: user
 
-Status: initial usable skill with a descriptive comparison helper; broader agent and production qualification remains separate
+Status: offline v1 comparison and v2 obligation/cascade/adjudication/verdict helpers; synthetic and unit-tested only; broader agent and production qualification remains separate
 
 Canonical skill identifier: rule-or-reason
 
@@ -764,6 +764,8 @@ A requirement can be specified without being broadly verified. The delivery evid
 
 **Implemented in the initial package:** host skill routing/instructions; conditional language/construction/evaluation/research/project references; this specification; skill provenance; a standard-library descriptive comparison helper; authored Unicode examples; helper behavioral tests; normal Codex UI metadata.
 
+**Added in 0.2.0:** the separate [schema-v2 study helper](study-v2.md), declared obligation-map checks, selective cascade accounting, development threshold sweep and study seal, per-case provenance exclusions, custodian-held blind packets, Wilson/exact McNemar/paired Newcombe calculations and four scoped verdicts. [Discovery](discovery.md) and [lifetime](lifetime.md) remain templates with synthetic examples, not a scanner or store. Historical sections describing the initial helper refer to schema v1; the broader conceptual study envelope is still not the v2 request schema. No qualification pilot or effectiveness study is claimed.
+
 **Usable through the host when available and authorized:** source search, source-level interpretation, existing parsers/language servers, recipient-native implementation, project tests, existing evaluation harnesses, and retained evidence artifacts.
 
 **Not bundled:** automatic whole-repository scanner; a complete call/dependency graph engine; per-language parser/runtime adapters; general candidate execution; OS sandbox; custom semantic evaluator plugins; statistical inference; provider calls; model training; production monitoring; protected-label custody; deployment/promotion; a standalone “ror discover” executable.
@@ -786,6 +788,8 @@ This boundary is intentional. A skill can be immediately useful with existing ho
 S1–S3 concern this creation task. S4–S6 are future work, not permission to begin modifying the reference extraction project or another project. A user can authorize a particular pilot later without consenting to every future slice.
 
 Add automation only when repeated real use demonstrates the need. A parser adapter must improve a specific analysis; a runner must have a genuine execution/effect contract; an inference backend must support an actual decision threshold; a datastore must solve persistence that existing stores do not.
+
+0.2.0 sequencing exception: at the product owner's request, this version builds bounded offline tooling before a recipient-native pilot. Its evidence is synthetic and unit-tested only. Qualification remains a separate step: one explicit-policy task, one partial/fallback task and one non-convertible task, with a capable unaided-agent comparator, frozen holdouts and independent grading. It is outside this build and needs separate authorization for a real seam or paid execution. The study must be able to conclude that the skill did not help. [construction.md](construction.md), [evaluation.md](evaluation.md), [discovery.md](discovery.md) and [lifetime.md](lifetime.md) specify the implemented scope and templates.
 
 No new infrastructure is justified solely by the number of concepts in this specification.
 

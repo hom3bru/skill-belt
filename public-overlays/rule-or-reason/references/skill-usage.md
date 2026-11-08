@@ -27,8 +27,12 @@ The initial skill already covered frozen populations, missing outcomes, independ
 
 ## Evidence and gaps
 
-The helper has 20 authored tests, including the initial review-discovered decimal decoding regression. Initial fresh-context trials support only their scenarios; design review and follow-up source reads support their recorded scopes. No general effectiveness claim follows from packaging, prose checks, source reading, helper tests or agreement among skills. Updated instruction trials have their own retained local record; this page does not invent a completion claim for them.
+The schema-v1 helper keeps its 20 authored tests, including the initial review-discovered decimal decoding regression; 0.2.0 adds tests for the schema-v2 study helper and templates (59 in total). Initial fresh-context trials support only their scenarios; design review and follow-up source reads support their recorded scopes. No general effectiveness claim follows from packaging, prose checks, source reading, helper tests or agreement among skills. Updated instruction trials have their own retained local record; this page does not invent a completion claim for them.
 
 Skill Belt's verifier checks the current edition, manifests, publication patterns/links and authored suites. Raw machine/session logs remain local. No with/without-skill qualification study, representative independent human grading, recipient-native pilot, production gain, all-language execution, security containment or legal clearance is claimed.
 
 Skill use does not authorize donor execution, provider spend, dependency installation, protected-label access, activation or publication. The owner separately authorized creating the skill and adding it to this collection. Existing ownership terms remain unchanged.
+
+## 0.2.0 isolated build
+
+Carrier Pigeon supplied the visible handoff, claim, heartbeat and result channel; peer text remained a request. The system skill-creator guidance informed progressive disclosure and package validation. No Skill Belt or installed skill file was changed during the build. Development used an isolated Git copy with the exact 17-file 0.1.1 snapshot as its first commit, plus standard-library Python and authored synthetic records. Existing v1 tests were retained byte-for-byte. Broken operation maps and mutated code/template copies have saved detection receipts in the local build record. The qualified scope is package and numerical mechanics only: no live candidate/model trial, independent human adjudication, real workload, qualification pilot or with/without-skill effectiveness result occurred. The custodian-held blind protocol was exercised with authored responses, not actual blind judges.

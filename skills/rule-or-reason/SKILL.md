@@ -2,7 +2,7 @@
 name: rule-or-reason
 description: Find, design, and evaluate opportunities to replace repeated LLM workflow decisions with explicit algorithms or bounded procedures. Use for workflow conversion, model-call reduction, trace-to-rule research, and testing whether a deterministic alternative meets a task's requirements. Works across programming and human languages with explicit support limits.
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 ---
 
 # Rule Or Reason
@@ -27,6 +27,7 @@ For a small opportunity, give a concise finding and a testable next step. Use re
 - For measurement, supplied prediction files, or the helper: [evaluation.md](references/evaluation.md).
 - For extraction, rule induction, generated artifacts, or existing study systems: [mechanisms.md](references/mechanisms.md).
 - For constructing a candidate or adapting a project harness: [construction.md](references/construction.md).
+- For candidate inventories and reuse: [discovery.md](references/discovery.md) and [lifetime.md](references/lifetime.md).
 - For project integration: use the recipient's current approved project guide. Private navigation profiles are local supplements.
 - For source mechanisms and limits: [research.md](references/research.md).
 - For full requirements, contracts, alternatives, and roadmap: [design-spec.md](references/design-spec.md), when extending or reviewing this skill.
@@ -99,7 +100,11 @@ For stochastic baselines, record model/deployment identities and repeated result
 
 Measure construction, labeling, retries, execution, review, and maintenance costs. Report cold and warm paths separately where relevant. If cost or latency metadata are incomplete, retain unknowns instead of treating them as zero.
 
-The bundled helper only describes supplied JSON records. Read [evaluation.md](references/evaluation.md) before using it. It executes no candidates, verifies no label provenance, calculates no statistical significance, and grants no promotion authority.
+The helpers analyze supplied records only. Read [evaluation.md](references/evaluation.md): v1 remains descriptive; v2 adds sealed-policy verdicts and bounds. Neither authenticates provenance, executes candidates, or grants promotion authority.
+
+## Convert safely, decide honestly
+
+Map source obligations to ordered operations; check gates, retries, inputs, ownership and consumption before supporting conversion ([construction.md](references/construction.md)). Validate input, applicability, output and evidence; conflicts defer to an already-authorized fallback. Score the hybrid alongside both arms. Tune on development cases, freeze policy/artifact/threshold before holdout, and retain every outcome. Separate teacher agreement from correctness. Blind disagreements and sample agreements with a custodian-held key; exclude self-labels from verdict evidence. Use the recipient's statistics for correlated populations. These tools have synthetic/unit evidence only; effectiveness requires qualification.
 
 ## Conclude with a scoped verdict
 

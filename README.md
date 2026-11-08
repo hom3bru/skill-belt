@@ -118,7 +118,7 @@ Identify bounded algorithmic alternatives and design a comparison
 before implementing changes. Preserve evidence and failure behavior.
 ```
 
-Rule Or Reason uses the recipient's existing language and tools. Its optional Python helper describes supplied prediction records; it does not execute arbitrary source or establish truth from teacher agreement. Reading, parsing, execution and evaluation support are reported separately.
+Rule Or Reason uses the recipient's existing language and tools. Its optional Python helpers describe supplied prediction records (schema v1) and, from 0.2.0, check that a converted plan keeps its declared obligations, score a rule-first/model-fallback cascade and map a sealed policy onto four scoped verdicts with stated bounds (schema v2). They do not execute arbitrary source or establish truth from teacher agreement. Reading, parsing, execution and evaluation support are reported separately.
 
 ## Verification
 

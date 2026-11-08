@@ -135,18 +135,38 @@
       }
     },
     "rule-or-reason": {
-      "notes": "Original Rule Or Reason 0.1.1, local canonical non-Git snapshot. Canonical identity and host paths are anonymised. Public edition still excludes the private project profile and overlays private project navigation and local provenance details. Helper/tests are unchanged; no released source commit or comparative agent qualification is claimed.",
+      "notes": "Rule Or Reason 0.2.0 from the local canonical non-Git snapshot (identical to isolated build commit 2dc74ab). Adds the schema-v2 study helper (obligation-map checks, selective cascade accounting, threshold seal, provenance exclusions, blind packets, Wilson/exact McNemar/Newcombe bounds, four scoped verdicts), discovery and lifetime templates, and 39 new tests; the v1 helper and its 20 tests are unchanged. Evidence is synthetic and unit-tested only; no qualification pilot, real workload or comparative agent result is claimed. The private project profile stays excluded and its SKILL.md pointer is overlaid out.",
       "exclude": [
         "references/radar-maginot.md"
       ],
       "overlays": {
+        "CHANGELOG.md": {
+          "base_sha256": "51d4b38535079fa2a90d23798b48b641d10ca2a9764229bf49d7dade5d5f1f1d",
+          "reason": "The 0.2.0 entry names the private projects whose profile is excluded; it now says recipients with existing statistics and shadow tooling are routed to that tooling. Every other byte is canonical."
+        },
+        "references/study-v2.md": {
+          "base_sha256": "b547daec1ea38269f2157fd1f19739090d60c8e39f12ecdb6647643ecc633024",
+          "reason": "One sentence names the private projects and links the excluded radar-maginot.md profile; it now routes any recipient with its own shadow/statistics facility to that facility. Every other byte is canonical."
+        },
+        "SKILL.md": {
+          "base_sha256": "5dac99c90de04e6a8191b82e37c2fe394780ba411e4e947b95901d5888a20cf7",
+          "reason": "Drops the single reference line that names private projects and links the excluded radar-maginot.md profile; every other byte is canonical, and the generic line about local private navigation profiles remains."
+        },
         "references/design-spec.md": {
-          "base_sha256": "7454646c576bf2e6e5144d5e9fe0669e4aae9c4df5a004daecf068b9e73d17eb",
-          "reason": "Generalize private project/lab navigation and omit its private profile from the package tree; keep the full generic design and qualification limits."
+          "base_sha256": "929e0e2e072691a9d6dcf51e73dedd836a0ddc3c0212654b0ba7b07cf2b498bb",
+          "reason": "Generalize private project/lab navigation and omit its private profile from the package tree; keep the full generic design and qualification limits. Re-derived for 0.2.0: the canonical 0.2.0 header, implementation and sequencing additions are carried with the owner's name replaced by 'the product owner' and the private design document's criterion number replaced by its description."
+        },
+        "references/lifetime.md": {
+          "base_sha256": "de820b4aed2a9dc6f2b76b1b2881a141ce2888ed64e9c26cec97568b405350a2",
+          "reason": "One sentence names the owner; it now reads 'the owner's applicable authority'. Every other byte is canonical. The canonical wording should be neutralised in the next source version, which will make this overlay unnecessary."
+        },
+        "scripts/controls.py": {
+          "base_sha256": "433a4e7dcb3abfda1692c6df1eca95189a5b166eafef05ee3a817f7186919b7b",
+          "reason": "The canonical control runner hard-codes the creation machine's research folder as the only allowed output root (a machine path and a portability defect). The public copy allows a new directory under the current working directory instead; the guard against reusing an existing directory and every other line are unchanged. No test invokes this runner. The next source version should make the root portable, which will make this overlay unnecessary."
         },
         "references/skill-usage.md": {
-          "base_sha256": "49bcbe660d97cf41da334758bc5d58ec1b6aa4003431d480684304611144ecb8",
-          "reason": "Retain guidance roles and gaps while omitting creation-host paths, private profiles and raw local session records."
+          "base_sha256": "67166835eee2172450ce6455fea8eee916a8fef579bb642801411942f10a0125",
+          "reason": "Retain guidance roles and gaps while omitting creation-host paths, private profiles and raw local session records. Re-derived for 0.2.0: adds the path-free 0.2.0 isolated-build section and the updated test count."
         }
       }
     },

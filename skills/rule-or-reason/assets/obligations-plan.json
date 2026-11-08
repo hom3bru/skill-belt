@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "source_sha256": "05a1699a2c8ab67500dc05113bddee43b1b1aa57f84612c88994afab4710af11",
+  "initial_inputs": [
+    "source"
+  ],
+  "operations": [
+    {
+      "id": "approve",
+      "kind": "human_gate",
+      "requires": [
+        "source"
+      ],
+      "produces": [
+        "approval"
+      ],
+      "depends_on": []
+    },
+    {
+      "id": "rule",
+      "kind": "rule",
+      "requires": [
+        "source",
+        "approval"
+      ],
+      "produces": [
+        "value+witness"
+      ],
+      "depends_on": [
+        "approve"
+      ],
+      "max_retries": 2,
+      "entity": "selected-entity",
+      "witness_entity": "selected-entity",
+      "reconciliation": "inspect partial output before retry; no automatic replay"
+    },
+    {
+      "id": "consume",
+      "kind": "tool",
+      "requires": [
+        "value+witness"
+      ],
+      "produces": [],
+      "depends_on": [
+        "rule"
+      ]
+    }
+  ]
+}

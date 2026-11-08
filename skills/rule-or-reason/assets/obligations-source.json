@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "obligations": [
+    {
+      "id": "approval",
+      "kind": "human_gate",
+      "operation": "approve"
+    },
+    {
+      "id": "cap",
+      "kind": "retry_cap",
+      "operation": "rule",
+      "max_retries": 2
+    },
+    {
+      "id": "input",
+      "kind": "required_input",
+      "operation": "rule",
+      "input": "approval"
+    },
+    {
+      "id": "witness",
+      "kind": "witness_owner",
+      "operation": "rule",
+      "entity": "selected-entity"
+    },
+    {
+      "id": "consume",
+      "kind": "consumer",
+      "operation": "rule",
+      "consumer": "consume"
+    },
+    {
+      "id": "recover",
+      "kind": "reconciliation",
+      "operation": "rule"
+    }
+  ]
+}

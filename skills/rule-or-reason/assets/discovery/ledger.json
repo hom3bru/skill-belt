@@ -1,0 +1,7 @@
+[
+  {"seam":"live-policy","evidence":"live.py:4","recommendation":"test selective rule","savings":null},
+  {"seam":"disabled","evidence":"disabled.py:3","recommendation":"exclude disabled path","savings":0},
+  {"seam":"test-only","evidence":"test_example.py:2","recommendation":"exclude production savings","savings":null},
+  {"seam":"coded-rule","evidence":"rule.py:2","recommendation":"reuse existing rule","savings":0},
+  {"seam":"missing-state","evidence":"state.py:4","recommendation":"insufficient evidence","savings":null}
+]
