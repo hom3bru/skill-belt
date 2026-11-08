@@ -162,7 +162,7 @@
         },
         "scripts/controls.py": {
           "base_sha256": "433a4e7dcb3abfda1692c6df1eca95189a5b166eafef05ee3a817f7186919b7b",
-          "reason": "The canonical control runner hard-codes the creation machine's research folder as the only allowed output root (a machine path and a portability defect). The public copy allows a new directory under the current working directory instead; the guard against reusing an existing directory and every other line are unchanged. No test invokes this runner. The next source version should make the root portable, which will make this overlay unnecessary."
+          "reason": "The canonical control runner hard-codes the creation machine's research folder as the only allowed output root (a machine path and a portability defect). The public copy allows a new directory under the current working directory instead, but rejects any output inside the skill package, because the runner copies the package for each mutant and an output beneath it would be copied into itself (review finding on PR #6). The guard against reusing an existing directory and every other line are unchanged. No test invokes this runner. The next source version should make the root portable, which will make this overlay unnecessary."
         },
         "references/skill-usage.md": {
           "base_sha256": "67166835eee2172450ce6455fea8eee916a8fef579bb642801411942f10a0125",

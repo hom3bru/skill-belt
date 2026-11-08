@@ -19,8 +19,8 @@ def run(output):
     root = Path(__file__).resolve().parents[1]
     output = Path(output).resolve()
     allowed = Path.cwd().resolve()
-    if not output.is_relative_to(allowed) or output.exists():
-        raise SystemExit("Use a new directory within the current working directory")
+    if not output.is_relative_to(allowed) or output.is_relative_to(root) or output.exists():
+        raise SystemExit("Use a new directory within the current working directory and outside the skill package")
     output.mkdir(parents=True)
     results = []
     _, _, _, _, _, source, plan = demo.fixture()

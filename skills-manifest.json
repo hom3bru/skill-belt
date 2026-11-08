@@ -371,7 +371,7 @@
         "references/study-v2.md": "59967d2bf7287ccc9ca8cbdc9e17357ef1dc805a90843f02b1d1db800ca59f81",
         "references/user-profile.md": "2b679b7c582a188f16aa14215bc46097042e950578a141f8577aa345123d67e0",
         "scripts/compare.py": "9edbf72431691f7fffce47874645cc4b5d47ebb179624c48c65754383b2e53da",
-        "scripts/controls.py": "a76916d791076ca469ec90a569779bb39c877df286e40d8ffb5827354e82f9b5",
+        "scripts/controls.py": "e6ff5affea3883f4926d251fd4d915930b1de0beed157c789a17a9440a48d172",
         "scripts/demo.py": "943fae04232f3634efa1adb9912afe17058843fee275585fa152fc48f9c903f5",
         "scripts/study.py": "95107231fcef43cf1f9b9fcc61add14e321472def4f28f53def6c5092b7ebb46",
         "SKILL.md": "fc4242f22554bb2900171f281790f3b8c0824d6293e600ab81cc16147fdb6f52",
