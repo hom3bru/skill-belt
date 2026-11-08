@@ -51,4 +51,24 @@ For generated rule artifacts and evidence-bearing outputs, apply the [bounded me
 
 Keep development support separate from production permission. State deployment prerequisites, rollback path, and the artifact/source/policy versions that invalidate prior results. Where a model was used as a construction scaffold, record its budget, expected retirement condition, residual use, and the evidence for retiring or retaining it.
 
-The first implementation of Rule Or Reason supplies guidance and a descriptive comparison helper. It does not deploy artifacts, install donor dependencies, monitor production, automatically retire models, or authorize evaluations.
+Rule Or Reason supplies offline record checks and guidance. It does not deploy artifacts, install donor dependencies, monitor production, automatically retire models, or authorize evaluations. See [lifetime.md](lifetime.md) for a retained identity and economics example.
+
+## Obligation-preserving operation map (0.2)
+
+Inventory every source must/never/ask/at-most clause manually with its source citation. Keyword extraction alone cannot establish completeness. For each obligation name the operation that enforces it. Retain typed inputs/outputs, dependencies, applicability, operation kind (rule/tool/model/human gate/check), retry maximum, partial-effect reconciliation, value+witness, downstream consumer and independent check. An operation record is a checkable plan, not a new runtime or permission token.
+
+The complete worked source and plan are `assets/obligations-source.json` and `assets/obligations-plan.json`. Their flow is:
+
+1. `approve`: human gate consumes `source`, yields `approval` to the host.
+2. `rule`: consumes `source` and `approval`, depends on `approve`, has at most two retries, and produces `value+witness` bound to `selected-entity`.
+3. `consume`: depends on `rule` and consumes that exact value+witness.
+
+The source lists approval, retry cap, required approval input, witness owner, consumer and reconciliation obligations. `plan.source_sha256` is the helper's semantic digest of the source list. `study.py obligations --request assets/obligations-request.json` checks the declared ordered map. A missing operation yields `unmapped_obligation`; a changed human kind, unbounded retry, unavailable required input, or another entity's witness fails its named check. Empty maps and unsupported versions are invalid inputs.
+
+Inspect real code and caller tests separately: a forged complete map, idle gate or dishonest source list can pass static checks. Bind effectful operations to the approval result as a required input, and check real downstream use. `tests/test_study.py` includes all five required broken plans and unused-gate, disconnected-consumer and recovery controls. A successful map check is necessary, never sufficient for deployment.
+
+## Selective conversion recipe
+
+Validate original input → known-state/applicability gate → candidate → validate output and source-bound evidence together → accept only within scope. Conflicts fail closed. Otherwise record abstention/fault/gate failure and defer to the already-authorized fallback; do not silently add model repair. Hosted embedding/validator failure is a fault, never a valid match. Treat Unicode/locale changes and stale policy as reasons to revalidate the applicability contract.
+
+On development cases, sweep declared thresholds against the stated utility, then freeze policy, source, plan, artifact identities and threshold before holdout. Record rule-stage routing/check/embedding/runtime costs in candidate rows; deferred cases add fallback costs. The hybrid is an ordinary scored arm. An always-abstaining rule is the fallback-only control; negation-sensitive high coverage is the error control. The seeded [demo](../scripts/demo.py) demonstrates both with synthetic records, not a real rule execution.

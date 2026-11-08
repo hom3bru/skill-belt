@@ -1,0 +1,16 @@
+{
+  "scope": "synthetic retained-record example; no runtime or store",
+  "identities": {"source":"source-v1", "policy":"policy-v1", "interpreter":"python-example-v1", "serializer":"json-v1"},
+  "assets": {
+    "rule": {"closure":{"source":"source-v1", "policy":"policy-v1", "interpreter":"python-example-v1"}, "consumer":"display", "qualification":"synthetic only"},
+    "source-cache": {"closure":{"source":"source-v1", "serializer":"json-v1"}, "consumer":"rule", "qualification":"synthetic only"}
+  },
+  "annotation": "Reviewer notes do not affect execution",
+  "checkpoint": {"status":"partial", "consumer_acknowledged":false, "replay_allowed":false, "next":"reconcile effect identity and value+witness with operator"},
+  "economics": [
+    {"scenario":"cold-start", "net_events":0, "avoided_per_event":5, "runtime_per_event":1, "routing_check_fallback_per_event":1, "build_eval":20, "upkeep":10, "net":-30},
+    {"scenario":"negative-volume", "net_events":-2, "avoided_per_event":5, "runtime_per_event":1, "routing_check_fallback_per_event":1, "build_eval":20, "upkeep":10, "net":-36},
+    {"scenario":"warm", "net_events":20, "avoided_per_event":5, "runtime_per_event":1, "routing_check_fallback_per_event":1, "build_eval":20, "upkeep":10, "net":30},
+    {"scenario":"unknown", "net_events":null, "avoided_per_event":5, "runtime_per_event":1, "routing_check_fallback_per_event":1, "build_eval":20, "upkeep":10, "net":null}
+  ]
+}

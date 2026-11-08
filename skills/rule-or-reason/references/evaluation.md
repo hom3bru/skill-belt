@@ -26,7 +26,9 @@ A result may be correct but expensive, cheap but wrong, stable but incorrect, ac
 
 For stochastic systems, retain per-run and per-item outputs and deployment identity. Cache replay is not a fresh execution. For model-free claims, inspect transitive dependencies and use authorized runtime instrumentation or a suitable no-provider/no-network trial. Supplied zero counts alone cannot prove absence of inference.
 
-## Actual helper commands
+## Actual schema-v1 helper commands
+
+Everything through "Quantities and limits" below describes the unchanged `compare.py` schema-v1 interface. For cascade scoring, provenance, blinded adjudication, sealed policies and verdicts, read [study-v2.md](study-v2.md). That separate helper does not change v1's strict envelopes or claims.
 
 Python 3.10+; standard library only. Replace SKILL_DIR and the input paths with real paths:
 
