@@ -48,3 +48,17 @@ Never weaken a qualification, denominator, period, attribution or uncertainty to
 make a number fit. Prefer omitting an unnecessary detail to making it misleading.
 An exact quotation validates the quoted words, not the interpretation or truth of
 all claims attributed to them. Preserve context when it changes meaning.
+
+## Withdrawn claims and voice calibration
+
+Record a withdrawn claim in private context `corrections[]`. Exclude it from every
+later draft, answer and interview story, including paraphrases, until the user
+explicitly lifts the withdrawal. Rewording or an older source cannot restore it.
+This uses the existing corrections lane and requires no schema change.
+
+Calibrate voice from the user's own samples: register, sentence length and
+openings, paragraph length, sequencing and recurring moves. Retain only abstract
+descriptors, without quotations or identifiers, and record each sample's date and
+context. Treat these descriptors as a hypothesis: current corrections override
+them, and relevant samples must still be re-read when needed. Style supplies no
+career claims and cannot import a sample's accomplishments into the user's history.

@@ -1,6 +1,6 @@
 ---
 name: application-intake
-description: Assess a pasted job or discovered opportunity against the user's current evidence and existing tracker, distinguish qualification gaps from interest and availability, and prepare the next authorized intake action. Use for opportunity triage and assessment, not application submission.
+description: Assess a job posting or link against the user's current evidence and existing tracker - requirement-by-requirement fit, qualification gap kept separate from interest, pay, location and availability, plus warning signs such as employer AI-use limits, hidden AI-directed text and scam patterns - and recommend the next step. Use when the user pastes or links a job, asks "should I apply", "am I qualified", "how do I fit", or wants a new role triaged. Not for submitting applications.
 ---
 
 # Job intake and assessment
@@ -20,6 +20,12 @@ connected runtime. Use only actually available tools and report unsaved work hon
    employer, role, requisition or official URL, location, closing date and required
    qualifications from the source. Read the full posting when accessible. Separate
    essential criteria from preferences, responsibilities and marketing language.
+   With a saved snapshot and an executor, run `scripts/posting_intel.py analyze`
+   ([helpers](../../references/helpers.md)). It extracts structured JobPosting data, the
+   ATS job ID, required and preferred items with line numbers, pay, arrangement,
+   sponsorship, the employer's AI-use stance, hidden or AI-directed instructions and
+   scam signals. Handle every signal as [integrity and safety](../../references/integrity-and-safety.md)
+   directs. A high-severity signal comes before any recommendation.
 2. If current availability matters, check the employer's official source through
    available browsing/search tools. Preserve the observation date and uncertainty.
    A saved page or aggregator listing alone does not prove it is still open.
@@ -32,9 +38,12 @@ connected runtime. Use only actually available tools and report unsaved work hon
    requirement by requirement using [assessment method](references/assessment-method.md).
    Keep supported experience, credible transfer, unknowns and actual gaps distinct.
    Ask only for an unknown that could materially change the decision.
-5. Deliver a concise recommendation with the most consequential reasons, evidence,
-   uncertainties and next step. Keep qualification gap, evidence confidence,
-   direction/interest fit, availability and pay/location constraints separate.
+   `scripts/grounding.py coverage` gives a first-pass map of requirements to evidence.
+   It works on word overlap, so read the evidence it cites and judge transfer yourself.
+5. Deliver a concise recommendation using the [fit brief](../../references/output-formats.md)
+   with the most consequential reasons, evidence, uncertainties and next step. Keep
+   qualification gap, evidence confidence, direction/interest fit, availability and
+   pay/location constraints separate.
    Use the user's existing scoring convention if available; do not invent neutral
    scores when evidence or a rating method is missing.
 6. Apply current user instructions and permissions to any requested tracker action.

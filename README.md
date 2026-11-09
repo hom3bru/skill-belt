@@ -8,13 +8,19 @@ Practical agent capabilities for engineering work, source research, collaboratio
 
 ## Jobscura
 
-[Start with Jobscura 0.4.1](skills/jobscura/SKILL.md) for a complete job-search and
-application toolkit. Its six workflows cover [intake and fit assessment](skills/jobscura/skills/application-intake/SKILL.md),
+[Start with Jobscura 0.5.0](skills/jobscura/SKILL.md) for a complete job-search and
+application toolkit. Its nine workflows cover [discovery](skills/jobscura/skills/opportunity-discovery/SKILL.md),
+[intake and fit assessment](skills/jobscura/skills/application-intake/SKILL.md),
 [tracking and deadlines](skills/jobscura/skills/application-tracking/SKILL.md),
 [application history](skills/jobscura/skills/application-history/SKILL.md),
 [writing and revision](skills/jobscura/skills/application-writing/SKILL.md),
-[reviewed application packets](skills/jobscura/skills/application-packet/SKILL.md), and
-[interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md).
+[reviewed application packets](skills/jobscura/skills/application-packet/SKILL.md),
+[networking and outreach](skills/jobscura/skills/networking-outreach/SKILL.md),
+[interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md), and
+[offer evaluation and negotiation](skills/jobscura/skills/offer-negotiation/SKILL.md).
+Deterministic offline [helpers](skills/jobscura/references/helpers.md) handle posting
+analysis (including hidden AI-directed text and scam signals), claim grounding, document
+linting, time-zone-aware deadlines and offer arithmetic.
 
 Use the [private-context setup](skills/jobscura/context/README.md),
 [public schema](skills/jobscura/context/user-context.schema.json) and
@@ -31,7 +37,7 @@ separate secret storage. Jobscura does not install a background scheduler.
 | [Frankenmine](skills/frankenmine/SKILL.md) | Design a tool from useful mechanisms across sources. | Donor research, architecture alternatives, component contracts, and an implementation and evaluation plan. |
 | [westack](skills/westack/SKILL.md) | Investigate, design, build, repair, review, or verify an engineering task. | A scoped workflow, optional shared task record, and evidence-based outcome. |
 | [Carrier Pigeon](skills/carrier-pigeon/SKILL.md) | Exchange local agent messages, or have native Claude and Codex automatically build, cross-review, fix and integrate a coding task. Its four [sub-skills](skills/carrier-pigeon/skills/) also support explicit research, audit, design and build protocols. | Threaded replies and receipts; one automatic native build completed planning, both authors, genuine cross-review repair, re-review and guarded local integration. See [qualification limits](skills/carrier-pigeon/tests/live/README.md). |
-| [Jobscura](skills/jobscura/SKILL.md) | A cohesive job-search and application toolkit with [loadable private user context](skills/jobscura/context/README.md). | [Intake](skills/jobscura/skills/application-intake/SKILL.md), [tracking](skills/jobscura/skills/application-tracking/SKILL.md), [history](skills/jobscura/skills/application-history/SKILL.md), [writing](skills/jobscura/skills/application-writing/SKILL.md), [reviewed packets](skills/jobscura/skills/application-packet/SKILL.md), and [interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md). |
+| [Jobscura](skills/jobscura/SKILL.md) | A full-cycle, source-grounded job-search toolkit with [loadable private user context](skills/jobscura/context/README.md) and deterministic offline helpers. | [Discovery](skills/jobscura/skills/opportunity-discovery/SKILL.md), [intake](skills/jobscura/skills/application-intake/SKILL.md), [tracking](skills/jobscura/skills/application-tracking/SKILL.md), [history](skills/jobscura/skills/application-history/SKILL.md), [writing](skills/jobscura/skills/application-writing/SKILL.md), [reviewed packets](skills/jobscura/skills/application-packet/SKILL.md), [outreach](skills/jobscura/skills/networking-outreach/SKILL.md), [interview preparation](skills/jobscura/skills/interview-preparation/SKILL.md), and [offers](skills/jobscura/skills/offer-negotiation/SKILL.md). |
 | [Rule Or Reason](skills/rule-or-reason/SKILL.md) | Identify opportunities to replace LLM workflow decisions with explicit algorithms, then construct and evaluate authorized candidates. | A scoped conversion decision, applicability boundary, counterexamples and evaluation evidence; partial conversion and retained reasoning are valid outcomes. |
 | [deep-dive](skills/deep-dive/SKILL.md) | Survey tools, papers and prior art with coverage and recency checks. | A source-grounded report, [deeper follow-up](skills/deep-dive/skills/deeper-dive/SKILL.md) and [adversarial review](skills/deep-dive/skills/check-work/SKILL.md). |
 

@@ -11,10 +11,48 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_BYTES = 1024 * 1024
+REPARSE_POINT = 0x400          # FILE_ATTRIBUTE_REPARSE_POINT
+NAME_SURROGATE = 0x20000000    # symlinks, junctions and mount points redirect a name
+V2_PREFERENCES = {"monitoring", "search"}
+# Defaults used when a context (or no context) leaves monitoring unset. They are
+# workflow conventions, never permissions.
+MONITORING_DEFAULTS = {"dated_check_days": 1, "undated_check_days": 2,
+                       "reminder_windows_days": [14, 7, 3, 1, 0], "closing_horizon_days": 14,
+                       "shortlist_size": 3, "urgency_open_days": 14, "long_open_days": 60}
 
 
 class ContextError(ValueError):
     pass
+
+
+def is_link(path):
+    """True for a symlink or name-surrogate reparse point; cloud placeholders are ordinary files."""
+    info = Path(path).lstat()
+    if stat.S_ISLNK(info.st_mode):
+        return True
+    if getattr(info, "st_file_attributes", 0) & REPARSE_POINT:
+        tag = getattr(info, "st_reparse_tag", None)
+        return tag is None or bool(tag & NAME_SURROGATE)
+    return False
+
+
+def timezone_status(name):
+    """Report whether the host can compute dates in this IANA zone; never guess one."""
+    try:
+        from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+    except ImportError:
+        return "zoneinfo_unavailable"
+    try:
+        ZoneInfo(name)
+        return "available"
+    except (ZoneInfoNotFoundError, ValueError, OSError):
+        return "unavailable_in_host"
+
+
+def monitoring(value):
+    """Effective monitoring conventions: validated context values over documented defaults."""
+    selected = ((value or {}).get("preferences") or {}).get("monitoring") or {}
+    return {**MONITORING_DEFAULTS, **selected}
 
 
 def unique_object(pairs):
@@ -31,7 +69,8 @@ def validate(value, schema):
     kind = schema.get("type")
     matches = {"object": isinstance(value, dict), "array": isinstance(value, list),
                "string": isinstance(value, str), "integer": type(value) is int,
-               "number": type(value) is int or type(value) is float and math.isfinite(value)}
+               "number": type(value) is int or type(value) is float and math.isfinite(value),
+               "boolean": type(value) is bool}
     if kind not in matches or not matches[kind]:
         raise ContextError("Invalid context field type")
     if "const" in schema and (value != schema["const"] or type(value) is not type(schema["const"])):
@@ -70,10 +109,11 @@ def load_context(context_path=None, environ=None):
     if not path.is_absolute():
         raise ContextError("Context path must be absolute")
     try:
-        for part in (path, *path.parents):
-            info = part.lstat()
-            if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
-                raise ContextError("Linked context paths are not supported")
+        # The selected file itself must not redirect elsewhere. Folders above it may be
+        # operating-system aliases (macOS /var, redirected profiles); containment below
+        # is decided on the fully resolved path, so they cannot smuggle context inward.
+        if is_link(path):
+            raise ContextError("Linked context paths are not supported")
         resolved = path.resolve(strict=True)
         root = ROOT.resolve()
         forbidden = [root] + [p for p in root.parents if (p / ".git").exists()]
@@ -89,6 +129,11 @@ def load_context(context_path=None, environ=None):
                            parse_constant=lambda _: (_ for _ in ()).throw(ContextError("Nonfinite JSON number")))
         schema = json.loads((ROOT / "context/user-context.schema.json").read_text(encoding="utf-8"))
         validate(value, schema)
+        if value["schema_version"] == 1 and V2_PREFERENCES & value["preferences"].keys():
+            raise ContextError("Monitoring and search preferences require schema_version 2")
+        windows = value["preferences"].get("monitoring", {}).get("reminder_windows_days", [])
+        if len(set(windows)) != len(windows):
+            raise ContextError("Reminder windows must be distinct")
         return value
     except ContextError:
         raise
@@ -104,7 +149,8 @@ def main(argv=None):
     try:
         value = load_context(args.context)
         print(json.dumps({"status": "validated", "schema_version": value["schema_version"],
-                          "sections": sorted(value), "references_opened": False}))
+                          "sections": sorted(value), "references_opened": False,
+                          "timezone_status": timezone_status(value["preferences"]["timezone"])}))
         return 0
     except ContextError as exc:
         print(json.dumps({"status": "context_not_loaded", "error": str(exc)}), file=sys.stderr)

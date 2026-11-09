@@ -50,3 +50,23 @@ reminder only under the user's actual request/permissions.
 For debriefs, separate what happened, the user's recollection, any employer feedback
 and interpretation. A prepared follow-up is a draft until authorized and sent.
 Do not claim interview completion or a confirmed appointment from a practice session.
+
+
+## Structured interview debrief
+
+Capture in this order, preserving missing details rather than filling them:
+
+1. Questions in the order asked, with exact wording only when known.
+2. The user's own answer to each question, preserving uncertain passages.
+3. Interviewer reactions observed, described literally without interpreting signals.
+4. Surprises or unexpected requirements, distinguished from assumptions.
+5. Stories used, linked to the employer and round so later rounds can rotate
+   eligible stories without sacrificing relevance or inventing variety.
+6. Employer feedback verbatim, attributed and kept apart from the user's recall
+   and coaching commentary. If exact wording is unavailable, label it a paraphrase.
+
+Mark recalled versus transcript-based content and confidence for each uncertain
+item; a confident recollection is still not a transcript. Do not interpret smiles,
+silence or follow-up questions as signals, and make no hiring-likelihood claims.
+Use the record to identify preparation next steps, not to infer an outcome.
+Keep it private; save only to the user's chosen destination when authorized.

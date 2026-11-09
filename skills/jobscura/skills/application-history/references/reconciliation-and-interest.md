@@ -46,3 +46,21 @@ Use [application tracking](../../application-tracking/SKILL.md) for all-role aud
 retirement and repost checks. Preserve historical application/decision evidence
 when a posting closes or a changed requisition appears. A new vacancy record must
 link the old one rather than replace it; missing source access stays uncertain.
+
+
+## Recurring requirement gaps
+
+Count requirement gaps only from recorded assessments, preserving the source,
+assessment date and role identity for each occurrence. Define the inspected set
+and group only requirements whose meaning is actually equivalent. Count each
+requirement once per assessed role; duplicate listings or repeated shares do not
+add occurrences. Report counts with the number of assessed roles inspected,
+without weights or scores. These counts describe the recorded sample, not the
+market or the user's ability.
+
+Report what was skipped: unassessed roles, inaccessible assessments, ambiguous
+requirements and missing evidence. Keep unknowns apart from recorded gaps;
+missing documentation does not prove missing experience. Preserve historical
+assessments when newer evidence changes the current picture. Offer a concrete
+verification or preparation step for a recurring gap, without silently changing
+search filters, reassessing roles or editing the tracker.

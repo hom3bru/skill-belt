@@ -21,6 +21,18 @@ one does not establish the others; absence of a checker is not a pass.
   screenshot does not prove this. Do not reuse review results after an edit without
   checking what changed.
 
+For employer or third-party facts in a letter or answer, including named products,
+programmes, people, papers and news, provide a dated official source the user can
+inspect. Flag any fact without that support as unverified before delivery.
+
+For each lead claim, check that the user could explain the work to an interviewer
+for about two minutes. If the evidence establishes only proximity to the work,
+soften the claim or choose a better-supported lead.
+
+After each revision, compare employer, title, dates, degree and contact fields
+against the source: they must remain unchanged. Check that no employer, role or
+team name from another application remains in the candidate being delivered.
+
 Use suitable available document tools for the requested destination. Preserve the
 canonical file and existing sharing boundaries. Deliver a verified accessible file
 or link when supported, otherwise complete text in the conversation. Never present
@@ -42,3 +54,15 @@ exact upload-slot kind/filename checks, a source snapshot and a non-overwriting
 packet manifest. This supplements rather than replaces the factual, editorial and
 rendered layout checks above. A writing sample is not a cover letter; preserve
 the exact requested artifact kind and never relabel one to satisfy another slot.
+
+
+## Personal details and local conventions
+
+Follow the posting's requested language and country conventions when choosing
+presentation; do not infer nationality from language, name or location. Do not add
+a photo, date of birth, age, marital status or nationality unless the employer
+explicitly asks or the user chooses after being told the privacy and bias risks.
+If requested, surface the request and let the user decide what to disclose; check
+[integrity and safety](../../../references/integrity-and-safety.md) before sharing
+sensitive information. This is advisory presentation guidance, not a claim about
+any country's law. Do not treat a local custom as a mandatory disclosure rule.

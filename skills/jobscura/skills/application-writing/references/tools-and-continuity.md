@@ -1,8 +1,9 @@
 # Use the actual available tools
 
-This plugin adds workflows and an optional offline application-packet helper. It
-does not create a new account, connector, tracker, native data tool, server or
-background process. Complete useful work with the capabilities actually present
+This plugin adds workflows and optional offline helpers ([index](../../../references/helpers.md)):
+posting analysis, claim grounding, document lint, deadline planning, offer
+comparison and the application-packet helper. It does not create a new account,
+connector, tracker, native data tool, server or background process. Complete useful work with the capabilities actually present
 in the current conversation. For executable capture, read-only tracker matching
 and reviewed attachment packaging, use [application-packet](../../application-packet/SKILL.md)
 with an authorized Python executor; without one, do not claim its checks ran.
@@ -10,8 +11,8 @@ with an authorized Python executor; without one, do not claim its checks ran.
 ## Source and work routes
 
 - Use the current request and supplied text/files immediately. Use available
-  Library, document, drive or conversation-search tools to find the specific prior
-  materials needed. Read the relevant material, not just its search-result title.
+  document, drive, knowledge-base or conversation-search tools to find the specific
+  prior materials needed. Read the relevant material, not just its search-result title.
 - For current job facts, use available search/browsing tools and prioritize the
   employer's official posting. Distinguish current observations from saved copies.
 - For edits or file creation, use the actual document/file tools for the selected

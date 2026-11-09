@@ -3,7 +3,7 @@
   "author": {
     "name": "Skill Belt"
   },
-  "description": "Jobscura: source-grounded intake, tracking, application history, writing, reviewed packets and interview preparation with explicit private user context.",
+  "description": "Jobscura: source-grounded job search from discovery and fit assessment through tracking, evidence-checked writing, reviewed packets, outreach, interview practice and offer negotiation, with deterministic offline helpers and explicit private user context.",
   "extensions": {
     "com.openai": {
       "interface": {
@@ -14,5 +14,5 @@
     }
   },
   "name": "application-assistant-workflows",
-  "version": "0.4.1"
+  "version": "0.5.0"
 }

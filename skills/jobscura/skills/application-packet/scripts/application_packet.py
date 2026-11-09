@@ -20,11 +20,17 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 from zipfile import ZipFile, BadZipFile
 
-VERSION = "0.2.1"
+# Shared offline detector lives in the parent toolkit, not a network client.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from posting_intel import detect_interstitial
+
+VERSION = "0.3.0"
 KINDS = {"resume", "cover_letter", "writing_sample", "portfolio", "other"}
 EXTENSIONS = {".pdf", ".docx", ".txt"}
 MAX_SOURCE = 10 * 1024 * 1024
 MAX_DOCUMENT = 50 * 1024 * 1024
+REPARSE_POINT = 0x400          # FILE_ATTRIBUTE_REPARSE_POINT
+NAME_SURROGATE = 0x20000000    # reparse tags that redirect a name: symlinks, junctions, mount points
 
 
 class PacketError(ValueError):
@@ -58,11 +64,39 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def read_bytes(path, limit=MAX_DOCUMENT):
+def is_link(path):
+    """True for a symlink or a Windows name-surrogate reparse point (junction/mount point).
+
+    Cloud-sync placeholders and deduplicated files are reparse points too, but they
+    are ordinary files, not redirections, so they are not treated as links.
+    """
+    info = Path(path).lstat()
+    if stat.S_ISLNK(info.st_mode):
+        return True
+    if getattr(info, "st_file_attributes", 0) & REPARSE_POINT:
+        tag = getattr(info, "st_reparse_tag", None)
+        return tag is None or bool(tag & NAME_SURROGATE)
+    return False
+
+
+def link_chain(path, anchor=None):
+    """The file plus any directories between it and a trusted anchor directory.
+
+    Links above the anchor (operating-system aliases such as macOS /var, or a
+    folder the user deliberately chose) are outside the helper's trust boundary.
+    """
     p = Path(path)
-    require(p.is_file() and not any(stat.S_ISLNK(x.lstat().st_mode) or
-            getattr(x.lstat(), "st_file_attributes", 0) & 0x400 for x in (p, *p.parents)),
-            f"not a regular non-symlink file: {p.name}")
+    chain = [p]
+    if anchor is not None:
+        anchor = Path(anchor)
+        chain += [x for x in p.parents if x != anchor and x.is_relative_to(anchor)]
+    return chain
+
+
+def read_bytes(path, limit=MAX_DOCUMENT, anchor=None):
+    p = Path(path)
+    require(p.is_file() and not any(is_link(x) for x in link_chain(p, anchor)),
+            f"not a regular non-symlink file (links and junctions are refused): {p.name}")
     require(p.stat().st_size <= limit, f"file exceeds {limit} byte limit: {p.name}")
     data = p.read_bytes()
     require(len(data) <= limit, f"file exceeds {limit} byte limit")
@@ -73,7 +107,7 @@ def json_bytes(value):
     return (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
-def read_json(path):
+def read_json(path, anchor=None):
     def unique_object(pairs):
         result = {}
         for key, value in pairs:
@@ -81,7 +115,7 @@ def read_json(path):
             result[key] = value
         return result
     try:
-        return json.loads(read_bytes(path, MAX_SOURCE).decode("utf-8"), object_pairs_hook=unique_object)
+        return json.loads(read_bytes(path, MAX_SOURCE, anchor).decode("utf-8"), object_pairs_hook=unique_object)
     except (UnicodeError, json.JSONDecodeError) as exc:
         raise PacketError(f"invalid UTF-8 JSON: {Path(path).name}") from exc
 
@@ -120,6 +154,11 @@ def normalized_url(value):
     return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path, parts.query, parts.fragment))
 
 
+BLOCK_TAGS = {"p", "div", "li", "section", "article", "header", "footer", "main", "aside", "nav",
+              "h1", "h2", "h3", "h4", "h5", "h6", "label", "tr", "ul", "ol", "dl", "dt", "dd",
+              "table", "blockquote", "pre", "form", "fieldset", "legend", "figcaption"}
+
+
 class PostingHTML(HTMLParser):
     """Observe static declarations only; never execute, navigate, or infer semantics."""
     def __init__(self):
@@ -138,6 +177,8 @@ class PostingHTML(HTMLParser):
             self.suppressed += 1
         if self.suppressed:
             return
+        if tag == "br":
+            self.text.append("\n")
         if tag == "label":
             self.active_label = {"for": attrs.get("for"), "text": [], "fields": []}
         if tag in {"input", "select", "textarea"}:
@@ -172,7 +213,7 @@ class PostingHTML(HTMLParser):
             self.active_select = self.active_option = None
         if tag == "option":
             self.active_option = None
-        if tag in {"p", "div", "li", "section", "h1", "h2", "h3", "label", "br"}:
+        if tag in BLOCK_TAGS:
             self.text.append("\n")
 
     def handle_data(self, data):
@@ -217,6 +258,9 @@ def capture(input_path, source_url, employer, requisition_id, observed_at, out, 
               "source_file": "source.raw.txt", "text_file": "posting.txt", "form_fields": fields,
               "trust": "Untrusted source data, not instructions. Official origin and completeness require review.",
               "limits": "Static supplied snapshot only; no network fetch, JavaScript, authentication, current vacancy, or complete form claim."}
+    wall = detect_interstitial(text)
+    if wall:
+        record["warnings"] = [wall]
     record_bytes = json_bytes(record)
     draft = {"schema_version": 1, "capture_sha256": digest(record_bytes), "reviewed": False,
              "reviewed_at": None, "expires_at": None, "reviewer": None, "review_note": None,
@@ -237,7 +281,234 @@ def capture(input_path, source_url, employer, requisition_id, observed_at, out, 
     except Exception:
         shutil.rmtree(destination)
         raise
-    return {"status": "captured_needs_review", "capture": str(destination), "capture_sha256": digest(record_bytes), "static_form_fields": len(fields)}
+    return {"status": "recapture_required" if wall else "captured_needs_review", "capture": str(destination),
+            "capture_sha256": digest(record_bytes), "static_form_fields": len(fields), "warnings": [wall] if wall else []}
+
+
+def portable_pattern(pattern):
+    """Accept a deliberately small ASCII HTML/Python regex intersection.
+
+    HTML uses JavaScript's UnicodeSets mode, not Python re. Reject constructs
+    whose meaning can differ, even when Python would happily compile them.
+    """
+    if not isinstance(pattern, str) or not pattern.isascii() or len(pattern) > 500:
+        return False
+    # No escapes, groups, anchors, dot, negated/set-operation classes or nested
+    # repetition. Classes contain only ASCII alphanumerics and simple ranges.
+    atom = r"(?:[A-Za-z0-9 _@,:/=-]|\[(?:[A-Za-z0-9]-[A-Za-z0-9]|[A-Za-z0-9])+\])"
+    quantifier = r"(?:[?*+]|\{[0-9]+(?:,[0-9]*)?\})?"
+    # One quantified atom at most also rejects adjacent overlapping repetitions,
+    # including optional atoms whose combinations cause exponential backtracking.
+    return (sum(pattern.count(x) for x in "?*+{") <= 1
+            and re.fullmatch(r"(?:" + atom + quantifier + r")*", pattern) is not None)
+
+
+class AnswerHTML(PostingHTML):
+    """Derive validation context privately without altering persisted controls."""
+    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+                 "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self):
+        super().__init__()
+        self.stack = []
+        self.identities = {}
+        self.context = []
+        self.serial = 0
+        self.context_errors = []
+
+    def handle_starttag(self, tag, attrs):
+        if self.suppressed or tag in {"script", "style", "template"}:
+            super().handle_starttag(tag, attrs)
+            return
+        attributes = dict(attrs)
+        # HTML permits omitted option/optgroup end tags.
+        if tag in {"option", "optgroup"}:
+            self.close_context("option")
+        if tag == "optgroup":
+            self.close_context("optgroup")
+        self.serial += 1
+        node = {"tag": tag, "serial": self.serial, "attributes": attributes}
+        if "id" in attributes:
+            self.identities.setdefault(attributes["id"], []).append(node)
+        if tag == "form" and any(x["tag"] == "form" for x in self.stack):
+            self.context_errors.append("nested forms need explicit source review")
+        if tag == "legend" and self.stack and self.stack[-1]["tag"] == "fieldset":
+            fieldset = self.stack[-1]
+            if not fieldset.get("legend_seen"):
+                node["exempts_fieldset"] = fieldset["serial"]
+                fieldset["legend_seen"] = True
+        disabled = "disabled" in attributes
+        exemptions = {x.get("exempts_fieldset") for x in self.stack}
+        disabled = disabled or any(x["tag"] == "fieldset" and "disabled" in x["attributes"]
+                                   and x["serial"] not in exemptions for x in self.stack)
+        before = len(self.fields)
+        super().handle_starttag(tag, attrs)
+        if len(self.fields) != before:
+            owners = [x["serial"] for x in self.stack if x["tag"] == "form"]
+            self.context.append({"disabled": disabled, "owner": owners[-1] if owners else None,
+                                 "explicit_form": attributes.get("form"),
+                                 "value": attributes.get("value", "on"), "option_disabled": []})
+        if tag == "option" and self.active_select is not None:
+            inherited = any(x["tag"] == "optgroup" and "disabled" in x["attributes"] for x in self.stack)
+            self.context[self.active_select["index"]]["option_disabled"].append(disabled or inherited)
+        if tag not in self.VOID_TAGS:
+            self.stack.append(node)
+
+    def close_context(self, tag):
+        for index in range(len(self.stack) - 1, -1, -1):
+            if self.stack[index]["tag"] == tag:
+                del self.stack[index:]
+                return
+
+    def handle_endtag(self, tag):
+        suppressed = self.suppressed
+        super().handle_endtag(tag)
+        if not suppressed:
+            self.close_context(tag)
+
+    def validation_context(self):
+        require(not self.context_errors, "; ".join(self.context_errors))
+        for context in self.context:
+            explicit = context["explicit_form"]
+            if explicit is not None:
+                owners = self.identities.get(explicit, [])
+                require(len(owners) == 1 and owners[0]["tag"] == "form",
+                        "explicit form owner is missing or ambiguous; review source")
+                context["owner"] = owners[0]["serial"]
+        return self.context
+
+
+def check_answers(capture_directory, answers_path):
+    record, capture_hash, raw, text = load_capture(capture_directory)
+    wall = detect_interstitial(text.decode("utf-8"))
+    if wall:
+        return {"status": "recapture_required", "capture_sha256": capture_hash,
+                "warnings": [wall], "issues": [{"code": "not_a_posting_interstitial", "blocking": True}],
+                "assessment_performed": False}
+    # Re-derive controls from exact retained source; capture metadata is editable
+    # JSON, so it must not silently relax the source's declared constraints.
+    require(record.get("source_format") in {"html", "text"}, "unsupported source format")
+    if record["source_format"] == "text":
+        require(record["text_sha256"] == record["source_sha256"],
+                "transformed source requires HTML source format")
+        fields, context = [], []
+    else:
+        parser = AnswerHTML()
+        parser.feed(raw.decode("utf-8"))
+        parser.close()
+        _, fields = parser.results()
+        context = parser.validation_context()
+    require(fields == record.get("form_fields"), "captured form metadata differs from source")
+    supplied = read_json(answers_path)
+    require(isinstance(supplied, dict) and set(supplied) <= {"answers", "unresolved"}, "expected answers and unresolved object")
+    answers, unresolved = supplied.get("answers", {}), supplied.get("unresolved", [])
+    require(isinstance(answers, dict) and isinstance(unresolved, list) and all(isinstance(x, str) for x in unresolved),
+            "answers must be an object; unresolved must be a list of field keys")
+    groups = []
+    for field in fields:
+        name = field.get("name")
+        if field["type"] in {"radio", "checkbox"} and name:
+            group = next((g for g in groups if g[0]["type"] == field["type"] and g[0].get("name") == name
+                          and context[g[0]["index"]]["owner"] == context[field["index"]]["owner"]), None)
+        else:
+            group = None
+        if group is None:
+            groups.append([field])
+        else:
+            group.append(field)
+    aliases = {}
+    for i, group in enumerate(groups):
+        for field in group:
+            for key in {str(field["index"]), field.get("name")} - {None, ""}:
+                aliases.setdefault(key, set()).add(i)
+    resolved, pending = {}, set()
+    for key, value in answers.items():
+        require(key in aliases and len(aliases[key]) == 1, f"unknown or ambiguous field key: {key}")
+        i = next(iter(aliases[key]))
+        require(i not in resolved, "duplicate answer aliases for one field")
+        resolved[i] = value
+    for key in unresolved:
+        require(key in aliases and len(aliases[key]) == 1, f"unknown or ambiguous unresolved key: {key}")
+        i = next(iter(aliases[key]))
+        require(i not in pending, "duplicate unresolved aliases")
+        pending.add(i)
+    issues = []
+    def issue(field, code, blocking=True):
+        issues.append({"field": field["index"], "code": code, "blocking": blocking})
+    for i, group in enumerate(groups):
+        f = group[0]
+        active = [x for x in group if not context[x["index"]]["disabled"]]
+        present = i in resolved
+        value = resolved.get(i)
+        if present and i in pending:
+            issue(f, "answered_and_unresolved")
+        if not active:
+            if present:
+                issue(f, "disabled_field")
+            continue
+        required = any("required" in x["attributes"] or (x["attributes"].get("aria-required") or "").casefold() == "true" for x in active)
+        nonblank = present and (isinstance(value, str) and bool(value.strip()) or isinstance(value, list) and bool(value))
+        if required and not nonblank and i not in pending:
+            issue(f, "required_answer_missing")
+        if f["type"] == "file":
+            if present:
+                issue(f, "file_input_not_answerable")
+            continue
+        if not present:
+            continue
+        multiple = f["type"] == "checkbox" or f["type"] == "select" and "multiple" in f["attributes"]
+        if not (isinstance(value, list) and all(isinstance(x, str) for x in value) if multiple else isinstance(value, str)):
+            issue(f, "invalid_answer_type")
+            continue
+        values = value if multiple else [value]
+        if len(set(values)) != len(values):
+            issue(f, "duplicate_option")
+        if f["type"] in {"select", "radio", "checkbox"}:
+            if f["type"] == "select":
+                offered = [x["value"] if x["value"] is not None else " ".join(x["text"].split())
+                           for index, x in enumerate(f["options"])
+                           if not context[f["index"]]["option_disabled"][index]]
+            else:
+                offered = []
+                required_values = []
+                for x in active:
+                    offered.append(context[x["index"]]["value"])
+                    if "required" in x["attributes"] or (x["attributes"].get("aria-required") or "").casefold() == "true":
+                        required_values.append(offered[-1])
+                if f["type"] == "checkbox" and any(x not in values for x in required_values):
+                    issue(f, "required_checkbox_missing")
+            if any(x not in offered for x in values):
+                issue(f, "option_not_offered")
+        for x in active:
+            attrs = x["attributes"]
+            for bound in ("minlength", "maxlength"):
+                if bound in attrs:
+                    limit = attrs[bound]
+                    if not isinstance(limit, str) or not re.fullmatch(r"[0-9]+", limit):
+                        issue(f, "invalid_length_constraint")
+                        continue
+                    limit = int(limit)
+                    for answer in values:
+                        length = len(answer)
+                        if (bound == "minlength" and length < limit or bound == "maxlength" and length > limit) and answer:
+                            issue(f, bound + "_violated")
+                        if abs(length - limit) <= max(2, limit // 20):
+                            issue(f, "confirm_count_rule", False)
+            if "pattern" in attrs:
+                pattern = attrs["pattern"]
+                if not portable_pattern(pattern):
+                    issue(f, "unsupported_browser_pattern")
+                else:
+                    try:
+                        if any(answer and re.fullmatch(pattern, answer, re.ASCII) is None for answer in values):
+                            issue(f, "pattern_mismatch")
+                    except (re.error, OverflowError):
+                        issue(f, "unsupported_browser_pattern")
+    blocked = any(x["blocking"] for x in issues)
+    return {"status": "blocked" if blocked else "answers_need_confirmation" if pending or issues else "answers_checked",
+            "capture_sha256": capture_hash, "issues": issues, "unresolved": unresolved,
+            "count_note": "Lengths use Unicode code points; confirm the site's count near limits (UTF-16, spaces).",
+            "limits": "Static declared constraints only; never generates, fills or submits answers."}
 
 
 def load_capture(directory):
@@ -307,22 +578,57 @@ def load_requirements(path, capture_hash, raw, text, form_fields=None):
     return req, digest(read_bytes(path, MAX_SOURCE))
 
 
-ALIASES = {"employer": ["employer", "company"], "record_id": ["record id", "record_id"],
-           "requisition_id": ["requisition id", "requisition_id", "requisition", "req id"],
-           "urls": ["application url", "source url", "source_url", "url"]}
+# Header aliases, tried tier by tier. Values within one tier must agree (a conflict
+# blocks the tracker). A later tier is consulted only when every earlier tier is
+# empty, so adding common real-world headers cannot change how an existing tracker
+# that uses the original headers is read.
+ALIAS_TIERS = {
+    "employer": (("employer", "company"),
+                 ("company name", "employer name", "organization", "organisation", "hiring organization")),
+    "record_id": (("record id", "record_id"), ("tracker id", "tracker_id")),
+    "requisition_id": (("requisition id", "requisition_id", "requisition", "req id"),
+                       ("requisition number", "requisition #", "req #", "req no", "req number")),
+}
+# Secondary employer job identifiers: an equal value can match, but a different value
+# is not treated as a requisition conflict (an ATS job ID and a requisition can differ).
+ALT_ID_HEADERS = ("job id", "job_id", "job number", "posting id", "vacancy id", "job requisition id")
+URL_HEADERS = ("application url", "source url", "source_url", "url", "job url", "job_url", "posting url",
+               "job posting url", "job link", "link", "apply url", "apply link", "listing url")
+ALIASES = {key: [name for tier in tiers for name in tier] for key, tiers in ALIAS_TIERS.items()}
+ALIASES["urls"] = list(URL_HEADERS)
+HYPERLINK = re.compile(r'^=\s*HYPERLINK\(\s*"((?:[^"]|"")*)"', re.I)
+
+
+def normalized_id(value):
+    """Requisition comparison ignores case and whitespace runs, never punctuation."""
+    return " ".join(str(value).split()).casefold()
+
+
+def cell_url(value):
+    """A spreadsheet HYPERLINK formula stores its target as the first quoted argument."""
+    text = str(value).strip()
+    found = HYPERLINK.match(text)
+    return found.group(1).replace('""', '"') if found else text
 
 
 def normalized_row(row, location):
     pairs = [(str(k).strip().casefold(), v) for k, v in row.items() if k is not None and str(k).strip()]
     require(len({k for k, _ in pairs}) == len(pairs), "duplicate normalized tracker headers")
     mapped = dict(pairs)
+    def present(names):
+        return [str(mapped[k]).strip() for k in names if mapped.get(k) is not None and str(mapped[k]).strip()]
     def first(key):
-        values = [str(mapped[k]).strip() for k in ALIASES[key] if mapped.get(k) is not None and str(mapped[k]).strip()]
-        distinct = {normalized_employer(x) if key == "employer" else x for x in values}
-        require(len(distinct) <= 1, f"conflicting tracker aliases for {key}")
-        return values[0] if values else None
+        for tier in ALIAS_TIERS[key]:
+            values = present(tier)
+            distinct = {normalized_employer(x) if key == "employer" else normalized_id(x) if key == "requisition_id" else x
+                        for x in values}
+            require(len(distinct) <= 1, f"conflicting tracker aliases for {key}")
+            if values:
+                return values[0]
+        return None
     return {"employer": first("employer"), "record_id": first("record_id"), "requisition_id": first("requisition_id"),
-            "urls": [str(mapped[k]).strip() for k in ALIASES["urls"] if mapped.get(k)], "location": location}
+            "alt_ids": present(ALT_ID_HEADERS),
+            "urls": [cell_url(x) for x in present(URL_HEADERS)], "location": location}
 
 
 def tracker_rows(path):
@@ -344,7 +650,10 @@ def tracker_rows(path):
             import openpyxl
         except ImportError as exc:
             raise PacketError(".xlsx reading needs already-installed openpyxl; use a read-only CSV/JSON export instead") from exc
-        workbook = openpyxl.load_workbook(path, read_only=True, data_only=False, keep_links=False)
+        try:
+            workbook = openpyxl.load_workbook(path, read_only=True, data_only=False, keep_links=False)
+        except Exception as exc:  # openpyxl raises its own and zipfile errors for corrupt workbooks
+            raise PacketError(".xlsx tracker could not be read; export it read-only to CSV/JSON") from exc
         try:
             for sheet in workbook:
                 headers = None
@@ -373,12 +682,12 @@ def match_record(capture_directory, tracker):
     record, capture_hash, _, _ = load_capture(capture_directory)
     rows, tracker_hash = tracker_rows(tracker)
     candidates = []
-    target_req = record.get("requisition_id")
+    target_req = normalized_id(record["requisition_id"]) if record.get("requisition_id") else None
     url = normalized_url(record["source_url"])
     for row in rows:
         if normalized_employer(row["employer"]) != normalized_employer(record["employer"]):
             continue
-        req = row["requisition_id"]
+        req = normalized_id(row["requisition_id"]) if row["requisition_id"] else None
         # Explicit conflicting requisitions override URL similarity/reuse.
         if req and target_req and req != target_req:
             continue
@@ -388,7 +697,9 @@ def match_record(capture_directory, tracker):
                 valid_urls.append(normalized_url(value))
             except (PacketError, ValueError):
                 pass
-        basis = "employer_and_requisition" if req and target_req and req == target_req else (
+        ids = {req} if req else set()
+        ids |= {normalized_id(x) for x in row["alt_ids"]}
+        basis = "employer_and_requisition" if target_req and target_req in ids else (
             "employer_and_exact_url" if url in valid_urls else None)
         if basis:
             candidates.append({k: row[k] for k in ("record_id", "employer", "requisition_id", "location")} | {"basis": basis})
@@ -475,10 +786,14 @@ def assemble(capture_directory, requirements, tracker, documents, out_root, pack
     plan = read_json(documents)
     plan_dir = Path(documents).resolve().parent
     def loader(item):
-        return read_bytes(plan_dir / item["file"]), read_json(plan_dir / item["review"])
+        require(isinstance(item.get("file"), str) and isinstance(item.get("review"), str),
+                "each documents plan entry needs file and review paths")
+        # Links inside the plan's own directory tree are refused; the plan cannot redirect inputs.
+        return (read_bytes(plan_dir / item["file"], anchor=plan_dir),
+                read_json(plan_dir / item["review"], anchor=plan_dir))
     verified = check_attachments(plan, req, req_hash, capture_hash, loader)
     root = Path(out_root)
-    require(root.is_dir() and not root.is_symlink(), "output root must be an existing non-symlink directory")
+    require(root.is_dir() and not is_link(root), "output root must be an existing non-symlink directory")
     destination = root / packet_name
     destination.mkdir(exist_ok=False)
     try:
@@ -517,13 +832,14 @@ def contained_file(root, relative):
     require(not p.is_absolute() and all(x not in {"..", "."} for x in p.parts), "unsafe packet-relative path")
     candidate = root / p
     require(candidate.resolve().is_relative_to(root.resolve()), "packet path escapes root")
-    require(not any(x.is_symlink() for x in [candidate, *candidate.parents] if x != root.parent), "packet contains a symlink")
+    # Every component inside the packet, plus the packet root, must be a real entry.
+    require(not any(is_link(x) for x in [root, *link_chain(candidate, root)]), "packet contains a symlink")
     return candidate
 
 
 def validate_packet(packet):
     root = Path(packet)
-    require(root.is_dir() and not root.is_symlink(), "not a packet directory")
+    require(root.is_dir() and not is_link(root), "not a packet directory")
     manifest = read_json(root / "manifest.json")
     require(manifest.get("schema_version") == 1 and manifest.get("status") == "prepared_not_submitted", "invalid packet manifest")
     expected = manifest.get("files")
@@ -561,6 +877,9 @@ def main(argv=None):
     m.add_argument("--capture", required=True)
     m.add_argument("--tracker", required=True)
     m.add_argument("--out")
+    q = commands.add_parser("check-answers", help="read-only check of supplied answers; never fills")
+    q.add_argument("--capture", required=True)
+    q.add_argument("--answers", required=True)
     r = commands.add_parser("review-document", help="record actual review of exact bytes, kind and output filename")
     for name in ("file", "kind", "filename", "capture", "requirements", "reviewer", "review-note", "expires-at", "out"):
         r.add_argument("--" + name, required=True)
@@ -578,6 +897,8 @@ def main(argv=None):
             result = match_record(args.capture, args.tracker)
             if args.out:
                 write_new(args.out, json_bytes(result))
+        elif args.command == "check-answers":
+            result = check_answers(args.capture, args.answers)
         elif args.command == "review-document":
             result = review_document(args.file, args.kind, args.filename, args.capture, args.requirements,
                                      args.reviewer, args.review_note, args.expires_at, args.confirm_reviewed)
@@ -586,11 +907,23 @@ def main(argv=None):
             result = assemble(args.capture, args.requirements, args.tracker, args.documents, args.out_root, args.packet_name)
         else:
             result = validate_packet(args.packet)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        utf8_out(sys.stdout, json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         return 0
-    except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
-        print(json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+    except (PacketError, OSError, ValueError, TypeError, KeyError, AttributeError, csv.Error, BadZipFile,
+            EOFError, RecursionError) as exc:
+        utf8_out(sys.stderr, json.dumps({"status": "blocked", "error": str(exc)}, ensure_ascii=False) + "\n")
         return 2
+
+
+def utf8_out(stream, text):
+    """Emit UTF-8 whatever the console code page is (Windows pipes default to cp1252)."""
+    raw = getattr(stream, "buffer", None)
+    if raw is None:
+        stream.write(text)
+        return
+    stream.flush()
+    raw.write(text.encode("utf-8"))
+    raw.flush()
 
 
 if __name__ == "__main__":

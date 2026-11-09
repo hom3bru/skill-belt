@@ -45,9 +45,35 @@ class PackageTests(unittest.TestCase):
             for path in ("plugin.json", ".codex-plugin/plugin.json"):
                 meta = json.loads(archive.read(path))
                 self.assertEqual(meta["name"], "application-assistant-workflows")
-                self.assertEqual(meta["version"], "0.4.1")
+                self.assertEqual(meta["version"], package.declared_version(self.root))
                 self.assertNotIn("email", meta["author"])
-            self.assertEqual(len([n for n in names if n.startswith("skills/") and n.endswith("/SKILL.md")]), 6)
+            workflows = {n.split("/")[1] for n in names if n.startswith("skills/") and n.endswith("/SKILL.md")}
+            # The six original skill names are retained for update continuity; three were added in 0.5.0.
+            self.assertLessEqual({"application-intake", "application-tracking", "application-history", "application-writing",
+                                  "application-packet", "interview-preparation"}, workflows)
+            self.assertEqual(len(workflows), 9)
+            self.assertFalse(any(n.startswith("evals/results/") for n in names))
+
+    def test_version_is_declared_once_and_must_agree(self):
+        self.assertRegex(package.declared_version(self.root), r"^\d+\.\d+\.\d+$")
+        skill = self.root / "SKILL.md"
+        skill.write_text(skill.read_text(encoding="utf-8").replace(package.declared_version(self.root), "9.9.9"), encoding="utf-8")
+        data = json.loads((self.root / "package-files.json").read_text())
+        data["files"]["SKILL.md"] = hashlib.sha256(skill.read_bytes()).hexdigest()
+        (self.root / "package-files.json").write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError, "version mismatch"):
+            package.payload(self.root)
+
+    def test_local_eval_results_are_ignored_but_never_inventoried(self):
+        results = self.root / "evals" / "results" / "run-1"
+        results.mkdir(parents=True)
+        (results / "aggregate-result.json").write_text("{}")
+        self.assertNotIn("evals/results/run-1/aggregate-result.json", package.payload(self.root))
+        data = json.loads((self.root / "package-files.json").read_text())
+        data["files"]["evals/results/run-1/aggregate-result.json"] = hashlib.sha256(b"{}").hexdigest()
+        (self.root / "package-files.json").write_text(json.dumps(data))
+        with self.assertRaises(ValueError):
+            package.payload(self.root)
 
     def test_extra_ignored_private_file_and_changed_public_file_block_packaging(self):
         for name in (".env", "user-context.json", "personal.local.json", "private-context/profile.json"):

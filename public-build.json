@@ -89,11 +89,11 @@
       }
     },
     "jobscura": {
-      "notes": "Retained 0.4.1 release with hash-pinned identity-neutral links and shared local-profile pointers. No unreleased workflow or personal application data is included.",
+      "notes": "Jobscura 0.5.0 with nine focused workflows, hash-pinned identity-neutral links and shared local-profile pointers. Canonical source is the sanitized 0.5.0 edition at 45a7b9c. Private context selection and application permissions remain explicit.",
       "exclude": [],
       "overlays": {
         "README.md": {
-          "base_sha256": "91d78e755a19d08287efb8307e13f7069223aac40ac656076bc4af7dcbec45ba",
+          "base_sha256": "854237920c9539c3003bad3895ef5d3866c2bc1b55def96ae2cffc56e57044e0",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "NOTICE.md": {
@@ -101,35 +101,47 @@
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "context/user-context.schema.json": {
-          "base_sha256": "b22c1f11f6b547087e740771f71c723045936a4db3ad9551f6d551d210022636",
+          "base_sha256": "24b9801a8855adccb500199e089616b28e52490037c286a3258836c0247e1faf",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "SKILL.md": {
-          "base_sha256": "da52b7e220ba64347980237380c28c05b36406d544b68e042c8c01614167b8f1",
+          "base_sha256": "5978818720d1841a09287fd4a15421b57083c7308dbc7d398732eccbeb8da77e",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/application-history/SKILL.md": {
-          "base_sha256": "0fda8ac4162d3a7d23445100ed37e0bc79ff2f63870491e58c3bc6768ad06855",
+          "base_sha256": "d28398eb1ef864cf438b5497276f9e9666027c5b30985f6fb893a2b7617af339",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/application-intake/SKILL.md": {
-          "base_sha256": "ba1170a12cb4e39682760c0316b82aed6ff3cb9dde0331596a6d74687b8d1f2f",
+          "base_sha256": "55d61fc2e2d29fc366e0056c21bbf72de252480897737547cd77cb7287c8f110",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/application-packet/SKILL.md": {
-          "base_sha256": "50472b826dbc2032fae0aad734280f286cef5b3972ecc345905b7b0d517b73f9",
+          "base_sha256": "dfe228fdeb50ab2fa6cdfd2932109aee1845a7722fad66c76f94df6fa9013dc2",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/application-tracking/SKILL.md": {
-          "base_sha256": "3db1ebdb9c4ab37f232412b5a7433b0681a3478d5925ff6778eca0ff62bce18e",
+          "base_sha256": "6a67e7196d4b5d4e962db3a7f9c92e3a3ccbdce9f9de3897a770a4fa489c48f3",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/application-writing/SKILL.md": {
-          "base_sha256": "f1b801fe770cf79131960827a98cf8bc8ad60a17c885953caee7ac3afca5769f",
+          "base_sha256": "4bccc2d3fb517cdb4dbba512dbf1123b74cebc31e7dae458d2971e58552fe02d",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         },
         "skills/interview-preparation/SKILL.md": {
-          "base_sha256": "504afb275e66a849771b484405ff6c14c275a66bd55ca2184c30285a7a8ef7b7",
+          "base_sha256": "8cac5f001b8a566f3f3e89f3f99a2ba2d073d0431e4d3c4460124292d327016c",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/networking-outreach/SKILL.md": {
+          "base_sha256": "fc5d1c93a24fa56cc7cdaf53fe558722569fc858eff0a8fa6e952f9e61d5668c",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/offer-negotiation/SKILL.md": {
+          "base_sha256": "431c788e24fa320e63218f924708cae1843bf516f6c2bb88d64084924305b8a3",
+          "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
+        },
+        "skills/opportunity-discovery/SKILL.md": {
+          "base_sha256": "db93f082d0ee4e7e50d7510297dd30fa112d202886bf996f868ae63f2301885d",
           "reason": "Anonymise own-source account links or connect the shared local profile. Context selection and application permissions stay explicit."
         }
       }

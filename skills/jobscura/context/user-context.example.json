@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "profile": {
     "display_name": "Alex Rivera (fictional)",
     "career_summary": "Fictional program coordinator who supports public workshops; no supervisory authority is implied.",
@@ -17,7 +17,28 @@
     ],
     "constraints": [
       "Confirm current location and pay requirements before applying."
-    ]
+    ],
+    "monitoring": {
+      "dated_check_days": 1,
+      "undated_check_days": 2,
+      "reminder_windows_days": [14, 7, 3, 1, 0],
+      "closing_horizon_days": 14,
+      "shortlist_size": 3,
+      "urgency_open_days": 14,
+      "long_open_days": 60,
+      "delivery_note": "Fictional: one written morning summary; no calls."
+    },
+    "search": {
+      "target_roles": ["Program coordinator", "Community programs officer"],
+      "locations": ["Fictional City"],
+      "work_arrangements": ["hybrid", "remote"],
+      "min_base_pay": {
+        "amount": 50000,
+        "currency": "USD",
+        "period": "year"
+      },
+      "exclusions": ["Commission-only roles"]
+    }
   },
   "tracker": {
     "reference": "private-tracker-selected-by-user",

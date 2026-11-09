@@ -34,3 +34,21 @@ Preserve old judgments with their evidence and date. When the user requests a ne
 assessment after evidence changes, make the new basis explicit rather than silently
 replacing the historical result. No score automatically authorizes a tracker edit,
 application, fee, message or other external action; consult live permissions.
+
+
+## Eligibility and language gates
+
+Quote role-level eligibility wording with its source and observation date. Keep
+work authorization, location/residency and sponsorship requirements distinct.
+Silence means unverified, not permission. A company-wide "international applicants
+welcome" statement is not role-level sponsorship evidence; ask about this specific
+requisition when it matters. Keep eligibility separate from permit timing: an
+eligible applicant may still need a permit before the stated start date. Record
+unknown processing time rather than promising approval or an arrival date.
+
+Judge the language the role needs, not the language of the advertisement. Quote
+any stated proficiency level, compare it with the user's supported level, and flag
+a required level above the user's as a gap. An ad written in English does not
+establish that English alone suffices. If the role's language needs or the user's
+level are unknown, record that uncertainty and ask only what changes the decision;
+do not infer fluency or nationality from a resume's language.

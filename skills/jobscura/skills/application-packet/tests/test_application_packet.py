@@ -340,7 +340,8 @@ class PacketTests(unittest.TestCase):
     def test_symlink_input_blocked(self):
         link = self.root / "linked.pdf"
         if os.name == "nt":
-            # A real junction needs no symlink privilege and exercises ancestor-link rejection.
+            # A real junction needs no symlink privilege and exercises rejection of a link
+            # inside the documents plan's own directory tree.
             import _winapi
             link = self.root / "linked-directory"
             _winapi.CreateJunction(str(self.root), str(link))
@@ -350,6 +351,111 @@ class PacketTests(unittest.TestCase):
             self.plan[0]["file"] = "linked.pdf"
         self.save_plan()
         self.assert_blocked(self.assemble, "non-symlink")
+
+    def make_directory_link(self, link, target):
+        if os.name == "nt":
+            import _winapi
+            _winapi.CreateJunction(str(target), str(link))
+        else:
+            link.symlink_to(target, target_is_directory=True)
+
+    def test_linked_ancestor_above_explicit_input_is_allowed(self):
+        # Mirrors macOS /var -> /private/var and redirected home folders: the user chose
+        # the path, so links above it are not redirections inside the helper's boundary.
+        outside = self.root / "real-folder"
+        outside.mkdir()
+        (outside / "posting.html").write_text(HTML)
+        alias = self.root / "alias-folder"
+        self.make_directory_link(alias, outside)
+        result = p.capture(alias / "posting.html", URL, "Example Arts", "REQ-42", p.iso(), self.root / "via-alias")
+        self.assertEqual(result["status"], "captured_needs_review")
+        self.assertTrue(p.is_link(alias))
+
+    def test_file_that_is_itself_a_link_is_still_refused(self):
+        if os.name == "nt":
+            target = self.root / "real-folder"
+            target.mkdir()
+            link = self.root / "junction-as-input"
+            self.make_directory_link(link, target)
+            self.assertTrue(p.is_link(link))
+            self.assert_blocked(lambda: p.read_bytes(link), "non-symlink")
+        else:
+            link = self.root / "linked-posting.html"
+            link.symlink_to(self.source)
+            self.assert_blocked(lambda: p.read_bytes(link), "non-symlink")
+
+    def test_cloud_placeholder_reparse_point_is_an_ordinary_file(self):
+        from unittest.mock import patch
+        import stat as stat_module
+        def fake(tag):
+            class Info:
+                st_mode = stat_module.S_IFREG | 0o644
+                st_file_attributes = 0x400
+            if tag is not None:
+                Info.st_reparse_tag = tag
+            return Info()
+        for tag, expected in ((0x9000001A, False), (0xA000000C, True), (0xA0000003, True), (None, True)):
+            with self.subTest(tag=tag):
+                with patch.object(Path, "lstat", lambda self, *a, **k: fake(tag)):
+                    self.assertEqual(p.is_link(self.root), expected)
+
+    def test_common_tracker_headers_and_hyperlink_formula_urls(self):
+        self.rows = [{"Organization": "Example Arts", "Tracker ID": "JOB-007",
+                      "Job Link": '=HYPERLINK("' + URL + '","Apply here")'}]
+        self.save_tracker()
+        match = p.match_record(self.capture, self.tracker)
+        self.assertEqual(match["status"], "matched")
+        self.assertEqual(match["candidates"][0]["record_id"], "JOB-007")
+        self.assertEqual(match["candidates"][0]["basis"], "employer_and_exact_url")
+
+    def test_original_headers_outrank_new_aliases_without_conflict(self):
+        self.rows[0]["Organization"] = "Finance department"
+        self.save_tracker()
+        self.assertEqual(p.match_record(self.capture, self.tracker)["status"], "matched")
+
+    def test_requisition_comparison_ignores_case_and_spacing(self):
+        self.rows[0].update({"Requisition ID": " req-42 ", "Application URL": "https://other.example/old"})
+        self.save_tracker()
+        match = p.match_record(self.capture, self.tracker)
+        self.assertEqual(match["status"], "matched")
+        self.assertEqual(match["candidates"][0]["basis"], "employer_and_requisition")
+        self.rows[0]["Requisition ID"] = "REQ-42-B"
+        self.save_tracker()
+        self.assertEqual(p.match_record(self.capture, self.tracker)["status"], "pending")
+
+    def test_secondary_job_id_matches_but_never_conflicts(self):
+        self.rows[0].update({"Job ID": "REQ-42", "Application URL": "https://other.example/old"})
+        self.save_tracker()
+        self.assertEqual(p.match_record(self.capture, self.tracker)["candidates"][0]["basis"], "employer_and_requisition")
+        self.rows[0].update({"Job ID": "ATS-99999", "Application URL": URL})
+        self.save_tracker()
+        match = p.match_record(self.capture, self.tracker)
+        self.assertEqual(match["status"], "matched")
+        self.assertEqual(match["candidates"][0]["basis"], "employer_and_exact_url")
+
+    def test_line_breaks_and_block_tags_separate_text(self):
+        source = self.root / "blocks.html"
+        source.write_text("<h4>Requirements</h4><ul><li>Budgeting</li><li>Scheduling</li></ul><p>Line one<br>Line two</p>")
+        p.capture(source, URL, "Example Arts", None, p.iso(), self.root / "blocks")
+        lines = [x.strip() for x in (self.root / "blocks" / "posting.txt").read_text().splitlines() if x.strip()]
+        self.assertEqual(lines, ["Requirements", "Budgeting", "Scheduling", "Line one", "Line two"])
+
+    def test_plan_entry_without_paths_is_blocked_clearly(self):
+        del self.plan[0]["review"]
+        self.save_plan()
+        self.assert_blocked(self.assemble, "file and review paths")
+
+    def test_malformed_trackers_block_with_json_not_tracebacks(self):
+        huge = self.root / "huge.csv"
+        huge.write_text("Company,Record ID,Notes\nExample Arts,JOB-001," + "x" * 200000 + "\n")
+        corrupt = self.root / "corrupt.xlsx"
+        corrupt.write_bytes(b"PK\x03\x04 not really a workbook")
+        for tracker in (huge, corrupt):
+            with self.subTest(tracker=tracker.name):
+                run = subprocess.run([sys.executable, str(SCRIPT), "match", "--capture", str(self.capture), "--tracker", str(tracker)],
+                                     capture_output=True)
+                self.assertEqual(run.returncode, 2, run.stderr)
+                self.assertEqual(json.loads(run.stderr.decode("utf-8"))["status"], "blocked")
 
     def test_format_not_converted_by_rename(self):
         file = self.root / "source.txt"
