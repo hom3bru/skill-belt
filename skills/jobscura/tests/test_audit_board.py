@@ -100,6 +100,31 @@ class BoardAuditTests(unittest.TestCase):
         board_feed.run(empty, "greenhouse", "arts", "Example Arts",
                        self.write("company.json", normalized_company))
 
+    def test_missing_title_keeps_observed_id_out_of_disappearances(self):
+        original = self.feed()
+        original["jobs"].append({"id": 2, "title": "Designer"})
+        before = board_feed.run(self.write("initial.json", original), "greenhouse", "arts", "Example Arts")
+        previous = self.write("previous.json", before)
+        current = self.feed()
+        del current["jobs"][0]["title"]
+
+        result = board_feed.run(self.write("feed.json", current), "greenhouse", "arts", "Example Arts", previous)
+
+        self.assertEqual(result["postings"], [])
+        self.assertEqual(result["counts"]["skipped_incomplete"], 1)
+        self.assertEqual(result["counts"]["disappeared"], 1)
+        self.assertEqual([row["key"] for row in result["disappeared_since_previous"]], ["greenhouse:arts:2"])
+
+    def test_empty_feed_still_reports_disappearance(self):
+        previous = self.write("previous.json", self.snapshot())
+        empty = self.write("empty.json", {"jobs": []})
+
+        result = board_feed.run(empty, "greenhouse", "arts", "Example Arts", previous)
+
+        self.assertEqual(result["counts"]["skipped_incomplete"], 0)
+        self.assertEqual(result["counts"]["disappeared"], 1)
+        self.assertEqual([row["key"] for row in result["disappeared_since_previous"]], ["greenhouse:arts:1"])
+
     def test_empty_detected_vendor_metadata_is_used_for_previous_validation(self):
         feed = self.write("smart.json", {"content": []})
         first = board_feed.run(feed, company="Example Arts")

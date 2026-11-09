@@ -112,7 +112,7 @@ def detect(data):
     return None
 
 
-def normalize(data, vendor=None, board=None, company=None):
+def normalize(data, vendor=None, board=None, company=None, *, observed_ids=None):
     vendor = vendor or detect(data)
     require(vendor in VENDORS, "unrecognised feed: pass --vendor greenhouse|lever|ashby|smartrecruiters")
     container = "content" if vendor == "smartrecruiters" else "jobs"
@@ -123,6 +123,9 @@ def normalize(data, vendor=None, board=None, company=None):
             ("a list" if vendor == "lever" else f"an object with a list {container!r}"))
     records, skipped = [], 0
     for raw in VENDORS[vendor](data, board):
+        # A posting can be present in the feed even if it lacks a usable title.
+        if observed_ids is not None and raw["id"]:
+            observed_ids.add(" ".join(raw["id"].split()))
         if not raw.get("id") or not raw.get("title"):
             skipped += 1
             continue
@@ -172,7 +175,8 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
         locations=(), context=None):
     data = common.read_json(feed)
     vendor = vendor or detect(data)
-    records, skipped = normalize(data, vendor, board, company)
+    observed_ids = set()
+    records, skipped = normalize(data, vendor, board, company, observed_ids=observed_ids)
     remote_ok = False
     if context:
         import user_context
@@ -235,9 +239,8 @@ def run(feed, vendor=None, board=None, company=None, previous=None, tracker=None
             if old and any(old.get(k) != record.get(k) for k in ("title", "location", "url")):
                 record["since_previous"] = "changed"
         postings.append(record)
-    current_ids = {r["id"] for r in records}
     disappeared = [{k: previous_records[posting_id].get(k) for k in ("key", "title", "url", "location")}
-                   for posting_id in sorted(previous_ids - current_ids)]
+                   for posting_id in sorted(previous_ids - observed_ids)]
     kept = [p for p in postings if p["screen"].startswith("kept")]
     return {"schema_version": 1, "tool": "board_feed", "tool_version": VERSION, "vendor": records[0]["vendor"] if records else vendor,
             "board": board, "company": company, "feed_file": Path(feed).name, "feed_sha256": common.sha256(common.read_input(feed)),
